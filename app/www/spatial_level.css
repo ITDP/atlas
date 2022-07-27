@@ -1,0 +1,92 @@
+.spatial_level {
+  
+  box-sizing: border-box;
+
+/* Gray / 700 */
+
+border: 1px solid #495057;
+border-radius: 4px;
+background: #1C1C1C;
+opacity: 0.8;
+padding: 15px;
+  
+}
+
+#spatial_level > div > div > div > label {
+  
+
+font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+letter-spacing: 0.2em;
+
+/* Gray / 200 */
+
+color: #E9ECEF;
+
+
+/* Inside auto layout */
+
+flex: none;
+order: 0;
+flex-grow: 0;
+  
+  
+}
+
+.irs--shiny .irs-handle {
+  top:20px !important;
+    width: 16px !important;
+    height: 16px !important;
+    border: 0px solid #ababab !important;
+    background-color: #00AE42 !important;
+    box-shadow: 1px 1px 3px rgb(255 255 255 / 30%);
+    border-radius: 22px;
+}
+
+.irs-bar {
+    top: 25px;
+    height: 10px;
+    border-top: 0px solid #428bca !important;
+    border-bottom: 0px solid #428bca !important;
+    background: #00AE42 !important;
+}
+
+.irs--shiny .irs-line {
+    top: 25px !important;
+    height: 4px !important;
+    background-color: #54595E !important;
+    border: 0px !important;
+    
+    background: #54595E !important;
+    border-radius: 4px !important;
+}
+
+.irs--shiny .irs-grid-pol.small {
+    background-color: transparent !important;
+}
+
+.irs-grid-pol {
+  background-color: #54595E !important;
+  top: -11px !important;
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 22px !important;
+    margin-left: -2% !important;
+}
+
+.irs-grid-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: white;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 9px;
+    line-height: 9px;
+    padding: 0 3px;
+}

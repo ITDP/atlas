@@ -1,0 +1,109 @@
+
+
+.left_panel {
+  position: absolute;
+/* Gray/900 */
+background: rgba(28, 28, 28, 0.8);
+  border: 1px solid #1C1C1C;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.left_panel_indicators {
+  position: absolute;
+/* Gray/900 */
+  background: rgba(28, 28, 28, 0.8);
+  border: 1px solid #1C1C1C;
+  border-radius: 4px;
+  overflow-y: scroll;
+  padding-top: 0px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+}
+
+
+.title_left_panel {
+  padding: 10px;
+font-family: 'Franklin Gothic Demi';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+letter-spacing: 0.2em;
+
+/* Gray / 200 */
+
+color: #E9ECEF;
+
+}
+
+
+
+.btn-default.active, .btn-default:active, .open>.dropdown-toggle.btn-default, .btn-default.active:hover {
+         color: #F8F9FA;
+         background: #00AE42;
+    border-color: transparent;
+    box-shadow: 0px;
+    border-radius: 0px;
+    font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+display: flex;
+align-items: center;
+
+/* Gray/100 */
+
+color: #F8F9FA;
+}
+
+.btn-default {
+         color: #F8F9FA;
+         background: rgba(28, 28, 28, 0.8);
+    border-color: transparent;
+    box-shadow: 0px;
+    border-radius: 0px;
+    font-family: 'Franklin Gothic Book';
+   font-style: normal;
+   font-weight: 400;
+   font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+display: flex;
+align-items: center;
+
+/* Gray/100 */
+
+color: #F8F9FA;
+}
+
+.btn-group-vertical>.btn, .btn-group-vertical>.btn-group, .btn-group-vertical>.btn-group>.btn {
+  display: inline-block;
+  text-align: left;
+}
+
+.btn-default:hover{
+        border-color: transparent;
+    box-shadow: 0px;
+    border-radius: 0px;
+    font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 700;
+font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+display: flex;
+align-items: center;
+
+/* Gray/100 */
+background: rgba(28, 28, 28, 0.8);
+color: #F8F9FA;
+}

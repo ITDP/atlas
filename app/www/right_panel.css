@@ -1,0 +1,170 @@
+
+
+.right_panel {
+  position: absolute;
+/* Gray/900 */
+ background: #1C1C1C;
+ box-shadow: -4px 0px 12px rgba(0, 0, 0, 0.25);
+}
+
+
+.right_panel_textbox {
+position: relative;
+/* Gray/900 */
+ background: #1C1C1C;
+ height: calc(100vh - 300px) !important;
+
+  
+}
+
+
+.title_indicator_label {
+/*
+width: 79px;
+height: 14px;
+left: 32px;
+*/
+padding: 10px;
+font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 14px;
+/* identical to box height */
+
+letter-spacing: 0.25em;
+
+/* Gray/500 */
+
+color: #B1B5B9;
+}
+
+.title_indicator_label2 {
+/* width: 169px; */
+/* height: 16px; 
+left: 32px;
+top: 365px;
+*/
+padding: 10px;
+position: inherit;
+font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+
+letter-spacing: 0.25em;
+text-transform: uppercase;
+
+/* Gray/500 */
+
+color: #B1B5B9;
+
+}
+
+.title_indicator {
+  /*
+width: 232px;
+height: 54px;
+left: 32px;
+top: 127px;
+*/
+padding: 10px;
+position: relative;
+font-family: 'Franklin Gothic Demi';
+font-style: normal;
+font-weight: 400;
+font-size: 24px;
+line-height: 27px;
+
+/* Gray/White */
+
+color: #FFFFFF;
+
+  
+}
+
+.text_indicator {
+/*
+width: 232px;
+height: 112px;
+left: 32px;
+top: 205px;
+*/
+
+padding: 10px;
+position: relative;
+font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+
+/* Body Text / Base Color */
+
+color: #DEE0E3;
+
+  
+  
+}
+
+.text_indicator2 {
+/* Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. */
+
+
+/*width: 232px;
+height: 64px;
+left: 32px;
+top: 397px;
+*/
+padding: 10px;
+position: relative;
+font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+
+/* Body Text / Base Color */
+
+color: #DEE0E3;
+
+}
+
+.value_indicator_rightpanel {
+  font-family: 'Franklin Gothic Demi';
+font-style: normal;
+font-weight: 400;
+font-size: 40px;
+line-height: 45px;
+padding: 10px;
+
+/* Gray / 300 */
+
+color: #DEE2E6;
+  
+}
+
+
+.text_compare {
+  /*
+width: 232px;
+height: 54px;
+left: 32px;
+top: 127px;
+*/
+padding: 10px;
+position: relative;
+font-family: 'Franklin Gothic Demi';
+font-style: normal;
+font-size: 18px;
+line-height: 27px;
+
+/* Gray/White */
+
+color: #FFFFFF;
+
+  
+}
+
