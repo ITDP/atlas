@@ -13,11 +13,11 @@ prep_data <- function(ghsl) {
   # ghsl <- "0561"
   # ghsl <- "0088"
   
-  base_dir <- sprintf("data/sample_3/ghsl_region_%s/", ghsl)
+  base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
   
   # go
   data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
-  world <- dir("data/sample_3", full.names = TRUE, recursive = TRUE)
+  world <- dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE)
   world <- world[grepl("ghsl_region_\\d{4}/indicator_values.gpkg", world)]
   # fun to open all data
   open_data <- function(file) {
@@ -183,7 +183,7 @@ prep_data <- function(ghsl) {
   #          bike_pnpb_2019 = pnpb
   #   )
   
-  dir.create(sprintf("data/sample3_prep/ghsl_%s", ghsl))
+  dir.create(sprintf("data/sample3_prep/ghsl_%s", ghsl), recursive = TRUE)
   
   readr::write_rds(data,             sprintf("data/sample3_prep/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
   readr::write_rds(overlay_df,       sprintf("data/sample3_prep/ghsl_%s/overlays_%s.rds", ghsl, ghsl))

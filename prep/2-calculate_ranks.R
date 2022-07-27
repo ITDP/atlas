@@ -14,7 +14,9 @@ country_ranks <- atlas_country %>%
   mutate(rank_type = "country_world") %>% 
   setDT()
 
-readr::write_rds(country_ranks, sprintf("data/ranks/rank_country.rds"))
+dir.create("data/sample3_prep/ranks")
+
+readr::write_rds(country_ranks, sprintf("data/sample3_prep/ranks/rank_country.rds"))
 
 
 
@@ -65,7 +67,7 @@ prep_data <- function(ghsl) {
   
   
   # export
-  readr::write_rds(rank_complete, sprintf("data/ranks/rank_%s.rds", ghsl))
+  readr::write_rds(rank_complete, sprintf("data/sample3_prep/ranks/rank_%s.rds", ghsl))
   
 }
 

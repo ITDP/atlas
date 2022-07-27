@@ -18,4 +18,4 @@ spatial_levels <- unique(data_world, by = c("hdc", "admin_level"))
 spatial_levels <- spatial_levels[, .(levels = .(admin_level)), by = hdc]
 
 # export
-readr::write_rds(spatial_levels, "data/spatial_levels.rds")
+readr::write_rds(spatial_levels, "data/sample3_prep/spatial_levels.rds")
