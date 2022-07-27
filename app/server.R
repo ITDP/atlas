@@ -1,10 +1,8 @@
 # open boundaries
 atlas_city_markers <- readRDS("../data/sample3_prep/atlas_city_markers.rds")
 atlas_country <- readRDS("../data/sample3_prep/atlas_country_polygons.rds")
-# open spatial levels
-spatial_levels <- readRDS("../data/spatial_levels.rds")
 # country rank
-atlas_country_ranks <- readRDS("../data/ranks/rank_country.rds")
+atlas_country_ranks <- readRDS("../data/sample3_prep/ranks/rank_country.rds")
 
 
 function(input, output, session) {
@@ -164,15 +162,6 @@ function(input, output, session) {
   
   
   
-  spatial_levels <- reactive({
-    
-    a <- subset(spatial_levels, hdc == city$city_code)$levels[[1]]
-    # print(a)
-    return(a)
-    
-    
-  })
-  
   output$spatial_level <- renderUI({
     
     # CALCULATE the spatial levels for each city
@@ -255,7 +244,7 @@ function(input, output, session) {
   get_rank <- reactive({
     
     # filter rank from rank files
-    a <- readRDS(sprintf("../data/ranks/rank_%s.rds", city$city_code)) %>% setDT()
+    a <- readRDS(sprintf("../data/sample3_prep/ranks/rank_%s.rds", city$city_code)) %>% setDT()
     
     
   })
@@ -410,52 +399,59 @@ function(input, output, session) {
                  input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_built_env), {
                    
                    req(indicator_mode())
-                   # print(atlas_city_markers)
-                   
-                   pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
-                   # print(pattern)
-                   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
-                   a <- atlas_city_markers[cols]
-                   colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
-                   
-                   # print(class(atlas_country))
-                   cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
-                   a_country <- atlas_country[cols_country]
-                   colnames(a_country) <- c('a2', 'valor', 'geom')
-                   
-                   pal <- colorNumeric(
-                     palette = "viridis",
-                     # palette = "YlGnBu",
-                     domain = a$valor)
                    
                    
-                   pal_countries <- colorNumeric(
-                     palette = "viridis",
-                     # palette = "YlGnBu",
-                     domain = a_country$valor)
+                   # this will only runs if we are at the wold view (admin level = null)
+                   if(is.null(input$admin_level)) {
+                     
+                     # print(atlas_city_markers)
+                     
+                     pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+                     # print(pattern)
+                     cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
+                     a <- atlas_city_markers[cols]
+                     colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
+                     
+                     # print(class(atlas_country))
+                     cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
+                     a_country <- atlas_country[cols_country]
+                     colnames(a_country) <- c('a2', 'valor', 'geom')
+                     
+                     pal <- colorNumeric(
+                       palette = "viridis",
+                       # palette = "YlGnBu",
+                       domain = a$valor)
+                     
+                     
+                     pal_countries <- colorNumeric(
+                       palette = "viridis",
+                       # palette = "YlGnBu",
+                       domain = a_country$valor)
+                     
+                     # print(a)
+                     
+                     leafletProxy("map", session, data = a) %>%
+                       clearMarkers() %>%
+                       clearControls() %>%
+                       clearShapes() %>%
+                       # fitBounds() %>%
+                       addCircleMarkers(
+                         # radius = ~ifelse(type == "ship", 6, 10),
+                         radius = 10,
+                         # fillColor = ~pal(valor), 
+                         stroke = TRUE, fillOpacity = 0.9, color = "black",
+                         weight = 0.5,
+                         layerId = ~hdc,
+                         label = ~htmlEscape(name)
+                       ) %>%
+                       addPolygons(data = a_country, 
+                                   fillColor = ~pal_countries(valor), color = "black",  weight = 0,
+                                   options = pathOptions(clickable = FALSE)) %>%
+                       # add polygons with the country color
+                       # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
+                       addLegend("bottomleft", pal = pal_countries, values = ~a_country$valor)
+                   }
                    
-                   # print(a)
-                   
-                   leafletProxy("map", session, data = a) %>%
-                     clearMarkers() %>%
-                     clearControls() %>%
-                     clearShapes() %>%
-                     # fitBounds() %>%
-                     addCircleMarkers(
-                       # radius = ~ifelse(type == "ship", 6, 10),
-                       radius = 10,
-                       # fillColor = ~pal(valor), 
-                       stroke = TRUE, fillOpacity = 0.9, color = "black",
-                       weight = 0.5,
-                       layerId = ~hdc,
-                       label = ~htmlEscape(name)
-                     ) %>%
-                     addPolygons(data = a_country, 
-                                 fillColor = ~pal_countries(valor), color = "black",  weight = 0,
-                                 options = pathOptions(clickable = FALSE)) %>%
-                     # add polygons with the country color
-                     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-                     addLegend("bottomleft", pal = pal_countries, values = ~a_country$valor)
                    
                  }) 
   
@@ -965,6 +961,7 @@ function(input, output, session) {
                    
                    # extract geom type of this indicator
                    geom_type <- unique(data_overlays2()$geom_type)
+                   print(geom_type)
                    
                    pal <- colorNumeric(
                      palette = "YlOrRd",
