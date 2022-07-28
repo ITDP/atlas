@@ -9,9 +9,10 @@ atlas_country <- read_rds("data/sample3/atlas_country_polygons.rds")
 # calculate size of each group
 country_ranks <- atlas_country %>%
   st_set_geometry(NULL) %>%
-  mutate(n = n()) %>%
   mutate(across(walk_healthcare_2019:last_col(), rank, ties = "first")) %>%
-  mutate(across(walk_healthcare_2019:last_col(), ~n - .x + 1)) %>%
+  mutate(n = n()) %>%
+  mutate(across(walk_healthcare_2019:last_col(1), ~n - .x + 1)) %>%
+  # select(-n) %>%
   mutate(rank_type = "country_world") %>% 
   setDT()
 
@@ -42,9 +43,10 @@ prep_data <- function(ghsl) {
     # delete indicators that are NA
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(n = n()) %>%
     mutate(across(walk_healthcare_2019:last_col(), rank, ties = "first")) %>%
-    mutate(across(walk_healthcare_2019:last_col(), ~n - .x + 1)) %>%
+    mutate(n = n()) %>%
+    mutate(across(walk_healthcare_2019:last_col(1), ~n - .x + 1)) %>%
+    # select(-n) %>%
     mutate(rank_type = "world") %>% setDT()
   
   # in the country
@@ -54,9 +56,10 @@ prep_data <- function(ghsl) {
     filter(admin_level != 0) %>%
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(n = n()) %>%
     mutate(across(walk_healthcare_2019:last_col(), rank, ties = "first")) %>%
-    mutate(across(walk_healthcare_2019:last_col(), ~n - .x + 1)) %>%
+    mutate(n = n()) %>%
+    mutate(across(walk_healthcare_2019:last_col(1), ~n - .x + 1)) %>%
+    # select(-n) %>%
     # create type of rank
     mutate(rank_type = "metro") %>%
     setDT()

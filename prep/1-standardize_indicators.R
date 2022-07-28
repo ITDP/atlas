@@ -66,8 +66,8 @@ prep_data <- function(ghsl) {
     ind_columns == "schools",               "walk_schools_2019",
     ind_columns == "h.s",                   "walk_hs_2019",
     ind_columns == "carfree",               "walk_carfree_2019",
-    ind_columns == "total_pop",             "be_poptotal_2019",
-    ind_columns == "density",               "be_density_2019",
+    ind_columns == "total_pop",             "city_poptotal_2019",
+    ind_columns == "density",               "city_density_2019",
     
     ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2019",
     ind_columns == "performance_bike_lts2_45",               "performance_bikep45_2019",
@@ -230,7 +230,8 @@ atlas_country <- indicators_all %>%
 # bring the shapes
 atlas_country <- atlas_country %>%
   left_join(select(spData::world, iso_a2, name_long), by = c("a2" = "iso_a2")) %>%
-  st_sf(crs = 4326)
+  st_sf(crs = 4326) %>%
+  select(a2, name_long, everything())
 
 # save
 readr::write_rds(atlas_country, "data/sample3/atlas_country_polygons.rds")
