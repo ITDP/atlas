@@ -181,12 +181,12 @@ prep_data <- function(ghsl) {
   #          bike_pnpb_2019 = pnpb
   #   )
   
-  dir.create(sprintf("data/sample3_prep/ghsl_%s", ghsl), recursive = TRUE)
+  dir.create(sprintf("data/sample3/ghsl_%s", ghsl), recursive = TRUE)
   
-  readr::write_rds(data,             sprintf("data/sample3_prep/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_df,       sprintf("data/sample3_prep/ghsl_%s/overlays_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_polygons, sprintf("data/sample3_prep/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_lines,    sprintf("data/sample3_prep/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
+  readr::write_rds(data,             sprintf("data/sample3/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
+  readr::write_rds(overlay_df,       sprintf("data/sample3/ghsl_%s/overlays_%s.rds", ghsl, ghsl))
+  readr::write_rds(overlay_polygons, sprintf("data/sample3/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
+  readr::write_rds(overlay_lines,    sprintf("data/sample3/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
   # if (nrow(overlay_lines) > 0) readr::write_rds(overlay_lines, sprintf("data/sample2_prep/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
   
 }
@@ -202,7 +202,7 @@ purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445"), prep_data)
 
 
 # calculate boundaries for the world view ---------------------
-indicators_all <- lapply(dir("data/sample3_prep", pattern = "^indicators_", full.names = TRUE, recursive = TRUE),
+indicators_all <- lapply(dir("data/sample3", pattern = "^indicators_", full.names = TRUE, recursive = TRUE),
                          readr::read_rds) %>%
   rbindlist(fill = TRUE)
 
@@ -211,7 +211,7 @@ indicators_ghsl <- indicators_all %>% filter(admin_level == 0) %>% st_sf(crs = 4
 # centroids
 indicators_ghsl_centroids <- st_centroid(indicators_ghsl)
 # save
-readr::write_rds(indicators_ghsl_centroids, "data/sample3_prep/atlas_city_markers.rds")
+readr::write_rds(indicators_ghsl_centroids, "data/sample3/atlas_city_markers.rds")
 
 
 
@@ -233,4 +233,4 @@ atlas_country <- atlas_country %>%
   st_sf(crs = 4326)
 
 # save
-readr::write_rds(atlas_country, "data/sample3_prep/atlas_country_polygons.rds")
+readr::write_rds(atlas_country, "data/sample3/atlas_country_polygons.rds")

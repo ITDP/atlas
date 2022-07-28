@@ -4,7 +4,7 @@ library(data.table)
 library(readr)
 
 # countries rank and countries shape
-atlas_country <- read_rds("data/sample3_prep/atlas_country_polygons.rds")
+atlas_country <- read_rds("data/sample3/atlas_country_polygons.rds")
 
 # calculate size of each group
 country_ranks <- atlas_country %>%
@@ -15,9 +15,9 @@ country_ranks <- atlas_country %>%
   mutate(rank_type = "country_world") %>% 
   setDT()
 
-dir.create("data/sample3_prep/ranks")
+dir.create("data/sample3/ranks")
 
-readr::write_rds(country_ranks, sprintf("data/sample3_prep/ranks/rank_country.rds"))
+readr::write_rds(country_ranks, sprintf("data/sample3/ranks/rank_country.rds"))
 
 
 
@@ -28,9 +28,9 @@ prep_data <- function(ghsl) {
   # ghsl <- "0621"
   # ghsl <- "1445" # recife
   
-  world <- dir("data/sample3_prep", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{4}.rds")
+  world <- dir("data/sample3", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{4}.rds")
   data_world <- lapply(world, read_rds) %>% rbindlist(fill = TRUE)  %>% st_sf() %>% st_set_geometry(NULL)
-  data <- read_rds(sprintf("data/sample3_prep/ghsl_%s/indicators_%s.rds", ghsl, ghsl)) %>% st_set_geometry(NULL)
+  data <- read_rds(sprintf("data/sample3/ghsl_%s/indicators_%s.rds", ghsl, ghsl)) %>% st_set_geometry(NULL)
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
@@ -68,7 +68,7 @@ prep_data <- function(ghsl) {
   
   
   # export
-  readr::write_rds(rank_complete, sprintf("data/sample3_prep/ranks/rank_%s.rds", ghsl))
+  readr::write_rds(rank_complete, sprintf("data/sample3/ranks/rank_%s.rds", ghsl))
   
 }
 
