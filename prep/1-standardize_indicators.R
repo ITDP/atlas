@@ -62,10 +62,10 @@ prep_data <- function(ghsl) {
     ind_columns == "pnpb",                  "bike_pnpb_2019",
     ind_columns == "all_bikeways_km",       "bike_abikeways_2019",
     ind_columns == "protected_bikeways_km", "bike_pbikeways_2019",
-    ind_columns == "healthcare",            "walk_healthcare_2019",
-    ind_columns == "schools",               "walk_schools_2019",
-    ind_columns == "h.s",                   "walk_hs_2019",
-    ind_columns == "carfree",               "walk_carfree_2019",
+    ind_columns == "healthcare",            "walk_pnh_2019",
+    ind_columns == "schools",               "walk_pne_2019",
+    ind_columns == "h.s",                   "walk_pns_2019",
+    ind_columns == "carfree",               "walk_pncf_2019",
     ind_columns == "total_pop",             "city_poptotal_2019",
     ind_columns == "density",               "city_density_2019",
     
@@ -224,7 +224,7 @@ atlas_country <- indicators_all %>%
   select(-geom) %>%
   filter(admin_level == 0) %>%
   group_by(a2) %>%
-  summarise(across(walk_healthcare_2019:last_col(), mean, na.rm = TRUE)) %>%
+  summarise(across(walk_pnh_2019:last_col(), mean, na.rm = TRUE)) %>%
   ungroup()
 
 # bring the shapes
@@ -235,3 +235,5 @@ atlas_country <- atlas_country %>%
 
 # save
 readr::write_rds(atlas_country, "data/sample3/atlas_country_polygons.rds")
+
+
