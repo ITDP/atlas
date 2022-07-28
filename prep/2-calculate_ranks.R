@@ -3,14 +3,15 @@ library(dplyr)
 library(data.table)
 library(readr)
 
-# countries rank
+# countries rank and countries shape
 atlas_country <- read_rds("data/sample3_prep/atlas_country_polygons.rds")
 
 # calculate size of each group
 country_ranks <- atlas_country %>%
+  st_set_geometry(NULL) %>%
   mutate(n = n()) %>%
-  mutate(across(walk_healthcare_2019:performance_bike60_2019, rank, ties = "first")) %>%
-  mutate(across(walk_healthcare_2019:performance_bike60_2019, ~n - .x + 1)) %>%
+  mutate(across(walk_healthcare_2019:last_col(), rank, ties = "first")) %>%
+  mutate(across(walk_healthcare_2019:last_col(), ~n - .x + 1)) %>%
   mutate(rank_type = "country_world") %>% 
   setDT()
 
@@ -28,7 +29,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "1445" # recife
   
   world <- dir("data/sample3_prep", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{4}.rds")
-  data_world <- lapply(world, read_rds) %>% rbindlist(fill = TRUE) %>% st_sf()
+  data_world <- lapply(world, read_rds) %>% rbindlist(fill = TRUE)  %>% st_sf() %>% st_set_geometry(NULL)
   data <- read_rds(sprintf("data/sample3_prep/ghsl_%s/indicators_%s.rds", ghsl, ghsl)) %>% st_set_geometry(NULL)
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
@@ -42,8 +43,8 @@ prep_data <- function(ghsl) {
     group_by(admin_level) %>%
     # calculate size of each group
     mutate(n = n()) %>%
-    mutate(across(walk_healthcare_2019:performance_bike60_2019, rank, ties = "first")) %>%
-    mutate(across(walk_healthcare_2019:performance_bike60_2019, ~n - .x + 1)) %>%
+    mutate(across(walk_healthcare_2019:last_col(), rank, ties = "first")) %>%
+    mutate(across(walk_healthcare_2019:last_col(), ~n - .x + 1)) %>%
     mutate(rank_type = "world") %>% setDT()
   
   # in the country
@@ -54,8 +55,8 @@ prep_data <- function(ghsl) {
     group_by(admin_level) %>%
     # calculate size of each group
     mutate(n = n()) %>%
-    mutate(across(walk_healthcare_2019:performance_bike60_2019, rank, ties = "first")) %>%
-    mutate(across(walk_healthcare_2019:performance_bike60_2019, ~n - .x + 1)) %>%
+    mutate(across(walk_healthcare_2019:last_col(), rank, ties = "first")) %>%
+    mutate(across(walk_healthcare_2019:last_col(), ~n - .x + 1)) %>%
     # create type of rank
     mutate(rank_type = "metro") %>%
     setDT()

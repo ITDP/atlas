@@ -59,8 +59,8 @@ function(input, output, session) {
   output$left_panel <- renderUI({
     
     # Create lists that will give the select options to the respective language
-    list_indicators <- structure(c("bike", "walk",  "transit", "built_env"), 
-                                 .Names = c("Bicycle", "Walk",  "Transit", "Built Env"))
+    list_indicators <- structure(c("bike", "walk",  "transit", "performance",  "built_env"), 
+                                 .Names = c("Bicycle", "Walk",  "Transit", "Performance", "Built Env"))
     
     list_bike <- structure(c("pnpb", "pnab", "abikeways", "pbikeways"), 
                            .Names = c("People Near Protected Bikelanes", "People Near All Bikelanes",
@@ -69,11 +69,14 @@ function(input, output, session) {
     list_walk <- structure(c("healthcare", "schools", "hs"), 
                            .Names = c("People Near Healthcare", "People Near Schools", "People Near Services"))
     
-    list_transit <- structure(c("pnt", "etc"), 
-                              .Names = c("People Near Transit", "ETC"))
+    list_transit <- structure(c("pntt", "etct"), 
+                              .Names = c("People Near Transit&nbsp;&nbsp;&nbsp;", "ETC"))
     
-    list_built_env <- structure(c("schools", "etc"), 
-                                .Names = c("Schools","ETC"))
+    list_performance <- structure(c("bikep", "walkp"), 
+                                  .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
+    
+    list_built_env <- structure(c("schoolsbe", "etcbe"), 
+                                .Names = c("Schools&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;","ETC"))
     
     # list_spatial_levels <- structure(c("adminstrative_area2(city)", "adminstrative_area3(juris)"),
     #                                  .Names = c("city", "jurisdiction"))
@@ -146,6 +149,11 @@ function(input, output, session) {
                     # ),
                     # conditionalPanel(
                     # condition = "input.indicator == 'built_env'",
+                    accordion_input(inputId = "indicator_performance",
+                                    label = "Performance",
+                                    choices = c(list_performance),
+                                    selected = character(0)),
+                    
                     accordion_input(inputId = "indicator_built_env",
                                     label = "Built Env",
                                     choices = c(list_built_env),
@@ -167,6 +175,33 @@ function(input, output, session) {
     
   })
   
+  output$left_panel_filter <- renderUI({
+    
+    
+    tagList(
+      conditionalPanel(
+        condition = "ind_cum.indexOf(input.indicator_performance) > -1",
+        # condition = "typeof input.indicator_performance != ''",
+        absolutePanel(
+          # id = "controls",
+          class = "spatial_level",
+          # fixed = TRUE, draggable = FALSE,
+          bottom = 30, left = 300, height = 115,
+          # 'typeof undefined' identifies when is null 
+          sliderInput(inputId = "time_cutoff",
+                      min = 30, max = 60, step = 15,
+                      label = "TIME CUTOFF",
+                      value = 30
+                      # selected = character(0)
+          )
+          
+        )
+        
+      )
+    )
+    
+    
+  })
   
   
   spatial_level_value <- reactiveValues(last = NULL)
@@ -255,16 +290,6 @@ function(input, output, session) {
   
   
   
-  # show ranks on the right panel -------------------------------------------
-  
-  get_rank <- reactive({
-    
-    # filter rank from rank files
-    a <- readRDS(sprintf("../data/sample3/ranks/rank_%s.rds", city$city_code)) %>% setDT()
-    
-    
-  })
-  
   indicator <- reactiveValues(type = NULL)
   
   
@@ -275,6 +300,9 @@ function(input, output, session) {
     updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_built_env", selected = character(0))
+    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+    print("performance :", input$indicator_performance)
+    print(input$city)
     
   })
   
@@ -286,6 +314,7 @@ function(input, output, session) {
     updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_built_env", selected = character(0))
+    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     
     
   })
@@ -297,6 +326,20 @@ function(input, output, session) {
     updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_built_env", selected = character(0))
+    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+    
+  })
+  
+  observeEvent(c(input$indicator_performance), {
+    
+    indicator$type <- "performance"
+    # update the others
+    updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+    updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+    updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+    updateRadioGroupButtons(inputId = "indicator_built_env", selected = character(0))
+    
+    # print("performance :", input$indicator_performance)
     
   })
   
@@ -307,6 +350,7 @@ function(input, output, session) {
     updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
     updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     
   })
   
@@ -349,6 +393,10 @@ function(input, output, session) {
     } else if (indicator$type == "built_env"){
       
       input$indicator_built_env
+      
+    } else if (indicator$type == "performance"){
+      
+      input$indicator_performance
       
     }
     
@@ -710,8 +758,21 @@ function(input, output, session) {
     
   })
   
+
+# additional filter for other indicators ----------------------------------
+
   
-  # filter rank -------------------------------------------------------------
+  
+  
+  # show ranks on the right panel -------------------------------------------
+  
+  get_rank <- reactive({
+    
+    # filter rank from rank files
+    a <- readRDS(sprintf("../data/sample3/ranks/rank_%s.rds", city$city_code)) %>% setDT()
+    
+    
+  })
   
   filter_rank <- reactive({
     
@@ -749,7 +810,8 @@ function(input, output, session) {
   # observer to watch the click on the polygons to update the right panel ----
   
   rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
-                         rank_value_initial = NULL, rank_text_initial = NULL)
+                         rank_value_initial = NULL, rank_text_initial = NULL,
+                         admin_level = NULL)
   
   
   # display initial rank with indicators - in the world view
@@ -866,6 +928,17 @@ function(input, output, session) {
     
   })
   
+  observeEvent(c(input$admin_level), {
+    
+    rank$admin_level <- input$admin_level
+    
+  })
+  
+  observeEvent(c(city$city_code), {
+    
+    rank$admin_level <- 1
+    
+  })
   
   
   # display rank when region or map is clicked
@@ -874,7 +947,8 @@ function(input, output, session) {
                    
                    ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
                    
-                   # print(paste0(ui))
+                   
+                   # print(paste0("ui: :", ui))
                    
                    # keep to osm_id selected
                    # osm_selected$oi <- ui$id
@@ -926,7 +1000,7 @@ function(input, output, session) {
                    # print(input$admin_level == 1 | !is.null(input$map_marker_click))
                    
                    # print(spatial_level_value$last)
-                   # print(input$admin_level)
+                   print(paste0("gua; ", rank$admin_level))
                    # print(ui$id)
                    # print(filter_rank())
                    # print(input$admin_level == spatial_level_value$last)
@@ -946,16 +1020,20 @@ function(input, output, session) {
                      
                      rank$rank_text_initial <- rank$rank_text
                      rank$rank_value_initial <- rank$rank_value
-                     # print(paste0("teste: ", rank$rank_text_initial))
                      
-                   } else if (input$admin_level == 1) {
+                   } else if (rank$admin_level == 1) {
                      
                      a <- subset(filter_rank(), osmid == ui & rank_type == "world")
                      
                      rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong>%s</strong> out of <strong>%s</strong> in the world</div>', 
                                                base_text, a$rank, a$n)
+                     rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
+                                               '<div class="title_indicator" style="font-size: 20px;">', 
+                                               rank_indicator$name, '</div>',
+                                               div(class = "value_indicator_rightpanel", format_indicator_value))
                      rank$rank_text_initial <- rank$rank_text
                      rank$rank_value_initial <- rank$rank_value
+                     print(paste0("teste: ", rank$rank_text_initial))
                      
                      
                    } else if (input$admin_level == spatial_level_value$last) {
@@ -999,19 +1077,19 @@ function(input, output, session) {
   
   # if I change the spatial_level, the right panel should inform the user
   # that they should click on a region to see more things
-  observeEvent(c(input$admin_level), {
+  observeEvent(c(input$admin_level, city$city_code), {
     
     
     # it will run only when we are at the city level
     
-    if (isTRUE(input$admin_level == 1)) {
+    if (isTRUE(rank$admin_level == 1)) {
       
       
       rank$rank_value <- rank$rank_value_initial
       rank$rank_text <- rank$rank_text_initial
       
       
-    } else if (isTRUE(input$admin_level != 1)) {
+    } else if (isTRUE(rank$admin_level != 1)) {
       
       rank$rank_value <- '<div class="text_compare"> Click on the map to see more info </div>'
       rank$rank_text <- ""
@@ -1284,7 +1362,7 @@ function(input, output, session) {
                        
                      } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
                      
-                     print(paste0("legend value: ", data_ind2_spatial$valor))
+                     # print(paste0("legend value: ", data_ind2_spatial$valor))
                      
                      
                      
@@ -1381,7 +1459,7 @@ function(input, output, session) {
   # })
   
   # change to be made to UI afterwards
-  observeEvent(c(input$admin_level), {
+  observeEvent(c(input$admin_level, input$indicator_performance), {
     
     # disable the button
     shinyjs::runjs('$(".irs-single").remove();')

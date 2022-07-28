@@ -12,7 +12,8 @@ padding: 15px;
   
 }
 
-#spatial_level > div > div > div > label {
+.control-label {
+/*.spatial_level > div > div > div > label {*/
   
 
 font-family: 'Franklin Gothic Book';

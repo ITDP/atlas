@@ -69,12 +69,12 @@ prep_data <- function(ghsl) {
     ind_columns == "total_pop",             "be_poptotal_2019",
     ind_columns == "density",               "be_density_2019",
     
-    ind_columns == "performance_bike_lts2_30",               "performance_bike30_2019",
-    ind_columns == "performance_bike_lts2_45",               "performance_bike45_2019",
-    ind_columns == "performance_bike_lts2_60",               "performance_bike60_2019",
-    ind_columns == "performance_walk_30",               "performance_walk30_2019",
-    ind_columns == "performance_walk_45",               "performance_walk45_2019",
-    ind_columns == "performance_walk_60",               "performance_walk60_2019"
+    ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2019",
+    ind_columns == "performance_bike_lts2_45",               "performance_bikep45_2019",
+    ind_columns == "performance_bike_lts2_60",               "performance_bikep60_2019",
+    ind_columns == "performance_walk_30",               "performance_walkp30_2019",
+    ind_columns == "performance_walk_45",               "performance_walkp45_2019",
+    ind_columns == "performance_walk_60",               "performance_walkp60_2019"
     
   )
   
@@ -224,7 +224,7 @@ atlas_country <- indicators_all %>%
   select(-geom) %>%
   filter(admin_level == 0) %>%
   group_by(a2) %>%
-  summarise(across(walk_healthcare_2019:performance_bike60_2019, mean, na.rm = TRUE)) %>%
+  summarise(across(walk_healthcare_2019:last_col(), mean, na.rm = TRUE)) %>%
   ungroup()
 
 # bring the shapes

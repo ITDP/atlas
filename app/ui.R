@@ -23,6 +23,7 @@ fluidPage(
       Shiny.onInputChange(variableName, null);
     });
   "),
+  tags$head(tags$script("var ind_cum = ['bikep', 'walkp'];")),
   shinyjs::useShinyjs(),
   # use_bs_popover(), # you need to call this function somewhere in your ui
   # disconnectMessage(),
@@ -58,6 +59,8 @@ fluidPage(
                  
                     
       ),
+      # create the panel with the filters
+      uiOutput('left_panel_filter'),
       # create the panel with the spatial scale
       uiOutput('spatial_level'),
       # right panel
