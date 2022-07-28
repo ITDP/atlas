@@ -390,9 +390,9 @@ function(input, output, session) {
       domain = atlas_country$bike_pnpb_2019)
     
     map <- leaflet(data = atlas_city_markers, options = leafletOptions(zoomControl = FALSE)) %>%
-      addProviderTiles(providers$CartoDB.Positron, group = "Light") %>%
       addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
-      addLayersControl(baseGroups = c("Light", "Dark"),
+      addProviderTiles(providers$CartoDB.Positron, group = "Light") %>%
+      addLayersControl(baseGroups = c("Dark", "Light"),
                        options = layersControlOptions(collapsed = TRUE)) %>%
       # addCircleMarkers(
       #   # radius = ~ifelse(type == "ship", 6, 10),
@@ -472,7 +472,7 @@ function(input, output, session) {
                        # clearMarkers() %>%
                        # clearControls() %>%
                        # clearShapes() %>%
-                       setView(lng = 0, lat = 0, zoom = 3) %>%
+                       flyTo(lng = 0, lat = 0, zoom = 3) %>%
                        addCircleMarkers(
                          # radius = ~ifelse(type == "ship", 6, 10),
                          radius = 10,
@@ -1134,7 +1134,7 @@ function(input, output, session) {
       
       addPolygons(data = data_metro, fillColor = ~pal(valor), color = "black",  weight = 1, layerId = ~osmid,
                   highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black")) %>%
-      addLayersControl(baseGroups = c("Light", "Dark"),
+      addLayersControl(baseGroups = c( "Dark", "Light"),
                        options = layersControlOptions(collapsed = TRUE)) 
     
     # print(head(map))
@@ -1148,7 +1148,7 @@ function(input, output, session) {
                     layerId = "overlay_layer") %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         baseGroups = c("Light", "Dark"),
+                         baseGroups = c("Dark", "Light"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
@@ -1160,7 +1160,7 @@ function(input, output, session) {
                      layerId = "overlay_layer") %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         baseGroups = c("Light", "Dark"),
+                         baseGroups = c("Dark", "Light"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
