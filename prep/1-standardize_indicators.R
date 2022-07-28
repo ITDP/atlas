@@ -139,14 +139,12 @@ prep_data <- function(ghsl) {
     ~ind, ~indicator,
     "pnpblatlon.geojson",            "bike_pnpb_2019",
     "pnablatlon.geojson",            "bike_pnab_2019",
-    "allbike_latlon.geojson",        "bike_bikeways_2019",
+    "allbike_latlon.geojson",        "bike_abikeways_2019",
     "protectedbike_latlon.geojson",  "bike_pbikeways_2019",
     "healthcarelatlon.geojson",      "walk_healthcare_2019",
     "schoolslatlon.geojson",         "walk_schools_2019",
     "h+slatlon.geojson",             "walk_hs_2019",
     "carfreelatlon.geojson",         "walk_carfree_2019",
-    "allbike_latlon.geojson",        "bike_abikeways_2019",
-    "protectedbike_latlon.geojson",  "bike_pbikeways_2019"
     
   )
   

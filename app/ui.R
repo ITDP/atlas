@@ -7,6 +7,8 @@ fluidPage(
   tags$head(includeCSS("www/spatial_level.css")),
   tags$head(includeCSS("www/accordion.css")),
   tags$head(includeCSS("www/scrollbar.css")),
+  tags$head(includeCSS("www/map_legend.css")),
+  tags$head(includeCSS("www/city_selector.css")),
   # tags$head(includeScript("www/bootstrap.js")),
   # tags$head(includeScript("www/jquery.js")),
   tags$head(
@@ -16,6 +18,11 @@ fluidPage(
                       });")
     )
   ),
+  tags$script("
+    Shiny.addCustomMessageHandler('resetValue', function(variableName) {
+      Shiny.onInputChange(variableName, null);
+    });
+  "),
   shinyjs::useShinyjs(),
   # use_bs_popover(), # you need to call this function somewhere in your ui
   # disconnectMessage(),
@@ -37,7 +44,6 @@ fluidPage(
       
       absolutePanel(id = "city_selection", 
                     # class = "panel panel-default", 
-                    fixed = TRUE, draggable = FALSE,
                     top = 10, left = 30, width = 400, height = 50,
                     # Output the 'UI' that was generated in the server
                     uiOutput('city_selection')

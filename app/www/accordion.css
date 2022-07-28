@@ -4,7 +4,8 @@
   align-items: center;
   width: 100%;
   padding: 0.5rem 0.6rem;
-    background: rgba(28, 28, 28, 0.8);
+    /* background: rgba(28, 28, 28, 0.8); */
+    background: transparent;
   text-align: left;
   border: 0;
   border-radius: 0;
@@ -68,7 +69,8 @@ color: #F8F9FA;
   outline: 0;
   /*box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);*/
     color: #F8F9FA;
-    background: #495057;
+    /*background: #495057;*/
+    background: transparent ;
   text-align: left;
   border: 0;
   border-radius: 0;
@@ -110,7 +112,8 @@ color: #F8F9FA;
 }
 
 .accordion-body {
-  background: rgba(28, 28, 28, 0.8);
+  /* background: rgba(28, 28, 28, 0.8); */
+  background: transparent;
   /* padding: 1rem 1.25rem; */
 }
 
