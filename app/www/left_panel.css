@@ -6,21 +6,24 @@
 background: rgba(28, 28, 28, 0.8);
 border: 1px solid #495057;
   border-radius: 4px;
-  padding: 10px;
+  padding: 15px;
+  padding-left: 8px;
+  padding-bottom: 20px;
 }
 
 .left_panel_indicators {
-  position: absolute;
+  position: relative !important;
   background: transparent;
 /* Gray/900 */
   /*background: rgba(28, 28, 28, 0.8);
   border: 1px solid #1C1C1C; */
   border-radius: 4px;
   overflow-y: scroll;
-  padding-top: 0px;
-  padding-right: 10px;
+  padding-top: 10px;
+  padding-right: 15px;
   padding-bottom: 10px;
-  padding-left: 10px;
+  padding-left: 8px;
+  max-height: 300px;
 }
 
 
@@ -120,3 +123,5 @@ align-items: center;
 background: rgba(0, 0, 0, 0.5);
 color: #F8F9FA;
 }
+
+

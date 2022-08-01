@@ -3,6 +3,8 @@ atlas_city_markers <- readRDS("../data/sample3/atlas_city_markers.rds")
 atlas_country <- readRDS("../data/sample3/atlas_country_polygons.rds")
 # country rank
 atlas_country_ranks <- readRDS("../data/sample3/ranks/rank_country.rds")
+# list indicators
+list_indicators <- readRDS("../data/sample3/list_indicators.rds")
 
 
 function(input, output, session) {
@@ -66,8 +68,8 @@ function(input, output, session) {
                            .Names = c("People Near Protected Bikelanes", "People Near All Bikelanes",
                                       "Bikeways", "Protected Bikeways"))
     
-    list_walk <- structure(c("healthcare", "schools", "hs"), 
-                           .Names = c("People Near Healthcare", "People Near Schools", "People Near Services"))
+    list_walk <- structure(c("pnh", "pne", "pns"), 
+                           .Names = c("People Near Healthcare", "People Near Education", "People Near Services"))
     
     list_transit <- structure(c("pntt", "etct"), 
                               .Names = c("People Near Transit&nbsp;&nbsp;&nbsp;", "ETC"))
@@ -85,7 +87,13 @@ function(input, output, session) {
     # Start proper UI here 
     tagList(
       
-      tags$div(class = "title_left_panel", "INDICATORS"),
+      tags$div(class = "title_left_panel", "INDICATORS", 
+               actionButton("teste1", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+                            class = "minimize")
+               # tags$button(id = "teste1", type = "button", class = "btn", style= "float: right; padding: 0",
+               #             icon("bus"))
+               
+      ),
       
       
       
@@ -111,7 +119,7 @@ function(input, output, session) {
       
       # Create the left side panel  
       absolutePanel(class = "left_panel_indicators", 
-                    bottom = 30, left = -1, width = 250, height = 320,
+                    bottom = 5, left = -2, width = 240, height = 'auto',
                     # by type of indicator
                     # conditionalPanel(
                     # condition = "input.indicator == 'bike'",
@@ -164,7 +172,7 @@ function(input, output, session) {
                     #   pickerInput(inputId = "indicator_city",
                     #               label = "Built Env",
                     #               choices = c(list_city),
-                    #               selected = "Schools")
+                    #               selected = "pne")
                     # )
                     
                     
@@ -189,7 +197,7 @@ function(input, output, session) {
           # id = "controls",
           class = "spatial_level",
           # fixed = TRUE, draggable = FALSE,
-          bottom = 30, left = 300, height = 115,
+          bottom = 30, left = 300, height = 'auto',
           # 'typeof undefined' identifies when is null 
           sliderInput(inputId = "time_cutoff",
                       min = 30, max = 60, step = 15,
@@ -229,11 +237,14 @@ function(input, output, session) {
           # id = "controls", 
           class = "spatial_level",
           # fixed = TRUE, draggable = FALSE,
-          bottom = 30, right = 530, height = 115,
+          bottom = 30, right = 530, height = 'auto',
           # 'typeof undefined' identifies when is null 
+          tags$div(class = "title_left_panel", "LEVEL OF DETAIL", 
+                   actionButton("teste2", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+                                class = "minimize")),
           sliderTextInput(inputId = "admin_level",
                           choices = seq(1, go),
-                          label = "LEVEL OF DETAIL",
+                          label = NULL,
                           selected = 1,
                           grid = TRUE
                           # selected = character(0)
@@ -259,16 +270,65 @@ function(input, output, session) {
           # class = "panel panel-default",
           # fixed = TRUE, draggable = FALSE,
           top = 0, right = 0, width = 300, height = "100%",
-          absolutePanel(
-            class = "right_panel_textbox",
-            top = 105, right = 10, width = 280,
-            htmlOutput("text_indicator"),
-            htmlOutput("rank_value"),
-            htmlOutput("rank_text"),
-            actionButton(inputId = "back_to_world",
-                         label = "Back to World View"
-                         # selected = character(0)
-            )
+          tabsetPanel(type = "tabs", id = "right_tabs",
+                      tabPanel("OVERVIEW", value = "tab_overview",         
+                               absolutePanel(
+                                 class = "right_panel_textbox",
+                                 top = 80, right = 0, width = 280,
+                                 htmlOutput("text_indicator"),
+                                 tags$button(
+                                   id = "link_see_more",
+                                   class = "btn btn-default action-button shiny-bound-input",
+                                   div(class = "link_button", "Read more")
+                                 ),
+                                 htmlOutput("rank_value"),
+                                 htmlOutput("rank_text")
+                                 
+                               )
+                               
+                               
+                      ),
+                      tabPanel("MORE INFO",  value = "tab_viewmore",                                
+                               absolutePanel(
+                                 class = "right_panel_textbox",
+                                 top = 80, right = 0, width = 280,
+                                 htmlOutput("text_indicator2")
+                                 
+                               )
+                               )
+                      
+                      
+          )
+          
+        )
+        
+      )
+    )
+    
+  })
+  
+  
+  
+  observeEvent(input$link_see_more, {
+    updateNavbarPage(session, "right_tabs", "tab_viewmore")
+  })
+  
+  output$back_to_world_panel <- renderUI({
+    
+    tagList(
+      
+      conditionalPanel(
+        condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
+        absolutePanel(
+          class = "right_panel",
+          # class = "w3-container w3-animate-opacity", 
+          # class = "panel panel-default",
+          # fixed = TRUE, draggable = FALSE,
+          top = 20, right = 400, width = 90, height = 30,
+          style = "background: black",
+          actionButton(inputId = "back_to_world",
+                       label = "Reset map"
+                       # selected = character(0)
           )
           
           
@@ -277,6 +337,7 @@ function(input, output, session) {
     )
     
   })
+  
   
   
   
@@ -379,6 +440,20 @@ function(input, output, session) {
   
   
   
+  # first, define the city input ----------------
+  city <- reactiveValues(code = NULL)
+  
+  observeEvent(c(input$city), {city$city_code <- input$city})
+  observeEvent(c(input$map_marker_click), {
+    
+    city$city_code <- input$map_marker_click$id
+    
+    updatePickerInput(session = session, inputId = "city",
+                      selected = city$city_code)
+    
+    
+  }
+  )
   
   # reactive to select the type of indicator --------------------------------
   indicator_mode <- reactive({
@@ -407,14 +482,22 @@ function(input, output, session) {
       
     }
     
-    print("indicator mode")
-    print(a)
+    # print("indicator mode")
+    # print(a)
     return(a)
     
   })
   
   
   output$text_indicator <- renderUI({
+    
+    req(indicator_mode())
+    
+    includeHTML(sprintf("www/text/text_indicator_%s.html", indicator_mode()))
+    
+  })
+  
+  output$text_indicator2 <- renderUI({
     
     # str1 <- paste("You have selected", input$var)
     # str2 <- paste("You have chosen a range that goes from",
@@ -427,13 +510,12 @@ function(input, output, session) {
     req(indicator_mode())
     # print(indicator_mode())
     
-    includeHTML(sprintf("www/text/text_indicator_%s.html", indicator_mode()))
+    includeHTML(sprintf("www/text/text_indicator_more_%s.html", indicator_mode()))
     
   })
   
   # initial map
   output$map <- renderLeaflet({
-    
     
     
     
@@ -451,8 +533,15 @@ function(input, output, session) {
     map <- leaflet(data = atlas_city_markers, options = leafletOptions(zoomControl = FALSE)) %>%
       addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
       addProviderTiles(providers$CartoDB.Positron, group = "Light") %>%
-      addLayersControl(baseGroups = c("Dark", "Light"),
-                       options = layersControlOptions(collapsed = TRUE)) %>%
+      addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
+      addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
+                       # overlayGroups = c("Overlay"),
+                       options = layersControlOptions(collapsed = FALSE),
+                       position = "topright") %>%
+      # hideGroup("Overlay") %>%
+      
+      # addControl(html = "<h3> QUEEEEEEEEEE </h3>") %>%
+      
       # addCircleMarkers(
       #   # radius = ~ifelse(type == "ship", 6, 10),
       #   radius = 10,
@@ -460,11 +549,16 @@ function(input, output, session) {
       #   stroke = TRUE, fillOpacity = 0.5,
       #   layerId = ~hdc
       # ) %>%
-      # addPolygons(data = atlas_country,
-      #             fillColor = ~pal_countries(bike_pnpb_2019), color = "black",  weight = 1,
-      #             options = pathOptions(clickable = FALSE)) %>%
-      # # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
+    # addPolygons(data = atlas_country,
+    #             fillColor = ~pal_countries(bike_pnpb_2019), color = "black",  weight = 1,
+    #             options = pathOptions(clickable = FALSE)) %>%
+    # # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
     # addLegend("bottomleft", pal = pal_countries, values = ~atlas_country$bike_pnpb_2019) %>%
+    # htmlwidgets::onRender("
+    #     function(el, x) {
+    #         $('.leaflet-control-layers').prepend('<label>My Epic Title</label>');
+    #     }
+    # ") %>%
     htmlwidgets::onRender(
       "function(el, x) {
         L.control.zoom({position:'topright'}).addTo(this);
@@ -473,90 +567,116 @@ function(input, output, session) {
     
     map
     
+    # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')                     
+    # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>Test</label>" );')  
+    
   })
+  
+  # create counter
+  counter <- reactiveValues(obs1 = NULL,
+                            obs2 = NULL)
   
   
   # update the world map when the indicators is changed ---------------------
-  observeEvent(c(indicator$type, input$back_to_world,
-                 input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
-                   
-                   # print(indicator_mode())
-                   req(indicator_mode())
-                   
-                   # print("amd level") 
-                   # print(input$admin_level)
-                   # this will only runs if we are at the wold view (admin level = null)
-                   if(is.null(input$admin_level)) {
-                     
-                     # print(atlas_city_markers)
-                     
-                     pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
-                     # print(pattern)
-                     cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
-                     a <- atlas_city_markers[cols]
-                     colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
-                     
-                     # print(class(atlas_country))
-                     cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
-                     a_country <- atlas_country[cols_country]
-                     colnames(a_country) <- c('a2', 'valor', 'geom')
-                     
-                     pal <- colorNumeric(
-                       palette = "viridis",
-                       # palette = "YlGnBu",
-                       domain = a$valor)
-                     
-                     
-                     pal_countries <- colorNumeric(
-                       palette = "viridis",
-                       # palette = "YlGnBu",
-                       domain = a_country$valor)
-                     
-                     # create legend title
-                     legend_title <- fcase(
-                       indicator_mode() %like% "pnpb", "% of the population within a 300m walk of a protected bikelane",
-                       default = "teste"
-                       
-                     )
-                     
-                     
-                     # format legend value
-                     legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
-                       
-                       scales::percent
-                       
-                     } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
-                     
-                     # print(a)
-                     
-                     leafletProxy("map", data = a) %>%
-                       # clearMarkers() %>%
-                       # clearControls() %>%
-                       # clearShapes() %>%
-                       flyTo(lng = 0, lat = 0, zoom = 3) %>%
-                       addCircleMarkers(
-                         # radius = ~ifelse(type == "ship", 6, 10),
-                         radius = 10,
-                         # fillColor = ~pal(valor), 
-                         stroke = TRUE, fillOpacity = 0.9, color = "black",
-                         weight = 0.5,
-                         layerId = ~hdc,
-                         label = ~htmlEscape(name)
-                       ) %>%
-                       addPolygons(data = a_country, 
-                                   fillColor = ~pal_countries(valor), color = "black",  weight = 0,
-                                   options = pathOptions(clickable = FALSE)) %>%
-                       # add polygons with the country color
-                       # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-                       addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
-                                 title = legend_title,
-                                 # bins = 7,
-                                 labFormat = legend_value,
-                                 layerId = "legend_country")
-                   }
-                   
-                   
-                 }) 
+  observeEvent(c(indicator_mode(), input$back_to_world), {
+    
+    req(indicator_mode(), is.null(input$admin_level))               
+    
+    
+    print("obs1")
+    
+    # print(indicator_mode())
+    
+    # this will only runs if we are at the wold view (admin level = null)
+    # if(is.null(input$admin_level)) {
+    
+    # print(atlas_city_markers)
+    
+    pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+    # print("pattern")
+    # print(pattern)
+    cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
+    a <- atlas_city_markers[cols]
+    colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
+    
+    # print(class(atlas_country))
+    cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
+    a_country <- atlas_country[cols_country]
+    colnames(a_country) <- c('a2', 'valor', 'geom')
+    
+    pal <- colorNumeric(
+      palette = "viridis",
+      # palette = "YlGnBu",
+      domain = a$valor)
+    
+    
+    pal_countries <- colorNumeric(
+      palette = "viridis",
+      # palette = "YlGnBu",
+      domain = a_country$valor)
+    
+    # create legend title
+    legend_title <- fcase(
+      indicator_mode() %like% "pnpb", "% of the population within a 300m walk of a protected bikelane",
+      default = "teste"
+      
+    )
+    
+    
+    # format legend value
+    legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+      
+      scales::percent
+      
+    } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+    
+    # print(a)
+    
+    leafletProxy("map", data = a) %>%
+      # clearMarkers() %>%
+      # clearControls() %>%
+      # clearShapes() %>%
+      flyTo(lng = 0, lat = 0, zoom = 3) %>%
+      addCircleMarkers(
+        # radius = ~ifelse(type == "ship", 6, 10),
+        radius = 8,
+        # fillColor = ~pal(valor), 
+        stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
+        opacity = 0.8,
+        weight = 1,
+        layerId = ~hdc,
+        label = ~htmlEscape(name)
+      ) %>%
+      addPolygons(data = a_country, 
+                  fillColor = ~pal_countries(valor), color = "black",  weight = 0,
+                  options = pathOptions(clickable = FALSE)) %>%
+      # add polygons with the country color
+      # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
+      addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
+                title = legend_title,
+                # bins = 7,
+                labFormat = legend_value,
+                layerId = "legend_country")
+    # addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
+    #                  options = layersControlOptions(collapsed = FALSE),
+    #                  position = "topright") %>%
+    
+    
+    
+    #   htmlwidgets::onRender("
+    #     function(el, x) {
+    #         $('.leaflet-control-layers').prepend('<label>My Epic Title</label>');
+    #     }
+    # ")
+    
+    
+    # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')                     
+    # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')                       
+    
+    # }
+    
+    
+  }) 
   
   
   
@@ -567,12 +687,14 @@ function(input, output, session) {
   observeEvent(c(input$back_to_world), {
     
     
-    print("back to world")
-    print(input$back_to_world)
+    # print("back to world")
+    # print(input$back_to_world)
     
     # if (isTRUE(input$back_to_workd != 0)) {
     
-    print("ai")
+    req(input$back_to_world >= 1)
+    
+    print("back to world")
     
     
     updatePickerInput(session = session, inputId = "city",
@@ -580,8 +702,8 @@ function(input, output, session) {
     
     city$city_code <- NULL
     
-    session$sendCustomMessage(type = "resetValue", message = "city")
-    session$sendCustomMessage(type = "resetValue", message = "map_marker_click")
+    # session$sendCustomMessage(type = "resetValue", message = "city")
+    # session$sendCustomMessage(type = "resetValue", message = "map_marker_click")
     
     # print(paste0("pa: ", input$map_marker_click))
     
@@ -617,7 +739,7 @@ function(input, output, session) {
     
     
     # format legend value
-    legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
+    legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
       
       scales::percent
       
@@ -627,15 +749,16 @@ function(input, output, session) {
     
     leafletProxy("map", data = a) %>%
       clearMarkers() %>%
-      clearControls() %>%
+      # clearControls() %>%
       clearShapes() %>%
       setView(lng = 0, lat = 0, zoom = 3) %>%
       addCircleMarkers(
         # radius = ~ifelse(type == "ship", 6, 10),
-        radius = 10,
+        radius = 8,
         # fillColor = ~pal(valor), 
-        stroke = TRUE, fillOpacity = 0.9, color = "black",
-        weight = 0.5,
+        stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
+        opacity = 0.8,
+        weight = 1,
         layerId = ~hdc,
         label = ~htmlEscape(name)
       ) %>%
@@ -649,6 +772,16 @@ function(input, output, session) {
                 # bins = 7,
                 labFormat = legend_value,
                 layerId = "legend_country")
+    # htmlwidgets::onRender("function(el, x) {$('.leaflet-control-layers').prepend('<label class = \"control-label\">MAP DETAILS</label>');}")
+    #   htmlwidgets::onRender('
+    #     function() {
+    #         $(".leaflet-control-layers").prepend("<label style=\'text-align:center\'>My Epic Title</label>");
+    #     }
+    # ')
+    
+    # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')
+    # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')
+    
     
     
     # }
@@ -661,20 +794,6 @@ function(input, output, session) {
   #   
   # })
   
-  # first, define the city input
-  city <- reactiveValues(code = NULL)
-  
-  observeEvent(c(input$city), {city$city_code <- input$city})
-  observeEvent(c(input$map_marker_click), {
-    
-    city$city_code <- input$map_marker_click$id
-    
-    updatePickerInput(session = session, inputId = "city",
-                      selected = city$city_code)
-    
-    
-  }
-  )
   
   data_ind <- reactive({
     
@@ -846,10 +965,11 @@ function(input, output, session) {
   observeEvent(c(input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
     
     
+    
     # req(indicator_mode())
     # req(indicator$type)
     
-    # print("agora vai!")
+    print("agora vai!")
     # print(rank$admin_level)
     
     if(is.null(rank$admin_level)) {
@@ -877,44 +997,32 @@ function(input, output, session) {
       # print(head(filter_rank()))
       # print(spatial_level_value$last)
       
+      format_indicator_name <- list_indicators[indicator_code == indicator_mode()]$indicador_name
       
-      format_indicator_name <- switch (indicator_mode(),
-                                       "pnpb" = "People Near Protected Bike Lanes",
-                                       "pnab" = "People Near Bike Lanes",
-                                       "healthcare" = "People Near Healthcare",
-                                       "schools" = "People Near Schools",
-                                       "hs" = "People Near Services"
-      )
+      # format_indicator_name <- switch (indicator_mode(),
+      #                                  "pnpb" = "People Near Protected Bike Lanes",
+      #                                  "pnab" = "People Near Bike Lanes",
+      #                                  "pnh" = "People Near pnh",
+      #                                  "pne" = "People Near pne",
+      #                                  "hs" = "People Near Services"
+      # )
       
-      format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
-        
+      format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
         scales::percent(rank_indicator)
-        
       } else round(rank_indicator)
       
       
-      format_indicator_value_countries1 <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
-        
+      format_indicator_value_countries1 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
         scales::percent(a$valor[1])
-        
       } else round(a$valor[1])
       
-      
-      
-      format_indicator_value_countries2 <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
-        
-        
+      format_indicator_value_countries2 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
         scales::percent(a$valor[2])
-        
       } else round(a$valor[2])
       
-      
-      format_indicator_value_countries3 <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
-        
+      format_indicator_value_countries3 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
         scales::percent(a$valor[3])
-        
       } else round((a$valor[3]))
-      
       
       
       # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
@@ -997,7 +1105,7 @@ function(input, output, session) {
   
   
   # display rank when region or map is clicked
-  observeEvent(c(input$map_shape_click, input$map_marker_click, city$city_code,
+  observeEvent(c(input$map_shape_click,
                  input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
                    
                    ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
@@ -1017,20 +1125,19 @@ function(input, output, session) {
                    # print(spatial_level_value$last)
                    
                    
-                   format_indicator_name <- switch (indicator_mode(),
-                                                    "pnpb" = "People Near Protected Bike Lanes",
-                                                    "pnab" = "People Near Bike Lanes",
-                                                    "healthcare" = "People Near Healthcare",
-                                                    "schools" = "People Near Schools",
-                                                    "hs" = "People Near Services"
-                   )
+                   # format_indicator_name <- switch (indicator_mode(),
+                   #                                  "pnpb" = "People Near Protected Bike Lanes",
+                   #                                  "pnab" = "People Near Bike Lanes",
+                   #                                  "pnh" = "People Near Healthcare",
+                   #                                  "pne" = "People Near pne",
+                   #                                  "hs" = "People Near Services"
+                   # )
+                   format_indicator_name <- list_indicators[indicator_code == indicator_mode()]$indicador_name
                    
                    # print(rank_indicator$valor)
                    
-                   format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
-                     
+                   format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
                      scales::percent(rank_indicator$valor)
-                     
                    } else round(rank_indicator$valor)
                    
                    
@@ -1092,7 +1199,9 @@ function(input, output, session) {
                      # print(paste0("teste: ", rank$rank_text_initial))
                      
                      
+                     
                      # print("olha")
+                     # print(rank$rank_value)
                      # print(a$rank)
                      # print(a$n)
                      
@@ -1138,32 +1247,53 @@ function(input, output, session) {
   
   # if I change the spatial_level, the right panel should inform the user
   # that they should click on a region to see more things
-  # observeEvent(c(input$admin_level, city$city_code), {
-  #   
-  #   
-  #   # print(paste0("rank admin level"))
-  #   # print(rank$admin_level)
-  #   
-  #   # it will run only when we are at the city level
-  #   
-  #   if (isTRUE(rank$admin_level == 1)) {
-  # 
-  # 
-  #     rank$rank_value <- rank$rank_value_initial
-  #     rank$rank_text <- rank$rank_text_initial
-  # 
-  # 
-  #   } else
-  #     
-  #     if (isTRUE(rank$admin_level != 1)) {
-  #     
-  #     rank$rank_value <- '<div class="text_compare"> Click on the map to see more info </div>'
-  #     rank$rank_text <- ""
-  #     
-  #   }
-  #   
-  #   
-  # })
+  observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
+    
+    
+    # print(paste0("rank admin level"))
+    # print(rank$admin_level)
+    
+    # it will run only when we are at the city level
+    
+    if (isTRUE(rank$admin_level == 1)) {
+      
+      # print(city$city_code)
+      rank_indicator <- subset(data_ind2(), osmid == city$city_code)
+      
+      format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+        scales::percent(rank_indicator$valor)
+      } else round(rank_indicator$valor)
+      
+      
+      
+      # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
+      rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
+                                '<div class="title_indicator" style="font-size: 20px;">', 
+                                rank_indicator$name, '</div>',
+                                div(class = "value_indicator_rightpanel", format_indicator_value))
+      # print(rank$rank_value)
+      
+      # this first condition will show the indicator ranks as soon as the city marker is clicked
+      base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS")
+      
+      a <- subset(filter_rank(), osmid == city$city_code & rank_type == "world")
+      # print(a)
+      
+      rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong>%s</strong> out of <strong>%s</strong> in the world</div>', 
+                                base_text, a$rank, a$n)
+      
+      
+    } else
+      
+      if (isTRUE(rank$admin_level != 1)) {
+        
+        rank$rank_value <- '<div class="text_compare"> Click on the map to see more info </div>'
+        rank$rank_text <- ""
+        
+      }
+    
+    
+  })
   
   
   output$rank_value <- renderUI({
@@ -1221,7 +1351,11 @@ function(input, output, session) {
   
   admin_level_previous <- reactiveValues(a = NULL)
   
-  observeEvent(c(input$city, input$map_marker_click), {
+  
+  tl <- reactiveValues(transition = NULL)
+  
+  # observeEvent(c(input$city, input$map_marker_click), {
+  observeEvent(c(city$city_code), {
     
     # req(input$city)
     bbox <- sf::st_bbox(data_ind())
@@ -1235,6 +1369,7 @@ function(input, output, session) {
     osm_selected$oi <- data_metro$osmid
     
     # }
+    
     
     
     # print(sprintf("Data ind raw: %s", head(data_ind2())))
@@ -1255,7 +1390,8 @@ function(input, output, session) {
     
     
     # print(data_metro$valor)
-    print(data_metro$osmid)
+    # print(data_metro$osmid)
+    print("obs2")
     
     pal <- colorNumeric(
       palette = "YlOrRd",
@@ -1269,30 +1405,114 @@ function(input, output, session) {
       removeMarker(layerId = data_metro$osmid) %>%
       clearShapes() %>%
       removeControl(layerId = "legend_country") %>%
+      # clearControls() %>%
       fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
+      addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
+      addMapPane("overlay", zIndex = 420) %>% # shown above ames_lines
       # flyToBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]],
       #             options = list(duration = 1.5,
       #                            animate = TRUE,
       #                            easeLinearity = 2,
       #                            noMoveStart = TRUE)) %>%
       
-      addPolygons(data = data_metro, fillColor = ~pal(valor), color = "black",  weight = 1, layerId = ~osmid,
+      
+      addPolygons(data = data_metro,
+                  fillColor = ~pal(valor), fillOpacity = 0.5,
+                  color = "black",  weight = 1, layerId = ~osmid,
+                  label = ~htmlEscape(name),
+                  options = pathOptions(pane = "basemap"),
                   highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black")) %>%
-      addLayersControl(baseGroups = c( "Dark", "Light"),
-                       options = layersControlOptions(collapsed = TRUE)) 
+      # addLegend("bottomleft", pal = pal, values = ~valor) %>%
+      addLayersControl(
+        overlayGroups = c("Overlay"),
+        baseGroups = c("Dark", "Light", "Satellite"),
+        options = layersControlOptions(collapsed = FALSE),
+        position = "topright")
+    #   htmlwidgets::onRender('
+    #     function() {
+    #         $(".leaflet-control-layers").prepend("<label>My Epic Title</label>");
+    #     }
+    # ')
     
-    # print(head(map))
+    
     
     # add overlay
     if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
       
       
       map <- map %>%
-        addPolygons(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE),
-                    layerId = "overlay_layer") %>%
+        addPolygons(data = data_overlays_sf(), group = "Overlay", opacity = 0.8,
+                    options = pathOptions(clickable = FALSE, pane = "overlay"),
+                    layerId = "overlay_layer",
+                    fillColor = "#00AE42", fillOpacity = 0.6,
+                    weight = 1, color = "black"
+        )
+      
+      
+      
+      
+    } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
+      
+      
+      map <- map %>%
+        addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE),
+                     layerId = "overlay_layer")
+      
+      
+    }
+    
+    
+    map
+    
+    tl$transition <- 1
+    # admin_level_previous$a <- 1
+    
+    
+    
+    
+  })
+  
+  
+  # update overlay only when indicator is changed --------------------------------
+  
+  observeEvent(c(indicator_mode()), {
+    
+    # it will run only when we are at the city level
+    req(!is.null(input$admin_level))
+    # if (isTRUE(admin_level_previous$a >= 1)) {
+    # if (isTRUE(input$admin_level >= 1)) {
+    
+    print("obs3")
+    
+    
+    # extract geom type of this indicator
+    geom_type <- unique(data_overlays2()$geom_type)
+    # print("geom_type")
+    # print(geom_type)
+    
+    map <- leafletProxy("map", session) %>%
+      # clearMarkers() %>%
+      removeShape(layerId = "overlay_layer") %>%
+      addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
+      addMapPane("overlay", zIndex = 420) # shown above ames_lines
+    # clearControls()
+    
+    
+    
+    # add overlay
+    if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
+      
+      
+      map <- map %>%
+        addPolygons(data = data_overlays_sf(), group = "Overlay", opacity = 0.8,
+                    options = pathOptions(clickable = FALSE, pane = "overlay"),
+                    layerId = "overlay_layer",
+                    fillColor = "#00AE42", fillOpacity = 0.6,
+                    weight = 1, color = "black"
+        ) %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         baseGroups = c("Dark", "Light"),
+                         baseGroups = c("Light", "Dark"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
@@ -1304,7 +1524,7 @@ function(input, output, session) {
                      layerId = "overlay_layer") %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         baseGroups = c("Dark", "Light"),
+                         baseGroups = c("Light", "Dark"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
@@ -1312,134 +1532,139 @@ function(input, output, session) {
     }
     
     map
+    # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')                     
+    # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')                       
     
-    admin_level_previous$a <- 1
     
-    
-  })
-  
-  
-  
-  # update overlay only when indicator is changed --------------------------------
-  
-  observeEvent(c(input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
-    
-    # it will run only when we are at the city level
-    if (isTRUE(input$admin_level >= 1)) {
-      
-      # print("ui")
-      
-      
-      # extract geom type of this indicator
-      geom_type <- unique(data_overlays2()$geom_type)
-      # print(geom_type)
-      
-      map <- leafletProxy("map", session) %>%
-        # clearMarkers() %>%
-        removeShape(layerId = "overlay_layer")
-      # clearControls()
-      
-      
-      
-      # add overlay
-      if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
-        
-        
-        map <- map %>%
-          addPolygons(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE),
-                      layerId = "overlay_layer") %>%
-          # addLegend("bottomleft", pal = pal, values = ~valor) %>%
-          addLayersControl(overlayGroups = c("Overlay"),
-                           baseGroups = c("Light", "Dark"),
-                           options = layersControlOptions(collapsed = FALSE))
-        
-        
-      } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
-        
-        
-        map <- map %>%
-          addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE),
-                       layerId = "overlay_layer") %>%
-          # addLegend("bottomleft", pal = pal, values = ~valor) %>%
-          addLayersControl(overlayGroups = c("Overlay"),
-                           baseGroups = c("Light", "Dark"),
-                           options = layersControlOptions(collapsed = FALSE))
-        
-        
-        
-      }
-      
-      map
-      
-      
-    }
+    # }
     
     
     
   })
   
   
+  rv <- reactiveValues(prev_city = 1)  
+  
+  observeEvent(c(city$city_code,
+                 input$admin_level,
+                 input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
+                   
+                   # rv$prev_city <- if (length(rv$prev_city)== 1) city$city_code else rv$prev_city
+                   # print(rv$prev_city)
+                   rv$prev_city <- c(rv$prev_city, city$city_code)
+                   # a <- if(city$city_code == "") NULL
+                   # print(rv$prev_city)
+                   
+                   # print(rv$prev_city)
+                   # print(city$city_code)
+                   # print(rv$prev_city[length(rv$prev_city)-1])
+                   
+                   
+                 }, ignoreInit = TRUE)
   
   
   # update the basemap  --------------------------------
   observeEvent(c(input$admin_level,
-                 input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
+                 indicator_mode()), {
                    
                    
-                   admin_level_previous$a <-admin_level_previous$a + 1
+                   # print("prev_city")
+                   # print(rv$prev_city[length(rv$prev_city)-1])
+                   # print("atual_city")
+                   # print(city$city_code)
+                   
+                   req(city$city_code == rv$prev_city[length(rv$prev_city)-1],
+                       isTRUE(input$admin_level >= 1))
+                   
+                   # admin_level_previous$a <-admin_level_previous$a + 1
+                   
                    # print(isTRUE(is.null(admin_level_previous$a)))
-                   print(admin_level_previous$a)
+                   # print("previous")
+                   # print(admin_level_previous$a)
+                   # print(rank$admin_level)
                    # it will run only when we are at the city level
-                   # if (isTRUE(input$admin_level > 1)) {
-                   if (isTRUE(input$admin_level >= 1)) {
+                   # if (isTRUE(admin_level_previous$a >= 1)) {
+                   # if (isTRUE(input$admin_level >= 1)) {
+                   
+                   
+                   
+                   
+                   print("obs4")
+                   
+                   # filter to selected spatial_level
+                   # the highest visualiztion will be aggregated at cities
+                   data_ind2_spatial <- subset(data_ind2(), admin_level_ordered == input$admin_level)
+                   # create label
+                   # data_ind2_spatial <- data_ind2_spatial %>% dplyr::mutate(label = sprintf("<h3>%s</h3><br/>Click for more information", name))
+                   # data_ind2_spatial$label <- purrr::map_chr(data_ind2_spatial$label, ~htmltools::HTML)
+                   
+                   
+                   # extract geom type of this indicator
+                   geom_type <- unique(data_overlays2()$geom_type)
+                   # print(geom_type)
+                   
+                   # create the color palette
+                   pal <- colorNumeric(
+                     palette = "YlOrRd",
+                     domain = data_ind2_spatial$valor)
+                   
+                   # create legend title
+                   legend_title <- fcase(
+                     data_overlays2()$indicator %like% "pnpb", "% of the population within a 300m walk of a protected bikelane",
+                     default = "teste"
                      
+                   )
+                   
+                   
+                   # format legend value
+                   legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
                      
-                     # print("ui")
+                     scales::percent
                      
-                     # filter to selected spatial_level
-                     # the highest visualiztion will be aggregated at cities
-                     data_ind2_spatial <- subset(data_ind2(), admin_level_ordered == input$admin_level)
-                     # create label
-                     # data_ind2_spatial <- data_ind2_spatial %>% dplyr::mutate(label = sprintf("<h3>%s</h3><br/>Click for more information", name))
-                     # data_ind2_spatial$label <- purrr::map_chr(data_ind2_spatial$label, ~htmltools::HTML)
+                   } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+                   
+                   # print(paste0("legend value: ", data_ind2_spatial$valor))
+                   
+                   
+                   
+                   map <- leafletProxy("map", session) %>%
+                     # clearMarkers() %>%
+                     removeShape(layerId =  osm_selected$oi) %>%
+                     removeTiles(layerId =  "tile") %>%
+                     # clearShapes() %>%
+                     clearControls() %>%
+                     addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
+                     addMapPane("overlay", zIndex = 420)# shown above ames_lines
+                   
+                   
+                   if (isTRUE(input$indicator_bike == "pnab")) {
                      
-                     
-                     # extract geom type of this indicator
-                     geom_type <- unique(data_overlays2()$geom_type)
-                     # print(geom_type)
                      
                      # create the color palette
                      pal <- colorNumeric(
                        palette = "YlOrRd",
-                       domain = data_ind2_spatial$valor)
+                       domain = seq(0, 1000, 50))
                      
-                     # create legend title
-                     legend_title <- fcase(
-                       data_overlays2()$indicator %like% "pnpb", "% of the population within a 300m walk of a protected bikelane",
-                       default = "teste"
-                       
-                     )
-                     
-                     
-                     # format legend value
-                     legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "healthcare", "schools", "hs")) {
-                       
-                       scales::percent
-                       
-                     } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
-                     
-                     # print(paste0("legend value: ", data_ind2_spatial$valor))
+                     map <- map %>%
+                       addMapboxTiles(style_id = "cl1b8ovgb001b14nuzqlt28sz",
+                                      username = "kauebraga",
+                                      layerId = "tile",
+                                      options = tileOptions(zIndex = 9999,  opacity = 0.8),
+                                      access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ") %>%
+                       addLegend(pal = pal,  "bottomright",values = seq(0, 1000, 50), title = "teste")
                      
                      
+                   } else  {
                      
-                     map <- leafletProxy("map", session) %>%
-                       # clearMarkers() %>%
-                       removeShape(layerId =  osm_selected$oi) %>%
-                       # clearShapes() %>%
-                       clearControls() %>%
-                       addPolygons(data = data_ind2_spatial, fillColor = ~pal(valor), color = "black",  weight = 1
-                                   , layerId = ~osmid,
-                                   highlightOptions = highlightOptions(bringToFront = TRUE, opacity = 1, 
+                     
+                     map <- map %>%
+                       addPolygons(data = data_ind2_spatial, 
+                                   fillColor = ~pal(valor), fillOpacity = 0.5,
+                                   color = "black",  weight = 1, 
+                                   label = ~htmlEscape(name),
+                                   layerId = ~osmid,
+                                   options = pathOptions(pane = "basemap"),
+                                   highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, 
                                                                        weight = 6, color = "black"
                                                                        # fillColor = 'yellow'
                                    )
@@ -1452,43 +1677,21 @@ function(input, output, session) {
                                  # bins = c(0, 0.25, 0.50, 0.75, 1),
                                  labFormat = legend_value
                        )
-                     # 
                      
                      
-                     # # add overlay
-                     # if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
-                     #   
-                     #   
-                     #   map <- map %>%
-                     #     addPolygons(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE)) %>%
-                     #     # addLegend("bottomleft", pal = pal, values = ~valor) %>%
-                     #     addLayersControl(overlayGroups = c("Overlay"),
-                     #                      baseGroups = c("Light", "Dark"),
-                     #                      options = layersControlOptions(collapsed = FALSE))
-                     #   
-                     #   
-                     # } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
-                     #   
-                     #   
-                     #   map <- map %>%
-                     #     addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE)) %>%
-                     #     # addLegend("bottomleft", pal = pal, values = ~valor) %>%
-                     #     addLayersControl(overlayGroups = c("Overlay"),
-                     #                      baseGroups = c("Light", "Dark"),
-                     #                      options = layersControlOptions(collapsed = FALSE))
-                     #   
-                     #   
-                     #   
-                     # }
-                     
-                     map
-                     
-                     osm_selected$oi <- data_ind2_spatial$osmid
-                     
-                   }
+                   } 
+                   
+                   map
+                   
+                   osm_selected$oi <- data_ind2_spatial$osmid
+                   
+                   # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')
+                   # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')
+                   
+                   # }
                    
                    
-                   
+                   # v$rng1 <- city$city_code
                    
                    
                  })
@@ -1524,26 +1727,82 @@ function(input, output, session) {
   #   
   # })
   
+  
   # change to be made to UI afterwards
-  observeEvent(c(input$admin_level, input$indicator_performance), {
+  observeEvent(c(input$admin_level, city$city_code), {
     
-    # disable the button
-    shinyjs::runjs('$(".irs-single").remove();')
-    # change background color to white
-    # runjs('$("#modo_ativo button:eq(0)").css("background-color", "#FFF");')
-    # remove the reactivity only when the element is child of #modo_ativo
-    # runjs('$("#modo_ativo > div > div:nth-child(1) > button > input[value=public_transport]").remove();')
-    # runjs('$("#modo_ativo > input[value=public_transport]").remove();')
+    delay(1, shinyjs::runjs('$(".irs-single").remove();'))
     
-    # disable(selector = "#modo_ativo button:eq(0)")
-    # disable the button (still reactive tough)
-    # runjs('$("#modo_ativo button:eq(0)").prop("disabled", true).prop("onclick",null).off("click");')
-    # delete the button (not wanted)
-    # runjs('$("#modo_ativo button:eq(0)").remove();')
-    # runjs("$('input[value=B]').parent().attr('disabled', true);")
+    # a <- tags$div(class = "title_left_panel", "MAP DETAILS",
+    #          actionButton("teste3", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+    #                       class = "minimize")
+    # 
+    # )
+    
+    a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"
+    
+    delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
+    delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
+    # delay(1, shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );'))
+    
+    # print("input$admin_level")
+    # print(input$admin_level)
+    
+    # shinyjs::runjs("var today = new Date(); alert(today);")
     
     
+    
+    
+  }, ignoreInit = TRUE)
+  
+  observeEvent(c(input$teste1), {
+    print("button")
+    print(input$teste1)
   })
+  
+  observeEvent(c(input$teste1), {
+    
+    req(input$teste1 >= 1)
+    
+    # collpase the intire indicator panels
+    # shinyjs::runjs("$('.left_panel_indicators').slideToggle('')")
+    
+    
+    # collpase the the indicators inside each indicator header - and keep the header
+    a <- "if(!$('#indicator_bike').hasClass('in'))
+    {
+    // alert('Collapsed');
+    $('#indicator_bike, #indicator_walk, #indicator_transit, #indicator_city, #indicator_performance').collapse('show');
+    }
+    else {
+    // alert('Collapsed');
+    $('#indicator_bike, #indicator_walk, #indicator_transit, #indicator_city, #indicator_performance').not('active').collapse('hide');
+    }
+    "
+    
+    # keep only the selected category (bike, walk etc)
+    
+    
+    shinyjs::runjs(a)
+    
+    
+  }, ignoreInit = TRUE)
+  
+  observeEvent(c(input$teste2), {
+    
+    req(input$teste2 >= 1)
+    
+    shinyjs::runjs("$('#spatial_level > div > div > div.form-group.shiny-input-container > span').slideToggle('')")
+    
+  }, ignoreInit = TRUE)
+  
+  observeEvent(c(input$teste3), {
+    
+    req(input$teste3 >= 1)
+    
+    shinyjs::runjs("$('.leaflet-control-layers > .leaflet-control-layers-list').slideToggle('')")
+    
+  }, ignoreInit = TRUE)
   
   
   

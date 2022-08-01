@@ -1,0 +1,25 @@
+
+
+.minimize:focus, .minimize:hover, .minimize:active, .minimize:active:focus, .minimize:active:hover {
+          color: #F8F9FA;
+         background: transparent;
+    border-color: transparent;
+    box-shadow: 0px;
+    border-radius: 0px;
+    font-family: 'Franklin Gothic Book';
+   font-style: normal;
+   font-weight: 400;
+   font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+display: flex;
+align-items: center;
+
+/* Gray/100 */
+
+color: #F8F9FA; 
+  
+  
+}
+

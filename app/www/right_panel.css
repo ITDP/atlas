@@ -168,3 +168,100 @@ color: #FFFFFF;
   
 }
 
+
+/* tabs */
+
+.nav-tabs>li>a {
+    margin-right: 2px;
+    border: 0;
+    border-radius: 0;
+    
+    font-family: 'Franklin Gothic Medium';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 14px;
+/* identical to box height */
+
+letter-spacing: 0.25em;
+
+/* Gray/500 */
+
+color: #B1B5B9;
+}
+
+.nav-tabs {
+    border-bottom: 0;
+    padding: 15px;
+}
+
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+      border: 0;
+
+    outline: o;
+    cursor: default;
+    background-color: transparent;
+    border: 0;
+        border-bottom: 1px solid #00AE42;
+
+font-family: 'Franklin Gothic Medium';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 14px;
+/* identical to box height */
+
+letter-spacing: 0.25em;
+
+/* Main/Primary */
+
+color: #00AE42;
+}
+
+
+.nav>li>a:hover, .nav>li>a:focus {
+    font-family: 'Franklin Gothic Medium';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 14px;
+/* identical to box height */
+
+letter-spacing: 0.25em;
+
+/* Gray/500 */
+
+color: #B1B5B9;
+background: rgba(0, 0, 0, 0.5);
+  
+  
+}
+
+
+
+.link_button {
+  
+  
+padding: 10px;
+position: relative;
+font-family: 'Franklin Gothic Book';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 16px;
+
+/* Body Text / Base Color */
+
+color: #00AE42;
+padding-left: 0px;
+  
+}
+
+#link_see_more:hover, #link_see_more:active, #link_see_more:focus-visible {
+  
+  background: transparent;
+  outline: 0;
+  
+  
+}

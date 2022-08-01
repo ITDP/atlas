@@ -9,6 +9,8 @@ fluidPage(
   tags$head(includeCSS("www/scrollbar.css")),
   tags$head(includeCSS("www/map_legend.css")),
   tags$head(includeCSS("www/city_selector.css")),
+  tags$head(includeCSS("www/about.css")),
+  tags$head(includeCSS("www/minimize.css")),
   # tags$head(includeScript("www/bootstrap.js")),
   # tags$head(includeScript("www/jquery.js")),
   tags$head(
@@ -28,9 +30,11 @@ fluidPage(
   # use_bs_popover(), # you need to call this function somewhere in your ui
   # disconnectMessage(),
   # Use loading page
-  # use_waiter(),
-  # waiter_preloader(html = tagList(spin_loaders(id = 2, color = "black")), 
-  #                  color = "rgba(233, 235, 240, .5)"),
+  use_waiter(),
+  waiter_preloader(html = tagList(
+    tags$img(src = "img/itdp_logo.png", style ="padding-bottom: 30px", width="150"), br(),
+    spin_loaders(id = 2, color = "black")),
+                   color = "rgba(233, 235, 240, 1)"),
   # Start navbar page
   fluidPage(
     # title = "Atlas of Urban Transportation", id = "tabs", collapsible = TRUE,
@@ -53,7 +57,7 @@ fluidPage(
       ),
       # Create the left side panel  
       absolutePanel(class = "left_panel", 
-                    bottom = 30, left = 32, width = 250, height = 415,
+                    bottom = 30, left = 32, width = 250, height = 'auto',
                     # Output the 'UI' that was generated in the server
                     uiOutput('left_panel')
                  
@@ -64,7 +68,25 @@ fluidPage(
       # create the panel with the spatial scale
       uiOutput('spatial_level'),
       # right panel
-      uiOutput('right_panel')
+      uiOutput('right_panel'),
+      # back to world button
+      uiOutput('back_to_world_panel'),
+      # about
+      absolutePanel(
+        class = "about_panel",
+        # class = "w3-container w3-animate-opacity", 
+        # class = "panel panel-default",
+        # fixed = TRUE, draggable = FALSE,
+        top = 30, width = 60, height = 30,
+        actionButton(inputId = "about",
+                     label = "About",
+                     class = "about_button"
+                     # selected = character(0)
+        )
+      )
+      
+      
+      
       
     # )
     

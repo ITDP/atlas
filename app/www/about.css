@@ -1,0 +1,40 @@
+
+
+.about_panel  {
+    position: fixed;
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
+/* Gray/900 */
+background: rgba(28, 28, 28, 0.8);
+  border-radius: 4px;
+  padding: 0px;
+border: 1px solid #495057;
+}
+
+about_button {
+  
+  
+  
+  
+}
+
+
+.leaflet-control-layers-list {
+  
+  background: rgba(28, 28, 28, 0.8);
+  
+}
+
+
+.leaflet-control-layers-expanded {
+    padding: 6px 10px 6px 6px;
+    color: white;
+    background: rgba(28, 28, 28, 0.8);
+border: 1px solid #495057;
+}
+
+.leaflet-control-layers-list {
+    background: transparent;
+}
