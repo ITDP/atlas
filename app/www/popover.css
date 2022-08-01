@@ -1,0 +1,47 @@
+.popover {
+    /* max-width: 240px; */
+    max-height: 200px;
+    /* min-height: 120px;*/
+    background: rgba(28, 28, 28, 0.8);
+    border: 0;
+    border-radius: 0;
+    color: #F8F9FA;
+    left: 282px !important;
+}
+
+/*
+*/
+#indicator_bike .btn, #indicator_bike .active {
+  /*  text-align:right; */
+  /* padding-right: 10px; */
+  /*background: blue; */
+  
+}
+
+.popover-title {
+    background-color: rgba(28, 28, 28, 0.8);
+    font-family: 'Franklin Gothic Demi';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    color: #F8F9FA;
+    border: 0 ;
+}
+
+
+.arrow {
+  visibility: hidden;
+  display: none;
+  
+}
+
+.popover-body {
+    font-family: 'Franklin Gothic Book';
+    background: rgba(28, 28, 28, 0.8);
+    border: 0;
+    font-size: 14px;
+}
+
