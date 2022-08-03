@@ -47,7 +47,7 @@ function(input, output, session) {
                                       'Colombia' = c("Bogota" = "0621",
                                                      "Medellin" = "0561")
                                     ),
-                                    options = pickerOptions(size = 15,
+                                    options = shinyWidgets::pickerOptions(size = 15,
                                                             iconBase = "fa",
                                                             tickIcon = "fa-check",
                                                             title = "Search for a metro region ...",
@@ -230,7 +230,7 @@ function(input, output, session) {
           tags$div(class = "title_left_panel", "LEVEL OF DETAIL", 
                    actionButton("teste2", label = "", icon = icon("minus"), style= "float: right; padding: 0",
                                 class = "minimize")),
-          sliderTextInput(inputId = "admin_level",
+          shinyWidgets::sliderTextInput(inputId = "admin_level",
                           choices = seq(1, go),
                           label = NULL,
                           selected = 1,
@@ -350,10 +350,10 @@ function(input, output, session) {
     
     indicator$type <- "bike"
     # update the others
-    updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     # print("performance :", input$indicator_performance)
     # print(input$city)
     # print(indicator$type)
@@ -364,10 +364,10 @@ function(input, output, session) {
     
     indicator$type <- "walk"
     # update the others
-    updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     
     
   })
@@ -376,10 +376,10 @@ function(input, output, session) {
     
     indicator$type <- "transit"
     # update the others
-    updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     
   })
   
@@ -387,10 +387,10 @@ function(input, output, session) {
     
     indicator$type <- "performance"
     # update the others
-    updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
     
     # print("performance :", input$indicator_performance)
     
@@ -400,10 +400,10 @@ function(input, output, session) {
     
     indicator$type <- "city"
     # update the others
-    updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     # print("ai!")
     
   })
@@ -436,7 +436,7 @@ function(input, output, session) {
     
     city$city_code <- input$map_marker_click$id
     
-    updatePickerInput(session = session, inputId = "city",
+    shinyWidgets::updatePickerInput(session = session, inputId = "city",
                       selected = city$city_code)
     
     
@@ -624,7 +624,7 @@ function(input, output, session) {
         opacity = 0.8,
         weight = 1,
         layerId = ~hdc,
-        label = ~htmlEscape(name)
+        label = ~htmltools::htmlEscape(name)
       ) %>%
       addPolygons(data = a_country, 
                   fillColor = ~pal_countries(valor), color = "black",  weight = 0,
@@ -677,7 +677,7 @@ function(input, output, session) {
     print("back to world")
     
     
-    updatePickerInput(session = session, inputId = "city",
+    shinyWidgets::updatePickerInput(session = session, inputId = "city",
                       selected = character(0))
     
     city$city_code <- NULL
@@ -731,7 +731,7 @@ function(input, output, session) {
         opacity = 0.8,
         weight = 1,
         layerId = ~hdc,
-        label = ~htmlEscape(name)
+        label = ~htmltools::htmlEscape(name)
       ) %>%
       addPolygons(data = a_country, 
                   fillColor = ~pal_countries(valor), color = "black",  weight = 0,
@@ -1394,7 +1394,7 @@ function(input, output, session) {
       addPolygons(data = data_metro,
                   fillColor = ~pal(valor), fillOpacity = 0.5,
                   color = "black",  weight = 1, layerId = ~osmid,
-                  label = ~htmlEscape(name),
+                  label = ~htmltools::htmlEscape(name),
                   options = pathOptions(pane = "basemap"),
                   highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black")) %>%
       # addLegend("bottomleft", pal = pal, values = ~valor) %>%
@@ -1632,7 +1632,7 @@ function(input, output, session) {
                        addPolygons(data = data_ind2_spatial, 
                                    fillColor = ~pal(valor), fillOpacity = 0.5,
                                    color = "black",  weight = 1, 
-                                   label = ~htmlEscape(name),
+                                   label = ~htmltools::htmlEscape(name),
                                    layerId = ~osmid,
                                    options = pathOptions(pane = "basemap"),
                                    highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, 
