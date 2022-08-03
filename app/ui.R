@@ -1,3 +1,20 @@
+list_bike <- structure(c("pnpb", "pnab", "abikeways", "pbikeways"), 
+                       .Names = c("People Near Protected Bikelanes", "People Near All Bikelanes",
+                                  "Bikeways", "Protected Bikeways"))
+
+list_walk <- structure(c("pnh", "pne", "pns"), 
+                       .Names = c("People Near Healthcare", "People Near Education", "People Near Services"))
+
+list_transit <- structure(c("pntt", "etct"), 
+                          .Names = c("People Near Transit&nbsp;&nbsp;&nbsp;", "ETC"))
+
+list_performance <- structure(c("bikep", "walkp"), 
+                              .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
+
+list_city <- structure(c("poptotal", "density"), 
+                       .Names = c("Population&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;","Population Density"))
+
+
 fluidPage(
   # this script will add elements to the right side of the topbar (links etc) ok
   # Load Css
@@ -14,7 +31,6 @@ fluidPage(
   tags$head(includeCSS("www/popover.css")),
   tags$head(includeCSS("www/map_details.css")),
   
-  # tags$head(includeScript("www/popovers_indicators.js")),
   # tags$head(includeScript("www/jquery.js")),
   tags$head(
     tags$script(
@@ -29,6 +45,7 @@ fluidPage(
     });
   "),
   tags$head(tags$script("var ind_cum = ['bikep', 'walkp'];")),
+  # tags$head(includeScript("www/popovers_indicators.js")),
   shinyjs::useShinyjs(),
   # use_bs_popover(), # you need to call this function somewhere in your ui
   # disconnectMessage(),
@@ -62,7 +79,41 @@ fluidPage(
       absolutePanel(class = "left_panel", 
                     bottom = 30, left = 32, width = 250, height = 'auto',
                     # Output the 'UI' that was generated in the server
-                    uiOutput('left_panel')
+                    # uiOutput('left_panel')
+                    tags$div(class = "title_left_panel", "INDICATORS", 
+                             actionButton("teste1", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+                                          class = "minimize")
+                             
+                    ),
+                    
+                    # Create the left side panel  
+                    absolutePanel(class = "left_panel_indicators", 
+                                  bottom = 5, left = -2, width = 240, height = 'auto',
+                                  
+                                  accordion_input(inputId = "indicator_city",
+                                                  label = "City",
+                                                  choices = c(list_city),
+                                                  selected = character(0)),
+                                  accordion_input(inputId = "indicator_bike",
+                                                  label = "Bike",
+                                                  choices = c(list_bike),
+                                                  selected = "pnpb"),
+                                  
+                                  accordion_input(inputId = "indicator_walk",
+                                                  label = "Walk",
+                                                  choices = c(list_walk),
+                                                  selected = character(0)),
+                                  accordion_input(inputId = "indicator_transit",
+                                                  label = "Transit",
+                                                  choices = c(list_transit),
+                                                  selected = character(0)),
+                                  accordion_input(inputId = "indicator_performance",
+                                                  label = "Performance",
+                                                  choices = c(list_performance),
+                                                  selected = character(0))
+                                  
+                    )
+                    
                  
                     
       ),

@@ -105,9 +105,9 @@ color: #F8F9FA;
   text-align: left;
 }
 
-.btn-default:hover{
-        border-color: transparent;
-    box-shadow: 0px;
+.btn-default:hover, .btn-default[disabled]:hover{
+        border-color: transparent !important;
+    box-shadow: 0px !important;
     border-radius: 0px;
     font-family: 'Franklin Gothic Book';
 font-style: normal;

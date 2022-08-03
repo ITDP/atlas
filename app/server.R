@@ -35,159 +35,92 @@ function(input, output, session) {
       # ),
       h3(style = "color: #00AE42; display: inline-block; font-size: 28px", strong("ATLAS")),
       div(style = "display: inline-block;",
-          pickerInput(inputId = "city",
-                      label = NULL,
-                      choices = list(
-                        'Brazil' = c("Fortaleza" = "1406",
-                                     "Recife" = "1445"),
-                        # 'USA' = c("Boston" = "1022"),
-                        # 'Ethiopia' = c("Addis Ababa" = "5134")
-                        'Mexico' = c("Guadalajara" = "0088",
-                                     "Monterrey" = "0200"),
-                        'Colombia' = c("Bogota" = "0621",
-                                       "Medellin" = "0561")
-                      ),
-                      options = pickerOptions(size = 15,
-                                              iconBase = "fa",
-                                              tickIcon = "fa-check",
-                                              title = "Search for a metro region ...",
-                                              liveSearch = TRUE)
+          shinyWidgets::pickerInput(inputId = "city",
+                                    label = NULL,
+                                    choices = list(
+                                      'Brazil' = c("Fortaleza" = "1406",
+                                                   "Recife" = "1445"),
+                                      # 'USA' = c("Boston" = "1022"),
+                                      # 'Ethiopia' = c("Addis Ababa" = "5134")
+                                      'Mexico' = c("Guadalajara" = "0088",
+                                                   "Monterrey" = "0200"),
+                                      'Colombia' = c("Bogota" = "0621",
+                                                     "Medellin" = "0561")
+                                    ),
+                                    options = pickerOptions(size = 15,
+                                                            iconBase = "fa",
+                                                            tickIcon = "fa-check",
+                                                            title = "Search for a metro region ...",
+                                                            liveSearch = TRUE)
           )
       )
     )
     
   })
   
-  output$left_panel <- renderUI({
-    
-    # Create lists that will give the select options to the respective language
-    # list_indicators <- structure(c("bike", "walk",  "transit", "performance",  "city"), 
-    #                              .Names = c("Bicycle", "Walk",  "Transit", "Performance", "Built Env"))
-    
-    list_bike <- structure(c("pnpb", "pnab", "abikeways", "pbikeways"), 
-                           .Names = c("People Near Protected Bikelanes", "People Near All Bikelanes",
-                                      "Bikeways", "Protected Bikeways"))
-    
-    list_walk <- structure(c("pnh", "pne", "pns"), 
-                           .Names = c("People Near Healthcare", "People Near Education", "People Near Services"))
-    
-    list_transit <- structure(c("pntt", "etct"), 
-                              .Names = c("People Near Transit&nbsp;&nbsp;&nbsp;", "ETC"))
-    
-    list_performance <- structure(c("bikep", "walkp"), 
-                                  .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
-    
-    list_city <- structure(c("poptotal", "density"), 
-                           .Names = c("Population&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;","Population Density"))
-    
-    # list_spatial_levels <- structure(c("adminstrative_area2(city)", "adminstrative_area3(juris)"),
-    #                                  .Names = c("city", "jurisdiction"))
+  # output$left_panel <- renderUI({
     
     
-    # Start proper UI here 
-    tagList(
-      
-      tags$div(class = "title_left_panel", "INDICATORS", 
-               actionButton("teste1", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-                            class = "minimize")
-               # tags$button(id = "teste1", type = "button", class = "btn", style= "float: right; padding: 0",
-               #             icon("bus"))
-               
-      ),
-      
-      
-      
-      # THIS CONDITIONAL PANEL WILL UNFOLD NICELY WITH THE REMAINING SELECTIONS WHEN A CITY IS SELECTED
-      
-      
-      # absolutePanel(
-      #   id = "controls_animated1",
-      #   class = "panel panel-default", 
-      #   # class = "w3-container w3-animate-opacity", 
-      #   fixed = TRUE, draggable = FALSE,
-      #   bottom = 100, left = 10, width = 300,
-      
-      
-      # 2) INDICATOR SELECTION --------------------------------------------------
-      
-      # radioGroupButtons(inputId = "indicator",
-      #                   label = "Indicator",
-      #                   choices = c(list_indicators),
-      #                   individual = TRUE,
-      #                   justified = TRUE,
-      #                   selected = "bike"),
-      
-      # Create the left side panel  
-      absolutePanel(class = "left_panel_indicators", 
-                    bottom = 5, left = -2, width = 240, height = 'auto',
-                    # by type of indicator
-                    # conditionalPanel(
-                    # condition = "input.indicator == 'bike'",
-                    
-                    accordion_input(inputId = "indicator_bike",
-                                    label = "Bike",
-                                    choices = c(list_bike),
-                                    selected = "pnpb"),
-                    
-                    accordion_input(inputId = "indicator_city",
-                                    label = "City",
-                                    choices = c(list_city),
-                                    selected = character(0)),
-                    # includeHTML("test_accordion2.html"),
-                    # pickerInput(inputId = "indicator_bike",
-                    #             label = "Bike",
-                    #             choices = c(list_bike),
-                    #             selected = "PNB")
-                    # ),
-                    # conditionalPanel(
-                    #   condition = "input.indicator == 'walk'",
-                    accordion_input(inputId = "indicator_walk",
-                                    label = "Walk",
-                                    choices = c(list_walk),
-                                    selected = character(0)),
-                    #   pickerInput(inputId = "indicator_walk",
-                    #               label = "Walk",
-                    #               choices = c(list_walk),
-                    #               selected = "PN Healthcare")
-                    # ),
-                    # conditionalPanel(
-                    # condition = "input.indicator == 'transit'",
-                    accordion_input(inputId = "indicator_transit",
-                                    label = "Transit",
-                                    choices = c(list_transit),
-                                    selected = character(0)),
-                    #   pickerInput(inputId = "indicator_transit",
-                    #               label = "Transit",
-                    #               choices = c(list_transit),
-                    #               selected = "PNT")
-                    # ),
-                    # conditionalPanel(
-                    # condition = "input.indicator == 'city'",
-                    accordion_input(inputId = "indicator_performance",
-                                    label = "Performance",
-                                    choices = c(list_performance),
-                                    selected = character(0))
-                    
-                    
-                    #   pickerInput(inputId = "indicator_city",
-                    #               label = "Built Env",
-                    #               choices = c(list_city),
-                    #               selected = "pne")
-                    # )
-                    
-                    
-                    
-      )
-      
-      
-      
-    )
+    # list_bike <- structure(c("pnpb", "pnab", "abikeways", "pbikeways"), 
+    #                        .Names = c("People Near Protected Bikelanes", "People Near All Bikelanes",
+    #                                   "Bikeways", "Protected Bikeways"))
+    # 
+    # list_walk <- structure(c("pnh", "pne", "pns"), 
+    #                        .Names = c("People Near Healthcare", "People Near Education", "People Near Services"))
+    # 
+    # list_transit <- structure(c("pntt", "etct"), 
+    #                           .Names = c("People Near Transit&nbsp;&nbsp;&nbsp;", "ETC"))
+    # 
+    # list_performance <- structure(c("bikep", "walkp"), 
+    #                               .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
+    # 
+    # list_city <- structure(c("poptotal", "density"), 
+    #                        .Names = c("Population&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;","Population Density"))
+    
+    
+    # # Start proper UI here 
+    # tagList(
+    #   
+    #   tags$div(class = "title_left_panel", "INDICATORS", 
+    #            actionButton("teste1", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+    #                         class = "minimize")
+    #            
+    #   ),
+    #   
+    #   # Create the left side panel  
+    #   absolutePanel(class = "left_panel_indicators", 
+    #                 bottom = 5, left = -2, width = 240, height = 'auto',
+    #                 
+    #                 accordion_input(inputId = "indicator_city",
+    #                                 label = "City",
+    #                                 choices = c(list_city),
+    #                                 selected = character(0)),
+    #                 accordion_input(inputId = "indicator_bike",
+    #                                 label = "Bike",
+    #                                 choices = c(list_bike),
+    #                                 selected = character(0)),
+    #                 
+    #                 accordion_input(inputId = "indicator_walk",
+    #                                 label = "Walk",
+    #                                 choices = c(list_walk),
+    #                                 selected = character(0)),
+    #                 accordion_input(inputId = "indicator_transit",
+    #                                 label = "Transit",
+    #                                 choices = c(list_transit),
+    #                                 selected = character(0)),
+    #                 accordion_input(inputId = "indicator_performance",
+    #                                 label = "Performance",
+    #                                 choices = c(list_performance),
+    #                                 selected = character(0))
+    #                 
+    #   )
+    # )
     
     
     
-  })
+  # })
   
-  observeEvent({input$indicator_bike}, {
+  observe({
     
     # add necessary atrributes to create popover
     
@@ -573,18 +506,6 @@ function(input, output, session) {
   output$map <- renderLeaflet({
     
     
-    
-    
-    pal <- colorNumeric(
-      palette = "BuGn",
-      # palette = "YlGnBu",
-      domain = atlas_city_markers$bike_pnpb_2019)
-    
-    pal_countries <- colorNumeric(
-      palette = "BuGn",
-      # palette = "YlGnBu",
-      domain = atlas_country$bike_pnpb_2019)
-    
     map <- leaflet(data = atlas_city_markers, options = leafletOptions(zoomControl = FALSE)) %>%
       addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
       addProviderTiles(providers$CartoDB.Positron, group = "Light", layerId = "epa") %>%
@@ -680,20 +601,13 @@ function(input, output, session) {
       # palette = "YlGnBu",
       domain = a_country$valor)
     
-    # create legend title
-    legend_title <- fcase(
-      indicator_mode() %like% "pnpb", "% of the population within a 300m walk of a protected bikelane",
-      default = "teste"
-      
-    )
     
     
+    legend_title <- list_indicators[indicator_code == indicator_mode()]$indicator_name
+    legend_value <- list_indicators[indicator_code == indicator_mode()]$indicator_unit
     # format legend value
-    legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-      
-      scales::percent
-      
-    } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+    legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+    
     
     # print(a)
     
@@ -796,26 +710,17 @@ function(input, output, session) {
       # palette = "YlGnBu",
       domain = a_country$valor)
     
-    # create legend title
-    legend_title <- fcase(
-      indicator_mode() %like% "pnpb", "% of the population within a 300m walk of a protected bikelane",
-      default = "teste"
-      
-    )
-    
-    
+    legend_title <- list_indicators[indicator_code == indicator_mode()]$indicator_name
+    legend_value <- list_indicators[indicator_code == indicator_mode()]$indicator_unit
     # format legend value
-    legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-      
-      scales::percent
-      
-    } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+    legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
     
     # print(a)
     
     leafletProxy("map", data = a) %>%
       clearMarkers() %>%
       clearControls() %>%
+      removeLayersControl() %>%
       clearShapes() %>%
       setView(lng = 0, lat = 0, zoom = 3) %>%
       addCircleMarkers(
@@ -1028,23 +933,23 @@ function(input, output, session) {
   
   
   # display initial rank with indicators - in the world view
-  observeEvent(c(input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
+  observeEvent(c(indicator_mode()), {
     
     
     
     # req(indicator_mode())
     # req(indicator$type)
     
-    print("agora vai!")
     # print(rank$admin_level)
     
     if(is.null(rank$admin_level)) {
       
+      print("agora vai!")
       # print("queeeeeeeeeee")
       
       # value
       atlas_country1 <- setDT(copy(atlas_country))
-      # print(paste0("type: ", indicator$type))
+      print(paste0("type: ", indicator$type))
       pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
       # print(pattern)
       cols <- c('name_long', colnames(atlas_country1)[startsWith(colnames(atlas_country1), pattern)])
@@ -1136,6 +1041,7 @@ function(input, output, session) {
                                div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3))
       
       # print(rank$rank_text)
+      # print(rank$rank_value)
       
       rank$rank_text_world <- rank$rank_text_value
       
@@ -1398,9 +1304,9 @@ function(input, output, session) {
     # select data tahat will be used for the overlay
     if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
       
-      data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$polygon, by = "indicator") %>% st_sf()
+      data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$polygon, by = "indicator") %>% sf::st_sf()
       
-    } else data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$line, by = "indicator") %>% st_sf() 
+    } else data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$line, by = "indicator") %>% sf::st_sf() 
     
     
     # print(head(data_overlays_sf))
@@ -1473,6 +1379,7 @@ function(input, output, session) {
       removeMarker(layerId = data_metro$osmid) %>%
       clearShapes() %>%
       removeControl(layerId = "legend_country") %>%
+      removeLayersControl() %>%
       # clearControls() %>%
       fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
       addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
@@ -1681,20 +1588,11 @@ function(input, output, session) {
                      palette = "YlOrRd",
                      domain = data_ind2_spatial$valor)
                    
-                   # create legend title
-                   legend_title <- fcase(
-                     data_overlays2()$indicator %like% "pnpb", "% of the population within a 300m walk of a protected bikelane",
-                     default = "teste"
-                     
-                   )
                    
-                   
+                   legend_title <- list_indicators[indicator_code == indicator_mode()]$indicator_name
+                   legend_value <- list_indicators[indicator_code == indicator_mode()]$indicator_unit
                    # format legend value
-                   legend_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-                     
-                     scales::percent
-                     
-                   } else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+                   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
                    
                    # print(paste0("legend value: ", data_ind2_spatial$valor))
                    
@@ -1710,7 +1608,7 @@ function(input, output, session) {
                      addMapPane("overlay", zIndex = 420)# shown above ames_lines
                    
                    
-                   if (isTRUE(input$indicator_bike == "pnab")) {
+                   if (isTRUE(input$indicator_bike == "pnabb")) {
                      
                      
                      # create the color palette
@@ -1719,11 +1617,11 @@ function(input, output, session) {
                        domain = seq(0, 1000, 50))
                      
                      map <- map %>%
-                       addMapboxTiles(style_id = "cl1b8ovgb001b14nuzqlt28sz",
-                                      username = "kauebraga",
-                                      layerId = "tile",
-                                      options = tileOptions(zIndex = 9999,  opacity = 0.8),
-                                      access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ") %>%
+                       mapboxapi::addMapboxTiles(style_id = "cl1b8ovgb001b14nuzqlt28sz",
+                                                 username = "kauebraga",
+                                                 layerId = "tile",
+                                                 options = tileOptions(zIndex = 9999,  opacity = 0.8),
+                                                 access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ") %>%
                        addLegend(pal = pal,  "bottomright",values = seq(0, 1000, 50), title = "teste")
                      
                      
@@ -1799,6 +1697,74 @@ function(input, output, session) {
   #   
   #   
   # })
+  observeEvent(c(indicator_mode()), {
+    
+    delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
+    delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);'))
+    delay(1, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
+    delay(1, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
+    delay(1, runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);'))
+    delay(1, runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", true);'))
+    
+    
+  })
+  
+  observeEvent(c(city$city_code), {
+    
+    
+    # disable indicators that are not available
+    # shinyjs::disable()
+    
+    
+    # if (input$city == "") {
+      
+      
+      runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);')
+      runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);')
+      runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);')
+      runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);')
+      runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);')
+      runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", true);')
+      runjs('$("#indicator_walk > div > div:nth-child(2) > button").attr("disabled", true);')
+      
+    # }
+      
+    # } else if (city$city_code == "1406") {
+    #   
+    #   
+    #   runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", false);')
+    #   runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", false);')
+    #   
+    #   runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", false);')
+    #   runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", false);')
+    #   
+    #   
+    #   runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", false);')
+    #   runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", false);')
+    #   
+    #   runjs('$("#indicator_walk > div > div:nth-child(2) > button").attr("disabled", false);')
+    #   
+    # }  else if(city$city_code == "1445") {
+    #   
+    #   runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", false);')
+    #   runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", false);')
+    #   
+    #   runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", false);')
+    #   runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", false);')
+    #   
+    #   
+    #   runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", false);')
+    #   runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", false);')
+    #   
+    #   runjs('$("#indicator_walk > div > div:nth-child(2) > button").attr("disabled", false);')
+    #   
+    #   
+    #   
+    # }
+    
+    
+  })
+  
   
   
   # changes to be made to UI afterwards
@@ -1834,8 +1800,6 @@ function(input, output, session) {
     # delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers label:nth-child(3) input[type=radio]")'))
     # remover o texto
     # delay(1, shinyjs::runjs('$( ".leaflet-control-layers span" ).remove();'))
-    
-    
     
     
     
@@ -1889,6 +1853,8 @@ function(input, output, session) {
     shinyjs::runjs("$('.leaflet-control-layers > .leaflet-control-layers-list').slideToggle('')")
     
   }, ignoreInit = TRUE)
+  
+  
   
   
   

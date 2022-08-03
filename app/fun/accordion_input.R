@@ -28,7 +28,7 @@ accordion_input <- function(inputId,label,choices, selected = character(0), ...)
                             tags$label(class = "control_label", 'for' = inputId, label)),
                 div(id=inputId, class="panel-collapse collapse in", 'aria-labelledby'=paste0(inputId, "-label"), 'data-bs-parent'="#accordionExample",
                     div(class = "accordion-body",
-                        radioGroupButtons(
+                        shinyWidgets::radioGroupButtons(
                           inputId = inputId,
                           # label = "",
                           choices = choices,
