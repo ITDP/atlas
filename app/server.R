@@ -691,12 +691,12 @@ function(input, output, session) {
     pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
     # print(pattern)
     cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
-    a <- atlas_city_markers[cols]
+    a <- atlas_city_markers[, ..cols]
     colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
     
     # print(class(atlas_country))
     cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
-    a_country <- atlas_country[cols_country]
+    a_country <- atlas_country[, ..cols_country]
     colnames(a_country) <- c('a2', 'valor', 'geom')
     
     pal <- colorNumeric(
@@ -1536,8 +1536,9 @@ function(input, output, session) {
                    # print(rv$prev_city)
                    
                    # print(rv$prev_city)
-                   # print(city$city_code)
-                   # print(rv$prev_city[length(rv$prev_city)-1])
+                   print("vai")
+                   print(city$city_code)
+                   print(rv$prev_city[length(rv$prev_city)-1])
                    
                    
                  }, ignoreInit = TRUE)
@@ -1553,6 +1554,11 @@ function(input, output, session) {
                    # print("atual_city")
                    # print(city$city_code)
                    
+                   # print("obs4")
+                   # print(city$city_code)
+                   # print(rv$prev_city[length(rv$prev_city)-1])
+                   # print(rv$prev_city[length(rv$prev_city)-1])
+                   
                    req(city$city_code == rv$prev_city[length(rv$prev_city)-1],
                        isTRUE(input$admin_level >= 1))
                    
@@ -1567,9 +1573,9 @@ function(input, output, session) {
                    # if (isTRUE(input$admin_level >= 1)) {
                    
                    
-                   
-                   
                    print("obs4")
+                   
+                   
                    
                    # filter to selected spatial_level
                    # the highest visualiztion will be aggregated at cities
