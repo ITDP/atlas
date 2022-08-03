@@ -1,0 +1,30 @@
+
+/* hide the radio button */
+.leaflet-control-layers input[type=radio] {
+  
+
+position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  
+  
+}
+
+
+.leaflet-control-layers [type=radio] + img {
+  cursor: pointer;
+}
+
+
+[type=radio]:checked + img {
+  outline: 2px solid white;
+}
+
+
+
+/* make the icons inline and add marings */
+.leaflet-control-layers label {
+    display: inline-block;
+    margin-right: 10px;
+}

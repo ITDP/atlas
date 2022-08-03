@@ -12,6 +12,7 @@ fluidPage(
   tags$head(includeCSS("www/about.css")),
   tags$head(includeCSS("www/minimize.css")),
   tags$head(includeCSS("www/popover.css")),
+  tags$head(includeCSS("www/map_details.css")),
   
   # tags$head(includeScript("www/popovers_indicators.js")),
   # tags$head(includeScript("www/jquery.js")),

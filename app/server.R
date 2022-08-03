@@ -236,7 +236,7 @@ function(input, output, session) {
     # runjs("    $('#indicator_bike > div > div:nth-child(1) > button').popover(
     #   {trigger: 'hover', html: true,  title:'Popover title', content:'<p>Popover content.</p>', boundary: 'viewport', container: 'body'}
     # );")
-
+    
     
     
   })
@@ -350,7 +350,7 @@ function(input, output, session) {
                                  htmlOutput("text_indicator2")
                                  
                                )
-                               )
+                      )
                       
                       
           )
@@ -379,7 +379,7 @@ function(input, output, session) {
           # class = "w3-container w3-animate-opacity", 
           # class = "panel panel-default",
           # fixed = TRUE, draggable = FALSE,
-          top = 20, right = 400, width = 90, height = 30,
+          top = 20, right = 500, width = 90, height = 30,
           style = "background: black",
           actionButton(inputId = "back_to_world",
                        label = "Reset map"
@@ -587,23 +587,32 @@ function(input, output, session) {
     
     map <- leaflet(data = atlas_city_markers, options = leafletOptions(zoomControl = FALSE)) %>%
       addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
-      addProviderTiles(providers$CartoDB.Positron, group = "Light") %>%
+      addProviderTiles(providers$CartoDB.Positron, group = "Light", layerId = "epa") %>%
       addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
       addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
                        # overlayGroups = c("Overlay"),
                        options = layersControlOptions(collapsed = FALSE),
                        position = "topright") %>%
+      # htmlwidgets::onRender("
+      #                       function() {
+      #                     L.control.layers({'Light'}).addTo(this);
+      #                       }
+      #                       ") %>%
+      #   htmlwidgets::onRender("function(el, x) {
+      #            var overlayMaps = {'Towns': groups.Light};
+      #     L.control.layers(overlayMaps).addTo(this);
+      # }") %>%
       # hideGroup("Overlay") %>%
       
-      # addControl(html = "<h3> QUEEEEEEEEEE </h3>") %>%
-      
-      # addCircleMarkers(
-      #   # radius = ~ifelse(type == "ship", 6, 10),
-      #   radius = 10,
-      #   # color = ~pal(bike_pnpb_2019),
-      #   stroke = TRUE, fillOpacity = 0.5,
-      #   layerId = ~hdc
-      # ) %>%
+    # addControl(html = "<h3> QUEEEEEEEEEE </h3>") %>%
+    
+    # addCircleMarkers(
+    #   # radius = ~ifelse(type == "ship", 6, 10),
+    #   radius = 10,
+    #   # color = ~pal(bike_pnpb_2019),
+    #   stroke = TRUE, fillOpacity = 0.5,
+    #   layerId = ~hdc
+    # ) %>%
     # addPolygons(data = atlas_country,
     #             fillColor = ~pal_countries(bike_pnpb_2019), color = "black",  weight = 1,
     #             options = pathOptions(clickable = FALSE)) %>%
@@ -618,6 +627,7 @@ function(input, output, session) {
       "function(el, x) {
         L.control.zoom({position:'topright'}).addTo(this);
       }")
+    
     
     
     map
@@ -711,7 +721,8 @@ function(input, output, session) {
                 title = legend_title,
                 # bins = 7,
                 labFormat = legend_value,
-                layerId = "legend_country")
+                layerId = "legend_country") 
+    
     # addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
     #                  options = layersControlOptions(collapsed = FALSE),
     #                  position = "topright") %>%
@@ -804,7 +815,7 @@ function(input, output, session) {
     
     leafletProxy("map", data = a) %>%
       clearMarkers() %>%
-      # clearControls() %>%
+      clearControls() %>%
       clearShapes() %>%
       setView(lng = 0, lat = 0, zoom = 3) %>%
       addCircleMarkers(
@@ -1409,6 +1420,8 @@ function(input, output, session) {
   
   tl <- reactiveValues(transition = NULL)
   
+  
+  
   # observeEvent(c(input$city, input$map_marker_click), {
   observeEvent(c(city$city_code), {
     
@@ -1480,9 +1493,11 @@ function(input, output, session) {
       # addLegend("bottomleft", pal = pal, values = ~valor) %>%
       addLayersControl(
         overlayGroups = c("Overlay"),
-        baseGroups = c("Dark", "Light", "Satellite"),
+        # baseGroups = c("Dark", "Light", "Satellite"),
         options = layersControlOptions(collapsed = FALSE),
-        position = "topright")
+        position = "topright") 
+    
+    
     #   htmlwidgets::onRender('
     #     function() {
     #         $(".leaflet-control-layers").prepend("<label>My Epic Title</label>");
@@ -1496,12 +1511,15 @@ function(input, output, session) {
       
       
       map <- map %>%
-        addPolygons(data = data_overlays_sf(), group = "Overlay", opacity = 0.8,
+        addPolygons(data = data_overlays_sf(), 
+                    group = "Overlay",
+                    opacity = 0.8,
                     options = pathOptions(clickable = FALSE, pane = "overlay"),
                     layerId = "overlay_layer",
                     fillColor = "#00AE42", fillOpacity = 0.6,
                     weight = 1, color = "black"
-        )
+        ) 
+      
       
       
       
@@ -1549,8 +1567,8 @@ function(input, output, session) {
       # clearMarkers() %>%
       removeShape(layerId = "overlay_layer") %>%
       addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
-      addMapPane("overlay", zIndex = 420) # shown above ames_lines
-    # clearControls()
+      addMapPane("overlay", zIndex = 420) %>% # shown above ames_lines
+      removeLayersControl()
     
     
     
@@ -1567,7 +1585,7 @@ function(input, output, session) {
         ) %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         baseGroups = c("Light", "Dark"),
+                         # baseGroups = c("Light", "Dark"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
@@ -1579,7 +1597,7 @@ function(input, output, session) {
                      layerId = "overlay_layer") %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         baseGroups = c("Light", "Dark"),
+                         # baseGroups = c("Light", "Dark"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
@@ -1783,9 +1801,11 @@ function(input, output, session) {
   # })
   
   
-  # change to be made to UI afterwards
+  # changes to be made to UI afterwards
   observeEvent(c(input$admin_level, city$city_code), {
     
+    
+    # remove the iris tick markes on the slider
     delay(1, shinyjs::runjs('$(".irs-single").remove();'))
     
     # a <- tags$div(class = "title_left_panel", "MAP DETAILS",
@@ -1794,16 +1814,27 @@ function(input, output, session) {
     # 
     # )
     
-    a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"
+    # adicionar o titulo 'map details'
+    # a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"
     
-    delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
-    delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
+    # remove o titulo que por acaso veio da interecao anterior (para evitar sobreposicao)
+    # delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
+    # adicionar o titul com o botao de minimizar
+    # delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
     # delay(1, shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );'))
     
-    # print("input$admin_level")
-    # print(input$admin_level)
     
-    # shinyjs::runjs("var today = new Date(); alert(today);")
+    
+    # inserir icone de cada um dos basemaps (em troco do texto)
+    # a primeira imagem vai ser do basemap dark
+    # delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers label:nth-child(1) input[type=radio]")'))
+    # a segunda imagem vai ser do basemap light
+    # delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers label:nth-child(2) input[type=radio]")'))
+    # a terceira imagem vai ser do basemap satellite
+    # delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers label:nth-child(3) input[type=radio]")'))
+    # remover o texto
+    # delay(1, shinyjs::runjs('$( ".leaflet-control-layers span" ).remove();'))
+    
     
     
     
