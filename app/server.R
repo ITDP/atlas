@@ -120,6 +120,7 @@ function(input, output, session) {
     
   # })
   
+  # popovers!
   observe({
     
     # add necessary atrributes to create popover
@@ -603,8 +604,8 @@ function(input, output, session) {
     
     
     
-    legend_title <- list_indicators[indicator_code == indicator_mode()]$indicator_name
-    legend_value <- list_indicators[indicator_code == indicator_mode()]$indicator_unit
+    legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
+    legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
     # format legend value
     legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
     
@@ -691,12 +692,12 @@ function(input, output, session) {
     pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
     # print(pattern)
     cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
-    a <- atlas_city_markers[, ..cols]
+    a <- atlas_city_markers[cols]
     colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
     
     # print(class(atlas_country))
     cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
-    a_country <- atlas_country[, ..cols_country]
+    a_country <- atlas_country[cols_country]
     colnames(a_country) <- c('a2', 'valor', 'geom')
     
     pal <- colorNumeric(
@@ -710,8 +711,8 @@ function(input, output, session) {
       # palette = "YlGnBu",
       domain = a_country$valor)
     
-    legend_title <- list_indicators[indicator_code == indicator_mode()]$indicator_name
-    legend_value <- list_indicators[indicator_code == indicator_mode()]$indicator_unit
+    legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
+    legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
     # format legend value
     legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
     
@@ -814,7 +815,7 @@ function(input, output, session) {
     # print("ui")
     pattern <- sprintf("^%s", indicator$type)
     cols <- c('osmid', 'admin_level_ordered', 'name', grep(pattern, colnames(data_ind()), ignore.case = TRUE, value = TRUE))
-    a <- data_ind()[cols]
+    a <- data_ind()[, cols]
     
     # print(head(a))
     return(a)
@@ -884,7 +885,7 @@ function(input, output, session) {
     
     req(city$city_code)
     # filter rank from rank files
-    a <- readRDS(sprintf("../data/sample3/ranks/rank_%s.rds", city$city_code)) %>% setDT()
+    a <- readRDS(sprintf("../data/sample3/ranks/rank_%s.rds", city$city_code))
     
     
   })
@@ -899,7 +900,7 @@ function(input, output, session) {
     # print("pattern")
     # print(pattern)
     cols <- c('osmid', 'admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'rank_type', 'n')
-    a <- get_rank()[, ..cols]
+    a <- get_rank()[cols]
     colnames(a) <- c('osmid','admin_level_ordered', 'name', 'rank', 'rank_type', 'n')
     # print(head(a))
     return(a)
@@ -914,10 +915,10 @@ function(input, output, session) {
     # print(paste0("pattern: ", indicator_mode()))
     cols <- c('name_long', 'a2', colnames(atlas_country_ranks)[startsWith(colnames(atlas_country_ranks), pattern)], 'n')
     # print(cols)
-    a <- atlas_country_ranks[, ..cols]
+    a <- atlas_country_ranks[cols]
     colnames(a) <- c('name_long', 'a2', 'rank', 'n')
     # only top five
-    a <- setorder(a, rank)
+    a <- a[order(a$rank),]
     a <- a[1:3,]
     # print(a)
     return(a)
@@ -948,16 +949,16 @@ function(input, output, session) {
       # print("queeeeeeeeeee")
       
       # value
-      atlas_country1 <- setDT(copy(atlas_country))
       print(paste0("type: ", indicator$type))
       pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
       # print(pattern)
-      cols <- c('name_long', colnames(atlas_country1)[startsWith(colnames(atlas_country1), pattern)])
+      cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
       # print(cols)
-      a <- atlas_country1[, ..cols]
-      colnames(a) <- c('name_long', 'valor')
+      a <- atlas_country[, cols]
+      colnames(a) <- c('name_long', 'valor', 'geom')
+      # print(a)
       # only top five
-      a <- setorder(a, -valor)
+      a <- a[order(-a$valor),]
       a <- a[1:3,]
       # mean for the world
       rank_indicator <- mean(a$valor)
@@ -968,7 +969,7 @@ function(input, output, session) {
       # print(head(filter_rank()))
       # print(spatial_level_value$last)
       
-      format_indicator_name <- list_indicators[indicator_code == indicator_mode()]$indicador_name
+      format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
       
       # format_indicator_name <- switch (indicator_mode(),
       #                                  "pnpb" = "People Near Protected Bike Lanes",
@@ -1104,7 +1105,7 @@ function(input, output, session) {
                    #                                  "pne" = "People Near pne",
                    #                                  "hs" = "People Near Services"
                    # )
-                   format_indicator_name <- list_indicators[indicator_code == indicator_mode()]$indicador_name
+                   format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
                    
                    # print(rank_indicator$valor)
                    
@@ -1400,7 +1401,7 @@ function(input, output, session) {
       # addLegend("bottomleft", pal = pal, values = ~valor) %>%
       addLayersControl(
         overlayGroups = c("Overlay"),
-        # baseGroups = c("Dark", "Light", "Satellite"),
+        baseGroups = c("Dark", "Light", "Satellite"),
         options = layersControlOptions(collapsed = FALSE),
         position = "topright") 
     
@@ -1492,7 +1493,7 @@ function(input, output, session) {
         ) %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         # baseGroups = c("Light", "Dark"),
+                         baseGroups = c("Dark", "Light", "Satellite"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
@@ -1504,7 +1505,7 @@ function(input, output, session) {
                      layerId = "overlay_layer") %>%
         # addLegend("bottomleft", pal = pal, values = ~valor) %>%
         addLayersControl(overlayGroups = c("Overlay"),
-                         # baseGroups = c("Light", "Dark"),
+                         baseGroups = c("Dark", "Light", "Satellite"),
                          options = layersControlOptions(collapsed = FALSE))
       
       
@@ -1595,8 +1596,8 @@ function(input, output, session) {
                      domain = data_ind2_spatial$valor)
                    
                    
-                   legend_title <- list_indicators[indicator_code == indicator_mode()]$indicator_name
-                   legend_value <- list_indicators[indicator_code == indicator_mode()]$indicator_unit
+                   legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
+                   legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
                    # format legend value
                    legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
                    
@@ -1703,6 +1704,7 @@ function(input, output, session) {
   #   
   #   
   # })
+  # disable indicators
   observeEvent(c(indicator_mode()), {
     
     delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
@@ -1731,7 +1733,6 @@ function(input, output, session) {
       runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);')
       runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);')
       runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", true);')
-      runjs('$("#indicator_walk > div > div:nth-child(2) > button").attr("disabled", true);')
       
     # }
       
@@ -1773,6 +1774,43 @@ function(input, output, session) {
   
   
   
+  # create and change the 'map details' tab
+  # it's gonna react only when people change cities / select new indicator
+  observeEvent(c(indicator_mode(), city$city_code), {
+    
+    # adicionar o titulo 'map details'
+    a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"
+    
+    # remove o titulo que por acaso veio da interecao anterior (para evitar sobreposicao)
+    delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
+    delay(1, shinyjs::runjs('$( ".leaflet-control-layers-base > #title_base" ).remove();'))
+    delay(1, shinyjs::runjs('$( ".leaflet-control-layers-overlays > #title_overlay" ).remove();'))
+    # adicionar o titul com o botao de minimizar
+    
+    delay(3, shinyjs::runjs('$( ".leaflet-control-layers-base" ).prepend( "<h3 id = \'title_base\' class = \'control-label\'>BASEMAP</h3>" );'))
+    delay(2, shinyjs::runjs('$( ".leaflet-control-layers-overlays" ).prepend( "<h3 id = \'title_overlay\' class = \'control-label\'>OVERLAYS</h3>" );'))
+    delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
+    
+    
+    
+    # inserir icone de cada um dos basemaps (em troco do texto)
+    # a primeira imagem vai ser do basemap dark
+    
+    delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(2) input[type=radio] + img").remove()'))
+    delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(2) input[type=radio]")'))
+    # a segunda imagem vai ser do basemap light
+    delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(3) input[type=radio] + img").remove()'))
+    delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(3) input[type=radio]")'))
+    # a terceira imagem vai ser do basemap satellite
+    delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(4) input[type=radio] + img").remove()'))
+    delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(4) input[type=radio]")'))
+    # remover o texto
+    delay(1, shinyjs::runjs('$( ".leaflet-control-layers-base span" ).remove();'))
+    
+  })
+  
+  
+  
   # changes to be made to UI afterwards
   observeEvent(c(input$admin_level, city$city_code), {
     
@@ -1785,28 +1823,6 @@ function(input, output, session) {
     #                       class = "minimize")
     # 
     # )
-    
-    # adicionar o titulo 'map details'
-    # a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"
-    
-    # remove o titulo que por acaso veio da interecao anterior (para evitar sobreposicao)
-    # delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
-    # adicionar o titul com o botao de minimizar
-    # delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
-    # delay(1, shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );'))
-    
-    
-    
-    # inserir icone de cada um dos basemaps (em troco do texto)
-    # a primeira imagem vai ser do basemap dark
-    # delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers label:nth-child(1) input[type=radio]")'))
-    # a segunda imagem vai ser do basemap light
-    # delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers label:nth-child(2) input[type=radio]")'))
-    # a terceira imagem vai ser do basemap satellite
-    # delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers label:nth-child(3) input[type=radio]")'))
-    # remover o texto
-    # delay(1, shinyjs::runjs('$( ".leaflet-control-layers span" ).remove();'))
-    
     
     
   }, ignoreInit = TRUE)

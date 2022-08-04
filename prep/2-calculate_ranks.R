@@ -13,8 +13,7 @@ country_ranks <- atlas_country %>%
   mutate(n = n()) %>%
   mutate(across(walk_pnh_2019:last_col(1), ~n - .x + 1)) %>%
   # select(-n) %>%
-  mutate(rank_type = "country_world") %>% 
-  setDT()
+  mutate(rank_type = "country_world")
 
 dir.create("data/sample3/ranks")
 
@@ -47,7 +46,7 @@ prep_data <- function(ghsl) {
     mutate(n = n()) %>%
     mutate(across(walk_pnh_2019:last_col(1), ~n - .x + 1)) %>%
     # select(-n) %>%
-    mutate(rank_type = "world") %>% setDT()
+    mutate(rank_type = "world")
   
   # in the country
   
@@ -61,11 +60,10 @@ prep_data <- function(ghsl) {
     mutate(across(walk_pnh_2019:last_col(1), ~n - .x + 1)) %>%
     # select(-n) %>%
     # create type of rank
-    mutate(rank_type = "metro") %>%
-    setDT()
+    mutate(rank_type = "metro")
   
   # bind the comparions
-  rank_complete <- rbind(rank_world, rank_city_metro, fill = TRUE)
+  rank_complete <- rbind(rank_world, rank_city_metro)
   
   
   
