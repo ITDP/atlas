@@ -815,7 +815,7 @@ function(input, output, session) {
     # print("ui")
     pattern <- sprintf("^%s", indicator$type)
     cols <- c('osmid', 'admin_level_ordered', 'name', grep(pattern, colnames(data_ind()), ignore.case = TRUE, value = TRUE))
-    a <- data_ind()[, cols]
+    a <- data_ind()[cols]
     
     # print(head(a))
     return(a)
@@ -954,7 +954,7 @@ function(input, output, session) {
       # print(pattern)
       cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geom")
       # print(cols)
-      a <- atlas_country[, cols]
+      a <- atlas_country[cols]
       colnames(a) <- c('name_long', 'valor', 'geom')
       # print(a)
       # only top five
