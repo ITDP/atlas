@@ -952,7 +952,7 @@ function(input, output, session) {
       print(paste0("type: ", indicator$type))
       pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
       # print(pattern)
-      cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
+      cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geom")
       # print(cols)
       a <- atlas_country[, cols]
       colnames(a) <- c('name_long', 'valor', 'geom')
