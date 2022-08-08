@@ -30,6 +30,7 @@ fluidPage(
   tags$head(includeCSS("www/minimize.css")),
   tags$head(includeCSS("www/popover.css")),
   tags$head(includeCSS("www/map_details.css")),
+  tags$head(includeCSS("www/modal.css")),
   
   # tags$head(includeScript("www/jquery.js")),
   tags$head(

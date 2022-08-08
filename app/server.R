@@ -359,6 +359,7 @@ source("src/texts_rightpanel.R", local = TRUE)
 source("src/map.R", local = TRUE)  
 source("src/popovers.R", local = TRUE)  
 source("src/changes_jquery.R", local = TRUE)  
+source("src/about.R", local = TRUE)  
 
   
   
