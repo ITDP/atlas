@@ -88,12 +88,12 @@ observeEvent(c(indicator_mode(), input$back_to_world), {
   pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
   # print("pattern")
   # print(pattern)
-  cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
+  cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
   a <- atlas_city_markers[cols]
   colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
   
   # print(class(atlas_country))
-  cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
+  cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], 'geom')
   a_country <- atlas_country[cols_country]
   colnames(a_country) <- c('a2', 'valor', 'geom')
   
