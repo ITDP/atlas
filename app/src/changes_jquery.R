@@ -121,21 +121,8 @@ observeEvent(c(input$admin_level, city$city_code), {
   
 }, ignoreInit = TRUE)
 
-observeEvent(c(input$teste1), {
-  print("button")
-  print(input$teste1)
-})
-
-observeEvent(c(input$teste1), {
-  
-  req(input$teste1 >= 1)
-  
-  # collpase the intire indicator panels
-  # shinyjs::runjs("$('.left_panel_indicators').slideToggle('')")
-  
-  
-  # collpase the the indicators inside each indicator header - and keep the header
-  a <- "if(!$('#indicator_bike').hasClass('in'))
+# collpase the the indicators inside each indicator header - and keep the header
+onclick("teste1", runjs("if(!$('#indicator_bike').hasClass('in'))
     {
     // alert('Collapsed');
     $('#indicator_bike, #indicator_walk, #indicator_transit, #indicator_city, #indicator_performance').collapse('show');
@@ -144,29 +131,13 @@ observeEvent(c(input$teste1), {
     // alert('Collapsed');
     $('#indicator_bike, #indicator_walk, #indicator_transit, #indicator_city, #indicator_performance').not('active').collapse('hide');
     }
-    "
-  
-  # keep only the selected category (bike, walk etc)
-  
-  
-  shinyjs::runjs(a)
-  
-  
-}, ignoreInit = TRUE)
+    "))
+onclick("teste2", runjs("$('#spatial_level > div > div > div.form-group.shiny-input-container > span').slideToggle('')"))
+onclick("teste3", runjs("$('.leaflet-control-layers > .leaflet-control-layers-list').slideToggle('')"))
 
-observeEvent(c(input$teste2), {
-  
-  req(input$teste2 >= 1)
-  
-  shinyjs::runjs("$('#spatial_level > div > div > div.form-group.shiny-input-container > span').slideToggle('')")
-  
-}, ignoreInit = TRUE)
+onclick("hide", "$('#right_panel').hide(\"slide\", {direction: \"right\")}, 1000);")
 
-observeEvent(c(input$teste3), {
+
   
-  req(input$teste3 >= 1)
-  
-  shinyjs::runjs("$('.leaflet-control-layers > .leaflet-control-layers-list').slideToggle('')")
-  
-}, ignoreInit = TRUE)
+
 
