@@ -501,6 +501,7 @@ observeEvent(c(input$admin_level,
                indicator_mode()), {
                  
                  
+                 
                  # print("prev_city")
                  # print(rv$prev_city[length(rv$prev_city)-1])
                  # print("atual_city")
@@ -513,6 +514,9 @@ observeEvent(c(input$admin_level,
                  
                  req(city$city_code == rv$prev_city[length(rv$prev_city)-1],
                      isTRUE(input$admin_level >= 1))
+                 
+                 waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+                             color = "rgba(233, 235, 240, .4)")
                  
                  # admin_level_previous$a <-admin_level_previous$a + 1
                  
@@ -553,7 +557,6 @@ observeEvent(c(input$admin_level,
                  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
                  
                  # print(paste0("legend value: ", data_ind2_spatial$valor))
-                 
                  
                  
                  map <- leafletProxy("map", session) %>%
@@ -619,7 +622,7 @@ observeEvent(c(input$admin_level,
                  
                  # }
                  
-                 
+                 waiter_hide()
                  # v$rng1 <- city$city_code
                  
                  
