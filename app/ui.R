@@ -65,7 +65,8 @@ fluidPage(
       # title = "Atlas", 
       # value = "tab_general",
       # Output the map
-      leafletOutput("map"),
+      leafglOutput("map"),
+      # leafletOutput("map"),
       # create the napel to select city
       
       absolutePanel(id = "city_selection", 
@@ -132,7 +133,7 @@ fluidPage(
         # class = "w3-container w3-animate-opacity", 
         # class = "panel panel-default",
         # fixed = TRUE, draggable = FALSE,
-        top = 30, width = 60, height = 30,
+        top = 48, width = 60, height = 30, left = 500,
         actionButton(inputId = "about",
                      label = "About",
                      class = "about_button"
