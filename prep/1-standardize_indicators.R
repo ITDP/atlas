@@ -96,8 +96,10 @@ prep_data <- function(ghsl) {
   # rename indicators
   colnames(data) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", ind_columns_new,"geom")
   
-  
-  
+  # simplify data
+  data <- st_simplify(data)
+  # to polygons
+  # data <- st_cast(data, "POLYGON")
   
   
   
@@ -127,6 +129,7 @@ prep_data <- function(ghsl) {
   overlay_polygons <- overlay[grep("MULTIPOLYGON", names(overlay))] %>% rbindlist()
   overlay_lines <- overlay[grep("MULTILINESTRING", names(overlay))] %>% rbindlist()
   
+
   
   
   # juntar objeto dos overlays sem a geom
@@ -152,7 +155,15 @@ prep_data <- function(ghsl) {
   overlay_polygons <- left_join(overlay_polygons, overlay_id, by = "ind") %>% select(-ind) %>% st_sf(crs = 4326)
   if (nrow(overlay_lines) > 0) {
     overlay_lines <- left_join(overlay_lines, overlay_id, by = "ind") %>% select(-ind) %>% st_sf(crs = 4326)
+    overlay_lines <- st_simplify(overlay_lines)
   } 
+  
+  # simplify data
+  overlay_polygons <- st_simplify(overlay_polygons)
+  # to polygons
+  # overlay_polygons <- st_cast(overlay_polygons, "POLYGON")
+  
+  
   overlay_df <- left_join(overlay_df, overlay_id, by = "ind") %>% select(-ind)
   
   # we should overlays for all available indicators, so we need to check that
