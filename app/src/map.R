@@ -294,28 +294,10 @@ observeEvent(c(city$city_code), {
   
   osm_selected$oi <- data_metro$osmid
   
-  # }
-  
-  
-  
-  # print(sprintf("Data ind raw: %s", head(data_ind2())))
-  # print(sprintf("Data ind raw: %s", class(data_ind2())))
-  
-  
-  # print(sprintf("Data ind: %s", head(data_ind2_cities)))
-  # print(colnames(data_ind2_cities))
-  # print(nrow(data_ind2_cities))
   
   # extract geom type of this indicator
   geom_type <- unique(data_overlays2()$geom_type)
   
-  # print(data_overlays_sf())
-  
-  # print(paste0("geom type: ", geom_type))
-  # print(head(data_overlays_sf))
-  
-  
-  # print(data_metro$valor)
   # print(data_metro$osmid)
   print("obs2")
   
@@ -403,6 +385,83 @@ observeEvent(c(city$city_code), {
   
   
 })
+
+
+
+# observer to keep selected element highlited -----------------------------
+
+# first, we should create a vector with the selected elements
+element <- reactiveValues(selected = NULL)
+
+
+# when the admin level is changed, the vector should be restarted to avoid duplciation
+observeEvent(c(input$admin_level), {
+  element$selected <- NULL
+  
+})
+
+
+observeEvent(c(input$map_shape_click), {
+  
+  # this will only happen when we are beyond the city level
+  req(isTRUE(input$admin_level >= 1))
+  
+  # first, we should create a vector with the selected elements
+  ui <- input$map_shape_click$id
+  element$selected <- c(element$selected, ui)
+  print("element$selected")
+  print(input$map_shape_click)
+  
+  
+  # thigs to do here:
+  # 1) delete the selected polygon
+  # 2) create the selected polygon with the stronger stroke
+  # 3) "diselect" when another polygon is selected
+  
+  
+  # filter only the selected polygon
+  data <- subset(data_ind2_spatial(), osmid == ui)
+  # then select the previous polygon (if exists)
+  if (length(element$selected) > 1) {
+    
+    data_previous <- subset(data_ind2_spatial(), osmid == tail(element$selected, 2)[1])
+    # print("data_previous")
+    # print(data_previous)
+    
+    
+  }
+  
+  
+  
+  # update the map
+  map <- leafletProxy("map", session) %>%
+    # 1) delete the selected polygon
+    removeShape(layerId = ui) %>%
+    # 2) create the selected polygon with the stronger stroke
+    addPolygons(data = data,
+                fillColor = data$fill, fillOpacity = 1,
+                # fillColor = ~pal(valor), 
+                # fillOpacity = 0.5,
+                color = "black",  weight = 8, layerId = ~osmid, opacity = 1,
+                label = ~htmltools::htmlEscape(name),
+                options = pathOptions(pane = "basemap"))
+  
+  # if there was a previous element, revert it to the oringial color and stroke
+  if (length(element$selected) > 1) {
+    map <- map %>%
+      addPolygons(data = data_previous, 
+                  # fis theses colors
+                  fillColor = data_previous$fill, fillOpacity = 0.5,
+                  label = ~htmltools::htmlEscape(name),
+                  color = "black",  weight = 1, layerId = ~osmid
+      )
+  }
+  
+  
+  map
+  
+})
+
 
 
 # update overlay only when indicator is changed --------------------------------
@@ -497,66 +556,58 @@ observeEvent(c(city$city_code,
 
 
 # update the basemap  --------------------------------
+
+# reactive to filter data and add column with colors
+data_ind2_spatial <- reactive({
+  
+  req(data_ind2(), input$admin_level)
+  
+  a <- subset(data_ind2(), admin_level_ordered == input$admin_level)
+  
+  
+  # create the color palette
+  pal <- colorNumeric(
+    palette = "YlOrRd",
+    domain = a$valor)
+  
+  # create a column with the colors
+  a$fill <- pal(a$valor)
+  
+  return(a)
+  
+})
+
+
+
 observeEvent(c(input$admin_level,
                indicator_mode()), {
                  
                  
                  
-                 # print("prev_city")
-                 # print(rv$prev_city[length(rv$prev_city)-1])
-                 # print("atual_city")
-                 # print(city$city_code)
+                 # this observer will only run if whe aren't switching cities
+                 previous_city <- rv$prev_city[length(rv$prev_city)-1]
                  
-                 # print("obs4")
-                 # print(city$city_code)
-                 # print(rv$prev_city[length(rv$prev_city)-1])
-                 # print(rv$prev_city[length(rv$prev_city)-1])
+                 req(city$city_code == previous_city,
+                     isTRUE(input$admin_level >= 1),
+                     data_ind2_spatial())
                  
-                 req(city$city_code == rv$prev_city[length(rv$prev_city)-1],
-                     isTRUE(input$admin_level >= 1))
                  
-                 waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
-                             color = "rgba(233, 235, 240, .4)")
                  
-                 # admin_level_previous$a <-admin_level_previous$a + 1
-                 
-                 # print(isTRUE(is.null(admin_level_previous$a)))
-                 # print("previous")
-                 # print(admin_level_previous$a)
-                 # print(rank$admin_level)
-                 # it will run only when we are at the city level
-                 # if (isTRUE(admin_level_previous$a >= 1)) {
-                 # if (isTRUE(input$admin_level >= 1)) {
+                 # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+                 #             color = "rgba(233, 235, 240, .4)")
                  
                  
                  print("obs4")
                  
-                 
-                 
-                 # filter to selected spatial_level
-                 # the highest visualiztion will be aggregated at cities
-                 data_ind2_spatial <- subset(data_ind2(), admin_level_ordered == input$admin_level)
-                 # create label
-                 # data_ind2_spatial <- data_ind2_spatial %>% dplyr::mutate(label = sprintf("<h3>%s</h3><br/>Click for more information", name))
-                 # data_ind2_spatial$label <- purrr::map_chr(data_ind2_spatial$label, ~htmltools::HTML)
-                 
-                 
                  # extract geom type of this indicator
                  geom_type <- unique(data_overlays2()$geom_type)
-                 # print(geom_type)
                  
-                 # create the color palette
-                 pal <- colorNumeric(
-                   palette = "YlOrRd",
-                   domain = data_ind2_spatial$valor)
-                 
-                 
+                 # filter legend title and values
                  legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
                  legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
                  # format legend value
                  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
                  
-                 # print(paste0("legend value: ", data_ind2_spatial$valor))
                  
                  
                  map <- leafletProxy("map", session) %>%
@@ -590,8 +641,9 @@ observeEvent(c(input$admin_level,
                    
                    
                    map <- map %>%
-                     addPolygons(data = data_ind2_spatial, 
-                                 fillColor = ~pal(valor), fillOpacity = 0.5,
+                     addPolygons(data = data_ind2_spatial(), 
+                                 fillColor = data_ind2_spatial()$fill,
+                                 fillOpacity = 0.5,
                                  color = "black",  weight = 1, 
                                  label = ~htmltools::htmlEscape(name),
                                  layerId = ~osmid,
@@ -602,8 +654,10 @@ observeEvent(c(input$admin_level,
                                  )
                                  # label = ~(label)
                      ) %>%
-                     addLegend(data = data_ind2_spatial, "bottomright",
-                               pal = pal,
+                     addLegend(data = data_ind2_spatial(), "bottomright",
+                               pal = colorNumeric(
+                                 palette = "YlOrRd",
+                                 domain = NULL),
                                values = ~valor,
                                title = legend_title,
                                # bins = c(0, 0.25, 0.50, 0.75, 1),
@@ -615,7 +669,7 @@ observeEvent(c(input$admin_level,
                  
                  map
                  
-                 osm_selected$oi <- data_ind2_spatial$osmid
+                 osm_selected$oi <- data_ind2_spatial()$osmid
                  
                  # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')
                  # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')
