@@ -71,9 +71,9 @@ counter <- reactiveValues(obs1 = NULL,
 
 
 # update the world map when the indicators is changed ---------------------
-observeEvent(c(indicator_mode(), input$back_to_world), {
+observeEvent(c(indicator_mode(), input$year), {
   
-  req(indicator_mode(), is.null(input$admin_level))               
+  req(indicator_mode(), is.null(rank$admin_level), input$year)               
   
   
   print("obs1")
@@ -85,7 +85,7 @@ observeEvent(c(indicator_mode(), input$back_to_world), {
   
   # print(atlas_city_markers)
   
-  pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
   # print("pattern")
   # print(pattern)
   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
@@ -119,9 +119,9 @@ observeEvent(c(indicator_mode(), input$back_to_world), {
   # print(a)
   
   leafletProxy("map", data = a) %>%
-    # clearMarkers() %>%
-    # clearControls() %>%
-    # clearShapes() %>%
+    clearMarkers() %>%
+    clearControls() %>%
+    clearShapes() %>%
     flyTo(lng = 0, lat = 0, zoom = 3) %>%
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
@@ -167,114 +167,6 @@ observeEvent(c(indicator_mode(), input$back_to_world), {
 
 
 
-# BOTAO PARA VOLTAR !!!!!!!!!! --------------------------------------------
-
-
-
-observeEvent(c(input$back_to_world), {
-  
-  
-  # print("back to world")
-  # print(input$back_to_world)
-  
-  # if (isTRUE(input$back_to_workd != 0)) {
-  
-  req(input$back_to_world >= 1)
-  
-  print("back to world")
-  
-  
-  shinyWidgets::updatePickerInput(session = session, inputId = "city",
-                                  selected = character(0))
-  
-  city$city_code <- NULL
-  
-  # session$sendCustomMessage(type = "resetValue", message = "city")
-  # session$sendCustomMessage(type = "resetValue", message = "map_marker_click")
-  
-  # print(paste0("pa: ", input$map_marker_click))
-  
-  
-  pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
-  # print(pattern)
-  cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
-  a <- atlas_city_markers[cols]
-  colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
-  
-  # print(class(atlas_country))
-  cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
-  a_country <- atlas_country[cols_country]
-  colnames(a_country) <- c('a2', 'valor', 'geom')
-  
-  pal <- colorNumeric(
-    palette = "viridis",
-    # palette = "YlGnBu",
-    domain = a$valor)
-  
-  
-  pal_countries <- colorNumeric(
-    palette = "viridis",
-    # palette = "YlGnBu",
-    domain = a_country$valor)
-  
-  legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
-  legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
-  # format legend value
-  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
-  
-  # print(a)
-  
-  leafletProxy("map", data = a) %>%
-    clearMarkers() %>%
-    clearControls() %>%
-    removeLayersControl() %>%
-    clearShapes() %>%
-    setView(lng = 0, lat = 0, zoom = 3) %>%
-    addCircleMarkers(
-      # radius = ~ifelse(type == "ship", 6, 10),
-      radius = 8,
-      # fillColor = ~pal(valor), 
-      stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
-      opacity = 0.8,
-      weight = 1,
-      layerId = ~hdc,
-      label = ~htmltools::htmlEscape(name)
-    ) %>%
-    addPolygons(data = a_country, 
-                fillColor = ~pal_countries(valor), color = "black",  weight = 0,
-                options = pathOptions(clickable = FALSE)) %>%
-    # add polygons with the country color
-    # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-    addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
-              title = legend_title,
-              # bins = 7,
-              labFormat = legend_value,
-              layerId = "legend_country")
-  # htmlwidgets::onRender("function(el, x) {$('.leaflet-control-layers').prepend('<label class = \"control-label\">MAP DETAILS</label>');}")
-  #   htmlwidgets::onRender('
-  #     function() {
-  #         $(".leaflet-control-layers").prepend("<label style=\'text-align:center\'>My Epic Title</label>");
-  #     }
-  # ')
-  
-  # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')
-  # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')
-  
-  
-  
-  # }
-  
-}) 
-
-
-observeEvent(c(input$back_to_world), {
-  
-  rank$admin_level <- NULL
-  
-})
-
-
-
 
 
 
@@ -287,7 +179,7 @@ observeEvent(c(city$city_code), {
   bbox <- sf::st_bbox(data_ind())
   
   # subset for the metro region polygons
-  data_metro <- subset(data_ind2(), admin_level_ordered == 1)
+  data_metro <- subset(data_ind3(), admin_level_ordered == 1)
   
   
   # if (isTRUE(input$admin_level == 1)) {
@@ -420,11 +312,11 @@ observeEvent(c(input$map_shape_click), {
   
   
   # filter only the selected polygon
-  data <- subset(data_ind2_spatial(), osmid == ui)
+  data <- subset(data_ind3_spatial(), osmid == ui)
   # then select the previous polygon (if exists)
   if (length(element$selected) > 1) {
     
-    data_previous <- subset(data_ind2_spatial(), osmid == tail(element$selected, 2)[1])
+    data_previous <- subset(data_ind3_spatial(), osmid == tail(element$selected, 2)[1])
     # print("data_previous")
     # print(data_previous)
     
@@ -547,9 +439,9 @@ observeEvent(c(city$city_code,
                  # print(rv$prev_city)
                  
                  # print(rv$prev_city)
-                 print("vai")
-                 print(city$city_code)
-                 print(rv$prev_city[length(rv$prev_city)-1])
+                 # print("vai")
+                 # print(city$city_code)
+                 # print(rv$prev_city[length(rv$prev_city)-1])
                  
                  
                }, ignoreInit = TRUE)
@@ -558,11 +450,11 @@ observeEvent(c(city$city_code,
 # update the basemap  --------------------------------
 
 # reactive to filter data and add column with colors
-data_ind2_spatial <- reactive({
+data_ind3_spatial <- reactive({
   
-  req(data_ind2(), input$admin_level)
+  req(data_ind3(), input$admin_level)
   
-  a <- subset(data_ind2(), admin_level_ordered == input$admin_level)
+  a <- subset(data_ind3(), admin_level_ordered == input$admin_level)
   
   
   # create the color palette
@@ -589,7 +481,7 @@ observeEvent(c(input$admin_level,
                  
                  req(city$city_code == previous_city,
                      isTRUE(input$admin_level >= 1),
-                     data_ind2_spatial())
+                     data_ind3_spatial())
                  
                  
                  
@@ -641,8 +533,8 @@ observeEvent(c(input$admin_level,
                    
                    
                    map <- map %>%
-                     addPolygons(data = data_ind2_spatial(), 
-                                 fillColor = data_ind2_spatial()$fill,
+                     addPolygons(data = data_ind3_spatial(), 
+                                 fillColor = data_ind3_spatial()$fill,
                                  fillOpacity = 0.5,
                                  color = "black",  weight = 1, 
                                  label = ~htmltools::htmlEscape(name),
@@ -654,7 +546,7 @@ observeEvent(c(input$admin_level,
                                  )
                                  # label = ~(label)
                      ) %>%
-                     addLegend(data = data_ind2_spatial(), "bottomright",
+                     addLegend(data = data_ind3_spatial(), "bottomright",
                                pal = colorNumeric(
                                  palette = "YlOrRd",
                                  domain = NULL),
@@ -669,7 +561,7 @@ observeEvent(c(input$admin_level,
                  
                  map
                  
-                 osm_selected$oi <- data_ind2_spatial()$osmid
+                 osm_selected$oi <- data_ind3_spatial()$osmid
                  
                  # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')
                  # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')

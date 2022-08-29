@@ -81,8 +81,6 @@ data_ind2 <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
   cols <- c('osmid','admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'geom')
   a <- data_ind1()[cols]
-  colnames(a) <- c('osmid','admin_level_ordered', 'name', 'valor', 'geom')
-  a <- a %>% dplyr::mutate(teste = "teste")
   
   # print(a)
   
@@ -101,6 +99,23 @@ data_overlays2 <- reactive({
   return(a)
   
   # print(sprintf("spatial level: %s", input$spatial_level))
+  
+})
+
+
+# filter year when available
+data_ind3 <- reactive({
+  
+  req(indicator_mode())
+  
+  # print(indicator_mode())
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
+  cols <- c('osmid','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
+  a <- data_ind1()[cols]
+  colnames(a) <- c('osmid','admin_level_ordered', 'name', 'valor', 'geom')
+  # print(a)
+  
+  return(a)
   
 })
 

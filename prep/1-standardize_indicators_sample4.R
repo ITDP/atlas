@@ -4,6 +4,41 @@ library(mapview)
 library(leaflet)
 library(data.table)
 library(Hmisc)
+sf::sf_use_s2(FALSE)
+
+
+base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
+
+# go
+data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
+world <- dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE)
+world <- world[grepl("ghsl_region_\\d{4}/indicator_values.gpkg", world)]
+# fun to open all data
+open_data <- function(file) {
+  
+  a <- st_read(file)
+  a <- st_cast(a, "MULTIPOLYGON")
+  a <- tidyr::fill(a, hdc)
+  
+}
+data_all <- purrr::map_dfr(world, open_data)
+# ghsl to 4 characters
+data_all <- data_all %>% mutate(hdc = stringr::str_pad(hdc, width = 4, side = "left", pad = 0))
+
+
+# remove indicators that we wont use
+data_all <- data_all %>%
+  select(-starts_with("rtr_")) %>%
+  select(-starts_with("stns_")) %>%
+  select(-starts_with("km_")) %>%
+  select(-performance_walk_30, -performance_walk_60, -performance_bike_lts1_30, -performance_bike_lts1_45,
+         -performance_bike_lts1_60, -performance_bike_lts2_30, -performance_bike_lts2_60) %>%
+  select(-density) %>%
+  select(-blockmean_density) %>%
+  select(-recording_time)
+
+
+
 
 
 prep_data <- function(ghsl) {
@@ -12,24 +47,9 @@ prep_data <- function(ghsl) {
   # ghsl <- 1022
   # ghsl <- "0561"
   # ghsl <- "0088"
+  # ghsl <- "0634"
   
-  base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
-  
-  # go
-  data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
-  world <- dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE)
-  world <- world[grepl("ghsl_region_\\d{4}/indicator_values.gpkg", world)]
-  # fun to open all data
-  open_data <- function(file) {
-    
-    a <- st_read(file)
-    a <- st_cast(a, "MULTIPOLYGON")
-    a <- tidyr::fill(a, hdc)
-    
-  }
-  data_all <- lapply(world, open_data) %>% rbindlist(fill = TRUE)
-  # ghsl to 4 characters
-  data_all <- data_all %>% mutate(hdc = stringr::str_pad(hdc, width = 4, side = "left", pad = 0))
+ 
   # filter only city
   data <- data_all %>% filter(hdc == ghsl) %>% st_sf(crs = 4326)
   
@@ -47,6 +67,7 @@ prep_data <- function(ghsl) {
   # organize columns
   data <- data %>% select(hdc, osmid, name, admin_level, admin_level_ordered, everything())
   
+  
   # table(data$admin_level)
   # 
   # data %>% filter(is.na(admin_level)) %>% mapview() + filter(data, admin_level == 6) + filter(data, admin_level == 8)
@@ -56,8 +77,25 @@ prep_data <- function(ghsl) {
   # get available indicators for this city
   ind_columns <- colnames(data)[colnames(data) %nin% c("hdc", "osmid", "name", "admin_level", "admin_level_ordered", "geom")]
   
+  
+  # first, rename indicators that are divided by year
+  ind_columns <- gsub(pattern = "(total_pop)_(\\d{4})",
+                      replacement = "city_poptotal_\\2",
+                      x = ind_columns)
+  ind_columns <- gsub(pattern = "(density)_(\\d{4})",
+                      replacement = "city_density_\\2",
+                      x = ind_columns)
+  ind_columns <- gsub(pattern = "(PNrT)_([[:lower:]]{3})_(\\d{4})",
+                      replacement = "transit_\\L\\1\\E\\2_\\3",
+                      x = ind_columns,
+                      perl = TRUE)
+  
+  
   # create new column names with new standardized id
   ind_columns_new <- fcase(
+    startsWith(ind_columns, "city_poptotal"), ind_columns,
+    startsWith(ind_columns, "city_density"), ind_columns,
+    startsWith(ind_columns, "transit_pnrt"), ind_columns,
     ind_columns == "pnab",                  "bike_pnab_2019",
     ind_columns == "pnpb",                  "bike_pnpb_2019",
     ind_columns == "all_bikeways_km",       "bike_abikeways_2019",
@@ -66,8 +104,6 @@ prep_data <- function(ghsl) {
     ind_columns == "schools",               "walk_pne_2019",
     ind_columns == "h.s",                   "walk_pns_2019",
     ind_columns == "carfree",               "walk_pncf_2019",
-    ind_columns == "total_pop",             "city_poptotal_2019",
-    ind_columns == "density",               "city_density_2019",
     
     ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2019",
     ind_columns == "performance_bike_lts2_45",               "performance_bikep45_2019",
@@ -96,7 +132,10 @@ prep_data <- function(ghsl) {
   # rename indicators
   colnames(data) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", ind_columns_new,"geom")
   
+  
+  
   # simplify data
+  data <- st_make_valid(data)
   data <- st_simplify(data)
   # to polygons
   # data <- st_cast(data, "POLYGON")
@@ -108,6 +147,9 @@ prep_data <- function(ghsl) {
   # overlay_files <- dir("data/sample_2", full.names = TRUE, recursive = TRUE)
   # overlay_files <- overlay_files[grepl("ghsl_region_\\d{4}/geodata", overlay_files)]
   # overlay_files <- overlay_files[grepl(".geojson$", overlay_files)]
+  
+  # filter only our overlays
+  overlay_files <- overlay_files[overlay_files %like% c("allbike_latlon|h\\+slatlon|healthcarelatlon|pnablatlon|pnpblatlon|protectedbike|schools")]
   
   # the overlay files only have the shape geom, so we need to give them names based on the filename
   # read overlays
@@ -129,7 +171,7 @@ prep_data <- function(ghsl) {
   overlay_polygons <- overlay[grep("MULTIPOLYGON", names(overlay))] %>% rbindlist()
   overlay_lines <- overlay[grep("MULTILINESTRING", names(overlay))] %>% rbindlist()
   
-
+  
   
   
   # juntar objeto dos overlays sem a geom
@@ -167,7 +209,7 @@ prep_data <- function(ghsl) {
   overlay_df <- left_join(overlay_df, overlay_id, by = "ind") %>% select(-ind)
   
   # we should overlays for all available indicators, so we need to check that
-  overlay_missing <- setdiff(colnames(data)[6:(length(colnames(data)) - 1)], overlay_df$indicator)
+  overlay_missing <- setdiff(colnames(data)[8:(length(colnames(data)) - 1)], overlay_df$indicator)
   
   nrows <- length(overlay_missing)
   overlay_missing_polygons <- st_sf(geom_type = rep("MULTIPOLYGON", nrows),
@@ -203,7 +245,9 @@ prep_data <- function(ghsl) {
 }
 
 
-purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445"), prep_data)
+purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445",
+              "0014", "0154", "0634"), 
+            prep_data)
 
 
 
@@ -213,9 +257,14 @@ purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445"), prep_data)
 
 
 # calculate boundaries for the world view ---------------------
-indicators_all <- lapply(dir("data/sample3", pattern = "^indicators_", full.names = TRUE, recursive = TRUE),
-                         readr::read_rds) %>%
-  rbindlist(fill = TRUE)
+indicators_all <- purrr::map_dfr(dir("data/sample3", pattern = "^indicators_", full.names = TRUE, recursive = TRUE),
+                                 readr::read_rds)
+
+# remove polygon and save the data
+indicators_all %>% st_set_geometry(NULL) %>% 
+  mutate(across(city_poptotal_1975:performance_bikep45_2019, round, 3)) %>%
+  readr::write_rds("data/sample3/all_indicators.rds")
+
 
 # select the admin level NA - the ghsl level
 indicators_ghsl <- indicators_all %>% filter(admin_level == 0) %>% st_sf(crs = 4326)
@@ -232,10 +281,11 @@ readr::write_rds(indicators_ghsl_centroids, "data/sample3/atlas_city_markers.rds
 
 # extract the country
 atlas_country <- indicators_all %>%
-  select(-geom) %>%
+  st_set_geometry(NULL) %>%
+  # select(-geom) %>%
   filter(admin_level == 0) %>%
   group_by(a2) %>%
-  summarise(across(walk_pnh_2019:last_col(), mean, na.rm = TRUE)) %>%
+  summarise(across(city_poptotal_1975:last_col(), mean, na.rm = TRUE)) %>%
   ungroup()
 
 # bring the shapes

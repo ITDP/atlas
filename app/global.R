@@ -5,6 +5,7 @@ library(sf)
 # library(data.table)
 library(shinyjs)
 library(waiter)
-
+library(leafgl)
+library(highcharter)
 
 source("fun/accordion_input.R")

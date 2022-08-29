@@ -9,16 +9,18 @@ atlas_country <- read_rds("data/sample3/atlas_country_polygons.rds")
 # calculate size of each group
 country_ranks <- atlas_country %>%
   st_set_geometry(NULL) %>%
-  mutate(across(walk_pnh_2019:last_col(), rank, ties = "first")) %>%
+  mutate(across(city_poptotal_1975:last_col(), ~rank(-.x, ties = "first", na.last = "keep"))) %>%
+  # create totals - NEED FIX
   mutate(n = n()) %>%
-  mutate(across(walk_pnh_2019:last_col(1), ~n - .x + 1)) %>%
-  # select(-n) %>%
   mutate(rank_type = "country_world")
 
 dir.create("data/sample3/ranks")
 
 readr::write_rds(country_ranks, sprintf("data/sample3/ranks/rank_country.rds"))
 
+
+world <- dir("data/sample3", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{4}.rds")
+data_world <- lapply(world, function(x) st_set_geometry(read_rds(x), NULL)) %>% rbindlist(fill = TRUE)
 
 
 prep_data <- function(ghsl) {
@@ -27,13 +29,13 @@ prep_data <- function(ghsl) {
   # ghsl <- 1022
   # ghsl <- "0621"
   # ghsl <- "1445" # recife
-  
-  world <- dir("data/sample3", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{4}.rds")
-  data_world <- lapply(world, read_rds) %>% rbindlist(fill = TRUE)  %>% st_sf() %>% st_set_geometry(NULL)
-  data <- read_rds(sprintf("data/sample3/ghsl_%s/indicators_%s.rds", ghsl, ghsl)) %>% st_set_geometry(NULL)
+  # ghsl <- "1445" # recife
+  # ghsl <- "0634"
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
+  
+  data <- data_world %>% filter(hdc == ghsl)
   
   # in the world
   rank_world <- data_world %>%
@@ -42,11 +44,11 @@ prep_data <- function(ghsl) {
     # delete indicators that are NA
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(across(walk_pnh_2019:last_col(), rank, ties = "first")) %>%
+    mutate(across(city_poptotal_1975:last_col(), ~rank(-.x, ties = "first", na.last = "keep"))) %>%
+    # create totals - NEED FIX
     mutate(n = n()) %>%
-    mutate(across(walk_pnh_2019:last_col(1), ~n - .x + 1)) %>%
-    # select(-n) %>%
-    mutate(rank_type = "world")
+    mutate(rank_type = "world") %>%
+    ungroup()
   
   # in the country
   
@@ -55,10 +57,9 @@ prep_data <- function(ghsl) {
     filter(admin_level != 0) %>%
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(across(walk_pnh_2019:last_col(), rank, ties = "first")) %>%
+    mutate(across(city_poptotal_1975:last_col(), ~rank(-.x, ties = "first", na.last = "keep"))) %>%
+    # create totals - NEED FIX
     mutate(n = n()) %>%
-    mutate(across(walk_pnh_2019:last_col(1), ~n - .x + 1)) %>%
-    # select(-n) %>%
     # create type of rank
     mutate(rank_type = "metro")
   
@@ -74,4 +75,6 @@ prep_data <- function(ghsl) {
 }
 
 
-purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445"), prep_data)
+purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445",
+              "0014", "0154", "0634"), 
+            prep_data)

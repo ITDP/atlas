@@ -1,8 +1,8 @@
 # disable indicators
 observeEvent(c(indicator_mode()), {
   
-  delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
-  delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);'))
+  # delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
+  # delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);'))
   delay(1, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
   delay(1, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
   delay(1, runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);'))
@@ -21,8 +21,8 @@ observeEvent(c(city$city_code), {
   # if (input$city == "") {
   
   
-  runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);')
-  runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);')
+  # runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);')
+  # runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);')
   runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);')
   runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);')
   runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);')
@@ -134,6 +134,7 @@ onclick("teste1", runjs("if(!$('#indicator_bike').hasClass('in'))
     "))
 onclick("teste2", runjs("$('#spatial_level > div > div > div.form-group.shiny-input-container > span').slideToggle('')"))
 onclick("teste3", runjs("$('.leaflet-control-layers > .leaflet-control-layers-list').slideToggle('')"))
+onclick("teste4", runjs("$('.leaflet-control-layers > .leaflet-control-layers-list').slideToggle('')"))
 
 onclick("hide", "$('#right_panel').hide(\"slide\", {direction: \"right\")}, 1000);")
 

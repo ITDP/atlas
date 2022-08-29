@@ -123,6 +123,8 @@ fluidPage(
       uiOutput('left_panel_filter'),
       # create the panel with the spatial scale
       uiOutput('spatial_level'),
+      # create the panel with the comparison
+      uiOutput('comparison_panel'),
       # right panel
       uiOutput('right_panel'),
       # back to world button

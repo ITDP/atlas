@@ -48,43 +48,46 @@ function(input, output, session) {
                                                      "Medellin" = "0561")
                                     ),
                                     options = shinyWidgets::pickerOptions(size = 15,
-                                                            iconBase = "fa",
-                                                            tickIcon = "fa-check",
-                                                            title = "Search for a metro region ...",
-                                                            liveSearch = TRUE)
+                                                                          iconBase = "fa",
+                                                                          tickIcon = "fa-check",
+                                                                          title = "Search for a metro region ...",
+                                                                          liveSearch = TRUE)
           )
       )
     )
     
   })
   
-    
-    
-
+  
+  
+  
   
   output$left_panel_filter <- renderUI({
     
     
     tagList(
-      conditionalPanel(
-        condition = "ind_cum.indexOf(input.indicator_performance) > -1",
-        # condition = "typeof input.indicator_performance != ''",
-        absolutePanel(
-          # id = "controls",
-          class = "spatial_level",
-          # fixed = TRUE, draggable = FALSE,
-          bottom = 30, left = 300, height = 'auto',
-          # 'typeof undefined' identifies when is null 
-          sliderInput(inputId = "time_cutoff",
-                      min = 30, max = 60, step = 15,
-                      label = "TIME CUTOFF",
-                      value = 30
-                      # selected = character(0)
-          )
-          
+      # conditionalPanel(
+      # condition = "ind_cum.indexOf(input.indicator_performance) > -1",
+      # condition = "typeof input.indicator_performance != ''",
+      absolutePanel(
+        # id = "controls",
+        class = "spatial_level",
+        # fixed = TRUE, draggable = FALSE,
+        bottom = 30, left = 300, height = 'auto',
+        # 'typeof undefined' identifies when is null 
+        tags$div(class = "title_left_panel", "YEAR", 
+                 actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+                              class = "minimize")),
+        shinyWidgets::pickerInput(inputId = "year",
+                                  label = NULL,
+                                  choices = 1980:2019,
+                                  selected = 2019
+                                  # selected = character(0)
         )
         
       )
+      
+      # )
     )
     
     
@@ -93,6 +96,46 @@ function(input, output, session) {
   
   spatial_level_value <- reactiveValues(last = NULL)
   
+  
+  output$comparison_panel <- renderUI({
+    
+    req(input$admin_level, data_all())
+    
+    # get options to show in the comparison
+    choices_comparison <- subset(data_all(), admin_level_ordered == input$admin_level)
+    choices_values <- choices_comparison$osmid
+    choices_names <- choices_comparison$name
+    names(choices_values) <- choices_names
+    
+    
+    absolutePanel(
+      class = "spatial_level",
+      # class = "w3-container w3-animate-opacity", 
+      # class = "panel panel-default",
+      # fixed = TRUE, draggable = FALSE,
+      bottom = 30, right = 860, height = 'auto', width = 400,
+      tags$div(class = "title_left_panel", "COMPARE", 
+               actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+                            class = "minimize")),
+      shinyWidgets::pickerInput(inputId = "city_compare",
+                                label = NULL,
+                                choices = choices_values,
+                                multiple = TRUE,
+                                options = shinyWidgets::pickerOptions(size = 15,
+                                                                      iconBase = "fa",
+                                                                      tickIcon = "fa-check",
+                                                                      title = "Search for a region ...",
+                                                                      liveSearch = TRUE)
+      ),
+      highchartOutput('comparison', height = "150px")
+      # actionButton(inputId = "about",
+      #              label = "About",
+      #              class = "about_button"
+      #              # selected = character(0)
+      # )
+    )
+    
+  })
   
   
   output$spatial_level <- renderUI({
@@ -119,11 +162,11 @@ function(input, output, session) {
                    actionButton("teste2", label = "", icon = icon("minus"), style= "float: right; padding: 0",
                                 class = "minimize")),
           shinyWidgets::sliderTextInput(inputId = "admin_level",
-                          choices = seq(1, go),
-                          label = NULL,
-                          selected = 1,
-                          grid = TRUE
-                          # selected = character(0)
+                                        choices = seq(1, go),
+                                        label = NULL,
+                                        selected = 1,
+                                        grid = TRUE
+                                        # selected = character(0)
           )
           
         )
@@ -307,7 +350,7 @@ function(input, output, session) {
     city$city_code <- input$map_marker_click$id
     
     shinyWidgets::updatePickerInput(session = session, inputId = "city",
-                      selected = city$city_code)
+                                    selected = city$city_code)
     
     
   }
@@ -346,29 +389,31 @@ function(input, output, session) {
     
   })
   
-
-
-  
- 
-
-# open files --------------------------------------------------------------
-
-source("src/filter_indicators.R", local = TRUE)  
-source("src/ranks.R", local = TRUE)  
-source("src/texts_rightpanel.R", local = TRUE)  
-source("src/map.R", local = TRUE)  
-source("src/popovers.R", local = TRUE)  
-source("src/changes_jquery.R", local = TRUE)  
-source("src/about.R", local = TRUE)  
-
   
   
   
- 
   
   
-
-
+  # open files --------------------------------------------------------------
+  
+  source("src/filter_indicators.R", local = TRUE)  
+  source("src/ranks.R", local = TRUE)  
+  source("src/texts_rightpanel.R", local = TRUE)  
+  source("src/map.R", local = TRUE)  
+  source("src/popovers.R", local = TRUE)  
+  source("src/changes_jquery.R", local = TRUE)  
+  source("src/about.R", local = TRUE)  
+  source("src/back_to_world.R", local = TRUE)  
+  source("src/compare.R", local = TRUE)  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   

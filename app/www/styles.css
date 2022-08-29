@@ -157,3 +157,9 @@ h1 {
 
 }
 
+
+.bootstrap-select>.dropdown-toggle {
+ background: #1C1C1C; 
+ border: 1px solid #6C757D;
+ color: #B1B5B9;
+}

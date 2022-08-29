@@ -15,7 +15,7 @@ filter_rank <- reactive({
   req(indicator_mode())
   # print(paste0("pattern: ", indicator_mode()))
   # print(head(get_rank()))
-  pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
   # print("pattern")
   # print(pattern)
   cols <- c('osmid', 'admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'rank_type', 'n')
@@ -30,7 +30,7 @@ filter_rank_country <- reactive({
   
   req(indicator$type)    
   
-  pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
   # print(paste0("pattern: ", indicator_mode()))
   cols <- c('name_long', 'a2', colnames(atlas_country_ranks)[startsWith(colnames(atlas_country_ranks), pattern)], 'n')
   # print(cols)
@@ -53,23 +53,24 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
 
 
 # display initial rank with indicators - in the world view
-observeEvent(c(indicator_mode()), {
+observeEvent(c(indicator_mode(), input$year), {
   
   
   
-  # req(indicator_mode())
+  req(indicator_mode())
+  req(input$year)
   # req(indicator$type)
   
   # print(rank$admin_level)
   
   if(is.null(rank$admin_level)) {
     
-    print("agora vai!")
-    # print("queeeeeeeeeee")
+    # print("agora vai!")
+    print("queeeeeeeeeee")
     
     # value
-    print(paste0("type: ", indicator$type))
-    pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+    # print(paste0("type: ", indicator$type))
+    pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
     # print(pattern)
     cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geom")
     # print(cols)
@@ -78,7 +79,9 @@ observeEvent(c(indicator_mode()), {
     # print(a)
     # only top five
     a <- a[order(-a$valor),]
-    a <- a[1:3,]
+    # filter non na
+    a <- subset(a, !is.na(valor))
+    a <- a[1:2,]
     # mean for the world
     rank_indicator <- mean(a$valor)
     
@@ -111,9 +114,9 @@ observeEvent(c(indicator_mode()), {
       scales::percent(a$valor[2])
     } else round(a$valor[2])
     
-    format_indicator_value_countries3 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-      scales::percent(a$valor[3])
-    } else round((a$valor[3]))
+    # format_indicator_value_countries3 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+    #   scales::percent(a$valor[3])
+    # } else round((a$valor[3]))
     
     
     # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
@@ -134,16 +137,16 @@ observeEvent(c(indicator_mode()), {
     text2 <- sprintf("%s (%s)", 
                      filter_rank_country()$name_long[2], 
                      format_indicator_value_countries2)
-    text3 <- sprintf("%s (%s)", 
-                     filter_rank_country()$name_long[3], 
-                     format_indicator_value_countries3)
+    # text3 <- sprintf("%s (%s)", 
+    #                  filter_rank_country()$name_long[3], 
+    #                  format_indicator_value_countries3)
     
     flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[1])), width = "25",
                       style = "float:left")
     flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[2])), width = "25",
                       style = "float:left")
-    flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[3])), width = "25",
-                      style = "float:left")
+    # flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[3])), width = "25",
+    #                   style = "float:left")
     
     # print(flag1)
     
@@ -154,11 +157,12 @@ observeEvent(c(indicator_mode()), {
                              div(style = "clear:both;"),
                              div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "2º" ),
                              flag2,
-                             div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text2),
-                             div(style = "clear:both;"),
-                             div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "3º" ),
-                             flag3,
-                             div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3))
+                             div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text2)
+                             # div(style = "clear:both;"),
+                             # div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "3º" ),
+                             # flag3,
+                             # div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3)
+                             )
     
     # print(rank$rank_text)
     # print(rank$rank_value)
@@ -234,28 +238,9 @@ observeEvent(c(input$map_shape_click,
                                            '<div class="title_indicator" style="font-size: 20px;">', 
                                            rank_indicator$name, '</div>',
                                            div(class = "value_indicator_rightpanel", format_indicator_value))
-                 # print(rank_indicator)
+
                  
-                 # print(ui$id)
-                 
-                 # print(input$map_marker_click)
-                 # print(input$admin_level)
-                 # print(!is.null(print(input$map_marker_click)))
-                 
-                 # print(rank$rank_value)
-                 # print(paste0("admin: ", input$admin_level))
-                 # if (isTRUE(is.na(input$admin_level))) rank$rank_value_initial <- rank$rank_value
-                 # print(rank$rank_value_initial)
-                 # print(input$admin_level == 1 | !is.null(input$map_marker_click))
-                 
-                 # print(spatial_level_value$last)
-                 # print(paste0("gua; ", rank$admin_level))
-                 # print(ui$id)
-                 # print(filter_rank())
-                 # print(input$admin_level == spatial_level_value$last)
-                 # print(subset(filter_rank(), osmid == ui$id & rank_type == "metro"))
-                 # print(!is.null(input$map_marker_click))
-                 
+                                  
                  # the number of ranks will depend on the admin level
                  
                  # this first condition will show the indicator ranks as soon as the city marker is clicked
