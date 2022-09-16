@@ -189,6 +189,8 @@ observeEvent(c(city$city_code), {
   
   # extract geom type of this indicator
   geom_type <- unique(data_overlays2()$geom_type)
+  print("geom_type")
+  print(geom_type)
   
   # print(data_metro$osmid)
   print("obs2")
@@ -267,6 +269,9 @@ observeEvent(c(city$city_code), {
     
   }
   
+  
+  print("data_overlays_sf()")
+  print(data_overlays_sf())
   
   map
   
@@ -531,6 +536,9 @@ observeEvent(c(input$admin_level,
                    
                  } else  {
                    
+                   
+                   print("data_ind3_spatial()")
+                   print(data_ind3_spatial())
                    
                    map <- map %>%
                      addPolygons(data = data_ind3_spatial(), 

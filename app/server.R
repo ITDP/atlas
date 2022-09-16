@@ -5,6 +5,7 @@ atlas_country <- readRDS("../data/sample3/atlas_country_polygons.rds")
 atlas_country_ranks <- readRDS("../data/sample3/ranks/rank_country.rds")
 # list indicators
 list_indicators <- readRDS("../data/sample3/list_indicators.rds")
+list_osmid_name <- readRDS("../data/sample3/list_osmid_name.rds")
 
 
 function(input, output, session) {
@@ -81,7 +82,10 @@ function(input, output, session) {
         shinyWidgets::pickerInput(inputId = "year",
                                   label = NULL,
                                   choices = 1980:2019,
-                                  selected = 2019
+                                  selected = 2019,
+                                  options = shinyWidgets::pickerOptions(
+                                    size = 5
+                                  )
                                   # selected = character(0)
         )
         
@@ -99,10 +103,11 @@ function(input, output, session) {
   
   output$comparison_panel <- renderUI({
     
-    req(input$admin_level, data_all())
+    req(input$admin_level, ind_city())
+    
     
     # get options to show in the comparison
-    choices_comparison <- subset(data_all(), admin_level_ordered == input$admin_level)
+    choices_comparison <- subset(list_osmid_name, admin_level_ordered == input$admin_level)
     choices_values <- choices_comparison$osmid
     choices_names <- choices_comparison$name
     names(choices_values) <- choices_names
@@ -115,8 +120,12 @@ function(input, output, session) {
       # fixed = TRUE, draggable = FALSE,
       bottom = 30, right = 860, height = 'auto', width = 400,
       tags$div(class = "title_left_panel", "COMPARE", 
-               actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-                            class = "minimize")),
+               actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
+                            class = "minimize"),
+               actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
+                            class = "minimize")
+      ),
+      
       shinyWidgets::pickerInput(inputId = "city_compare",
                                 label = NULL,
                                 choices = choices_values,

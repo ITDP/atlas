@@ -21,6 +21,8 @@ filter_rank <- reactive({
   cols <- c('osmid', 'admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'rank_type', 'n')
   a <- get_rank()[cols]
   colnames(a) <- c('osmid','admin_level_ordered', 'name', 'rank', 'rank_type', 'n')
+  
+  # print("head(a)")
   # print(head(a))
   return(a)
   
@@ -202,30 +204,16 @@ observeEvent(c(input$map_shape_click,
                  ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
                  
                  
-                 # print(paste0("ui: :", ui))
+                 rank_indicator <- subset(data_ind3(), osmid == ui)
                  
-                 # keep to osm_id selected
-                 # osm_selected$oi <- ui$id
-                 
-                 
-                 rank_indicator <- subset(data_ind2(), osmid == ui)
-                 
-                 # print(rank_indicator)
+                 print("rank_indicator")
+                 print(rank_indicator)
                  
                  # print(head(filter_rank()))
                  # print(spatial_level_value$last)
                  
                  
-                 # format_indicator_name <- switch (indicator_mode(),
-                 #                                  "pnpb" = "People Near Protected Bike Lanes",
-                 #                                  "pnab" = "People Near Bike Lanes",
-                 #                                  "pnh" = "People Near Healthcare",
-                 #                                  "pne" = "People Near pne",
-                 #                                  "hs" = "People Near Services"
-                 # )
                  format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
-                 
-                 # print(rank_indicator$valor)
                  
                  format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
                    scales::percent(rank_indicator$valor)
@@ -239,6 +227,8 @@ observeEvent(c(input$map_shape_click,
                                            rank_indicator$name, '</div>',
                                            div(class = "value_indicator_rightpanel", format_indicator_value))
 
+                 print("rank$rank_value")
+                 print(rank$rank_value)
                  
                                   
                  # the number of ranks will depend on the admin level
@@ -330,7 +320,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
   if (isTRUE(rank$admin_level == 1)) {
     
     # print(city$city_code)
-    rank_indicator <- subset(data_ind2(), osmid == city$city_code)
+    rank_indicator <- subset(data_ind3(), osmid == city$city_code)
     
     format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
       scales::percent(rank_indicator$valor)

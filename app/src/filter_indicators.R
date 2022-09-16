@@ -31,8 +31,11 @@ data_overlays <- reactive({
   overlay_geom$line <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays_lines_%s.rds", city$city_code, city$city_code))
   
   
-  readRDS(sprintf("../data/sample3/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
+  a <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
+  # print("head(a)")
   # print(head(a))
+  
+  return(a)
   
   
 })
@@ -64,7 +67,6 @@ data_overlays1 <- reactive({
   # a <- subset(data_overlays(), indicator %like% indicator$type)
   # a <- subset(data_overlays(), startsWith(indicator, indicator$type))
   # a <- data_overlays()[grepl(indicator$type, indicator)]
-  # print(head(a))
   return(a)
   
 })
@@ -95,6 +97,7 @@ data_overlays2 <- reactive({
   # print(head(data_overlays1()))
   a <- subset(data_overlays1(), indicator == pattern)
   
+  # print("a")
   # print(a)
   return(a)
   
@@ -130,9 +133,9 @@ data_overlays_sf <- reactive({
   
   # extract geom type of this indicator
   geom_type <- unique(data_overlays2()$geom_type)
-  
-  print(data_overlays2())
+  # print("geom_type")
   # print(geom_type)
+  
   
   # select data tahat will be used for the overlay
   if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {

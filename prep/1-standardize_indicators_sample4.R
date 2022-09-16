@@ -7,7 +7,7 @@ library(Hmisc)
 sf::sf_use_s2(FALSE)
 
 
-base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
+
 
 # go
 data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
@@ -48,8 +48,10 @@ prep_data <- function(ghsl) {
   # ghsl <- "0561"
   # ghsl <- "0088"
   # ghsl <- "0634"
+  # ghsl <- 0014
   
- 
+  base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
+  
   # filter only city
   data <- data_all %>% filter(hdc == ghsl) %>% st_sf(crs = 4326)
   
@@ -138,7 +140,7 @@ prep_data <- function(ghsl) {
   data <- st_make_valid(data)
   data <- st_simplify(data)
   # to polygons
-  # data <- st_cast(data, "POLYGON")
+  data <- st_cast(data, "MULTIPOLYGON")
   
   
   
@@ -250,9 +252,15 @@ purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445",
             prep_data)
 
 
-
-
-
+prep_data("0088")
+prep_data("0200")
+prep_data("0561")
+prep_data("0621")
+prep_data("1406")
+prep_data("1445")
+# prep_data("0014")
+prep_data("0154")
+prep_data("0634")
 
 
 
@@ -263,7 +271,7 @@ indicators_all <- purrr::map_dfr(dir("data/sample3", pattern = "^indicators_", f
 # remove polygon and save the data
 indicators_all %>% st_set_geometry(NULL) %>% 
   mutate(across(city_poptotal_1975:performance_bikep45_2019, round, 3)) %>%
-  readr::write_rds("data/sample3/all_indicators.rds")
+  readr::write_rds("data/sample3/all_indicators/all_indicators.rds")
 
 
 # select the admin level NA - the ghsl level
@@ -298,3 +306,82 @@ atlas_country <- atlas_country %>%
 readr::write_rds(atlas_country, "data/sample3/atlas_country_polygons.rds")
 
 
+
+
+
+# save indicators by each city by each admin level - for comparison --------
+
+indicators_all <- purrr::map_dfr(dir("data/sample3", pattern = "^indicators_\\d{4}", full.names = TRUE, recursive = TRUE),
+                                 readr::read_rds)
+
+# remove polygon
+indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
+
+# ghsl <- "0634"
+# ghsl <- "1406"
+
+export_by_osmid <- function(ghsl) {
+  
+  indicators <- indicators_all_df %>% filter(hdc == ghsl)
+  
+  # save by each admin
+  # ind <- "city_poptotal"
+  # ind <- "bike_pnpb"
+  save_ind <- function(ind) {
+    
+    indicators_ind <- indicators %>% 
+      select(hdc, country, a2, osmid, name, admin_level, admin_level_ordered,
+             starts_with(ind))
+    # to long format
+    colnames_compare <- colnames(indicators_ind)[8:ncol(indicators_ind)]
+    # extract year
+    years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
+                          replacement = "\\2",
+                          x = colnames_compare)
+    
+    colnames(indicators_ind) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", 
+                                 years_compare)
+    
+    indicators_ind <- tidyr::pivot_longer(indicators_ind,
+                                         cols = matches("\\d{4}"),
+                                         names_to = "year",
+                                         values_to = "value")
+    
+    dir.create(sprintf("data/sample3/ghsl_%s/indicators_compare",
+                       ghsl))
+    
+    # save
+    readr::write_rds(indicators_ind, sprintf("data/sample3/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+                                               ghsl, ghsl, ind))
+    
+    
+  }
+  # to long format
+  colnames_compare <- colnames(indicators)[8:ncol(indicators)]
+  # extract year
+  years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
+                        replacement = "\\1",
+                        x = colnames_compare)
+  ind_list <- unique(years_compare)
+  # apply
+  purrr::walk(ind_list, save_ind)
+  
+}
+
+export_by_osmid("0088")
+export_by_osmid("0200")
+export_by_osmid("0561")
+export_by_osmid("0621")
+export_by_osmid("1406")
+export_by_osmid("1445")
+# prep_data("0014")
+export_by_osmid("0154")
+export_by_osmid("0634")
+
+
+
+# list all osmid and names availables -------------------------------------
+
+count(indicators_all_df, hdc, osmid, name, admin_level, admin_level_ordered) %>%
+  select(-n) %>%
+  readr::write_rds("data/sample3/list_osmid_name.rds")
