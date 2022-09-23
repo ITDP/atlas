@@ -21,38 +21,8 @@ output$map <- renderLeaflet({
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
                      position = "topright") %>%
-    # htmlwidgets::onRender("
-    #                       function() {
-    #                     L.control.layers({'Light'}).addTo(this);
-    #                       }
-    #                       ") %>%
-    #   htmlwidgets::onRender("function(el, x) {
-    #            var overlayMaps = {'Towns': groups.Light};
-    #     L.control.layers(overlayMaps).addTo(this);
-    # }") %>%
-    # hideGroup("Overlay") %>%
-    
-  # addControl(html = "<h3> QUEEEEEEEEEE </h3>") %>%
-  
-  # addCircleMarkers(
-  #   # radius = ~ifelse(type == "ship", 6, 10),
-  #   radius = 10,
-  #   # color = ~pal(bike_pnpb_2019),
-  #   stroke = TRUE, fillOpacity = 0.5,
-  #   layerId = ~hdc
-  # ) %>%
-  # addPolygons(data = atlas_country,
-  #             fillColor = ~pal_countries(bike_pnpb_2019), color = "black",  weight = 1,
-  #             options = pathOptions(clickable = FALSE)) %>%
-  # # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-  # addLegend("bottomleft", pal = pal_countries, values = ~atlas_country$bike_pnpb_2019) %>%
-  # htmlwidgets::onRender("
-  #     function(el, x) {
-  #         $('.leaflet-control-layers').prepend('<label>My Epic Title</label>');
-  #     }
-  # ") %>%
-  htmlwidgets::onRender(
-    "function(el, x) {
+    htmlwidgets::onRender(
+      "function(el, x) {
         L.control.zoom({position:'topright'}).addTo(this);
       }")
   
@@ -92,6 +62,14 @@ observeEvent(c(indicator_mode(), input$year), {
   a <- atlas_city_markers[cols]
   colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
   
+  a_available <- subset(a, !is.na(valor))
+  a_notavailable <- subset(a, is.na(valor))
+  if(nrow(a_notavailable) > 0) {
+    
+    a_notavailable$name <- paste0(a_notavailable$name, "<br>Not available for this city")
+    
+  }
+  
   # print(class(atlas_country))
   cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], 'geom')
   a_country <- atlas_country[cols_country]
@@ -99,6 +77,7 @@ observeEvent(c(indicator_mode(), input$year), {
   
   pal <- colorNumeric(
     palette = "viridis",
+    na.color = "#808080",
     # palette = "YlGnBu",
     domain = a$valor)
   
@@ -118,7 +97,7 @@ observeEvent(c(indicator_mode(), input$year), {
   
   # print(a)
   
-  leafletProxy("map", data = a) %>%
+  leafletProxy("map", data = a_available) %>%
     clearMarkers() %>%
     clearControls() %>%
     clearShapes() %>%
@@ -132,6 +111,17 @@ observeEvent(c(indicator_mode(), input$year), {
       weight = 1,
       layerId = ~hdc,
       label = ~htmltools::htmlEscape(name)
+    ) %>%
+    addCircleMarkers(data = a_notavailable,
+                     # radius = ~ifelse(type == "ship", 6, 10),
+                     radius = 8,
+                     # fillColor = ~pal(valor), 
+                     stroke = TRUE, fillOpacity = 0.9, color = "#808080",
+                     opacity = 0.8,
+                     weight = 1,
+                     layerId = ~hdc,
+                     # label = ~htmltools::htmlEscape(name),
+                     options = pathOptions(clickable = FALSE)
     ) %>%
     addPolygons(data = a_country, 
                 fillColor = ~pal_countries(valor), color = "black",  weight = 0,
@@ -503,7 +493,7 @@ observeEvent(c(input$admin_level,
                  legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
                  legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
                  # format legend value
-                 legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+                 legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = paste0(" ", legend_value), transform = function(x) as.integer(x))
                  
                  
                  

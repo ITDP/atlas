@@ -103,16 +103,18 @@ observeEvent(c(indicator_mode(), input$year), {
     #                                  "hs" = "People Near Services"
     # )
     
-    format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+    
+    format_indicator_value <- if(format_indicator_unit_value == "%") {
       scales::percent(rank_indicator)
     } else round(rank_indicator)
     
     
-    format_indicator_value_countries1 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+    format_indicator_value_countries1 <- if(format_indicator_unit_value == "%") {
       scales::percent(a$valor[1])
     } else round(a$valor[1])
     
-    format_indicator_value_countries2 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+    format_indicator_value_countries2 <- if(format_indicator_unit_value == "%") {
       scales::percent(a$valor[2])
     } else round(a$valor[2])
     
@@ -214,8 +216,9 @@ observeEvent(c(input$map_shape_click,
                  
                  
                  format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
+                 format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
                  
-                 format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+                 format_indicator_value <- if(format_indicator_unit_value == "%") {
                    scales::percent(rank_indicator$valor)
                  } else round(rank_indicator$valor)
                  

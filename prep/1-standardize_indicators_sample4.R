@@ -340,19 +340,19 @@ export_by_osmid <- function(ghsl) {
                           x = colnames_compare)
     
     colnames(indicators_ind) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", 
-                                 years_compare)
+                                  years_compare)
     
     indicators_ind <- tidyr::pivot_longer(indicators_ind,
-                                         cols = matches("\\d{4}"),
-                                         names_to = "year",
-                                         values_to = "value")
+                                          cols = matches("\\d{4}"),
+                                          names_to = "year",
+                                          values_to = "value")
     
     dir.create(sprintf("data/sample3/ghsl_%s/indicators_compare",
                        ghsl))
     
     # save
     readr::write_rds(indicators_ind, sprintf("data/sample3/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
-                                               ghsl, ghsl, ind))
+                                             ghsl, ghsl, ind))
     
     
   }
@@ -378,6 +378,67 @@ export_by_osmid("1445")
 export_by_osmid("0154")
 export_by_osmid("0634")
 
+
+# export only for comparison
+# ghsl <- "1406"
+# ind <- "bike_pnpb"
+
+export_comparison1 <- function(level) {
+
+  
+  # filter levels
+  indicators_all_level <- indicators_all_df %>%
+    filter(admin_level  == level)
+  
+  export_comparison <- function(ind) {
+    
+    
+    indicators_ind <- indicators_all_level %>% 
+      select(hdc, country, a2, osmid, name, admin_level, admin_level_ordered,
+             starts_with(ind)) %>%
+      mutate(admin_level = as.integer(admin_level)) %>%
+      # delete the last level
+      filter(admin_level < 10)
+    
+    
+    # to long format
+    colnames_compare <- colnames(indicators_ind)[8:ncol(indicators_ind)]
+    # extract year
+    years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
+                          replacement = "\\2",
+                          x = colnames_compare)
+    
+    colnames(indicators_ind) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", 
+                                  years_compare)
+    
+    indicators_ind <- tidyr::pivot_longer(indicators_ind,
+                                          cols = matches("\\d{4}"),
+                                          names_to = "year",
+                                          values_to = "value")
+    
+    # save
+    readr::write_rds(indicators_ind, sprintf("data/sample3/comp/indicators_compare_%s_%s.rds",
+                                             level, ind))
+    
+    
+  }
+  
+  # to long format
+  colnames_compare <- colnames(indicators_all_level)[8:ncol(indicators_all_level)]
+  # extract year
+  years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
+                        replacement = "\\1",
+                        x = colnames_compare)
+  ind_list <- unique(years_compare)
+  # apply
+  purrr::walk(ind_list, export_comparison)
+  
+}
+
+
+# filter level
+levels <- unique(indicators_all_df)
+purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 
 
 # list all osmid and names availables -------------------------------------

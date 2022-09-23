@@ -43,10 +43,14 @@ function(input, output, session) {
                                                    "Recife" = "1445"),
                                       # 'USA' = c("Boston" = "1022"),
                                       # 'Ethiopia' = c("Addis Ababa" = "5134")
-                                      'Mexico' = c("Guadalajara" = "0088",
+                                      'Mexico' = c(
+                                        "Mexico City" = "0154",
+                                        "Guadalajara" = "0088",
                                                    "Monterrey" = "0200"),
                                       'Colombia' = c("Bogota" = "0621",
-                                                     "Medellin" = "0561")
+                                                     "Medellin" = "0561"),
+                                      'United States' = c("Los Angeles" = "0014",
+                                                     "Chicago" = "0634")
                                     ),
                                     options = shinyWidgets::pickerOptions(size = 15,
                                                                           iconBase = "fa",

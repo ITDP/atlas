@@ -5,10 +5,13 @@ list_bike <- structure(c("pnpb", "pnab", "abikeways", "pbikeways"),
 list_walk <- structure(c("pnh", "pne", "pns"), 
                        .Names = c("People Near Healthcare", "People Near Education", "People Near Services"))
 
-list_transit <- structure(c("pntt", "etct"), 
-                          .Names = c("People Near Transit&nbsp;&nbsp;&nbsp;", "ETC"))
+list_transit <- structure(c("pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
+                          .Names = c("People Near Rapid Transit&nbsp;&nbsp;&nbsp;", 
+                                     "People Near Rapid Transit - LRT&nbsp;&nbsp;&nbsp;",
+                                     "People Near Rapid Transit - MRT&nbsp;&nbsp;&nbsp;",
+                                     "People Near Rapid Transit - BRT&nbsp;&nbsp;&nbsp;"))
 
-list_performance <- structure(c("bikep", "walkp"), 
+list_performance <- structure(c("bikep45", "walkp45"), 
                               .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
 
 list_city <- structure(c("poptotal", "density"), 

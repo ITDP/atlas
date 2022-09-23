@@ -48,7 +48,7 @@ data_ind1 <- reactive({
   
   # print("ui")
   pattern <- sprintf("^%s", indicator$type)
-  cols <- c('osmid', 'admin_level_ordered', 'name', grep(pattern, colnames(data_ind()), ignore.case = TRUE, value = TRUE), 'geom')
+  cols <- c('osmid', 'admin_level', 'admin_level_ordered', 'name', grep(pattern, colnames(data_ind()), ignore.case = TRUE, value = TRUE), 'geom')
   a <- data_ind()[cols]
   
   # print(head(a))
@@ -81,7 +81,7 @@ data_ind2 <- reactive({
   
   # print(indicator_mode())
   pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
-  cols <- c('osmid','admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'geom')
+  cols <- c('osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'geom')
   a <- data_ind1()[cols]
   
   # print(a)
@@ -113,9 +113,9 @@ data_ind3 <- reactive({
   
   # print(indicator_mode())
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
-  cols <- c('osmid','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
+  cols <- c('osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
   a <- data_ind1()[cols]
-  colnames(a) <- c('osmid','admin_level_ordered', 'name', 'valor', 'geom')
+  colnames(a) <- c('osmid', 'admin_level','admin_level_ordered', 'name', 'valor', 'geom')
   # print(a)
   
   return(a)
