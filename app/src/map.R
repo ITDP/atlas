@@ -493,7 +493,7 @@ observeEvent(c(input$admin_level,
                  legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
                  legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
                  # format legend value
-                 legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = paste0(" ", legend_value), transform = function(x) as.integer(x))
+                 legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
                  
                  
                  
