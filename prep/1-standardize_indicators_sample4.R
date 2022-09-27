@@ -384,7 +384,7 @@ export_by_osmid("0634")
 # ind <- "bike_pnpb"
 
 export_comparison1 <- function(level) {
-
+  
   
   # filter levels
   indicators_all_level <- indicators_all_df %>%
@@ -443,6 +443,47 @@ purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 
 # list all osmid and names availables -------------------------------------
 
+indicators_all <- purrr::map_dfr(dir("data/sample3", pattern = "^indicators_\\d{4}", full.names = TRUE, recursive = TRUE),
+                                 readr::read_rds)
+
+# remove polygon
+indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
+
+
+
+
+# create list with osmid --------------------------------------------------
+
 count(indicators_all_df, hdc, osmid, name, admin_level, admin_level_ordered) %>%
   select(-n) %>%
   readr::write_rds("data/sample3/list_osmid_name.rds")
+
+
+
+# create indicator availability for each city -----------------------------
+
+# to long format
+colnames_compare <- colnames(indicators_all_df)[8:ncol(indicators_all_df)]
+# extract year
+years_compare <- gsub(pattern = "(.*)_(.*)_(\\d{4}$)",
+                      replacement = "\\2",
+                      x = colnames_compare)
+
+colnames(indicators_all_df) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", 
+                                 years_compare)
+
+indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
+                                              cols = 8:last_col(),
+                                              names_to = "year",
+                                              values_to = "value")
+
+a1 <- distinct(indicators_all_df_long, hdc, year, .keep_all = TRUE) %>%
+  filter(!is.na(value)) %>%
+  group_by(hdc) %>%
+  mutate(ind = paste0(year, collapse = "|")) %>%
+  ungroup() %>%
+  group_by(hdc) %>%
+  summarise(ind = first(ind))
+
+readr::write_rds(a1, "data/sample3/list_availability.rds")
+

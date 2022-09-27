@@ -1,0 +1,59 @@
+
+#download_dropdown_maps, #download_dropdown_graphs {
+    background: transparent;
+    padding: 10px;
+font-family: 'Franklin Gothic Demi';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+letter-spacing: 0.2em;
+
+/* Gray / 200 */
+
+color: #E9ECEF;
+
+background: transparent;
+    border: transparent;
+    box-shadow: none;
+    
+  z-index: 999999;
+  
+  
+}
+
+#sw-content-download_dropdown_maps, #sw-content-download_dropdown_graphs {
+    box-sizing: border-box;
+
+/* Gray / 700 */
+
+border-radius: 4px;
+background: #1C1C1C;
+opacity: 0.8;
+padding: 2px;
+margin-top: 20px;
+  
+}
+
+.sw-dropdown-in {
+    box-sizing: border-box !important;
+
+/* Gray / 700 */
+padding: 0 !important;
+background: #1C1C1C !important;
+opacity: 0.8 !important;
+font-size: 15px !important;
+
+  
+}
+
+/*
+#downloadData1, #downloadData2 {
+  
+font-family: 'Franklin Gothic Demi' !important;
+color: #F8F9FA !important;
+  
+}
+*/

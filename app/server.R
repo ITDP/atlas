@@ -6,6 +6,7 @@ atlas_country_ranks <- readRDS("../data/sample3/ranks/rank_country.rds")
 # list indicators
 list_indicators <- readRDS("../data/sample3/list_indicators.rds")
 list_osmid_name <- readRDS("../data/sample3/list_osmid_name.rds")
+list_availability <- readRDS("../data/sample3/list_availability.rds")
 
 
 function(input, output, session) {
@@ -78,7 +79,7 @@ function(input, output, session) {
         # id = "controls",
         class = "spatial_level",
         # fixed = TRUE, draggable = FALSE,
-        bottom = 30, left = 300, height = 'auto',
+        bottom = 45, left = 300, height = 'auto', width = 120,
         # 'typeof undefined' identifies when is null 
         tags$div(class = "title_left_panel", "YEAR", 
                  actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
@@ -105,13 +106,64 @@ function(input, output, session) {
   spatial_level_value <- reactiveValues(last = NULL)
   
   
-  output$comparison_panel <- renderUI({
+  output$comparison_button <- renderUI({
     
     req(input$admin_level, ind_city())
     
     
+    absolutePanel(
+      
+      
+      class = "spatial_level",
+      style = "background: #00AE42",
+      # class = "w3-container w3-animate-opacity", 
+      # class = "panel panel-default",
+      # fixed = TRUE, draggable = FALSE,
+      bottom = 45, left = 440, height = 'auto', width = 120,
+      # tags$div(class = "title_left_panel", 
+      #          # "COMPARE", 
+      #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
+      #                       class = "minimize"),
+      #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
+      #                       class = "minimize")
+      # ),
+      actionButton(inputId = "comparison_button", "COMPARE")
+      
+    )
+    
+  })
+  
+  
+  
+  observeEvent(c(input$comparison_button), {
+    
+
+    toggle("comparison_panel")    
+
+
+  })
+  
+  output$comparison_panel <- renderUI({
+    
+    req(input$admin_level, ind_city(), data_ind3_spatial())
+    req(input$comparison_button >= 1)
+    
+    # get the admin level original
+    al <- unique(data_ind3_spatial()$admin_level)
+    
+    # print("al")
+    # print(al)
+    
+    # first, select only the ones that are available for the indicator in question
+    hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
+    
     # get options to show in the comparison
-    choices_comparison <- subset(list_osmid_name, admin_level_ordered == input$admin_level)
+    choices_comparison <- subset(list_osmid_name, admin_level == al)
+    # filter hdc with the indicators available
+    choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
+    # remove the osmid that is already being shown
+    # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
+    # extract values
     choices_values <- choices_comparison$osmid
     choices_names <- choices_comparison$name
     names(choices_values) <- choices_names
@@ -122,12 +174,12 @@ function(input, output, session) {
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      bottom = 30, right = 860, height = 'auto', width = 400,
+      bottom = 95, left = 440, height = 'auto', width = 400,
       tags$div(class = "title_left_panel", "COMPARE", 
                actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
-                            class = "minimize"),
-               actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
                             class = "minimize")
+               # actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
+               #              class = "minimize")
       ),
       
       shinyWidgets::pickerInput(inputId = "city_compare",
@@ -137,7 +189,7 @@ function(input, output, session) {
                                 options = shinyWidgets::pickerOptions(size = 15,
                                                                       iconBase = "fa",
                                                                       tickIcon = "fa-check",
-                                                                      title = "Search for a region ...",
+                                                                      title = "Search for a region...",
                                                                       liveSearch = TRUE)
       ),
       highchartOutput('comparison', height = "150px")
@@ -149,6 +201,8 @@ function(input, output, session) {
     )
     
   })
+  
+  
   
   
   output$spatial_level <- renderUI({
@@ -169,7 +223,7 @@ function(input, output, session) {
           # id = "controls", 
           class = "spatial_level",
           # fixed = TRUE, draggable = FALSE,
-          bottom = 30, right = 530, height = 'auto',
+          bottom = 45, right = 480, height = 'auto', width = 220,
           # 'typeof undefined' identifies when is null 
           tags$div(class = "title_left_panel", "LEVEL OF DETAIL", 
                    actionButton("teste2", label = "", icon = icon("minus"), style= "float: right; padding: 0",
@@ -201,12 +255,12 @@ function(input, output, session) {
           # class = "w3-container w3-animate-opacity", 
           # class = "panel panel-default",
           # fixed = TRUE, draggable = FALSE,
-          top = 0, right = 0, width = 300, height = "100%",
+          top = 0, right = 0, width = 300, height = "calc(100vh - 15px)",
           tabsetPanel(type = "tabs", id = "right_tabs",
                       tabPanel("OVERVIEW", value = "tab_overview",         
                                absolutePanel(
                                  class = "right_panel_textbox",
-                                 top = 80, right = 0, width = 280,
+                                 top = 65, right = 0, width = 280,
                                  htmlOutput("text_indicator"),
                                  tags$button(
                                    id = "link_see_more",
@@ -256,7 +310,7 @@ function(input, output, session) {
           # class = "w3-container w3-animate-opacity", 
           # class = "panel panel-default",
           # fixed = TRUE, draggable = FALSE,
-          top = 20, right = 500, width = 90, height = 30,
+          top = 20, right = 400, width = 90, height = 30,
           style = "background: black",
           actionButton(inputId = "back_to_world",
                        label = "Reset map"
@@ -266,6 +320,34 @@ function(input, output, session) {
           
         )
       )
+    )
+    
+  })
+  
+  
+
+# download button ---------------------------------------------------------
+
+  output$download_button <- renderUI({
+    
+    absolutePanel(
+      
+      
+      class = "spatial_level",
+      style = "background: #00AE42",
+      # class = "w3-container w3-animate-opacity", 
+      # class = "panel panel-default",
+      # fixed = TRUE, draggable = FALSE,
+      top = 20, right = 700, height = 'auto', width = 130,
+      # tags$div(class = "title_left_panel", 
+      #          # "COMPARE", 
+      #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
+      #                       class = "minimize"),
+      #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
+      #                       class = "minimize")
+      # ),
+      actionButton(inputId = "download_button", "DOWNLOAD")
+      
     )
     
   })
@@ -418,6 +500,7 @@ function(input, output, session) {
   source("src/about.R", local = TRUE)  
   source("src/back_to_world.R", local = TRUE)  
   source("src/compare.R", local = TRUE)  
+  source("src/download.R", local = TRUE)  
   
   
   

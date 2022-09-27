@@ -1,6 +1,6 @@
 library(shiny)
 library(leaflet)
-# library(shinyWidgets)
+library(shinyWidgets)
 library(sf)
 # library(data.table)
 library(shinyjs)
@@ -9,3 +9,5 @@ library(leafgl)
 library(highcharter)
 
 source("fun/accordion_input.R")
+
+`%nin%` = Negate(`%in%`)

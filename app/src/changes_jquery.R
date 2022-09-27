@@ -3,8 +3,8 @@ observeEvent(c(indicator_mode()), {
   
   # delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
   # delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);'))
-  delay(1, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
-  delay(1, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
+  # delay(1, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
+  # delay(1, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
   # delay(1, runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);'))
   # delay(1, runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", true);'))
   
@@ -18,17 +18,41 @@ observeEvent(c(city$city_code), {
   # shinyjs::disable()
   
   
-  # if (input$city == "") {
+  # first, select only the ones that are available for the indicator in question
+  # hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
+  
+  # get options to show in the comparison
+  # choices_comparison <- subset(list_osmid_name, admin_level == al)
+  # filter hdc with the indicators available
+  # choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
+
   
   
-  # runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);')
-  # runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);')
-  runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);')
-  runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);')
-  # runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);')
-  # runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", true);')
+    
+  if (city$city_code == "1406") {
   
-  # }
+  
+  delay(2, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
+  delay(2, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);'))
+  
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(1) > button").attr("disabled", false);'))
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(2) > button").attr("disabled", false);'))
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
+  
+  } else if (city$city_code == "0634") {
+    
+  delay(2, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", false);'))
+  delay(2, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", false);'))
+  
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(1) > button").attr("disabled", false);'))
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(2) > button").attr("disabled", false);'))
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
+  delay(2, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
+    
+    
+    
+  }
   
   # } else if (city$city_code == "1406") {
   #   
@@ -91,15 +115,15 @@ observeEvent(c(indicator_mode(), city$city_code), {
   # a primeira imagem vai ser do basemap dark
   
   delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(2) input[type=radio] + img").remove()'))
-  delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(2) input[type=radio]")'))
+  delay(2, shinyjs::runjs('$("<img src=\'img/background_dark.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(2) input[type=radio]")'))
   # a segunda imagem vai ser do basemap light
-  delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(3) input[type=radio] + img").remove()'))
-  delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(3) input[type=radio]")'))
+  delay(3, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(3) input[type=radio] + img").remove()'))
+  delay(4, shinyjs::runjs('$("<img src=\'img/background_light.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(3) input[type=radio]")'))
   # a terceira imagem vai ser do basemap satellite
-  delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(4) input[type=radio] + img").remove()'))
-  delay(1, shinyjs::runjs('$("<img src=\'https://via.placeholder.com/40x60/0bf/fff&text=A\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(4) input[type=radio]")'))
+  delay(5, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(4) input[type=radio] + img").remove()'))
+  delay(6, shinyjs::runjs('$("<img src=\'img/background_sattelite.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(4) input[type=radio]")'))
   # remover o texto
-  delay(1, shinyjs::runjs('$( ".leaflet-control-layers-base span" ).remove();'))
+  delay(7, shinyjs::runjs('$( ".leaflet-control-layers-base span" ).remove();'))
   
 })
 

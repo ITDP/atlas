@@ -124,7 +124,7 @@ h1 {
 
 /* Modificar o tamanho do mapa! */
 #map {
-  height: calc(100vh - 5px) !important;
+  height: calc(100vh - 20px) !important;
   width: calc(100% - 300px) !important;
 } 
 

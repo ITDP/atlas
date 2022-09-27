@@ -34,6 +34,8 @@ fluidPage(
   tags$head(includeCSS("www/popover.css")),
   tags$head(includeCSS("www/map_details.css")),
   tags$head(includeCSS("www/modal.css")),
+  tags$head(includeCSS("www/compare.css")),
+  tags$head(includeCSS("www/download.css")),
   
   # tags$head(includeScript("www/jquery.js")),
   tags$head(
@@ -82,7 +84,7 @@ fluidPage(
       ),
       # Create the left side panel  
       absolutePanel(class = "left_panel", 
-                    bottom = 30, left = 32, width = 250, height = 'auto',
+                    bottom = 45, left = 32, width = 250, height = 'auto',
                     # Output the 'UI' that was generated in the server
                     # uiOutput('left_panel')
                     tags$div(class = "title_left_panel", "INDICATORS", 
@@ -127,10 +129,13 @@ fluidPage(
       # create the panel with the spatial scale
       uiOutput('spatial_level'),
       # create the panel with the comparison
+      uiOutput('comparison_button'),
       uiOutput('comparison_panel'),
       # right panel
       uiOutput('right_panel'),
       # back to world button
+      # uiOutput('download_button'),
+      uiOutput('download_button_maps'),
       uiOutput('back_to_world_panel'),
       # about
       absolutePanel(

@@ -1,0 +1,27 @@
+#comparison_button, #comparison_button:hover, #comparison_button:active, #download_button, #download_button:hover, #download_button:active {
+  background: transparent;
+  
+  
+    padding: 10px;
+font-family: 'Franklin Gothic Demi';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+letter-spacing: 0.2em;
+
+/* Gray / 200 */
+
+color: #E9ECEF;
+
+background: transparent;
+    border: transparent;
+    box-shadow: none;
+    
+  z-index: 999999;
+  
+}
+    
+    

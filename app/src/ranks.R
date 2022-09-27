@@ -124,7 +124,7 @@ observeEvent(c(indicator_mode(), input$year), {
     
     
     # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-    rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
+    rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                               '<div class="title_indicator" style="font-size: 20px;">', 
                               'THE WORLD', '</div>',
                               div(class = "value_indicator_rightpanel", format_indicator_value))
@@ -166,7 +166,7 @@ observeEvent(c(indicator_mode(), input$year), {
                              # div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "3º" ),
                              # flag3,
                              # div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3)
-                             )
+    )
     
     # print(rank$rank_text)
     # print(rank$rank_value)
@@ -216,24 +216,36 @@ observeEvent(c(input$map_shape_click,
                  
                  
                  format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
-                 format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+                 format_indicator_unit <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+                 format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_transformation
                  
-                 format_indicator_value <- if(format_indicator_unit_value == "%") {
-                   scales::percent(rank_indicator$valor)
+                 # print(format_indicator_unit_value)
+                 # print("format_indicator_unit_value")
+                 
+                 format_indicator_value <- if(format_indicator_unit_value == "percent") {
+                   round(rank_indicator$valor * 100) 
+                   
+                 } else if(format_indicator_unit_value %in% "thousands") {
+                   
+                   if (rank_indicator$valor >= 1000000) scales::comma(rank_indicator$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator$valor, accuracy = 1, scale = 0.001, suffix = "k")
+                   
+                   
                  } else round(rank_indicator$valor)
                  
                  
                  
                  # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-                 rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
+                 rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                                            '<div class="title_indicator" style="font-size: 20px;">', 
                                            rank_indicator$name, '</div>',
-                                           div(class = "value_indicator_rightpanel", format_indicator_value))
-
-                 print("rank$rank_value")
-                 print(rank$rank_value)
+                                           div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                                           p(style = "color: #B1B5B9; display: inline; font-size: 22px; font-family: 'Franklin Gothic Book';", format_indicator_unit)
+                 )
                  
-                                  
+                 # print("rank$rank_value")
+                 # print(rank$rank_value)
+                 
+                 
                  # the number of ranks will depend on the admin level
                  
                  # this first condition will show the indicator ranks as soon as the city marker is clicked
@@ -255,10 +267,12 @@ observeEvent(c(input$map_shape_click,
                    
                    rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong>%s</strong> out of <strong>%s</strong> in the world</div>', 
                                              base_text, a$rank, a$n)
-                   rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
+                   rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                                              '<div class="title_indicator" style="font-size: 20px;">', 
                                              rank_indicator$name, '</div>',
-                                             div(class = "value_indicator_rightpanel", format_indicator_value))
+                                             div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                                             p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
+                                             )
                    rank$rank_text_initial <- rank$rank_text
                    rank$rank_value_initial <- rank$rank_value
                    # print(paste0("teste: ", rank$rank_text_initial))
@@ -325,18 +339,35 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
     # print(city$city_code)
     rank_indicator <- subset(data_ind3(), osmid == city$city_code)
     
-    format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-      scales::percent(rank_indicator$valor)
+    
+    
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_transformation
+    
+    print(format_indicator_unit_value)
+    print(rank_indicator$valor)
+    
+    format_indicator_value <- if(format_indicator_unit_value == "percent") {
+      round(rank_indicator$valor * 100) 
+      
+    } else if(format_indicator_unit_value %in% "thousands") {
+      
+      if (rank_indicator$valor >= 1000000) scales::comma(rank_indicator$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator$valor, accuracy = 1, scale = 0.001, suffix = "k")
+      
     } else round(rank_indicator$valor)
     
     
     
     # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-    rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
+    rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                               '<div class="title_indicator" style="font-size: 20px;">', 
                               rank_indicator$name, '</div>',
-                              div(class = "value_indicator_rightpanel", format_indicator_value))
-    # print(rank$rank_value)
+                              div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                              p(style = "color: #B1B5B9; display: inline; font-size: 22px; font-family: 'Franklin Gothic Book';", format_indicator_unit)
+    )
+    
+    
     
     # this first condition will show the indicator ranks as soon as the city marker is clicked
     base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS")
