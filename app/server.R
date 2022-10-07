@@ -81,9 +81,10 @@ function(input, output, session) {
         # fixed = TRUE, draggable = FALSE,
         bottom = 45, left = 300, height = 'auto', width = 120,
         # 'typeof undefined' identifies when is null 
-        tags$div(class = "title_left_panel", "YEAR", 
-                 actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-                              class = "minimize")),
+        tags$div(class = "title_left_panel", "YEAR" 
+                 # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+                              # class = "minimize")
+                 ),
         shinyWidgets::pickerInput(inputId = "year",
                                   label = NULL,
                                   choices = 1980:2019,
@@ -260,7 +261,7 @@ function(input, output, session) {
                       tabPanel("OVERVIEW", value = "tab_overview",         
                                absolutePanel(
                                  class = "right_panel_textbox",
-                                 top = 65, right = 0, width = 280,
+                                 top = 65, right = 5, width = 280,
                                  htmlOutput("text_indicator"),
                                  tags$button(
                                    id = "link_see_more",
@@ -277,7 +278,7 @@ function(input, output, session) {
                       tabPanel("MORE INFO",  value = "tab_viewmore",                                
                                absolutePanel(
                                  class = "right_panel_textbox",
-                                 top = 80, right = 0, width = 280,
+                                 top = 65, right = 5, width = 280,
                                  htmlOutput("text_indicator2")
                                  
                                )

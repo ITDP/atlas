@@ -25,3 +25,42 @@ background: transparent;
 }
     
     
+.btn:focus-visible {
+    outline: transparent;
+}
+    
+    
+.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+    outline: transparent;
+    outline-offset: -2px;
+}
+
+
+
+.highcharts-button-box {
+      width: 140px !important;
+    height: 50px !important;
+    position: fixed !important;
+    cursor: inherit !important;
+    fill: #00AE42 !important;
+        box-sizing: border-box !important;
+    border: 1px solid #495057 !important;
+    border-radius: 4px !important;
+  
+}
+
+
+g.highcharts-exporting-group > g > text {
+  
+    font-family: 'Fira Sans', sans-serif !important;
+    font-style: normal !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    line-height: 16px !important;
+    letter-spacing: 0.2em !important;
+    fill: #E9ECEF !important;
+    background: transparent !important;
+    border: transparent !important;
+    box-shadow: none !important;
+  
+}

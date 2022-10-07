@@ -12,6 +12,10 @@ output$download_button_maps <- renderUI({
                         downloadButton("downloadData2", "Download all indicators for this region", icon = NULL)
                       ),
                       hr(),
+                      tagList(
+                        downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
+                      ),
+                      hr(),
                       actionButton("downloadDic", "Download Data Dictionary", 
                                    onclick = "location.href='https://www.ipea.gov.br/acessooportunidades/dados';"),
                       circle = FALSE, 
@@ -41,12 +45,12 @@ output$downloadData1 <- downloadHandler(
   filename = function() {
     
     
-    sprintf("atlas_%s.gpkg", input$cidade)
+    sprintf("atlas_indicators_%s_%s.gpkg", city$city_code, indicator_mode())
     
   },
   content = function(file) {
     
-    sf::st_write(cidade_filtrada() %>% dplyr::left_join(hex_filtrado(), by = 'id_hex') %>% st_sf(crs = 4326), file)
+    sf::st_write(data_ind2(), file)
     
   }
   
@@ -58,12 +62,29 @@ output$downloadData2 <- downloadHandler(
   filename = function() {
     
     
-    sprintf("acess_%s.gpkg", input$cidade)
+    sprintf("atlas_indicators_%s.gpkg", city$city_code)
     
   },
   content = function(file) {
     
-    sf::st_write(cidade_filtrada() %>% dplyr::left_join(hex_filtrado(), by = 'id_hex') %>% st_sf(crs = 4326), file)
+    sf::st_write(data_ind(), file)
+    
+  }
+  
+)
+
+output$download_overlay <- downloadHandler(
+  
+  # generate button with data
+  filename = function() {
+    
+    
+    sprintf("atlas_overlay_%s_%s.gpkg", city$city_code, indicator_mode())
+    
+  },
+  content = function(file) {
+    
+    sf::st_write(data_overlays2(), file)
     
   }
   

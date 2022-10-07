@@ -95,39 +95,51 @@ observeEvent(c(indicator_mode(), input$year), {
     
     format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
     
-    # format_indicator_name <- switch (indicator_mode(),
-    #                                  "pnpb" = "People Near Protected Bike Lanes",
-    #                                  "pnab" = "People Near Bike Lanes",
-    #                                  "pnh" = "People Near pnh",
-    #                                  "pne" = "People Near pne",
-    #                                  "hs" = "People Near Services"
-    # )
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_transformation
     
-    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+    print("format_indicator_unit_value")
+    print(format_indicator_unit)
     
-    format_indicator_value <- if(format_indicator_unit_value == "%") {
-      scales::percent(rank_indicator)
+    format_indicator_value <- if(format_indicator_unit_value == "percent") {
+      round(rank_indicator * 100) 
+      
+    } else if(format_indicator_unit_value %in% "thousands") {
+      
+      if (rank_indicator >= 1000000) scales::comma(rank_indicator, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator, accuracy = 1, scale = 0.001, suffix = "k")
+      
+      
     } else round(rank_indicator)
     
     
-    format_indicator_value_countries1 <- if(format_indicator_unit_value == "%") {
-      scales::percent(a$valor[1])
+    format_indicator_value_countries1 <- if(format_indicator_unit_value == "percent") {
+      round(a$valor[1] * 100) 
+      
+    } else if(format_indicator_unit_value %in% "thousands") {
+      
+      if (a$valor[1] >= 1000000) scales::comma(a$valor[1], accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(a$valor[1], accuracy = 1, scale = 0.001, suffix = "k")
+      
+      
     } else round(a$valor[1])
     
-    format_indicator_value_countries2 <- if(format_indicator_unit_value == "%") {
-      scales::percent(a$valor[2])
+    format_indicator_value_countries2 <- if(format_indicator_unit_value == "percent") {
+      round(a$valor[2] * 100) 
+      
+    } else if(format_indicator_unit_value %in% "thousands") {
+      
+      if (a$valor[2] >= 1000000) scales::comma(a$valor[2], accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(a$valor[2], accuracy = 1, scale = 0.001, suffix = "k")
+      
+      
     } else round(a$valor[2])
     
-    # format_indicator_value_countries3 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-    #   scales::percent(a$valor[3])
-    # } else round((a$valor[3]))
     
-    
-    # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
     rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                               '<div class="title_indicator" style="font-size: 20px;">', 
-                              'THE WORLD', '</div>',
-                              div(class = "value_indicator_rightpanel", format_indicator_value))
+                              "THE WORLD", '</div>',
+                              div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                              p(style = "color: #B1B5B9; display: inline; font-size: 22px; font-family: 'Franklin Gothic Book';", format_indicator_unit)
+    )
     
     rank$rank_value_world <- rank$rank_value
     
@@ -254,7 +266,7 @@ observeEvent(c(input$map_shape_click,
                  if (!is.null(city$city_code) & isTRUE(is.null(rank$admin_level))) {
                    
                    a <- subset(filter_rank(), osmid == ui & rank_type == "world")
-                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong>%s</strong> out of <strong>%s</strong> in the world</div>', 
+                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">3</strong>%s</strong> out of %s</strong> in the world</div>', 
                                              base_text, a$rank, a$n)
                    
                    
@@ -265,7 +277,7 @@ observeEvent(c(input$map_shape_click,
                    
                    a <- subset(filter_rank(), osmid == ui & rank_type == "world")
                    
-                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong>%s</strong> out of <strong>%s</strong> in the world</div>', 
+                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                                              base_text, a$rank, a$n)
                    rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                                              '<div class="title_indicator" style="font-size: 20px;">', 
@@ -290,7 +302,7 @@ observeEvent(c(input$map_shape_click,
                    a <- subset(filter_rank(), osmid == ui & rank_type == "metro")
                    # print(a)
                    
-                   rank$rank_text <- sprintf('%s  <div class="text_compare"> Ranks <strong>%s</strong> out of <strong>%s</strong> in the metro</div>', 
+                   rank$rank_text <- sprintf('%s  <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the metro</div>', 
                                              base_text, a$rank, a$n)
                    
                  } else {
@@ -299,9 +311,9 @@ observeEvent(c(input$map_shape_click,
                    a2 <- subset(filter_rank(), osmid == ui & rank_type == "metro")
                    
                    
-                   text1 <- sprintf('%s  <div class="text_compare"  style="padding-bottom: 5px">Ranks <strong>%s</strong> out of <strong>%s</strong> in the world</div>', 
+                   text1 <- sprintf('%s  <div class="text_compare"  style="padding-bottom: 5px">Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                                     base_text, a1$rank, a1$n)
-                   text2 <- sprintf('<div class="text_compare" style="padding-top: 0px";>Ranks <strong>%s</strong> out of <strong>%s</strong> in the metro</div>', 
+                   text2 <- sprintf('<div class="text_compare" style="padding-top: 0px";>Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the metro</div>', 
                                     a2$rank, a2$n)
                    
                    rank$rank_text <- paste0(text1, text2)
@@ -375,7 +387,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
     a <- subset(filter_rank(), osmid == city$city_code & rank_type == "world")
     # print(a)
     
-    rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong>%s</strong> out of <strong>%s</strong> in the world</div>', 
+    rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                               base_text, a$rank, a$n)
     
     

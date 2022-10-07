@@ -144,104 +144,12 @@ prep_data <- function(ghsl) {
   
   
   
-  # overlay files ------------------------------------
-  overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = ".geojson$")
-  # overlay_files <- dir("data/sample_2", full.names = TRUE, recursive = TRUE)
-  # overlay_files <- overlay_files[grepl("ghsl_region_\\d{4}/geodata", overlay_files)]
-  # overlay_files <- overlay_files[grepl(".geojson$", overlay_files)]
-  
-  # filter only our overlays
-  overlay_files <- overlay_files[overlay_files %like% c("allbike_latlon|h\\+slatlon|healthcarelatlon|pnablatlon|pnpblatlon|protectedbike|schools")]
-  
-  # the overlay files only have the shape geom, so we need to give them names based on the filename
-  # read overlays
-  open_overlay <- function(file) {
-    # file <- overlay_files[[1]]
-    
-    a <- st_read(file)
-    a <- a %>% mutate(ind = basename(file))
-    # identify geom type
-    a <- a %>% mutate(geom_type = st_geometry_type(.))
-    
-  }
-  
-  overlay <- lapply(overlay_files, open_overlay)
-  
-  # identify geom type
-  names(overlay) <- purrr::map_chr(overlay, function(x) as.character(st_geometry_type(x)))
-  # separate between polygons and lines
-  overlay_polygons <- overlay[grep("MULTIPOLYGON", names(overlay))] %>% rbindlist()
-  overlay_lines <- overlay[grep("MULTILINESTRING", names(overlay))] %>% rbindlist()
-  
-  
-  
-  
-  # juntar objeto dos overlays sem a geom
-  overlay_df <- lapply(overlay_files, function(file) st_set_geometry(open_overlay(file), NULL)) %>% rbindlist()
-  
-  
-  # create aux table with the overlay ids
-  overlay_id <- tibble::tribble( 
-    
-    ~ind, ~indicator,
-    "pnpblatlon.geojson",            "bike_pnpb_2019",
-    "pnablatlon.geojson",            "bike_pnab_2019",
-    "allbike_latlon.geojson",        "bike_abikeways_2019",
-    "protectedbike_latlon.geojson",  "bike_pbikeways_2019",
-    "healthcarelatlon.geojson",      "walk_pnh_2019",
-    "schoolslatlon.geojson",         "walk_pne_2019",
-    "h+slatlon.geojson",             "walk_pns_2019",
-    "carfreelatlon.geojson",         "walk_cf_2019",
-    
-  )
-  
-  # bring indicator id to the overlays
-  overlay_polygons <- left_join(overlay_polygons, overlay_id, by = "ind") %>% select(-ind) %>% st_sf(crs = 4326)
-  if (nrow(overlay_lines) > 0) {
-    overlay_lines <- left_join(overlay_lines, overlay_id, by = "ind") %>% select(-ind) %>% st_sf(crs = 4326)
-    overlay_lines <- st_simplify(overlay_lines)
-  } 
-  
-  # simplify data
-  overlay_polygons <- st_simplify(overlay_polygons)
-  # to polygons
-  # overlay_polygons <- st_cast(overlay_polygons, "POLYGON")
-  
-  
-  overlay_df <- left_join(overlay_df, overlay_id, by = "ind") %>% select(-ind)
-  
-  # we should overlays for all available indicators, so we need to check that
-  overlay_missing <- setdiff(colnames(data)[8:(length(colnames(data)) - 1)], overlay_df$indicator)
-  
-  nrows <- length(overlay_missing)
-  overlay_missing_polygons <- st_sf(geom_type = rep("MULTIPOLYGON", nrows),
-                                    indicator = overlay_missing,
-                                    geometry = st_sfc(lapply(1:nrows, function(x) st_multipolygon())),
-                                    crs = 4326)
-  overlay_missing_df <- data.frame(geom_type = rep("MULTIPOLYGON", nrows),
-                                   indicator = overlay_missing)
-  
-  
-  # join
-  overlay_polygons <- rbind(overlay_polygons, overlay_missing_polygons)
-  overlay_df <- rbind(overlay_df, overlay_missing_df)
-  
-  # data <- data %>%
-  #   select(name, hdc, osmid, admin_level, 
-  #          total_pop, 
-  #          walk_healthcare_2019 = healthcare,
-  #          walk_schools_2019 = schools,
-  #          walk_hs_2019 = h.s,
-  #          bike_pnab_2019 = pnab,
-  #          bike_pnpb_2019 = pnpb
-  #   )
+ 
   
   dir.create(sprintf("data/sample3/ghsl_%s", ghsl), recursive = TRUE)
   
   readr::write_rds(data,             sprintf("data/sample3/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_df,       sprintf("data/sample3/ghsl_%s/overlays_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_polygons, sprintf("data/sample3/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_lines,    sprintf("data/sample3/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
+
   # if (nrow(overlay_lines) > 0) readr::write_rds(overlay_lines, sprintf("data/sample2_prep/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
   
 }
@@ -261,6 +169,163 @@ prep_data("1445")
 # prep_data("0014")
 prep_data("0154")
 prep_data("0634")
+
+
+
+
+# prep overlays -----------------------------------------------------------
+
+# ghsl <- "0014"
+prep_overlays <- function(ghsl) {
+  
+  
+  base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
+  
+  # overlay files ------------------------------------
+  overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = ".geojson$", recursive = TRUE)
+  
+  # filter only our overlays
+  overlay_files1 <- overlay_files[overlay_files %like% c("allbike_latlon|h\\+slatlon|healthcarelatlon|pnablatlon|pnpblatlon|protectedbike|schools")]
+  
+  # the overlay files only have the shape geom, so we need to give them names based on the filename
+  # read overlays
+  open_overlay <- function(file) {
+    # file <- overlay_files[[1]]
+    
+    a <- st_read(file)
+    a <- a %>% mutate(ind = basename(file))
+    # identify geom type
+    a <- a %>% mutate(geom_type = st_geometry_type(.))
+    a <- a %>% mutate(year = 2019)
+    
+  }
+  
+  overlay <- lapply(overlay_files1, open_overlay)
+  
+  
+  # open rapid_transit when available
+  overlay_files_rapid <- overlay_files[overlay_files %like% c("rapid_transit")]
+  overlay_files_rapid <- overlay_files_rapid[overlay_files_rapid %like% c("isochrones")]
+  
+  # fun
+  open_overlay_rapid <- function(file) {
+    # file <- overlay_files_rapid[[1]]
+    
+    # extract year
+    year <- sub("(^.*)/(rapid_transit/)(\\d{4})/(.*$)", "\\3", file)
+    
+    a <- st_read(file)
+    a <- a %>% mutate(ind = basename(file))
+    # identify geom type
+    a <- a %>% mutate(geom_type = st_geometry_type(.))
+    a <- a %>% mutate(year = year)
+    
+  }
+  
+  
+  if (length(overlay_files_rapid) > 0) {
+    
+  overlay_rapid <- lapply(overlay_files_rapid, open_overlay_rapid)
+  
+  overlay <- c(overlay, overlay_rapid)
+    
+  }
+  
+  
+  
+  # identify geom type
+  names(overlay) <- purrr::map_chr(overlay, function(x) as.character(st_geometry_type(x)))
+  # separate between polygons and lines
+  overlay_polygons <- overlay[grep("MULTIPOLYGON", names(overlay))] %>% rbindlist()
+  overlay_lines <- overlay[grep("MULTILINESTRING", names(overlay))] %>% rbindlist()
+  
+  
+  # juntar objeto dos overlays sem a geom
+  overlay_df <- rbind(overlay_polygons %>% select(-geometry), overlay_lines %>% select(-geometry)) %>% select(ind, geom_type, year)
+  
+  
+  # create aux table with the overlay ids
+  overlay_id <- tibble::tribble( 
+    
+    ~ind, ~indicator,
+    "pnpblatlon.geojson",            "bike_pnpb",
+    "pnablatlon.geojson",            "bike_pnab",
+    "allbike_latlon.geojson",        "bike_abikeways",
+    "protectedbike_latlon.geojson",  "bike_pbikeways",
+    "healthcarelatlon.geojson",      "walk_pnh",
+    "schoolslatlon.geojson",         "walk_pne",
+    "h+slatlon.geojson",             "walk_pns",
+    "carfreelatlon.geojson",         "walk_cf",
+    "all_isochrones_ll.geojson",     "transit_pnrtall",
+    "lrt_isochrones_ll.geojson",     "transit_pnrtlrt",
+    "mrt_isochrones_ll.geojson",     "transit_pnrtmrt",
+    "brt_isochrones_ll.geojson",     "transit_pnrtbrt"
+    
+  )
+  
+  # bring indicator id to the overlays
+  overlay_polygons <- left_join(overlay_polygons, overlay_id, by = "ind") %>% select(-ind) %>% 
+    mutate(indicator = paste0(indicator, "_", year)) %>%
+    # select(-year) %>%
+    st_sf(crs = 4326)
+  if (nrow(overlay_lines) > 0) {
+    overlay_lines <- left_join(overlay_lines, overlay_id, by = "ind") %>% select(-ind) %>% 
+      mutate(indicator = paste0(indicator, "_", year)) %>%
+    # select(-year) %>%
+      st_sf(crs = 4326)
+    overlay_lines <- st_simplify(overlay_lines)
+    # overlay_lines1 <- st_cast(overlay_lines, "LINESTRING")
+    
+  } 
+  
+  # simplify data
+  overlay_polygons <- st_simplify(overlay_polygons)
+  # to polygons
+  # overlay_polygons1 <- st_cast(overlay_polygons, "POLYGON")
+  
+  # overlay_lines1 <- sfheaders::sf_cast(overlay_lines, to = "LINESTRING")
+  # a <- st_union(overlay_lines1)
+  # b <- overlay_lines1[1:2,]
+  
+  overlay_df <- left_join(overlay_df, overlay_id, by = "ind") %>% 
+    mutate(indicator = paste0(indicator, "_", year)) %>%
+    select(-ind)
+  
+  # we should overlays for all available indicators, so we need to check that
+  overlay_missing <- setdiff(colnames(data)[8:(length(colnames(data)) - 1)], overlay_df$indicator)
+  
+  nrows <- length(overlay_missing)
+  overlay_missing_polygons <- st_sf(geom_type = rep("MULTIPOLYGON", nrows),
+                                    indicator = overlay_missing,
+                                    geometry = st_sfc(lapply(1:nrows, function(x) st_multipolygon())),
+                                    crs = 4326)
+  overlay_missing_df <- data.frame(geom_type = rep("MULTIPOLYGON", nrows),
+                                   indicator = overlay_missing)
+  
+  
+  # join
+  overlay_polygons <- rbind(overlay_polygons, overlay_missing_polygons)
+  overlay_df <- rbind(overlay_df, overlay_missing_df)
+  
+  # save by year
+  
+  save_by_year <- function(year) {
+    
+    
+    
+  }
+  
+  
+  readr::write_rds(overlay_df,       sprintf("data/sample3/ghsl_%s/overlays_%s.rds", ghsl, ghsl))
+  readr::write_rds(overlay_polygons, sprintf("data/sample3/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
+  readr::write_rds(overlay_lines,    sprintf("data/sample3/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
+  
+}
+
+
+
+
+
 
 
 
@@ -454,7 +519,7 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
 
 # create list with osmid --------------------------------------------------
 
-count(indicators_all_df, hdc, osmid, name, admin_level, admin_level_ordered) %>%
+count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ordered) %>%
   select(-n) %>%
   readr::write_rds("data/sample3/list_osmid_name.rds")
 

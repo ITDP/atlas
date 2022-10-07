@@ -84,7 +84,7 @@ fluidPage(
       ),
       # Create the left side panel  
       absolutePanel(class = "left_panel", 
-                    bottom = 45, left = 32, width = 250, height = 'auto',
+                    bottom = 45, left = 15, width = 270, height = 'auto',
                     # Output the 'UI' that was generated in the server
                     # uiOutput('left_panel')
                     tags$div(class = "title_left_panel", "INDICATORS", 
@@ -95,7 +95,7 @@ fluidPage(
                     
                     # Create the left side panel  
                     absolutePanel(class = "left_panel_indicators", 
-                                  bottom = 5, left = -2, width = 240, height = 'auto',
+                                  bottom = 5, left = -2, width = 260, height = 'auto',
                                   
                                   accordion_input(inputId = "indicator_city",
                                                   label = "City",

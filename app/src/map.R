@@ -92,7 +92,7 @@ observeEvent(c(indicator_mode(), input$year), {
   legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
   legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
   # format legend value
-  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
   
   
   # print(a)
@@ -179,11 +179,11 @@ observeEvent(c(city$city_code), {
   
   # extract geom type of this indicator
   geom_type <- unique(data_overlays2()$geom_type)
-  print("geom_type")
-  print(geom_type)
+  # print("geom_type")
+  # print(geom_type)
   
   # print(data_metro$osmid)
-  print("obs2")
+  # print("obs2")
   
   pal <- colorNumeric(
     palette = "YlOrRd",
@@ -296,8 +296,8 @@ observeEvent(c(input$map_shape_click), {
   # first, we should create a vector with the selected elements
   ui <- input$map_shape_click$id
   element$selected <- c(element$selected, ui)
-  print("element$selected")
-  print(input$map_shape_click)
+  # print("element$selected")
+  # print(input$map_shape_click)
   
   
   # thigs to do here:
