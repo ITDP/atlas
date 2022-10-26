@@ -571,3 +571,12 @@ observeEvent(c(input$admin_level, ind_city()), {
   
   
 })
+
+# minimize the comprison when maximizing
+observeEvent(c(input$maximize_comparison), {
+  
+  req(input$maximize_comparison >= 1)
+  
+  toggle("lalala", anim = TRUE, animType = "slide")
+  
+})
