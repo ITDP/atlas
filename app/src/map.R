@@ -1,37 +1,37 @@
-# update map --------------------------------------------------------------
-
-# https://gist.github.com/jcheng5/c084a59717f18e947a17955007dc5f92
-# https://stackoverflow.com/questions/52846472/leaflet-plugin-and-leafletproxy-with-polylinedecorator-as-example
-spinPlugin <- htmlDependency(
-  "spin.js", 
-  "2.3.2",
-  src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2"),
-  script = "spin.min.js") # there's no spin.css
-
-leafletspinPlugin <- htmlDependency(
-  "Leaflet.Spin", 
-  "1.1.2",
-  src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2"),
-  script = "leaflet.spin.min.js")
-
-registerPlugin1 <- function(map, plugin) {
-  map$dependencies <- c(map$dependencies, list(plugin))
-  map
-}
-
-# Note: Ctrl-Shift-J opens the javascript console in the browser
-spin_event <- "function(el, x) {
-  console.log('spin event added'); 
-  var mymap = this;
-  mymap.on('layerremove', function(e) {
-    console.log('layerremove fired');
-    mymap.spin(true);
-  });
-  mymap.on('layeradd', function(e) {
-    console.log('layeradd fired');
-    mymap.spin(false); 
-  });
-}"
+# # update map --------------------------------------------------------------
+# 
+# # https://gist.github.com/jcheng5/c084a59717f18e947a17955007dc5f92
+# # https://stackoverflow.com/questions/52846472/leaflet-plugin-and-leafletproxy-with-polylinedecorator-as-example
+# spinPlugin <- htmlDependency(
+#   "spin.js", 
+#   "2.3.2",
+#   src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2"),
+#   script = "spin.min.js") # there's no spin.css
+# 
+# leafletspinPlugin <- htmlDependency(
+#   "Leaflet.Spin", 
+#   "1.1.2",
+#   src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2"),
+#   script = "leaflet.spin.min.js")
+# 
+# registerPlugin1 <- function(map, plugin) {
+#   map$dependencies <- c(map$dependencies, list(plugin))
+#   map
+# }
+# 
+# # Note: Ctrl-Shift-J opens the javascript console in the browser
+# spin_event <- "function(el, x) {
+#   console.log('spin event added'); 
+#   var mymap = this;
+#   mymap.on('layerremove', function(e) {
+#     console.log('layerremove fired');
+#     mymap.spin(true);
+#   });
+#   mymap.on('layeradd', function(e) {
+#     console.log('layeradd fired');
+#     mymap.spin(false); 
+#   });
+# }"
 
 
 osm_selected <- reactiveValues(oi = NULL)
