@@ -1,5 +1,26 @@
 
+#title_base {
+  margin-top: 5px;
+}
+
+
+
+.leaflet-top .leaflet-control {
+    margin-top: 30px;
+}
+
+.leaflet-control-layers-list {
+  
+  margin-left: 10px;
+  margin-right: 10px;
+  
+}
+
+
+
+
 /* hide the radio button */
+
 .leaflet-control-layers input[type=radio] {
   
 
@@ -12,9 +33,11 @@ position: absolute;
 }
 
 
+
 .leaflet-control-layers [type=radio] + img {
   cursor: pointer;
 }
+
 
 
 [type=radio]:checked + img {
@@ -23,8 +46,11 @@ position: absolute;
 
 
 
+
 /* make the icons inline and add marings */
+/*
 .leaflet-control-layers label {
     display: inline-block;
     margin-right: 10px;
 }
+*/

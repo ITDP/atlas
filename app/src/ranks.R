@@ -12,10 +12,10 @@ get_rank <- reactive({
 filter_rank <- reactive({
   
   
-  req(indicator_mode())
-  # print(paste0("pattern: ", indicator_mode()))
+  req(indicator$mode)
+  # print(paste0("pattern: ", indicator$mode))
   # print(head(get_rank()))
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # print("pattern")
   # print(pattern)
   cols <- c('osmid', 'admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'rank_type', 'n')
@@ -32,8 +32,8 @@ filter_rank_country <- reactive({
   
   req(indicator$type)    
   
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
-  # print(paste0("pattern: ", indicator_mode()))
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+  # print(paste0("pattern: ", indicator$mode))
   cols <- c('name_long', 'a2', colnames(atlas_country_ranks)[startsWith(colnames(atlas_country_ranks), pattern)], 'n')
   # print(cols)
   a <- atlas_country_ranks[cols]
@@ -55,11 +55,11 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
 
 
 # display initial rank with indicators - in the world view
-observeEvent(c(indicator_mode(), input$year), {
+observeEvent(c(indicator$mode, input$year), {
   
   
   
-  req(indicator_mode())
+  req(indicator$mode)
   req(input$year)
   # req(indicator$type)
   
@@ -72,7 +72,7 @@ observeEvent(c(indicator_mode(), input$year), {
     
     # value
     # print(paste0("type: ", indicator$type))
-    pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
+    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
     # print(pattern)
     cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geom")
     # print(cols)
@@ -93,11 +93,11 @@ observeEvent(c(indicator_mode(), input$year), {
     # print(head(filter_rank()))
     # print(spatial_level_value$last)
     
-    format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
     
-    format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
-    format_indicator_unit <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
-    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_transformation
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     
     print("format_indicator_unit_value")
     print(format_indicator_unit)
@@ -227,9 +227,9 @@ observeEvent(c(input$map_shape_click,
                  # print(spatial_level_value$last)
                  
                  
-                 format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
-                 format_indicator_unit <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
-                 format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_transformation
+                 format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+                 format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+                 format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
                  
                  # print(format_indicator_unit_value)
                  # print("format_indicator_unit_value")
@@ -353,9 +353,9 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
     
     
     
-    format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
-    format_indicator_unit <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
-    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_transformation
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     
     print(format_indicator_unit_value)
     print(rank_indicator$valor)
@@ -405,7 +405,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
 
 
 output$rank_value <- renderUI({
-  req(indicator_mode())
+  req(indicator$mode)
   
   HTML(rank$rank_value)
   
@@ -416,7 +416,7 @@ output$rank_value <- renderUI({
 
 
 output$rank_text <- renderUI({
-  req(indicator_mode())
+  req(indicator$mode)
   
   HTML(rank$rank_text)
   

@@ -9,6 +9,8 @@ list_osmid_name <- readRDS("../data/sample3/list_osmid_name.rds")
 list_availability <- readRDS("../data/sample3/list_availability.rds")
 
 
+
+
 function(input, output, session) {
   
   
@@ -16,6 +18,21 @@ function(input, output, session) {
   # ui----------------------------------------------------------------------
   
   output$city_selection <- renderUI({
+    
+    # make list
+    oi <- split(list_availability, list_availability$country)
+    pera <- function(variables) {
+      
+      name <- unique(variables$name)
+      code <- unique(variables$hdc)
+      
+      names(code) <- name
+      
+      return(code)
+      
+      
+    }
+    list_selection <- lapply(oi, pera)
     
     
     tagList(
@@ -35,24 +52,12 @@ function(input, output, session) {
       #              label = "ATLAS",
       #              style = "background: transparent; font-size: 26px; color: #00AE42;"
       # ),
-      h3(style = "color: #00AE42; display: inline-block; font-size: 28px", strong("ATLAS")),
+      h3(style = "color: #00AE42; display: inline-block; font-size: 28px; margin-right: 15px", strong("ATLAS")),
       div(style = "display: inline-block;",
           shinyWidgets::pickerInput(inputId = "city",
                                     label = NULL,
-                                    choices = list(
-                                      'Brazil' = c("Fortaleza" = "1406",
-                                                   "Recife" = "1445"),
-                                      # 'USA' = c("Boston" = "1022"),
-                                      # 'Ethiopia' = c("Addis Ababa" = "5134")
-                                      'Mexico' = c(
-                                        "Mexico City" = "0154",
-                                        "Guadalajara" = "0088",
-                                                   "Monterrey" = "0200"),
-                                      'Colombia' = c("Bogota" = "0621",
-                                                     "Medellin" = "0561"),
-                                      'United States' = c("Los Angeles" = "0014",
-                                                     "Chicago" = "0634")
-                                    ),
+                                    width = "220px",
+                                    choices = list_selection,
                                     options = shinyWidgets::pickerOptions(size = 15,
                                                                           iconBase = "fa",
                                                                           tickIcon = "fa-check",
@@ -70,6 +75,16 @@ function(input, output, session) {
   
   output$left_panel_filter <- renderUI({
     
+    req(indicator_mode())
+    
+    year_options <- subset(list_availability, ind == indicator_mode())$availability
+    year_options <- unlist( strsplit(year_options, "[|]"))
+    year_options <- unique(year_options)
+    
+    
+    # hdc_available <-  subset(list_availability, ind = indicator_mode())$hdc
+    # hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
+    
     
     tagList(
       # conditionalPanel(
@@ -83,11 +98,11 @@ function(input, output, session) {
         # 'typeof undefined' identifies when is null 
         tags$div(class = "title_left_panel", "YEAR" 
                  # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-                              # class = "minimize")
-                 ),
+                 # class = "minimize")
+        ),
         shinyWidgets::pickerInput(inputId = "year",
                                   label = NULL,
-                                  choices = 1980:2019,
+                                  choices = year_options,
                                   selected = 2019,
                                   options = shinyWidgets::pickerOptions(
                                     size = 5
@@ -128,7 +143,9 @@ function(input, output, session) {
       #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
       #                       class = "minimize")
       # ),
-      actionButton(inputId = "comparison_button", "COMPARE")
+      actionButton(inputId = "comparison_button", "COMPARE"
+                   # , onclick = '$("#comparison_panel").toggle("show");'
+                   )
       
     )
     
@@ -137,17 +154,20 @@ function(input, output, session) {
   
   
   observeEvent(c(input$comparison_button), {
-    
 
-    toggle("comparison_panel")    
+    # print("input$comparison_button")
+    # print(as.numeric(input$comparison_button))
+    req(input$comparison_button >= 1)
+
+    toggle("lalala", anim = TRUE, animType = "slide")
 
 
   })
   
-  output$comparison_panel <- renderUI({
+  # create regions names for the comparison 
+  comparison_values <- reactive({
     
     req(input$admin_level, ind_city(), data_ind3_spatial())
-    req(input$comparison_button >= 1)
     
     # get the admin level original
     al <- unique(data_ind3_spatial()$admin_level)
@@ -156,7 +176,8 @@ function(input, output, session) {
     # print(al)
     
     # first, select only the ones that are available for the indicator in question
-    hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
+    hdc_available <-  subset(list_availability, ind = indicator_mode())$hdc
+    # hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
     
     # get options to show in the comparison
     choices_comparison <- subset(list_osmid_name, admin_level == al)
@@ -169,13 +190,23 @@ function(input, output, session) {
     choices_names <- choices_comparison$name
     names(choices_values) <- choices_names
     
+    return(choices_values)
+    
+  })
+  
+  output$comparison_panel <- renderUI({
+    
+    
+    # req(input$comparison_button >= 1)
     
     absolutePanel(
+      id = "lalala",
       class = "spatial_level",
+      style = "z-index: 9999999999; opacity: 0.97",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      bottom = 95, left = 440, height = 'auto', width = 400,
+      bottom = 105, left = 440, height = 'auto', width = 500,
       tags$div(class = "title_left_panel", "COMPARE", 
                actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
                             class = "minimize")
@@ -185,7 +216,7 @@ function(input, output, session) {
       
       shinyWidgets::pickerInput(inputId = "city_compare",
                                 label = NULL,
-                                choices = choices_values,
+                                choices = comparison_values(),
                                 multiple = TRUE,
                                 options = shinyWidgets::pickerOptions(size = 15,
                                                                       iconBase = "fa",
@@ -194,12 +225,7 @@ function(input, output, session) {
                                                                       liveSearch = TRUE)
       ),
       highchartOutput('comparison', height = "150px")
-      # actionButton(inputId = "about",
-      #              label = "About",
-      #              class = "about_button"
-      #              # selected = character(0)
-      # )
-    )
+    )  %>% shinyjs::hidden()
     
   })
   
@@ -307,14 +333,14 @@ function(input, output, session) {
       conditionalPanel(
         condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
         absolutePanel(
-          class = "right_panel",
+          class = "about_button",
           # class = "w3-container w3-animate-opacity", 
           # class = "panel panel-default",
           # fixed = TRUE, draggable = FALSE,
-          top = 20, right = 400, width = 90, height = 30,
-          style = "background: black",
+          top = 40, right = 730, width = 130, height = 40,
           actionButton(inputId = "back_to_world",
-                       label = "Reset map"
+                       icon = icon("rotate-left"),
+                       label = HTML("&nbsp;&nbsp;Reset map")
                        # selected = character(0)
           )
           
@@ -326,20 +352,20 @@ function(input, output, session) {
   })
   
   
-
-# download button ---------------------------------------------------------
-
+  
+  # download button ---------------------------------------------------------
+  
   output$download_button <- renderUI({
     
     absolutePanel(
       
       
-      class = "spatial_level",
+      class = "about_button",
       style = "background: #00AE42",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      top = 20, right = 700, height = 'auto', width = 130,
+      top = 20, right = 700, height = 40, width = 130,
       # tags$div(class = "title_left_panel", 
       #          # "COMPARE", 
       #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
@@ -347,7 +373,9 @@ function(input, output, session) {
       #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
       #                       class = "minimize")
       # ),
-      actionButton(inputId = "download_button", "DOWNLOAD")
+      actionButton(inputId = "download_button", 
+                   icon = icon("download"),
+                   label =  HTML("&nbsp;Download"))
       
     )
     
@@ -369,7 +397,7 @@ function(input, output, session) {
   
   
   
-  indicator <- reactiveValues(type = NULL)
+  indicator <- reactiveValues(type = NULL, mode = NULL)
   
   
   observeEvent(c(input$indicator_bike), {
@@ -384,6 +412,7 @@ function(input, output, session) {
     # print("performance :", input$indicator_performance)
     # print(input$city)
     # print(indicator$type)
+    indicator$mode <- input$indicator_bike
     
   })
   
@@ -395,6 +424,8 @@ function(input, output, session) {
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+    
+    indicator$mode <- input$indicator_walk
     
     
   })
@@ -408,6 +439,8 @@ function(input, output, session) {
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     
+    indicator$mode <- input$indicator_transit
+    
   })
   
   observeEvent(c(input$indicator_performance), {
@@ -418,6 +451,8 @@ function(input, output, session) {
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+    
+    indicator$mode <- input$indicator_performance
     
     # print("performance :", input$indicator_performance)
     
@@ -432,8 +467,11 @@ function(input, output, session) {
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
     shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
     # print("ai!")
+    indicator$mode <- input$indicator_city
     
   })
+  
+  
   
   
   
@@ -486,7 +524,54 @@ function(input, output, session) {
   })
   
   
-  
+  # if the user change cities on the top menu, will check if the same indicators is available
+  # if not, it's gonna select other available
+  observeEvent(c(input$city), {
+    
+    # print("a")
+    # print(input$city)
+    
+    req(indicator$mode, input$city != "")
+    
+    ind <- subset(list_availability, hdc == input$city)
+    ind_type <- ind$ind_type
+    ind_mode <- ind$ind
+    # print("ind_mode")
+    # print(ind_mode)
+    
+    # check if it's available
+    available <- indicator$mode %in% ind_mode
+    # print("available")
+    # print(available)
+    
+    if (!available) {
+      
+      # get first available
+      ind_type1 <- ind_type[1]
+      ind_mode1 <- ind_mode[1]
+      
+      # update values
+      indicator$type <- "bike"
+      indicator$mode <- "pnpb"
+      
+      if (indicator$type == "bike") {
+        
+        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = indicator$mode)
+        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+        
+        
+      }
+      
+    }
+    
+    
+    
+    
+    
+  })
   
   
   

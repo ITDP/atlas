@@ -1,5 +1,38 @@
 # update map --------------------------------------------------------------
 
+# https://gist.github.com/jcheng5/c084a59717f18e947a17955007dc5f92
+# https://stackoverflow.com/questions/52846472/leaflet-plugin-and-leafletproxy-with-polylinedecorator-as-example
+spinPlugin <- htmlDependency(
+  "spin.js", 
+  "2.3.2",
+  src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2"),
+  script = "spin.min.js") # there's no spin.css
+
+leafletspinPlugin <- htmlDependency(
+  "Leaflet.Spin", 
+  "1.1.2",
+  src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2"),
+  script = "leaflet.spin.min.js")
+
+registerPlugin1 <- function(map, plugin) {
+  map$dependencies <- c(map$dependencies, list(plugin))
+  map
+}
+
+# Note: Ctrl-Shift-J opens the javascript console in the browser
+spin_event <- "function(el, x) {
+  console.log('spin event added'); 
+  var mymap = this;
+  mymap.on('layerremove', function(e) {
+    console.log('layerremove fired');
+    mymap.spin(true);
+  });
+  mymap.on('layeradd', function(e) {
+    console.log('layeradd fired');
+    mymap.spin(false); 
+  });
+}"
+
 
 osm_selected <- reactiveValues(oi = NULL)
 
@@ -17,14 +50,18 @@ output$map <- renderLeaflet({
     addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
     addProviderTiles(providers$CartoDB.Positron, group = "Light", layerId = "epa") %>%
     addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
+    # registerPlugin1(spinPlugin) %>% 
+    # registerPlugin1(leafletspinPlugin) %>% 
     addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
-                     position = "topright") %>%
-    htmlwidgets::onRender(
-      "function(el, x) {
-        L.control.zoom({position:'topright'}).addTo(this);
-      }")
+                     position = "topright")
+    # onRender(spin_event)
+    
+    # htmlwidgets::onRender(
+    #   "function(el, x) {
+    #     L.control.zoom({position:'topleft'}).addTo(this);
+    #   }")
   
   
   
@@ -41,21 +78,21 @@ counter <- reactiveValues(obs1 = NULL,
 
 
 # update the world map when the indicators is changed ---------------------
-observeEvent(c(indicator_mode(), input$year), {
+observeEvent(c(indicator$mode, input$year), {
   
-  req(indicator_mode(), is.null(rank$admin_level), input$year)               
+  req(indicator$mode, is.null(rank$admin_level), input$year)               
   
   
-  print("obs1")
+  # print("obs1")
   
-  # print(indicator_mode())
+  # print(indicator$mode)
   
   # this will only runs if we are at the wold view (admin level = null)
   # if(is.null(input$admin_level)) {
   
   # print(atlas_city_markers)
   
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # print("pattern")
   # print(pattern)
   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
@@ -89,8 +126,8 @@ observeEvent(c(indicator_mode(), input$year), {
   
   
   
-  legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
-  legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+  legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+  legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   # format legend value
   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
   
@@ -260,8 +297,8 @@ observeEvent(c(city$city_code), {
   }
   
   
-  print("data_overlays_sf()")
-  print(data_overlays_sf())
+  # print("data_overlays_sf()")
+  # print(data_overlays_sf())
   
   map
   
@@ -353,14 +390,14 @@ observeEvent(c(input$map_shape_click), {
 
 # update overlay only when indicator is changed --------------------------------
 
-observeEvent(c(indicator_mode()), {
+observeEvent(c(indicator$mode), {
   
   # it will run only when we are at the city level
   req(!is.null(input$admin_level))
   # if (isTRUE(admin_level_previous$a >= 1)) {
   # if (isTRUE(input$admin_level >= 1)) {
   
-  print("obs3")
+  # print("obs3")
   
   
   # extract geom type of this indicator
@@ -376,6 +413,8 @@ observeEvent(c(indicator_mode()), {
     removeLayersControl()
   
   
+  # print("geom_type")
+  # print(geom_type)
   
   # add overlay
   if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
@@ -467,7 +506,7 @@ data_ind3_spatial <- reactive({
 
 
 observeEvent(c(input$admin_level,
-               indicator_mode()), {
+               indicator$mode), {
                  
                  
                  
@@ -490,8 +529,8 @@ observeEvent(c(input$admin_level,
                  geom_type <- unique(data_overlays2()$geom_type)
                  
                  # filter legend title and values
-                 legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
-                 legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+                 legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+                 legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
                  # format legend value
                  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
                  
@@ -527,8 +566,8 @@ observeEvent(c(input$admin_level,
                  } else  {
                    
                    
-                   print("data_ind3_spatial()")
-                   print(data_ind3_spatial())
+                   # print("data_ind3_spatial()")
+                   # print(data_ind3_spatial())
                    
                    map <- map %>%
                      addPolygons(data = data_ind3_spatial(), 

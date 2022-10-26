@@ -38,8 +38,8 @@ background: transparent;
 
 
 .highcharts-button-box {
-      width: 140px !important;
-    height: 50px !important;
+    /*width: 140px !important;
+    height: 50px !important; */
     position: fixed !important;
     cursor: inherit !important;
     fill: #00AE42 !important;
@@ -54,7 +54,7 @@ g.highcharts-exporting-group > g > text {
   
     font-family: 'Fira Sans', sans-serif !important;
     font-style: normal !important;
-    font-weight: 600 !important;
+    font-weight: 400 !important;
     font-size: 14px !important;
     line-height: 16px !important;
     letter-spacing: 0.2em !important;
@@ -64,3 +64,9 @@ g.highcharts-exporting-group > g > text {
     box-shadow: none !important;
   
 }
+
+/*
+#lalala {
+  display: none!important;
+}
+*/

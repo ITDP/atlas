@@ -13,12 +13,62 @@ background: rgba(28, 28, 28, 0.8);
 border: 1px solid #495057;
 }
 
-about_button {
-  
+.about_button {
+  /*
+      position: fixed;
+  top: 50%;
+  left: 50%;*/
+  /* bring your own prefixes */
+  /*
+  transform: translate(-50%, -50%);
+  */
+/* Gray/900 */
+background: #1C1C1C;
+  border-radius: 4px;
+  padding: 0px;
+border: 1px solid #495057;
   
   
   
 }
+
+
+#about:focus {
+  color: #F8F9FA;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+#back_to_world, #about, #bookmark {
+    position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+}
+
+#back_to_world {
+      padding: 10px 15px 10px 15px;
+}
+
+#bookmark {
+      padding: 10px 30px 10px 30px;
+}
+
+#bookmark:active, #bookmark:focus,  #back_to_world:active, #back_to_world:focus {
+  background: transparent;
+  background-color: transparent;
+  color: #F8F9FA;
+  border-color: transparent;
+}
+
+
+@media (max-width: 1281px) {
+  #about {
+    left: 30%;;
+  }
+}
+
 
 
 .leaflet-control-layers-list {

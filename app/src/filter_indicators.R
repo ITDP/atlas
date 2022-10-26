@@ -26,12 +26,10 @@ data_overlays <- reactive({
   
   req(city$city_code)
   
-  # open geommetries
-  overlay_geom$polygon  <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays_polygons_%s.rds", city$city_code, city$city_code))
-  overlay_geom$line <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays_lines_%s.rds", city$city_code, city$city_code))
-  
-  
   a <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
+  
+  
+  
   # print("head(a)")
   # print(head(a))
   
@@ -56,20 +54,20 @@ data_ind1 <- reactive({
   
 })
 
-data_overlays1 <- reactive({
-  
-  # print(data_overlays())
-  # print(class(indicator$type))
-  # print(class(data_overlays()))
-  # print(indicator$type)
-  ui <- indicator$type
-  a <- subset(data_overlays(), startsWith(indicator, ui))
-  # a <- subset(data_overlays(), indicator %like% indicator$type)
-  # a <- subset(data_overlays(), startsWith(indicator, indicator$type))
-  # a <- data_overlays()[grepl(indicator$type, indicator)]
-  return(a)
-  
-})
+# data_overlays1 <- reactive({
+#   
+#   # print(data_overlays())
+#   # print(class(indicator$type))
+#   # print(class(data_overlays()))
+#   # print(indicator$type)
+#   ui <- indicator$type
+#   a <- subset(data_overlays(), startsWith(indicator, ui))
+#   # a <- subset(data_overlays(), indicator %like% indicator$type)
+#   # a <- subset(data_overlays(), startsWith(indicator, indicator$type))
+#   # a <- data_overlays()[grepl(indicator$type, indicator)]
+#   return(a)
+#   
+# })
 
 
 
@@ -77,12 +75,14 @@ data_overlays1 <- reactive({
 # second level: for each 'mode' 
 data_ind2 <- reactive({
   
-  req(indicator_mode())
+  req(indicator$mode)
   
-  # print(indicator_mode())
-  pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+  # print(indicator$mode)
+  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'geom')
   a <- data_ind1()[cols]
+  
+  indicator$mode <-indicator$mode
   
   # print(a)
   
@@ -91,17 +91,35 @@ data_ind2 <- reactive({
 })
 data_overlays2 <- reactive({
   
-  req(indicator_mode())
-  pattern <- sprintf("%s_%s_2019", indicator$type, indicator_mode())
-  # print(pattern)
-  # print(head(data_overlays1()))
-  a <- subset(data_overlays1(), indicator == pattern)
+  req(indicator$mode)
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+  # pattern <- sprintf("%s_%s_2019", indicator$type, indicator$mode)
+  a <- subset(data_overlays(), indicator == pattern)
+  
+  # print(a)
+  
+  
+  # open geommetries
+  geom_type <- unique(a$geom_type)
+  
+  if(geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
+    
+    overlay_geom$polygon  <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays/%s/overlays_polygons_%s_%s.rds", 
+                                             city$city_code, indicator$mode, city$city_code, indicator$mode))
+    
+  } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
+    
+    overlay_geom$line <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays/%s/overlays_lines_%s_%s.rds", 
+                                         city$city_code, indicator$mode, city$city_code, indicator$mode))
+    
+  }
+  
   
   # print("a")
-  # print(a)
+  # print(overlay_geom$polygon)
+  
   return(a)
   
-  # print(sprintf("spatial level: %s", input$spatial_level))
   
 })
 
@@ -109,10 +127,10 @@ data_overlays2 <- reactive({
 # filter year when available
 data_ind3 <- reactive({
   
-  req(indicator_mode())
+  req(indicator$mode)
   
-  # print(indicator_mode())
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator_mode(), input$year)
+  # print(indicator$mode)
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
   a <- data_ind1()[cols]
   colnames(a) <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', 'valor', 'geom')
@@ -127,7 +145,7 @@ data_ind3 <- reactive({
 
 data_overlays_sf <- reactive({
   
-  req(indicator_mode())
+  req(indicator$mode)
   req(data_overlays2())
   # print(head(data_overlays2()))
   
@@ -140,12 +158,16 @@ data_overlays_sf <- reactive({
   # select data tahat will be used for the overlay
   if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
     
+    # print("a")
+    # print(data_overlays2())
+    
     data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$polygon, by = "indicator") %>% sf::st_sf()
     
   } else data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$line, by = "indicator") %>% sf::st_sf() 
   
   
-  # print(head(data_overlays_sf))
+  print("head(data_overlays_sf)")
+  print(head(data_overlays_sf))
   
   return(data_overlays_sf)
   

@@ -48,7 +48,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "0561"
   # ghsl <- "0088"
   # ghsl <- "0634"
-  # ghsl <- 0014
+  # ghsl <- "0014"
   
   base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
   
@@ -144,12 +144,12 @@ prep_data <- function(ghsl) {
   
   
   
- 
+  
   
   dir.create(sprintf("data/sample3/ghsl_%s", ghsl), recursive = TRUE)
   
   readr::write_rds(data,             sprintf("data/sample3/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
-
+  
   # if (nrow(overlay_lines) > 0) readr::write_rds(overlay_lines, sprintf("data/sample2_prep/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
   
 }
@@ -176,6 +176,9 @@ prep_data("0634")
 # prep overlays -----------------------------------------------------------
 
 # ghsl <- "0014"
+# ghsl <- "0088"
+# ghsl <- "0154"
+# ghsl <- "0634"
 prep_overlays <- function(ghsl) {
   
   
@@ -225,9 +228,9 @@ prep_overlays <- function(ghsl) {
   
   if (length(overlay_files_rapid) > 0) {
     
-  overlay_rapid <- lapply(overlay_files_rapid, open_overlay_rapid)
-  
-  overlay <- c(overlay, overlay_rapid)
+    overlay_rapid <- lapply(overlay_files_rapid, open_overlay_rapid)
+    
+    overlay <- c(overlay, overlay_rapid)
     
   }
   
@@ -239,9 +242,27 @@ prep_overlays <- function(ghsl) {
   overlay_polygons <- overlay[grep("MULTIPOLYGON", names(overlay))] %>% rbindlist()
   overlay_lines <- overlay[grep("MULTILINESTRING", names(overlay))] %>% rbindlist()
   
+  # if (any(grep("GEOMETRYCOLLECTION", names(overlay)) > 0)) {
+  #   
+  # overlay_multi <- overlay[grep("GEOMETRYCOLLECTION", names(overlay))] %>% rbindlist() %>%
+  #   st_sf() %>% st_cast("MULTIPOLYGON")
+  #   
+  # }
+  
   
   # juntar objeto dos overlays sem a geom
-  overlay_df <- rbind(overlay_polygons %>% select(-geometry), overlay_lines %>% select(-geometry)) %>% select(ind, geom_type, year)
+  if (nrow(overlay_lines) > 0) {
+    
+    overlay_df <- rbind(overlay_polygons %>% dplyr::select(-geometry), 
+                        overlay_lines %>% select(-geometry)) %>% select(ind, geom_type, year)
+    
+    
+  } else {
+    
+    
+    overlay_df <- rbind(overlay_polygons %>% dplyr::select(-geometry))
+    
+  }
   
   
   # create aux table with the overlay ids
@@ -271,15 +292,16 @@ prep_overlays <- function(ghsl) {
   if (nrow(overlay_lines) > 0) {
     overlay_lines <- left_join(overlay_lines, overlay_id, by = "ind") %>% select(-ind) %>% 
       mutate(indicator = paste0(indicator, "_", year)) %>%
-    # select(-year) %>%
+      # select(-year) %>%
       st_sf(crs = 4326)
-    overlay_lines <- st_simplify(overlay_lines)
+    overlay_lines <- st_simplify(overlay_lines, dTolerance = 0.01)
     # overlay_lines1 <- st_cast(overlay_lines, "LINESTRING")
     
   } 
   
   # simplify data
-  overlay_polygons <- st_simplify(overlay_polygons)
+  overlay_polygons <- st_simplify(overlay_polygons, dTolerance = 0.0001)
+  
   # to polygons
   # overlay_polygons1 <- st_cast(overlay_polygons, "POLYGON")
   
@@ -295,12 +317,15 @@ prep_overlays <- function(ghsl) {
   overlay_missing <- setdiff(colnames(data)[8:(length(colnames(data)) - 1)], overlay_df$indicator)
   
   nrows <- length(overlay_missing)
+  
   overlay_missing_polygons <- st_sf(geom_type = rep("MULTIPOLYGON", nrows),
                                     indicator = overlay_missing,
                                     geometry = st_sfc(lapply(1:nrows, function(x) st_multipolygon())),
-                                    crs = 4326)
+                                    crs = 4326) %>%
+    mutate(year = sub("^(.*)_(.*)_(\\d{4})$", "\\3", indicator))
   overlay_missing_df <- data.frame(geom_type = rep("MULTIPOLYGON", nrows),
-                                   indicator = overlay_missing)
+                                   indicator = overlay_missing) %>%
+    mutate(year = sub("^(.*)_(.*)_(\\d{4})$", "\\3", indicator))
   
   
   # join
@@ -309,21 +334,53 @@ prep_overlays <- function(ghsl) {
   
   # save by year
   
-  save_by_year <- function(year) {
+  save_by_ind <- function(ind) {
+    # ind <- "pnrtmrt"
+    # year1 <- "2019"
+    
+    # overlay_df_inds <- overlay_df %>% filter(year == year1) %>%
+    #   filter(stringr::str_detect(indicator, ind))
+    dir.create(sprintf("data/sample3/ghsl_%s/overlays/%s", ghsl, ind), recursive = TRUE)
+    
+    overlay_polygons_inds <- overlay_polygons  %>%
+      filter(stringr::str_detect(indicator, ind))
+    
+    if (nrow(overlay_lines) > 0) {
+      
+      overlay_lines_inds <- overlay_lines %>% 
+        filter(stringr::str_detect(indicator, ind))
+      
+      readr::write_rds(overlay_lines_inds,    sprintf("data/sample3/ghsl_%s/overlays/%s/overlays_lines_%s_%s.rds", ghsl, ind, ghsl, ind))
+      
+    }
     
     
     
+    # readr::write_rds(overlay_df_inds, sprintf("data/sample3/ghsl_%s/overlays/%s/overlays_df_%s_%s_%s.rds", ghsl, year1, ghsl, year1, ind))
+    readr::write_rds(overlay_polygons_inds, sprintf("data/sample3/ghsl_%s/overlays/%s/overlays_polygons_%s_%s.rds", ghsl, ind, ghsl, ind))
   }
+  
+  inds <- unique(sub("^(.*)_(.*)_(\\d{4})$", "\\2", overlay_df$indicator))
+  purrr::walk(inds, save_by_ind)
   
   
   readr::write_rds(overlay_df,       sprintf("data/sample3/ghsl_%s/overlays_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_polygons, sprintf("data/sample3/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
-  readr::write_rds(overlay_lines,    sprintf("data/sample3/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
+  # readr::write_rds(overlay_polygons, sprintf("data/sample3/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
+  # readr::write_rds(overlay_lines,    sprintf("data/sample3/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
   
 }
 
 
 
+prep_overlays("0088")
+prep_overlays("0200")
+prep_overlays("0561")
+prep_overlays("0621")
+prep_overlays("1406")
+prep_overlays("1445")
+# prep_data("0014")
+prep_overlays("0154")
+prep_overlays("0634")
 
 
 
@@ -530,25 +587,28 @@ count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ord
 # to long format
 colnames_compare <- colnames(indicators_all_df)[8:ncol(indicators_all_df)]
 # extract year
-years_compare <- gsub(pattern = "(.*)_(.*)_(\\d{4}$)",
-                      replacement = "\\2",
-                      x = colnames_compare)
+# years_compare <- gsub(pattern = "(.*)_(.*)_(\\d{4}$)",
+#                       replacement = "\\2_\\3",
+#                       x = colnames_compare)
 
-colnames(indicators_all_df) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", 
-                                 years_compare)
+# colnames(indicators_all_df) <- c("hdc", "country", "a2", "osmid", "name", "admin_level", "admin_level_ordered", 
+#                                  years_compare)
 
 indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
                                               cols = 8:last_col(),
-                                              names_to = "year",
+                                              names_sep = "_",
+                                              names_to = c("ind_type", "ind", "year"),
                                               values_to = "value")
 
-a1 <- distinct(indicators_all_df_long, hdc, year, .keep_all = TRUE) %>%
+a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
   filter(!is.na(value)) %>%
-  group_by(hdc) %>%
-  mutate(ind = paste0(year, collapse = "|")) %>%
-  ungroup() %>%
-  group_by(hdc) %>%
-  summarise(ind = first(ind))
+  group_by(country, name, hdc, ind_type, ind) %>%
+  summarise(availability = paste0(year, collapse = "|")) %>%
+  ungroup()
+  # ungroup() %>%
+  # group_by(hdc) %>%
+  # summarise(ind = first(ind))
+  # select(hdc, ind, year)
 
 readr::write_rds(a1, "data/sample3/list_availability.rds")
 
