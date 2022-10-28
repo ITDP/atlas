@@ -14,37 +14,24 @@ observeEvent(c(city$city_code), {
 })
 
 
-# disable indicators
-observeEvent(c(indicator_mode()), {
-  
-  # delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
-  # delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);'))
-  # delay(1, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
-  # delay(1, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
-  # delay(1, runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", true);'))
-  # delay(1, runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", true);'))
-  
-  
-})
 
 
 
-
-# changes to be made to UI afterwards
-observeEvent(c(input$admin_level, city$city_code), {
-  
-  
-  # remove the iris tick markes on the slider
-  delay(1, shinyjs::runjs('$(".irs-single").remove();'))
-  
-  # a <- tags$div(class = "title_left_panel", "MAP DETAILS",
-  #          actionButton("teste3", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-  #                       class = "minimize")
-  # 
-  # )
-  
-  
-}, ignoreInit = TRUE)
+# # changes to be made to UI afterwards
+# observeEvent(c(input$admin_level, city$city_code), {
+#   
+#   
+#   # remove the iris tick markes on the slider
+#   delay(1, shinyjs::runjs('$(".irs-single").remove();'))
+#   
+#   # a <- tags$div(class = "title_left_panel", "MAP DETAILS",
+#   #          actionButton("teste3", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+#   #                       class = "minimize")
+#   # 
+#   # )
+#   
+#   
+# }, ignoreInit = TRUE, label = "TESTE")
 
 # collpase the the indicators inside each indicator header - and keep the header
 onclick("teste1", runjs("if(!$('#indicator_bike').hasClass('in'))

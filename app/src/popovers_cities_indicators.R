@@ -37,16 +37,16 @@ observeEvent(c(indicator$mode, city$city_code), {
   
   # remove previous
   remove_previous <- function(position) {
-    runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-container');", position))
-    runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-toggle');", position))
+    # runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-container');", position))
+    # runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-toggle');", position))
     runjs(sprintf("$('#bs-select-1-%s > i').remove();", position))
-    delay(1, runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-content');", position)))
+    # delay(1, runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-content');", position)))
     delay(2, runjs(sprintf("$('#bs-select-1-%s').popover('destroy');", position)))
     
     
   }
   
-  lapply(1:100, remove_previous)
+  lapply(1:20, remove_previous)
   
   # add_popover_city_filter <- function(ind1) {
   #   
@@ -65,4 +65,4 @@ observeEvent(c(indicator$mode, city$city_code), {
     
     
     
-}, ignoreNULL = FALSE)
+})
