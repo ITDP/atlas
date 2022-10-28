@@ -20,7 +20,7 @@ observeEvent(c(input$back_to_world), {
   # reset the city values
   shinyWidgets::updatePickerInput(session = session, inputId = "city",
                                   selected = character(0))
-  city$city_code <- NULL
+  city$city_code <- ""
   
   # session$sendCustomMessage(type = "resetValue", message = "city")
   # session$sendCustomMessage(type = "resetValue", message = "map_marker_click")

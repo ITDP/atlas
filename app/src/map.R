@@ -3,13 +3,13 @@
 # # https://gist.github.com/jcheng5/c084a59717f18e947a17955007dc5f92
 # # https://stackoverflow.com/questions/52846472/leaflet-plugin-and-leafletproxy-with-polylinedecorator-as-example
 # spinPlugin <- htmlDependency(
-#   "spin.js", 
+#   "spin.js",
 #   "2.3.2",
 #   src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2"),
 #   script = "spin.min.js") # there's no spin.css
 # 
 # leafletspinPlugin <- htmlDependency(
-#   "Leaflet.Spin", 
+#   "Leaflet.Spin",
 #   "1.1.2",
 #   src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2"),
 #   script = "leaflet.spin.min.js")
@@ -21,7 +21,7 @@
 # 
 # # Note: Ctrl-Shift-J opens the javascript console in the browser
 # spin_event <- "function(el, x) {
-#   console.log('spin event added'); 
+#   console.log('spin event added');
 #   var mymap = this;
 #   mymap.on('layerremove', function(e) {
 #     console.log('layerremove fired');
@@ -29,7 +29,7 @@
 #   });
 #   mymap.on('layeradd', function(e) {
 #     console.log('layeradd fired');
-#     mymap.spin(false); 
+#     mymap.spin(false);
 #   });
 # }"
 
@@ -45,6 +45,7 @@ tl <- reactiveValues(transition = NULL)
 # initial map
 output$map <- renderLeaflet({
   
+  # input$print
   
   map <- leaflet(data = atlas_city_markers, options = leafletOptions(zoomControl = FALSE)) %>%
     addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
@@ -55,13 +56,26 @@ output$map <- renderLeaflet({
     addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
-                     position = "topright")
-    # onRender(spin_event)
-    
-    # htmlwidgets::onRender(
-    #   "function(el, x) {
-    #     L.control.zoom({position:'topleft'}).addTo(this);
-    #   }")
+                     position = "topright") %>%
+    leaflet.extras2::addSpinner() %>%
+    addEasyprint(options = easyprintOptions(
+      # position = 'topleft',
+      exportOnly = TRUE,
+      # hideClasses = list("leaflet-overlay-pane", "leaflet-popup"),
+      hidden = TRUE, hideControlContainer = FALSE,
+      # filename = "mapit",
+      # tileLayer = "basemap",
+      # tileWait = 5000,
+      # customWindowTitle = "Some Fancy Title",
+      # customSpinnerClass = "shiny-spinner-placeholder",
+      # spinnerBgColor = "#b48484"
+    ))
+  # onRender(spin_event)
+  
+  # htmlwidgets::onRender(
+  #   "function(el, x) {
+  #     L.control.zoom({position:'topleft'}).addTo(this);
+  #   }")
   
   
   
@@ -202,6 +216,15 @@ observeEvent(c(indicator$mode, input$year), {
 
 observeEvent(c(city$city_code), {
   
+  req(city$city_code != "")
+  
+  waiter_show(
+    html = tagList(spin_loaders(id = 2, color = "black")),
+    color = "rgba(233, 235, 240, .2)")
+  
+  print("obs - switch cities initial")
+  # print(Sys.time())
+  
   # req(input$city)
   bbox <- sf::st_bbox(data_ind())
   
@@ -226,11 +249,13 @@ observeEvent(c(city$city_code), {
     palette = "YlOrRd",
     domain = data_metro$valor)
   
-  
+  waiter_hide()
   
   
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
+    startSpinner(list("lines" = 10, "length" = 10,
+                      "width" = 10, "radius" = 5)) %>%
     removeMarker(layerId = data_metro$osmid) %>%
     clearShapes() %>%
     removeControl(layerId = "legend_country") %>%
@@ -245,7 +270,6 @@ observeEvent(c(city$city_code), {
     #                            easeLinearity = 2,
     #                            noMoveStart = TRUE)) %>%
     
-    
     addPolygons(data = data_metro,
                 fillColor = ~pal(valor), fillOpacity = 0.5,
                 color = "black",  weight = 1, layerId = ~osmid,
@@ -257,7 +281,8 @@ observeEvent(c(city$city_code), {
       overlayGroups = c("Overlay"),
       baseGroups = c("Dark", "Light", "Satellite"),
       options = layersControlOptions(collapsed = FALSE),
-      position = "topright") 
+      position = "topright")
+  
   
   
   #   htmlwidgets::onRender('
@@ -300,12 +325,13 @@ observeEvent(c(city$city_code), {
   # print("data_overlays_sf()")
   # print(data_overlays_sf())
   
-  map
+  map %>% stopSpinner()
   
   tl$transition <- 1
   # admin_level_previous$a <- 1
   
   
+  # waiter_hide()
   
   
 })
@@ -398,7 +424,8 @@ observeEvent(c(indicator$mode), {
   # if (isTRUE(input$admin_level >= 1)) {
   
   # print("obs3")
-  
+  # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+  #             color = "rgba(233, 235, 240, .2)")
   
   # extract geom type of this indicator
   geom_type <- unique(data_overlays2()$geom_type)
@@ -454,6 +481,7 @@ observeEvent(c(indicator$mode), {
   
   
   # }
+  # waiter_hide()
   
   
   
@@ -517,13 +545,15 @@ observeEvent(c(input$admin_level,
                      isTRUE(input$admin_level >= 1),
                      data_ind3_spatial())
                  
-                 
+                 # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+                 #             color = "rgba(233, 235, 240, .2)")
                  
                  # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
                  #             color = "rgba(233, 235, 240, .4)")
                  
                  
-                 print("obs4")
+                 print("obs - switch cities new")
+                 print(Sys.time())
                  
                  # extract geom type of this indicator
                  geom_type <- unique(data_overlays2()$geom_type)
@@ -605,7 +635,7 @@ observeEvent(c(input$admin_level,
                  
                  # }
                  
-                 waiter_hide()
+                 # waiter_hide()
                  # v$rng1 <- city$city_code
                  
                  
@@ -641,3 +671,39 @@ observeEvent(c(input$admin_level,
 #   
 #   
 # })
+
+# print  
+observeEvent(input$print, {
+  
+  print("print")
+  
+  leafletProxy("map") %>%
+    addEasyprint(options = easyprintOptions(
+      # position = 'topleft',
+      exportOnly = TRUE,
+      # hideClasses = list("leaflet-overlay-pane", "leaflet-popup"),
+      hidden = TRUE, hideControlContainer = FALSE,
+      sizeModes = list("CurrentSize" = "CurrentSize",
+                       "A4Landscape" = "A4Landscape",
+                       "A4Portrait" = "A4Portrait",
+                       "Custom Landscape"=list(
+                         width= 1800,
+                         height= 700,
+                         name = "A custom landscape size tooltip",
+                         className= 'customCssClass'),
+                       "Custom Portrait"=list(
+                         width= 700,
+                         height= 1800,
+                         name = "A custom portrait size tooltip",
+                         className= 'customCssClass1')
+      )
+      # filename = "mapit",
+      # tileLayer = "basemap",
+      # tileWait = 5000,
+      # customWindowTitle = "Some Fancy Title",
+      # customSpinnerClass = "shiny-spinner-placeholder",
+      # spinnerBgColor = "#b48484"
+    )) %>%
+    easyprintMap(sizeModes = "CurrentSize", filename = sprintf("map_%s", indicator$mode))
+  # easyprintMap(sizeModes = scene, filename = scene)
+})

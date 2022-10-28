@@ -147,7 +147,9 @@ h1 {
 
 
 
-
+.form-group {
+    margin-bottom: 5px;
+}
 
 #city_selection > div > div > button {
     background-color: #1C1C1C;
@@ -163,4 +165,9 @@ h1 {
  background: #1C1C1C; 
  border: 1px solid #6C757D;
  color: #B1B5B9;
+}
+
+
+.btn.disabled, .btn[disabled] {
+  opacity: 0.2;
 }

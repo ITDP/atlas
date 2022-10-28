@@ -1,7 +1,10 @@
+
+
 data_ind <- reactive({
   
   # print(input$city)
   req(city$city_code)
+
   
   a <- readRDS(sprintf("../data/sample3/ghsl_%s/indicators_%s.rds", city$city_code, city$city_code))
   # readRDS(sprintf("data/atlas_%s_indicators.rds", city$city_code))
@@ -9,7 +12,9 @@ data_ind <- reactive({
   spatial_level_value$last <- length(unique(a$admin_level))
   return(a)
   
+  
 })
+
 
 # # calculate number of spatial levels
 # spatial_levels_number <- reactive({
@@ -166,9 +171,10 @@ data_overlays_sf <- reactive({
   } else data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$line, by = "indicator") %>% sf::st_sf() 
   
   
-  print("head(data_overlays_sf)")
-  print(head(data_overlays_sf))
+  # print("head(data_overlays_sf)")
+  # print(head(data_overlays_sf))
   
   return(data_overlays_sf)
   
 })
+

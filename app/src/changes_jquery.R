@@ -1,3 +1,19 @@
+# disable the reset map when in the world view
+observeEvent(c(city$city_code), {
+  
+  print("city$city_code")
+  print(city$city_code)
+  
+  if (city$city_code == "") {
+    
+    
+    disable("back_to_world")
+    
+  } else enable("back_to_world")
+  
+})
+
+
 # disable indicators
 observeEvent(c(indicator_mode()), {
   
@@ -11,133 +27,6 @@ observeEvent(c(indicator_mode()), {
   
 })
 
-observeEvent(c(city$city_code, indicator$mode), {
-  
-  
-  req(city$city_code != "")
-  
-  # disable indicators that are not available
-  # shinyjs::disable()
-  
-  
-  # first, select only the ones that are available for the indicator in question
-  # hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
-  
-  # get options to show in the comparison
-  # choices_comparison <- subset(list_osmid_name, admin_level == al)
-  # filter hdc with the indicators available
-  # choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
-  
-  
-  
-  
-  if (city$city_code == "1406") {
-    
-    
-    delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", true);'))
-    delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", true);'))
-    
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(1) > button").attr("disabled", false);'))
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(2) > button").attr("disabled", false);'))
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(3) > button").prop("disabled", true);'))
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(4) > button").prop("disabled", true);'))
-    
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(1) > button").prop("disabled", true);'))
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(2) > button").prop("disabled", true);'))
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(3) > button").prop("disabled", true);'))
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(4) > button").prop("disabled", true);'))
-    
-  } else if (city$city_code == "0634") {
-    
-    delay(1, runjs('$("#indicator_city > div > div:nth-child(1) > button").prop("disabled", false);'))
-    delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").prop("disabled", false);'))
-    
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(1) > button").attr("disabled", false);'))
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(2) > button").attr("disabled", false);'))
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", true);'))
-    delay(1, runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", true);'))
-    
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(1) > button").prop("disabled", false);'))
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(2) > button").prop("disabled", false);'))
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(3) > button").prop("disabled", false);'))
-    delay(1, runjs('$("#indicator_transit > div > div:nth-child(4) > button").prop("disabled", false);'))
-    
-    
-    
-  }
-  
-  # } else if (city$city_code == "1406") {
-  #   
-  #   
-  #   runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", false);')
-  #   runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", false);')
-  #   
-  #   runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", false);')
-  #   runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", false);')
-  #   
-  #   
-  #   runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", false);')
-  #   runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", false);')
-  #   
-  #   runjs('$("#indicator_walk > div > div:nth-child(2) > button").attr("disabled", false);')
-  #   
-  # }  else if(city$city_code == "1445") {
-  #   
-  #   runjs('$("#indicator_city > div > div:nth-child(1) > button").attr("disabled", false);')
-  #   runjs('$("#indicator_city > div > div:nth-child(2) > button").attr("disabled", false);')
-  #   
-  #   runjs('$("#indicator_bike > div > div:nth-child(3) > button").attr("disabled", false);')
-  #   runjs('$("#indicator_bike > div > div:nth-child(4) > button").attr("disabled", false);')
-  #   
-  #   
-  #   runjs('$("#indicator_transit > div > div:nth-child(1) > button").attr("disabled", false);')
-  #   runjs('$("#indicator_transit > div > div:nth-child(2) > button").attr("disabled", false);')
-  #   
-  #   runjs('$("#indicator_walk > div > div:nth-child(2) > button").attr("disabled", false);')
-  #   
-  #   
-  #   
-  # }
-  
-  
-})
-
-
-
-# create and change the 'map details' tab
-# it's gonna react only when people change cities / select new indicator
-observeEvent(c(indicator_mode(), city$city_code), {
-
-  # adicionar o titulo 'map details'
-  # a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"
-
-  # remove o titulo que por acaso veio da interecao anterior (para evitar sobreposicao)
-  delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
-  delay(1, shinyjs::runjs('$( ".leaflet-control-layers-base > #title_base" ).remove();'))
-  delay(1, shinyjs::runjs('$( ".leaflet-control-layers-overlays > #title_overlay" ).remove();'))
-  # adicionar o titul com o botao de minimizar
-
-  delay(3, shinyjs::runjs('$( ".leaflet-control-layers-base" ).prepend( "<h3 id = \'title_base\' class = \'control-label\'>BASEMAP</h3>" );'))
-  delay(2, shinyjs::runjs('$( ".leaflet-control-layers-overlays" ).prepend( "<h3 id = \'title_overlay\' class = \'control-label\'>OVERLAYS</h3>" );'))
-  # delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
-
-
-
-  # inserir icone de cada um dos basemaps (em troco do texto)
-  # a primeira imagem vai ser do basemap dark
-
-  # delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(2) input[type=radio] + img").remove()'))
-  # delay(2, shinyjs::runjs('$("<img src=\'img/background_dark.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(2) input[type=radio]")'))
-  # # a segunda imagem vai ser do basemap light
-  # delay(3, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(3) input[type=radio] + img").remove()'))
-  # delay(4, shinyjs::runjs('$("<img src=\'img/background_light.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(3) input[type=radio]")'))
-  # # a terceira imagem vai ser do basemap satellite
-  # delay(5, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(4) input[type=radio] + img").remove()'))
-  # delay(6, shinyjs::runjs('$("<img src=\'img/background_sattelite.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(4) input[type=radio]")'))
-  # remover o texto
-  # delay(7, shinyjs::runjs('$( ".leaflet-control-layers-base span" ).remove();'))
-
-})
 
 
 
@@ -175,6 +64,50 @@ onclick("teste4", runjs("$('.leaflet-control-layers > .leaflet-control-layers-li
 onclick("hide", "$('#right_panel').hide(\"slide\", {direction: \"right\")}, 1000);")
 
 
+# minimize the level of detail when the comparison tab is open
 
+observeEvent(c(input$comparison_button), {
+  
+  
+  req(input$comparison_button >= 1)
+  
+  runjs("$('#spatial_level > div > div > div.form-group.shiny-input-container > span').slideToggle('')")
+  
+  
+})
 
+# create and change the 'map details' tab
+# it's gonna react only when people change cities / select new indicator
+observeEvent(c(indicator_mode(), city$city_code), {
+  
+  # adicionar o titulo 'map details'
+  # a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"
+  
+  # remove o titulo que por acaso veio da interecao anterior (para evitar sobreposicao)
+  delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
+  delay(1, shinyjs::runjs('$( ".leaflet-control-layers-base > #title_base" ).remove();'))
+  delay(1, shinyjs::runjs('$( ".leaflet-control-layers-overlays > #title_overlay" ).remove();'))
+  # adicionar o titul com o botao de minimizar
+  
+  delay(3, shinyjs::runjs('$( ".leaflet-control-layers-base" ).prepend( "<h3 id = \'title_base\' class = \'control-label\'>BASEMAP</h3>" );'))
+  delay(2, shinyjs::runjs('$( ".leaflet-control-layers-overlays" ).prepend( "<h3 id = \'title_overlay\' class = \'control-label\'>OVERLAYS</h3>" );'))
+  # delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
+  
+  
+  
+  # inserir icone de cada um dos basemaps (em troco do texto)
+  # a primeira imagem vai ser do basemap dark
+  
+  # delay(1, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(2) input[type=radio] + img").remove()'))
+  # delay(2, shinyjs::runjs('$("<img src=\'img/background_dark.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(2) input[type=radio]")'))
+  # # a segunda imagem vai ser do basemap light
+  # delay(3, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(3) input[type=radio] + img").remove()'))
+  # delay(4, shinyjs::runjs('$("<img src=\'img/background_light.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(3) input[type=radio]")'))
+  # # a terceira imagem vai ser do basemap satellite
+  # delay(5, shinyjs::runjs('$(".leaflet-control-layers-base > label:nth-child(4) input[type=radio] + img").remove()'))
+  # delay(6, shinyjs::runjs('$("<img src=\'img/background_sattelite.png\' width=\'60\' alt=\'Option 1\'>").insertAfter(".leaflet-control-layers-base > label:nth-child(4) input[type=radio]")'))
+  # remover o texto
+  # delay(7, shinyjs::runjs('$( ".leaflet-control-layers-base span" ).remove();'))
+  
+})
 

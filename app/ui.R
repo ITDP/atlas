@@ -66,6 +66,8 @@ fluidPage(
     tags$img(src = "img/itdp_logo.png", style ="padding-bottom: 30px", width="150"), br(),
     spin_loaders(id = 2, color = "black")),
     color = "rgba(233, 235, 240, 1)"),
+  # waiter_on_busy(html = tagList(spin_loaders(id = 2, color = "black")),
+  #                color = "rgba(233, 235, 240, .05)"),
   # waiter_on_busy(spin_fading_circles()),
   # Start navbar page
   fluidPage(
@@ -142,7 +144,35 @@ fluidPage(
     # back to world button
     # uiOutput('download_button'),
     uiOutput('download_button_maps'),
-    uiOutput('back_to_world_panel'),
+    # uiOutput('back_to_world_panel'),
+    absolutePanel(
+      class = "about_button",
+      # class = "w3-container w3-animate-opacity", 
+      # class = "panel panel-default",
+      # fixed = TRUE, draggable = FALSE,
+      top = 40, right = 730, width = 130, height = 40,
+      actionButton(inputId = "back_to_world",
+                   icon = icon("rotate-left"),
+                   label = HTML("&nbsp;&nbsp;Reset map")
+                   # selected = character(0)
+      )
+      
+      
+    ),
+    # absolutePanel(
+    #   class = "about_button",
+    #   # class = "w3-container w3-animate-opacity", 
+    #   # class = "panel panel-default",
+    #   # fixed = TRUE, draggable = FALSE,
+    #   top = 40, right = 870, width = 120, height = 40,
+    #   actionButton(inputId = "print",
+    #                icon = icon("download"),
+    #                label = HTML("&nbsp;&nbsp;Export map")
+    #                # selected = character(0)
+    #   )
+    #   
+    #   
+    # ),
     # about
     absolutePanel(
       class = "about_button",
@@ -178,5 +208,4 @@ fluidPage(
     # )
     
   )
-  # waiter_hide_on_render("map")
 )

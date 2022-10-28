@@ -206,7 +206,7 @@ function(input, output, session) {
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      bottom = 105, left = 440, height = 'auto', width = 500,
+      bottom = 115, left = 440, height = 'auto', width = 500,
       tags$div(class = "title_left_panel", "COMPARE", 
                actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
                             class = "minimize")
@@ -582,11 +582,13 @@ function(input, output, session) {
   source("src/texts_rightpanel.R", local = TRUE)  
   source("src/map.R", local = TRUE)  
   source("src/popovers.R", local = TRUE)  
+  source("src/popovers_cities_indicators.R", local = TRUE)  
   source("src/changes_jquery.R", local = TRUE)  
   source("src/about.R", local = TRUE)  
   source("src/back_to_world.R", local = TRUE)  
   source("src/compare.R", local = TRUE)  
   source("src/download.R", local = TRUE)  
+  source("src/indicator_not_available.R", local = TRUE)  
   
   
   
