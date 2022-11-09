@@ -63,12 +63,14 @@ observeEvent(c(indicator$mode, input$year), {
   req(input$year)
   # req(indicator$type)
   
+  t1 <- Sys.time()
+  
   # print(rank$admin_level)
   
   if(is.null(rank$admin_level)) {
     
     # print("agora vai!")
-    print("queeeeeeeeeee")
+    # print("queeeeeeeeeee")
     
     # value
     # print(paste0("type: ", indicator$type))
@@ -186,6 +188,7 @@ observeEvent(c(indicator$mode, input$year), {
     rank$rank_text_world <- rank$rank_text_value
     
   }
+
   
   
 })
@@ -213,15 +216,20 @@ observeEvent(c(city$city_code), {
 
 # display rank when region or map is clicked
 observeEvent(c(input$map_shape_click,
-               input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
+               input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), label = "rank", {
+                 
+                 req(data_ind3())
                  
                  ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
                  
                  
                  rank_indicator <- subset(data_ind3(), osmid == ui)
                  
-                 print("rank_indicator")
-                 print(rank_indicator)
+                 # print("rank_indicator")
+                 # print(rank_indicator)
+                 
+                 
+                 
                  
                  # print(head(filter_rank()))
                  # print(spatial_level_value$last)
@@ -284,7 +292,7 @@ observeEvent(c(input$map_shape_click,
                                              rank_indicator$name, '</div>',
                                              div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
                                              p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
-                                             )
+                   )
                    rank$rank_text_initial <- rank$rank_text
                    rank$rank_value_initial <- rank$rank_value
                    # print(paste0("teste: ", rank$rank_text_initial))
@@ -332,6 +340,9 @@ observeEvent(c(input$map_shape_click,
                  # print(rank$rank_text)
                  # return(rank$rank_text)
                  
+                 
+
+                 
                })
 
 
@@ -340,25 +351,24 @@ observeEvent(c(input$map_shape_click,
 # that they should click on a region to see more things
 observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
   
-  
+  # waiter_show()
   # print(paste0("rank admin level"))
   # print(rank$admin_level)
   
+  req(data_ind3())
+  rank_indicator <- subset(data_ind3(), osmid == city$city_code)
   # it will run only when we are at the city level
   
+  
   if (isTRUE(rank$admin_level == 1)) {
-    
-    # print(city$city_code)
-    rank_indicator <- subset(data_ind3(), osmid == city$city_code)
-    
     
     
     format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
     format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     
-    print(format_indicator_unit_value)
-    print(rank_indicator$valor)
+    # print(format_indicator_unit_value)
+    # print(rank_indicator$valor)
     
     format_indicator_value <- if(format_indicator_unit_value == "percent") {
       round(rank_indicator$valor * 100) 
@@ -382,14 +392,20 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
     
     
     # this first condition will show the indicator ranks as soon as the city marker is clicked
-    base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS")
+    base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS",
+                     tags$button(
+                       id = "tooltip_compare_right",
+                       class="btn btn-light btn-xs",
+                       style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                       icon("circle-info")
+                       
+                     ))
     
     a <- subset(filter_rank(), osmid == city$city_code & rank_type == "world")
     # print(a)
     
     rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                               base_text, a$rank, a$n)
-    
     
   } else
     
@@ -401,13 +417,28 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
     }
   
   
+  # waiter_hide()
+
+  
 })
 
 
 output$rank_value <- renderUI({
   req(indicator$mode)
   
-  HTML(rank$rank_value)
+  tagList(
+    HTML(rank$rank_value),
+    div(
+      bsPopover(id = "tooltip_compare_right",
+                # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+                title = "",
+                content = HTML("Compared with the same Administrative Level"),
+                placement = "top",
+                trigger = "hover"
+                # options = list(container = "body")
+      )
+    )
+  )
   
 })
 

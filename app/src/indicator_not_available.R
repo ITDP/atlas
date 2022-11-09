@@ -53,7 +53,7 @@ observeEvent(c(city$city_code, indicator$mode), {
   }
   
   
-  print("OOOOOOOOOOOOIII")
+  # print("OOOOOOOOOOOOIII")
   
   # get options to show in the comparison
   # choices_comparison <- subset(list_osmid_name, admin_level == al)

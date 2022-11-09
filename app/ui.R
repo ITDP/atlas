@@ -38,13 +38,13 @@ fluidPage(
   tags$head(includeCSS("www/download.css")),
   
   # tags$head(includeScript("www/jquery.js")),
-  tags$head(
-    tags$script(
-      htmlwidgets::JS("$( document ).on('click', '.btn-default', function() {
-                        Shiny.onInputChange('last_input', this.id);
-                      });")
-    )
-  ),
+  # tags$head(
+  #   tags$script(
+  #     htmlwidgets::JS("$( document ).on('click', '.btn-default', function() {
+  #                       Shiny.onInputChange('last_input', this.id);
+  #                     });")
+  #   )
+  # ),
   tags$script("
     Shiny.addCustomMessageHandler('resetValue', function(variableName) {
       Shiny.onInputChange(variableName, null);
@@ -62,6 +62,9 @@ fluidPage(
   # disconnectMessage(),
   # Use loading page
   use_waiter(),
+  # waiter_on_busy(),
+  # autoWaiter(    html = tagList(spin_loaders(id = 2, color = "black")),
+  #                color = "rgba(233, 235, 240, .0)"),
   waiter_preloader(html = tagList(
     tags$img(src = "img/itdp_logo.png", style ="padding-bottom: 30px", width="150"), br(),
     spin_loaders(id = 2, color = "black")),

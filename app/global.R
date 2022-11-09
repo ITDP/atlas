@@ -10,10 +10,14 @@ library(highcharter)
 # library(htmltools)
 # library(htmlwidgets)
 library(leaflet.extras2)
+library(shinyBS)
+library(shinycssloaders)
 
 
 source("fun/accordion_input.R")
+source("fun/label_with_info.R")
 
 `%nin%` = Negate(`%in%`)
 
 
+enableBookmarking(store = "server")

@@ -57,19 +57,7 @@ output$map <- renderLeaflet({
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
                      position = "topright") %>%
-    leaflet.extras2::addSpinner() %>%
-    addEasyprint(options = easyprintOptions(
-      # position = 'topleft',
-      exportOnly = TRUE,
-      # hideClasses = list("leaflet-overlay-pane", "leaflet-popup"),
-      hidden = TRUE, hideControlContainer = FALSE,
-      # filename = "mapit",
-      # tileLayer = "basemap",
-      # tileWait = 5000,
-      # customWindowTitle = "Some Fancy Title",
-      # customSpinnerClass = "shiny-spinner-placeholder",
-      # spinnerBgColor = "#b48484"
-    ))
+    leaflet.extras2::addSpinner()
   # onRender(spin_event)
   
   # htmlwidgets::onRender(
@@ -434,6 +422,9 @@ observeEvent(c(indicator$mode), {
   
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
+    startSpinner(list("lines" = 10, "length" = 10,
+                      "width" = 10, "radius" = 5)) %>%
+    # clearMarkers() %>%
     removeShape(layerId = "overlay_layer") %>%
     addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
     addMapPane("overlay", zIndex = 420) %>% # shown above ames_lines
@@ -475,7 +466,7 @@ observeEvent(c(indicator$mode), {
     
   }
   
-  map
+  map %>% stopSpinner()
   # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')                     
   # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')                       
   
@@ -568,6 +559,9 @@ observeEvent(c(input$admin_level,
                  
                  map <- leafletProxy("map", session) %>%
                    # clearMarkers() %>%
+                   startSpinner(list("lines" = 10, "length" = 10,
+                                     "width" = 10, "radius" = 5)) %>%
+                   # clearMarkers() %>%
                    removeShape(layerId =  osm_selected$oi) %>%
                    removeTiles(layerId =  "tile") %>%
                    # clearShapes() %>%
@@ -626,7 +620,7 @@ observeEvent(c(input$admin_level,
                    
                  } 
                  
-                 map
+                 map %>% stopSpinner()
                  
                  osm_selected$oi <- data_ind3_spatial()$osmid
                  

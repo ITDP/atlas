@@ -65,7 +65,7 @@ observeEvent(c(input$comparison_button), {
 
 # create and change the 'map details' tab
 # it's gonna react only when people change cities / select new indicator
-observeEvent(c(indicator_mode(), city$city_code), {
+observeEvent(c(indicator$mode, city$city_code), {
   
   # adicionar o titulo 'map details'
   # a <- "<div class='title_left_panel'>  MAP DETAILS  <button class='btn btn-default action-button minimize' id='teste3' style='float: right; padding: 0' type='button'><i class='fa fa-minus' role='presentation' aria-label='minus icon'></i> </button></div>"

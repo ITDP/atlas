@@ -11,6 +11,13 @@
 ind_city <- reactive({
   
   req(city$city_code)
+  # print("input$comparison_button")
+  # print(input$comparison_button)
+  # req(city$city_code, input$comparison_button == 1)
+  
+  # isolate(input$comparison_button)
+  
+  
   
   # pattern <- sprintf("%s_%s", "bike", "pnab")
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
@@ -21,7 +28,10 @@ ind_city <- reactive({
   a <- readRDS(sprintf("../data/sample3/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                        city$city_code, city$city_code, pattern))
   
+  print("pera")
+  
   return(a)
+  
   
   
 })
@@ -29,21 +39,24 @@ ind_city <- reactive({
 ind_compare <- reactive({
   
   req(city$city_code, data_ind3_spatial())
+  # req(city$city_code, data_ind3_spatial(), input$comparison_button == 1)
   
-  level <- unique(data_ind3_spatial()$admin_level)
-  
-  # pattern <- sprintf("%s_%s", "bike", "pnab")
-  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-  
-  # print("AHHHH")
-  # print(level)
-  # print(pattern)
-  
-  # open data
-  a <- readRDS(sprintf("../data/sample3/comp/indicators_compare_%s_%s.rds",
-                       level, pattern))
-  
-  return(a)
+    
+    level <- unique(data_ind3_spatial()$admin_level)
+    
+    # pattern <- sprintf("%s_%s", "bike", "pnab")
+    pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+    
+    # print("AHHHH")
+    # print(level)
+    # print(pattern)
+    
+    # open data
+    a <- readRDS(sprintf("../data/sample3/comp/indicators_compare_%s_%s.rds",
+                         level, pattern))
+    
+    return(a)
+    
   
   
   
@@ -51,7 +64,11 @@ ind_compare <- reactive({
 
 
 
-output$comparison <- renderHighchart({
+output$comparison_chart <- renderHighchart({
+  
+  req(ind_city(), ind_compare())
+  
+  print("bug")
   
   ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
   
@@ -70,7 +87,8 @@ output$comparison <- renderHighchart({
     
   } else round(value_city$value)
   
-  
+  if (indicator$mode %in% c("pnpb", "pnab")) {
+    
   hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
          name = unique(value_city$name),
          tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
@@ -91,8 +109,39 @@ output$comparison <- renderHighchart({
       ,
       title = list(style = list(fontFamily = "Franklin Gothic Demi",
                                 textTransform = "none"))
-      
     ))
+      
+    } else {
+      
+      
+      # print("value_city")
+      # print(value_city)
+      
+      hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
+             name = unique(value_city$name),
+             tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                            valueDecimals = 0)) %>%
+        hc_plotOptions(column = list(pointWidth = 10)) %>%
+        hc_legend(verticalAlign = "top") %>%
+        # hc_title(text = format_indicator_name,
+                 # align = "left", x = 10
+        # ) %>%
+        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15))) %>%
+        hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15))) %>%
+        hc_add_theme(hc_theme_darkunica(
+          chart = list(backgroundColor = "#1C1C1C",
+                       style = list(fontFamily = "Franklin Gothic Book"))
+          ,
+          title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                    textTransform = "none"))
+          
+        ))
+      
+      
+      
+    }
   
   
 })
@@ -137,18 +186,57 @@ observeEvent(c(input$city_compare), {
   # print(input$city_compare)
   # print(ordered_colnames())
   
-  # add total
-  highchartProxy("comparison") %>%
-    # hcpxy_remove_series(id = "que") %>%
-    hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                     id = "que",
-                     type = "column",
-                     name = unique(value_compare$name),
-                     # size = 5,
-                     tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
-                                    valueDecimals = 0),
-                     pointWidth = 15
-    )
+  # identify type of chart
+  
+  
+  if (indicator$mode == "pnpb") {
+    
+    
+    
+    # add total
+    highchartProxy("comparison_chart") %>%
+      # hcpxy_remove_series(id = "que") %>%
+      hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
+                       id = "que",
+                       type = "column",
+                       # color = "white",
+                       name = unique(value_compare$name),
+                       # size = 5,
+                       tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                      valueDecimals = 0),
+                       pointWidth = 30
+                       # pointPadding = "on"
+                       
+      )
+    
+  } else {
+    
+    
+    
+    # add total
+    highchartProxy("comparison_chart") %>%
+      # hcpxy_remove_series(id = "que") %>%
+      hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
+                       id = "que",
+                       type = "line",
+                       # color = "white",
+                       name = unique(value_compare$name),
+                       size = 5,
+                       tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                      valueDecimals = 0)
+                       # marker = list(radius = 5, symbol = "circle"),
+                       # dataLabels = list(enabled = TRUE,
+                       #                   align = "center",
+                       #                   y = -20,
+                       #                   # format = "City: {point.y}",
+                       #                   format = "{point.y}",
+                       #                   style = list(fontSize = 12,
+                       #                                color = "white",
+                       #                                textOutline = "0.3px black",
+                       #                                fontWeight = "bold"))
+      )
+    
+  }
   
   
   
@@ -179,7 +267,7 @@ output$comparison_max <- renderHighchart({
     
   } else round(value_city$value)
   
-  if (indicator$mode == "pnpb") {
+  if (indicator$mode %in% c("pnpb", "pnab")) {
     
     
     hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),

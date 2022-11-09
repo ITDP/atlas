@@ -75,15 +75,15 @@ function(input, output, session) {
   
   output$left_panel_filter <- renderUI({
     
-    req(indicator_mode())
+    req(indicator$mode)
     
-    year_options <- subset(list_availability, ind == indicator_mode())$availability
+    year_options <- subset(list_availability, ind == indicator$mode)$availability
     year_options <- unlist( strsplit(year_options, "[|]"))
     year_options <- unique(year_options)
     
     
-    # hdc_available <-  subset(list_availability, ind = indicator_mode())$hdc
-    # hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
+    # hdc_available <-  subset(list_availability, ind = indicator$mode)$hdc
+    # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
     
     
     tagList(
@@ -96,9 +96,26 @@ function(input, output, session) {
         # fixed = TRUE, draggable = FALSE,
         bottom = 45, left = 300, height = 'auto', width = 120,
         # 'typeof undefined' identifies when is null 
-        tags$div(class = "title_left_panel", "YEAR" 
+        tags$div(class = "title_left_panel", style = "padding: 10px 0", "YEAR" ,
                  # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
                  # class = "minimize")
+                 tags$button(
+                   id = "tooltip_year",
+                   class="btn btn-light btn-xs",
+                   style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                   icon("circle-info")
+                   
+                 ),
+        ),
+        div(
+          bsPopover(id = "tooltip_year",
+                    # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+                    title = "",
+                    content = HTML(includeHTML('www/tooltips/tooltip_year.html')),
+                    placement = "right",
+                    trigger = "hover",
+                    options = list(container = "body")
+          )
         ),
         shinyWidgets::pickerInput(inputId = "year",
                                   label = NULL,
@@ -124,7 +141,7 @@ function(input, output, session) {
   
   output$comparison_button <- renderUI({
     
-    req(input$admin_level, ind_city())
+    req(input$admin_level)
     
     
     absolutePanel(
@@ -135,7 +152,7 @@ function(input, output, session) {
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      bottom = 45, left = 440, height = 'auto', width = 120,
+      bottom = 45, left = 440, height = 'auto', width = 130,
       # tags$div(class = "title_left_panel", 
       #          # "COMPARE", 
       #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
@@ -143,31 +160,59 @@ function(input, output, session) {
       #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
       #                       class = "minimize")
       # ),
-      actionButton(inputId = "comparison_button", "COMPARE"
-                   # , onclick = '$("#comparison_panel").toggle("show");'
-                   )
+      actionButton(inputId = "comparison_button", 
+                   label = "COMPARE",
+                   style = "display: inline; padding-right: 2px;"),
+      tags$button(
+        id = "tooltip_compare",
+        class="btn btn-light btn-xs",
+        style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
+        icon("circle-info")
+        
+      ),
+      # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
+      # , onclick = '$("#comparison_panel").toggle("show");'
       
+      div(
+        bsPopover(id = "tooltip_compare",
+                  title = "",
+                  content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
+                  placement = "top",
+                  trigger = "hover",
+                  options = list(container = "body"))
+      )
     )
     
   })
   
   
   
-  observeEvent(c(input$comparison_button), {
+  # observeEvent(c(input$comparison_button), {
+  # 
+  #   # print("input$comparison_button")
+  #   # print(as.numeric(input$comparison_button))
+  #   req(input$comparison_button >= 1)
+  #   
+  #   # toggle("lalala")
+  # 
+  #   # runjs("$( '#lalala' ).toggle();")
+  # 
+  #   print("parara")
+  #   
+  # 
+  # })
+  
 
-    # print("input$comparison_button")
-    # print(as.numeric(input$comparison_button))
-    req(input$comparison_button >= 1)
-
-    toggle("lalala", anim = TRUE, animType = "slide")
-
-
-  })
+  # onclick("comparison_button", runjs("$( '#lalala' ).toggle();"))
+  onclick("comparison_button", toggle("lalala"))
+    
   
   # create regions names for the comparison 
   comparison_values <- reactive({
     
-    req(input$admin_level, ind_city(), data_ind3_spatial())
+    req(input$admin_level, data_ind3_spatial(), indicator$mode)
+    
+    
     
     # get the admin level original
     al <- unique(data_ind3_spatial()$admin_level)
@@ -176,8 +221,8 @@ function(input, output, session) {
     # print(al)
     
     # first, select only the ones that are available for the indicator in question
-    hdc_available <-  subset(list_availability, ind = indicator_mode())$hdc
-    # hdc_available <-  subset(list_availability, grepl(pattern = indicator_mode(), x = ind))$hdc
+    hdc_available <-  subset(list_availability, ind == indicator$mode)$hdc
+    # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
     
     # get options to show in the comparison
     choices_comparison <- subset(list_osmid_name, admin_level == al)
@@ -190,6 +235,9 @@ function(input, output, session) {
     choices_names <- choices_comparison$name
     names(choices_values) <- choices_names
     
+    # print("choices_names")
+    # print(choices_names)
+    
     return(choices_values)
     
   })
@@ -197,7 +245,10 @@ function(input, output, session) {
   output$comparison_panel <- renderUI({
     
     
-    # req(input$comparison_button >= 1)
+    # req(input$comparison_button == 1)
+    # isolate(input$comparison_button)
+    
+    # print("gua")
     
     absolutePanel(
       id = "lalala",
@@ -224,8 +275,8 @@ function(input, output, session) {
                                                                       title = "Search for a region...",
                                                                       liveSearch = TRUE)
       ),
-      highchartOutput('comparison', height = "150px")
-    )  %>% shinyjs::hidden()
+      highchartOutput('comparison_chart', height = "250px")
+    ) %>% hidden()
     
   })
   
@@ -252,9 +303,32 @@ function(input, output, session) {
           # fixed = TRUE, draggable = FALSE,
           bottom = 45, right = 480, height = 'auto', width = 220,
           # 'typeof undefined' identifies when is null 
-          tags$div(class = "title_left_panel", "LEVEL OF DETAIL", 
+          tags$div(class = "title_left_panel", style = "padding: 10px 0", "LEVEL OF DETAIL", 
+                   tags$button(
+                     id = "tooltip_level",
+                     class="btn btn-light btn-xs",
+                     style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                     icon("circle-info")
+                     
+                   ),
                    actionButton("teste2", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-                                class = "minimize")),
+                                class = "minimize")
+                   
+          ),
+          
+          # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
+          # , onclick = '$("#comparison_panel").toggle("show");'
+          
+          div(
+            bsPopover(id = "tooltip_level",
+                      # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+                      title = "",
+                      content = HTML(includeHTML('www/tooltips/tooltip_level.html')),
+                      placement = "top",
+                      trigger = "hover"
+                      # options = list(container = "body")
+            )
+          ),
           shinyWidgets::sliderTextInput(inputId = "admin_level",
                                         choices = seq(1, go),
                                         label = NULL,
@@ -275,8 +349,8 @@ function(input, output, session) {
     
     tagList(
       
-      conditionalPanel(
-        condition = "typeof input.indicator_bike !== 'undefined'",
+      # conditionalPanel(
+        # condition = "typeof input.indicator_bike !== 'undefined'",
         absolutePanel(
           class = "right_panel",
           # class = "w3-container w3-animate-opacity", 
@@ -294,10 +368,11 @@ function(input, output, session) {
                                    class = "btn btn-default action-button shiny-bound-input",
                                    div(class = "link_button", "Read more")
                                  ),
-                                 htmlOutput("rank_value"),
-                                 htmlOutput("rank_text")
-                                 
+                                 uiOutput("rank_value"),
+                                 uiOutput("rank_text")
+
                                )
+                               
                                
                                
                       ),
@@ -311,7 +386,7 @@ function(input, output, session) {
                       )
                       
                       
-          )
+          # )
           
         )
         
@@ -319,6 +394,7 @@ function(input, output, session) {
     )
     
   })
+  
   
   
   
@@ -491,37 +567,37 @@ function(input, output, session) {
   )
   
   # reactive to select the type of indicator --------------------------------
-  indicator_mode <- reactive({
-    
-    req(indicator$type)
-    
-    if (indicator$type == "bike") {
-      
-      a <- input$indicator_bike
-      
-    } else if (indicator$type == "walk"){
-      
-      a <- input$indicator_walk
-      
-    } else if (indicator$type == "transit"){
-      
-      a <- input$indicator_transit
-      
-    } else if (indicator$type == "city"){
-      
-      a <- input$indicator_city
-      
-    } else if (indicator$type == "performance"){
-      
-      a <- input$indicator_performance
-      
-    }
-    
-    # print("indicator mode")
-    # print(a)
-    return(a)
-    
-  })
+  # indicator_mode <- reactive({
+  #   
+  #   req(indicator$type)
+  #   
+  #   if (indicator$type == "bike") {
+  #     
+  #     a <- input$indicator_bike
+  #     
+  #   } else if (indicator$type == "walk"){
+  #     
+  #     a <- input$indicator_walk
+  #     
+  #   } else if (indicator$type == "transit"){
+  #     
+  #     a <- input$indicator_transit
+  #     
+  #   } else if (indicator$type == "city"){
+  #     
+  #     a <- input$indicator_city
+  #     
+  #   } else if (indicator$type == "performance"){
+  #     
+  #     a <- input$indicator_performance
+  #     
+  #   }
+  #   
+  #   # print("indicator mode")
+  #   # print(a)
+  #   return(a)
+  #   
+  # })
   
   
   # if the user change cities on the top menu, will check if the same indicators is available
@@ -574,6 +650,14 @@ function(input, output, session) {
   })
   
   
+  setBookmarkExclude(c("bookmark"))
+  
+  observeEvent(input$bookmark, {
+    session$doBookmark()
+  })
+  
+  
+  
   
   # open files --------------------------------------------------------------
   
@@ -589,6 +673,7 @@ function(input, output, session) {
   source("src/compare.R", local = TRUE)  
   source("src/download.R", local = TRUE)  
   source("src/indicator_not_available.R", local = TRUE)  
+  
   
   
   

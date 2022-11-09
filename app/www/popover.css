@@ -1,12 +1,23 @@
 .popover {
-    /* max-width: 240px; */
-    max-height: 200px;
+    max-width: 270px;
+    max-height: 230px;
     /* min-height: 120px;*/
-    background: rgba(28, 28, 28, 0.8);
+    background: rgba(28, 28, 28, 0.95);
     border: 0;
     border-radius: 0;
     color: #F8F9FA;
-    left: 282px !important;
+    /* left: 282px !important; */
+}
+
+.teste1 {
+  
+  width: 200px;
+}
+
+
+#tooltip_year {
+  
+  width: 500px;
 }
 
 /*
