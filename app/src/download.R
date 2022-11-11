@@ -46,7 +46,7 @@ output$downloadData1 <- downloadHandler(
   filename = function() {
     
     
-    sprintf("atlas_indicators_%s_%s.gpkg", city$city_code, indicator_mode())
+    sprintf("atlas_indicators_%s_%s.gpkg", city$city_code, indicator$mode)
     
   },
   content = function(file) {
@@ -82,7 +82,7 @@ output$download_overlay <- downloadHandler(
   filename = function() {
     
     
-    sprintf("atlas_overlay_%s_%s.gpkg", city$city_code, indicator_mode())
+    sprintf("atlas_overlay_%s_%s.gpkg", city$city_code, indicator$mode)
     
   },
   content = function(file) {
