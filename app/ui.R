@@ -56,7 +56,7 @@ fluidPage(
   #   });
   # "),
   tags$head(tags$script("var ind_cum = ['bikep', 'walkp'];")),
-  tags$head(tags$script("src=\"https://kit.fontawesome.com/57bce24588.js\" crossorigin=\"anonymous\"")),
+  tags$script(src="https://kit.fontawesome.com/57bce24588.js", crossorigin="anonymous"),
   # tags$head(includeScript("www/popovers_indicators.js")),
   shinyjs::useShinyjs(),
   # use_bs_popover(), # you need to call this function somewhere in your ui
