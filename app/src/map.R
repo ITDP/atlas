@@ -57,13 +57,13 @@ output$map <- renderLeaflet({
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
                      position = "topright") %>%
-    leaflet.extras2::addSpinner()
+    leaflet.extras2::addSpinner() %>%
   # onRender(spin_event)
   
-  # htmlwidgets::onRender(
-  #   "function(el, x) {
-  #     L.control.zoom({position:'topleft'}).addTo(this);
-  #   }")
+  htmlwidgets::onRender(
+    "function(el, x) {
+      L.control.zoom({position:'topright'}).addTo(this);
+    }")
   
   
   
