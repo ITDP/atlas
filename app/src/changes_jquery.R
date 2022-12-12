@@ -77,7 +77,7 @@ observeEvent(c(indicator$mode, city$city_code), {
   # adicionar o titul com o botao de minimizar
   
   delay(3, shinyjs::runjs('$( ".leaflet-control-layers-base" ).prepend( "<h3 id = \'title_base\' class = \'control-label\'>BASEMAP</h3>" );'))
-  delay(2, shinyjs::runjs('$( ".leaflet-control-layers-overlays" ).prepend( "<h3 id = \'title_overlay\' class = \'control-label\'>OVERLAYS</h3>" );'))
+  delay(2, shinyjs::runjs('$( ".leaflet-control-layers-overlays" ).prepend( "<h3 id = \'title_overlay\' class = \'control-label\'>ELEMENTS</h3>" );'))
   # delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
   
   

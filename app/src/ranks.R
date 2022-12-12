@@ -4,7 +4,7 @@ get_rank <- reactive({
   
   req(city$city_code)
   # filter rank from rank files
-  a <- readRDS(sprintf("../data/sample3/ranks/rank_%s.rds", city$city_code))
+  a <- readRDS(sprintf("../data/sample5/ranks/rank_%s.rds", city$city_code))
   
   
 })
@@ -34,10 +34,10 @@ filter_rank_country <- reactive({
   
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # print(paste0("pattern: ", indicator$mode))
-  cols <- c('name_long', 'a2', colnames(atlas_country_ranks)[startsWith(colnames(atlas_country_ranks), pattern)], 'n')
+  cols <- c('name_long', 'a3', colnames(atlas_country_ranks)[startsWith(colnames(atlas_country_ranks), pattern)], 'n')
   # print(cols)
   a <- atlas_country_ranks[cols]
-  colnames(a) <- c('name_long', 'a2', 'rank', 'n')
+  colnames(a) <- c('name_long', 'a3', 'rank', 'n')
   # only top five
   a <- a[order(a$rank),]
   a <- a[1:3,]
@@ -63,7 +63,7 @@ observeEvent(c(indicator$mode, input$year), {
   req(input$year)
   # req(indicator$type)
   
-  t1 <- Sys.time()
+  
   
   # print(rank$admin_level)
   
@@ -75,11 +75,13 @@ observeEvent(c(indicator$mode, input$year), {
     # value
     # print(paste0("type: ", indicator$type))
     pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+    # print("pattern")
     # print(pattern)
-    cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geom")
-    # print(cols)
+    cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
+    print("cols")
+    print(cols)
     a <- atlas_country[cols]
-    colnames(a) <- c('name_long', 'valor', 'geom')
+    colnames(a) <- c('name_long', 'valor', 'geometry')
     # print(a)
     # only top five
     a <- a[order(-a$valor),]
@@ -140,7 +142,7 @@ observeEvent(c(indicator$mode, input$year), {
                               '<div class="title_indicator" style="font-size: 20px;">', 
                               "THE WORLD", '</div>',
                               div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                              p(style = "color: #B1B5B9; display: inline; font-size: 22px; font-family: 'Franklin Gothic Book';", format_indicator_unit)
+                              p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
     )
     
     rank$rank_value_world <- rank$rank_value
@@ -159,9 +161,9 @@ observeEvent(c(indicator$mode, input$year), {
     #                  filter_rank_country()$name_long[3], 
     #                  format_indicator_value_countries3)
     
-    flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[1])), width = "25",
+    flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
                       style = "float:left")
-    flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[2])), width = "25",
+    flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[2]), 1, 2)), width = "25",
                       style = "float:left")
     # flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[3])), width = "25",
     #                   style = "float:left")
@@ -215,15 +217,18 @@ observeEvent(c(city$city_code), {
 
 
 # display rank when region or map is clicked
-observeEvent(c(input$map_shape_click,
-               input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), label = "rank", {
+observeEvent(c(input$map_shape_click, input$indicator_city,
+               input$year,
+               input$indicator_bike, input$indicator_walk, input$indicator_transit), label = "rank", {
+                 
+                 
                  
                  req(data_ind3())
                  
                  ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
                  
                  
-                 rank_indicator <- subset(data_ind3(), osmid == ui)
+                 rank_indicator <- subset(data_ind3(), osmid == ui)[1,]
                  
                  # print("rank_indicator")
                  # print(rank_indicator)
@@ -259,7 +264,7 @@ observeEvent(c(input$map_shape_click,
                                            '<div class="title_indicator" style="font-size: 20px;">', 
                                            rank_indicator$name, '</div>',
                                            div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                                           p(style = "color: #B1B5B9; display: inline; font-size: 22px; font-family: 'Franklin Gothic Book';", format_indicator_unit)
+                                           p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
                  )
                  
                  # print("rank$rank_value")
@@ -269,7 +274,14 @@ observeEvent(c(input$map_shape_click,
                  # the number of ranks will depend on the admin level
                  
                  # this first condition will show the indicator ranks as soon as the city marker is clicked
-                 base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS")
+                 base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS",
+                                  tags$button(
+                                    id = "tooltip_compare_right",
+                                    class="btn btn-light btn-xs",
+                                    style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                                    icon("circle-info")
+                                    
+                                  ))
                  
                  if (!is.null(city$city_code) & isTRUE(is.null(rank$admin_level))) {
                    
@@ -292,7 +304,11 @@ observeEvent(c(input$map_shape_click,
                                              rank_indicator$name, '</div>',
                                              div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
                                              p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
-                   )
+                   
+                                             
+                                             
+                                             
+                                             )
                    rank$rank_text_initial <- rank$rank_text
                    rank$rank_value_initial <- rank$rank_value
                    # print(paste0("teste: ", rank$rank_text_initial))
@@ -307,7 +323,7 @@ observeEvent(c(input$map_shape_click,
                    
                  } else if (input$admin_level == spatial_level_value$last) {
                    
-                   a <- subset(filter_rank(), osmid == ui & rank_type == "metro")
+                   a <- subset(filter_rank(), osmid == ui & rank_type == "metro")[1,]
                    # print(a)
                    
                    rank$rank_text <- sprintf('%s  <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the metro</div>', 
@@ -322,7 +338,7 @@ observeEvent(c(input$map_shape_click,
                    text1 <- sprintf('%s  <div class="text_compare"  style="padding-bottom: 5px">Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                                     base_text, a1$rank, a1$n)
                    text2 <- sprintf('<div class="text_compare" style="padding-top: 0px";>Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the metro</div>', 
-                                    a2$rank, a2$n)
+                                    a3$rank, a3$n)
                    
                    rank$rank_text <- paste0(text1, text2)
                    
@@ -341,7 +357,7 @@ observeEvent(c(input$map_shape_click,
                  # return(rank$rank_text)
                  
                  
-
+                 
                  
                })
 
@@ -355,8 +371,12 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
   # print(paste0("rank admin level"))
   # print(rank$admin_level)
   
+  
   req(data_ind3())
-  rank_indicator <- subset(data_ind3(), osmid == city$city_code)
+  
+  
+  
+  rank_indicator <- subset(data_ind3(), osmid == city$city_code)[1,]
   # it will run only when we are at the city level
   
   
@@ -379,6 +399,11 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
       
     } else round(rank_indicator$valor)
     
+    print("no idea")
+    print(rank_indicator$name)
+    print(format_indicator_value)
+    print(format_indicator_unit)
+    
     
     
     # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
@@ -386,7 +411,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
                               '<div class="title_indicator" style="font-size: 20px;">', 
                               rank_indicator$name, '</div>',
                               div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                              p(style = "color: #B1B5B9; display: inline; font-size: 22px; font-family: 'Franklin Gothic Book';", format_indicator_unit)
+                              p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
     )
     
     
@@ -401,7 +426,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
                        
                      ))
     
-    a <- subset(filter_rank(), osmid == city$city_code & rank_type == "world")
+    a <- subset(filter_rank(), osmid == city$city_code & rank_type == "world")[1,]
     # print(a)
     
     rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
@@ -419,7 +444,6 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
   
   # waiter_hide()
 
-  
 })
 
 

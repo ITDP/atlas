@@ -28,16 +28,16 @@ observeEvent(c(input$back_to_world), {
   # print(paste0("pa: ", input$map_marker_click))
   
   
-  pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # print(pattern)
   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
   a <- atlas_city_markers[cols]
   colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
   
   # print(class(atlas_country))
-  cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)])
+  cols_country <- c('a3', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
   a_country <- atlas_country[cols_country]
-  colnames(a_country) <- c('a2', 'valor', 'geom')
+  colnames(a_country) <- c('a3', 'valor', 'geometry')
   
   pal <- colorNumeric(
     palette = "viridis",
@@ -50,8 +50,8 @@ observeEvent(c(input$back_to_world), {
     # palette = "YlGnBu",
     domain = a_country$valor)
   
-  legend_title <- subset(list_indicators, indicator_code == indicator_mode())$indicator_name
-  legend_value <- subset(list_indicators, indicator_code == indicator_mode())$indicator_unit
+  legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+  legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   # format legend value
   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
   
@@ -105,12 +105,12 @@ observeEvent(c(input$back_to_world), {
   
   # value
   print(paste0("type: ", indicator$type))
-  pattern <- sprintf("%s_%s", indicator$type, indicator_mode())
+  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   # print(pattern)
-  cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geom")
+  cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
   # print(cols)
   a <- atlas_country[cols]
-  colnames(a) <- c('name_long', 'valor', 'geom')
+  colnames(a) <- c('name_long', 'valor', 'geometry')
   # print(a)
   # only top five
   a <- a[order(-a$valor),]
@@ -124,9 +124,9 @@ observeEvent(c(input$back_to_world), {
   # print(head(filter_rank()))
   # print(spatial_level_value$last)
   
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator_mode())$indicador_name
+  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
   
-  # format_indicator_name <- switch (indicator_mode(),
+  # format_indicator_name <- switch (indicator$mode,
   #                                  "pnpb" = "People Near Protected Bike Lanes",
   #                                  "pnab" = "People Near Bike Lanes",
   #                                  "pnh" = "People Near pnh",
@@ -134,20 +134,20 @@ observeEvent(c(input$back_to_world), {
   #                                  "hs" = "People Near Services"
   # )
   
-  format_indicator_value <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+  format_indicator_value <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
     scales::percent(rank_indicator)
   } else round(rank_indicator)
   
   
-  format_indicator_value_countries1 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+  format_indicator_value_countries1 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
     scales::percent(a$valor[1])
   } else round(a$valor[1])
   
-  format_indicator_value_countries2 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+  format_indicator_value_countries2 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
     scales::percent(a$valor[2])
   } else round(a$valor[2])
   
-  format_indicator_value_countries3 <- if(indicator_mode() %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+  format_indicator_value_countries3 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
     scales::percent(a$valor[3])
   } else round((a$valor[3]))
   
@@ -174,11 +174,11 @@ observeEvent(c(input$back_to_world), {
                    filter_rank_country()$name_long[3], 
                    format_indicator_value_countries3)
   
-  flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[1])), width = "25",
+  flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
                     style = "float:left")
-  flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[2])), width = "25",
+  flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
                     style = "float:left")
-  flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[3])), width = "25",
+  flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
                     style = "float:left")
   
   # print(flag1)

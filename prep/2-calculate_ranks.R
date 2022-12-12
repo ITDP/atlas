@@ -4,7 +4,7 @@ library(data.table)
 library(readr)
 
 # countries rank and countries shape
-atlas_country <- read_rds("data/sample3/atlas_country_polygons.rds")
+atlas_country <- read_rds("data/sample5/atlas_country_polygons.rds")
 
 # calculate size of each group
 country_ranks <- atlas_country %>%
@@ -14,12 +14,12 @@ country_ranks <- atlas_country %>%
   mutate(n = n()) %>%
   mutate(rank_type = "country_world")
 
-dir.create("data/sample3/ranks")
+dir.create("data/sample5/ranks")
 
-readr::write_rds(country_ranks, sprintf("data/sample3/ranks/rank_country.rds"))
+readr::write_rds(country_ranks, sprintf("data/sample5/ranks/rank_country.rds"))
 
 
-world <- dir("data/sample3", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{4}.rds")
+world <- dir("data/sample5", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{5}.rds")
 data_world <- lapply(world, function(x) st_set_geometry(read_rds(x), NULL)) %>% rbindlist(fill = TRUE)
 
 
@@ -70,11 +70,10 @@ prep_data <- function(ghsl) {
   
   
   # export
-  readr::write_rds(rank_complete, sprintf("data/sample3/ranks/rank_%s.rds", ghsl))
+  readr::write_rds(rank_complete, sprintf("data/sample5/ranks/rank_%s.rds", ghsl))
   
 }
 
-
-purrr::walk(c("0088", "0200", "0561", "0621", "1406", "1445",
-              "0014", "0154", "0634"), 
+cities_available <- unique(data_world$hdc)
+purrr::walk(cities_available, 
             prep_data)

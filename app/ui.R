@@ -5,11 +5,13 @@ list_bike <- structure(c("pnpb", "pnab", "abikeways", "pbikeways"),
 list_walk <- structure(c("pnh", "pne", "pns"), 
                        .Names = c("People Near Healthcare", "People Near Education", "People Near Services"))
 
-list_transit <- structure(c("pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
-                          .Names = c("People Near Rapid Transit&nbsp;&nbsp;&nbsp;", 
-                                     "People Near Rapid Transit - LRT&nbsp;&nbsp;&nbsp;",
-                                     "People Near Rapid Transit - MRT&nbsp;&nbsp;&nbsp;",
-                                     "People Near Rapid Transit - BRT&nbsp;&nbsp;&nbsp;"))
+list_transit <- structure(c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
+                          .Names = c(
+                            "People Near Frequent Transit&nbsp;&nbsp;&nbsp;", 
+                            "People Near Rapid Transit&nbsp;&nbsp;&nbsp;", 
+                            "People Near Rapid Transit - LRT&nbsp;&nbsp;&nbsp;",
+                            "People Near Rapid Transit - MRT&nbsp;&nbsp;&nbsp;",
+                            "People Near Rapid Transit - BRT&nbsp;&nbsp;&nbsp;"))
 
 list_performance <- structure(c("bikep45", "walkp45"), 
                               .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
@@ -137,17 +139,181 @@ fluidPage(
                   
     ),
     # create the panel with the filters
-    uiOutput('left_panel_filter'),
+    # uiOutput('left_panel_filter'), # da pra trazer
+    tagList(
+      # conditionalPanel(
+      # condition = "ind_cum.indexOf(input.indicator_performance) > -1",
+      # condition = "typeof input.indicator_performance != ''",
+      absolutePanel(
+        # id = "controls",
+        class = "spatial_level",
+        # fixed = TRUE, draggable = FALSE,
+        bottom = 45, left = 300, height = 'auto', width = 120,
+        # 'typeof undefined' identifies when is null 
+        tags$div(class = "title_left_panel", style = "padding: 10px 0", "YEAR" ,
+                 # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+                 # class = "minimize")
+                 tags$button(
+                   id = "tooltip_year",
+                   class="btn btn-light btn-xs",
+                   style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                   icon("circle-info")
+                   
+                 ),
+        ),
+        div(
+          bsPopover(id = "tooltip_year",
+                    # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+                    title = "",
+                    content = HTML(includeHTML('www/tooltips/tooltip_year.html')),
+                    placement = "right",
+                    trigger = "hover",
+                    options = list(container = "body")
+          )
+        ),
+        shinyWidgets::pickerInput(inputId = "year",
+                                  label = NULL,
+                                  choices = 2022,
+                                  selected = 2022,
+                                  options = shinyWidgets::pickerOptions(
+                                    size = 5
+                                  )
+                                  # selected = character(0)
+        )
+        
+      )
+      
+    ),
+    
+    
     # create the panel with the spatial scale
     uiOutput('spatial_level'),
     # create the panel with the comparison
-    uiOutput('comparison_button'),
+    # uiOutput('comparison_button'),
+    absolutePanel(
+      id = "compare_panel",
+      class = "spatial_level",
+      style = "background: #00AE42; display: none;",
+      # class = "w3-container w3-animate-opacity", 
+      # class = "panel panel-default",
+      # fixed = TRUE, draggable = FALSE,
+      bottom = 45, left = 440, height = 'auto', width = 130,
+      # tags$div(class = "title_left_panel", 
+      #          # "COMPARE", 
+      #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
+      #                       class = "minimize"),
+      #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
+      #                       class = "minimize")
+      # ),
+      actionButton(inputId = "comparison_button", 
+                   label = "COMPARE",
+                   style = "display: inline; padding-right: 2px;"),
+      tags$button(
+        id = "tooltip_compare",
+        class="btn btn-light btn-xs",
+        style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
+        icon("circle-info")
+        
+      ),
+      # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
+      # , onclick = '$("#comparison_panel").toggle("show");'
+      
+      div(
+        bsPopover(id = "tooltip_compare",
+                  title = "",
+                  content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
+                  placement = "top",
+                  trigger = "hover",
+                  options = list(container = "body"))
+      )
+    ),
+    
+    
+    
     uiOutput('comparison_panel'),
     # right panel
-    uiOutput('right_panel'),
+    
+    # uiOutput('right_panel'), # da pra trazer
+    tagList(
+      
+      # conditionalPanel(
+      # condition = "typeof input.indicator_bike !== 'undefined'",
+      absolutePanel(
+        class = "right_panel",
+        # class = "w3-container w3-animate-opacity", 
+        # class = "panel panel-default",
+        # fixed = TRUE, draggable = FALSE,
+        top = 0, right = 0, width = 300, height = "calc(100vh - 15px)",
+        tabsetPanel(type = "tabs", id = "right_tabs",
+                    tabPanel("OVERVIEW", value = "tab_overview",         
+                             absolutePanel(
+                               class = "right_panel_textbox",
+                               top = 65, right = 5, width = 280,
+                               htmlOutput("text_indicator"),
+                               tags$button(
+                                 id = "link_see_more",
+                                 class = "btn btn-default action-button shiny-bound-input",
+                                 div(class = "link_button", "Read more")
+                               ),
+                               uiOutput("rank_value"),
+                               uiOutput("rank_text")
+                               
+                             )
+                             
+                             
+                             
+                    ),
+                    tabPanel("MORE INFO",  value = "tab_viewmore",                                
+                             absolutePanel(
+                               class = "right_panel_textbox",
+                               top = 65, right = 5, width = 280,
+                               htmlOutput("text_indicator2")
+                               
+                             )
+                    )
+                    
+                    
+                    # )
+                    
+        )
+        
+      )
+    ),
+    
+    
+    
     # back to world button
     # uiOutput('download_button'),
-    uiOutput('download_button_maps'),
+    # uiOutput('download_button_maps'), # da pra trazer
+    absolutePanel(class = "about_button", 
+                  style = "background: #00AE42",
+                  top = 40, right = 450, height = 40, width = 130,
+                  dropdown(
+                    tagList(
+                      downloadButton("downloadData1", "Download indicator for this region", icon = NULL),
+                      downloadButton("downloadData2", "Download all indicators for this region", icon = NULL)
+                    ),
+                    hr(),
+                    tagList(
+                      downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
+                    ),
+                    hr(),
+                    actionButton("downloadDic", "Download Data Dictionary", 
+                                 onclick = "location.href='https://www.ipea.gov.br/acessooportunidades/dados';"),
+                    circle = FALSE, 
+                    # status = "danger",
+                    label = HTML("&nbsp;&nbsp;Download"),
+                    icon = icon("download"),
+                    right = TRUE,
+                    up = FALSE,
+                    # icon = icon("download"), 
+                    width = "350px",
+                    # tooltip = tooltipOptions(title = "Click to see inputs !"),
+                    inputId = "download_dropdown_maps"
+                    
+                  )
+    ),
+    
     # uiOutput('back_to_world_panel'),
     absolutePanel(
       class = "about_button",

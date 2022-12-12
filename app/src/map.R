@@ -58,10 +58,11 @@ output$map <- renderLeaflet({
                      options = layersControlOptions(collapsed = FALSE),
                      position = "topright") %>%
     leaflet.extras2::addSpinner() %>%
-  # onRender(spin_event)
-  
-  htmlwidgets::onRender(
-    "function(el, x) {
+    
+    # onRender(spin_event)
+    
+    htmlwidgets::onRender(
+      "function(el, x) {
       L.control.zoom({position:'topright'}).addTo(this);
     }")
   
@@ -82,7 +83,7 @@ counter <- reactiveValues(obs1 = NULL,
 # update the world map when the indicators is changed ---------------------
 observeEvent(c(indicator$mode, input$year), {
   
-  req(indicator$mode, is.null(rank$admin_level), input$year)               
+  req(indicator$mode, is.null(rank$admin_level), input$year)
   
   
   # print("obs1")
@@ -93,6 +94,7 @@ observeEvent(c(indicator$mode, input$year), {
   # if(is.null(input$admin_level)) {
   
   # print(atlas_city_markers)
+  # at <- Sys.time()
   
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # print("pattern")
@@ -110,9 +112,9 @@ observeEvent(c(indicator$mode, input$year), {
   }
   
   # print(class(atlas_country))
-  cols_country <- c('a2', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], 'geom')
+  cols_country <- c('a3', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], 'geometry')
   a_country <- atlas_country[cols_country]
-  colnames(a_country) <- c('a2', 'valor', 'geom')
+  colnames(a_country) <- c('a3', 'valor', 'geometry')
   
   pal <- colorNumeric(
     palette = "viridis",
@@ -135,6 +137,8 @@ observeEvent(c(indicator$mode, input$year), {
   
   
   # print(a)
+  labels <- paste0("<b>", a_available$name,  "</b><br/> <i>Click to go to the region</i>")
+  labels2 <- paste0("<b>", a_notavailable$name,  "</b><br/> <i>Indicator not available for this region</i>")
   
   leafletProxy("map", data = a_available) %>%
     clearMarkers() %>%
@@ -149,7 +153,16 @@ observeEvent(c(indicator$mode, input$year), {
       opacity = 0.8,
       weight = 1,
       layerId = ~hdc,
-      label = ~htmltools::htmlEscape(name)
+      label = lapply(labels, htmltools::HTML),
+      labelOptions = labelOptions(
+        style = list(
+          # "color" = "red",
+          "font-family" = "'Fira Sans', sans-serif",
+          # "font-style" = "italic",
+          # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+          "font-size" = "12px"
+          # "border-color" = "rgba(0,0,0,0.5)"
+        ))
     ) %>%
     addCircleMarkers(data = a_notavailable,
                      # radius = ~ifelse(type == "ship", 6, 10),
@@ -159,12 +172,14 @@ observeEvent(c(indicator$mode, input$year), {
                      opacity = 0.8,
                      weight = 1,
                      layerId = ~hdc,
+                     label = lapply(labels2, htmltools::HTML),
                      # label = ~htmltools::htmlEscape(name),
                      options = pathOptions(clickable = FALSE)
     ) %>%
-    addPolygons(data = a_country, 
-                fillColor = ~pal_countries(valor), color = "black",  weight = 0,
-                options = pathOptions(clickable = FALSE)) %>%
+    addPolygons(data = a_country,
+                fillColor = ~pal_countries(valor), color = "black",  weight = 0, # erro nao eh aqui
+                options = pathOptions(clickable = FALSE)
+                ) %>%
     # add polygons with the country color
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
     addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
@@ -190,6 +205,9 @@ observeEvent(c(indicator$mode, input$year), {
   # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')                       
   
   # }
+  
+  # print("ahhhh")
+  # print(Sys.time() - at)
   
   
 }) 
@@ -240,10 +258,13 @@ observeEvent(c(city$city_code), {
   waiter_hide()
   
   
+  labels <- paste0("<b>", data_metro$name,  "</b><br/> <i>Click to see more info</i>")
+  
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
     startSpinner(list("lines" = 10, "length" = 10,
-                      "width" = 10, "radius" = 5)) %>%
+                      "width" = 5, "radius" = 5,
+                      color = "white")) %>%
     removeMarker(layerId = data_metro$osmid) %>%
     clearShapes() %>%
     removeControl(layerId = "legend_country") %>%
@@ -261,12 +282,22 @@ observeEvent(c(city$city_code), {
     addPolygons(data = data_metro,
                 fillColor = ~pal(valor), fillOpacity = 0.5,
                 color = "black",  weight = 1, layerId = ~osmid,
-                label = ~htmltools::htmlEscape(name),
+                group = "Regions",
+                label = lapply(labels, htmltools::HTML),
+                labelOptions = labelOptions(
+                  style = list(
+                    # "color" = "red",
+                    # "font-family" = "serif",
+                    # "font-style" = "italic",
+                    # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                    "font-size" = "12px"
+                    # "border-color" = "rgba(0,0,0,0.5)"
+                  )),
                 options = pathOptions(pane = "basemap"),
                 highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black")) %>%
     # addLegend("bottomleft", pal = pal, values = ~valor) %>%
     addLayersControl(
-      overlayGroups = c("Overlay"),
+      overlayGroups = c("Regions", "Overlay"),
       baseGroups = c("Dark", "Light", "Satellite"),
       options = layersControlOptions(collapsed = FALSE),
       position = "topright")
@@ -365,11 +396,12 @@ observeEvent(c(input$map_shape_click), {
     data_previous <- subset(data_ind3_spatial(), osmid == tail(element$selected, 2)[1])
     # print("data_previous")
     # print(data_previous)
+    labels1 <- paste0("<b>", data_previous$name,  "</b><br/> <i>Click to see more info</i>")
     
     
   }
   
-  
+  labels <- paste0("<b>", data$name,  "</b> <br/> <i>Click to see more info</i>")
   
   # update the map
   map <- leafletProxy("map", session) %>%
@@ -381,16 +413,36 @@ observeEvent(c(input$map_shape_click), {
                 # fillColor = ~pal(valor), 
                 # fillOpacity = 0.5,
                 color = "black",  weight = 8, layerId = ~osmid, opacity = 1,
-                label = ~htmltools::htmlEscape(name),
+                group = "Regions",
+                label = lapply(labels, htmltools::HTML),
+                labelOptions = labelOptions(
+                  style = list(
+                    # "color" = "red",
+                    # "font-family" = "serif",
+                    # "font-style" = "italic",
+                    # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                    "font-size" = "12px"
+                    # "border-color" = "rgba(0,0,0,0.5)"
+                  )),
                 options = pathOptions(pane = "basemap"))
   
   # if there was a previous element, revert it to the oringial color and stroke
   if (length(element$selected) > 1) {
     map <- map %>%
       addPolygons(data = data_previous, 
+                  group = "Regions",
                   # fis theses colors
                   fillColor = data_previous$fill, fillOpacity = 0.5,
-                  label = ~htmltools::htmlEscape(name),
+                  label = lapply(labels1, htmltools::HTML),
+                  labelOptions = labelOptions(
+                    style = list(
+                      # "color" = "red",
+                      # "font-family" = "serif",
+                      # "font-style" = "italic",
+                      # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                      "font-size" = "12px"
+                      # "border-color" = "rgba(0,0,0,0.5)"
+                    )),
                   color = "black",  weight = 1, layerId = ~osmid
       )
   }
@@ -404,14 +456,14 @@ observeEvent(c(input$map_shape_click), {
 
 # update overlay only when indicator is changed --------------------------------
 
-observeEvent(c(indicator$mode), {
+observeEvent(c(indicator$mode, input$year), {
   
   # it will run only when we are at the city level
   req(!is.null(input$admin_level))
   # if (isTRUE(admin_level_previous$a >= 1)) {
   # if (isTRUE(input$admin_level >= 1)) {
   
-  # print("obs3")
+  # print("obs3----")
   # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
   #             color = "rgba(233, 235, 240, .2)")
   
@@ -423,7 +475,8 @@ observeEvent(c(indicator$mode), {
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
     startSpinner(list("lines" = 10, "length" = 10,
-                      "width" = 10, "radius" = 5)) %>%
+                      "width" = 5, "radius" = 5,
+                      color = "white")) %>%
     # clearMarkers() %>%
     removeShape(layerId = "overlay_layer") %>%
     addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
@@ -525,7 +578,8 @@ data_ind3_spatial <- reactive({
 
 
 observeEvent(c(input$admin_level,
-               indicator$mode), {
+               indicator$mode,
+               input$year), {
                  
                  
                  
@@ -555,12 +609,13 @@ observeEvent(c(input$admin_level,
                  # format legend value
                  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
                  
-                 
+                 labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
                  
                  map <- leafletProxy("map", session) %>%
                    # clearMarkers() %>%
                    startSpinner(list("lines" = 10, "length" = 10,
-                                     "width" = 10, "radius" = 5)) %>%
+                                     "width" = 5, "radius" = 5,
+                                     color = "white")) %>%
                    # clearMarkers() %>%
                    removeShape(layerId =  osm_selected$oi) %>%
                    removeTiles(layerId =  "tile") %>%
@@ -598,7 +653,17 @@ observeEvent(c(input$admin_level,
                                  fillColor = data_ind3_spatial()$fill,
                                  fillOpacity = 0.5,
                                  color = "black",  weight = 1, 
-                                 label = ~htmltools::htmlEscape(name),
+                                 group = "Regions",
+                                 label = lapply(labels, htmltools::HTML),
+                                 labelOptions = labelOptions(
+                                   style = list(
+                                     # "color" = "red",
+                                     # "font-family" = "serif",
+                                     # "font-style" = "italic",
+                                     # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                     "font-size" = "12px"
+                                     # "border-color" = "rgba(0,0,0,0.5)"
+                                   )),
                                  layerId = ~osmid,
                                  options = pathOptions(pane = "basemap"),
                                  highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, 

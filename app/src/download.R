@@ -1,38 +1,38 @@
-output$download_button_maps <- renderUI({
-  
-  tagList(
-    
-    absolutePanel(class = "about_button", 
-                  style = "background: #00AE42",
-                  top = 40, right = 450, height = 40, width = 130,
-                  dropdown(
-                    tagList(
-                      downloadButton("downloadData1", "Download indicator for this region", icon = NULL),
-                      downloadButton("downloadData2", "Download all indicators for this region", icon = NULL)
-                    ),
-                    hr(),
-                    tagList(
-                      downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
-                    ),
-                    hr(),
-                    actionButton("downloadDic", "Download Data Dictionary", 
-                                 onclick = "location.href='https://www.ipea.gov.br/acessooportunidades/dados';"),
-                    circle = FALSE, 
-                    # status = "danger",
-                    label = HTML("&nbsp;&nbsp;Download"),
-                    icon = icon("download"),
-                    right = TRUE,
-                    up = FALSE,
-                    # icon = icon("download"), 
-                    width = "350px",
-                    # tooltip = tooltipOptions(title = "Click to see inputs !"),
-                    inputId = "download_dropdown_maps"
-                    
-                  )
-    )
-  )
-  
-})  
+# output$download_button_maps <- renderUI({
+#   
+#   tagList(
+#     
+#     absolutePanel(class = "about_button", 
+#                   style = "background: #00AE42",
+#                   top = 40, right = 450, height = 40, width = 130,
+#                   dropdown(
+#                     tagList(
+#                       downloadButton("downloadData1", "Download indicator for this region", icon = NULL),
+#                       downloadButton("downloadData2", "Download all indicators for this region", icon = NULL)
+#                     ),
+#                     hr(),
+#                     tagList(
+#                       downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
+#                     ),
+#                     hr(),
+#                     actionButton("downloadDic", "Download Data Dictionary", 
+#                                  onclick = "location.href='https://www.ipea.gov.br/acessooportunidades/dados';"),
+#                     circle = FALSE, 
+#                     # status = "danger",
+#                     label = HTML("&nbsp;&nbsp;Download"),
+#                     icon = icon("download"),
+#                     right = TRUE,
+#                     up = FALSE,
+#                     # icon = icon("download"), 
+#                     width = "350px",
+#                     # tooltip = tooltipOptions(title = "Click to see inputs !"),
+#                     inputId = "download_dropdown_maps"
+#                     
+#                   )
+#     )
+#   )
+#   
+# })  
 
 
 

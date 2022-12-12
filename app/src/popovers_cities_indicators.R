@@ -2,18 +2,18 @@
 add_popover_city <- function(position) {
   
   # add icon
-  delay(1, runjs(sprintf("$('#bs-select-1-%s > span').after('<i style=\"float: right; color=red\" class=\"fa-solid fa-triangle-exclamation\"></i>');", position)))
+  delay(1, runjs(sprintf("$('#bs-select-2-%s > span').after('<i style=\"float: right; color=red\" class=\"fa-solid fa-triangle-exclamation\"></i>');", position)))
   # add popover property
-  delay(2, runjs(sprintf("$('#bs-select-1-%s').attr({'data-container':'body', 'data-toggle':'popover'});", position)))
+  delay(2, runjs(sprintf("$('#bs-select-2-%s').attr({'data-container':'body', 'data-toggle':'popover'});", position)))
   text2 <- 'Indicator not available for this city'
   
   # create the titles and text for each popover
-  delay(3, runjs(sprintf("$('#bs-select-1-%s').attr({'data-content':'%s'});", position, text2)))
+  delay(3, runjs(sprintf("$('#bs-select-2-%s').attr({'data-content':'%s'});", position, text2)))
   
   # format popover
   delay(4, runjs(sprintf("    $('[data-toggle=\"popover\"]').popover(
           {trigger: 'hover', html: true, 
-          viewport : {selector: '#bs-select-1-%s', padding: 0}, container: 'body'
+          viewport : {selector: '#bs-select-2-%s', padding: 0}, container: 'body'
           }
     );", position)))
   
@@ -39,9 +39,9 @@ observeEvent(c(indicator$mode, city$city_code), {
   remove_previous <- function(position) {
     # runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-container');", position))
     # runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-toggle');", position))
-    runjs(sprintf("$('#bs-select-1-%s > i').remove();", position))
+    runjs(sprintf("$('#bs-select-2-%s > i').remove();", position))
     # delay(1, runjs(sprintf("$('#bs-select-1-%s').removeAttr('data-content');", position)))
-    delay(2, runjs(sprintf("$('#bs-select-1-%s').popover('destroy');", position)))
+    delay(2, runjs(sprintf("$('#bs-select-2-%s').popover('destroy');", position)))
     
     
   }

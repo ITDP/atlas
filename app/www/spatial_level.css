@@ -16,7 +16,7 @@ padding: 7px;
 /*.spatial_level > div > div > div > label {*/
   
 
-font-family: 'Franklin Gothic Book';
+font-family: 'Fira Sans', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 14px;
@@ -59,7 +59,7 @@ flex-grow: 0;
 
 .irs--shiny .irs-line {
     top: 25px !important;
-    height: 4px !important;
+    height: 5px !important;
     background-color: #54595E !important;
     border: 0px !important;
     
@@ -73,11 +73,13 @@ flex-grow: 0;
 
 .irs-grid-pol {
   background-color: #54595E !important;
-  top: -11px !important;
-    width: 12px !important;
-    height: 12px !important;
     border-radius: 22px !important;
+/*
+    height: 12px !important;
+    width: 12px !important;
+  top: -11px !important;
     margin-left: -2% !important;
+*/
 }
 
 .irs-grid-text {

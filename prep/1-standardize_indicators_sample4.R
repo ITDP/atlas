@@ -504,6 +504,7 @@ export_by_osmid("0634")
 # export only for comparison
 # ghsl <- "1406"
 # ind <- "bike_pnpb"
+# level <- 10
 
 export_comparison1 <- function(level) {
   
@@ -518,9 +519,9 @@ export_comparison1 <- function(level) {
     indicators_ind <- indicators_all_level %>% 
       select(hdc, country, a2, osmid, name, admin_level, admin_level_ordered,
              starts_with(ind)) %>%
-      mutate(admin_level = as.integer(admin_level)) %>%
+      mutate(admin_level = as.integer(admin_level))
       # delete the last level
-      filter(admin_level < 10)
+      # filter(admin_level < 10)
     
     
     # to long format
@@ -559,7 +560,6 @@ export_comparison1 <- function(level) {
 
 
 # filter level
-levels <- unique(indicators_all_df)
 purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 
 

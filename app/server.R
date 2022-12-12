@@ -1,12 +1,12 @@
 # open boundaries
-atlas_city_markers <- readRDS("../data/sample3/atlas_city_markers.rds")
-atlas_country <- readRDS("../data/sample3/atlas_country_polygons.rds")
+atlas_city_markers <- readRDS("../data/sample5/atlas_city_markers.rds")
+atlas_country <- readRDS("../data/sample5/atlas_country_polygons.rds")
 # country rank
-atlas_country_ranks <- readRDS("../data/sample3/ranks/rank_country.rds")
+atlas_country_ranks <- readRDS("../data/sample5/ranks/rank_country.rds")
 # list indicators
-list_indicators <- readRDS("../data/sample3/list_indicators.rds")
-list_osmid_name <- readRDS("../data/sample3/list_osmid_name.rds")
-list_availability <- readRDS("../data/sample3/list_availability.rds")
+list_indicators <- readRDS("../data/sample5/list_indicators.rds")
+list_osmid_name <- readRDS("../data/sample5/list_osmid_name.rds")
+list_availability <- readRDS("../data/sample5/list_availability.rds")
 
 
 
@@ -70,120 +70,136 @@ function(input, output, session) {
   })
   
   
-  
-  
-  
-  output$left_panel_filter <- renderUI({
-    
-    req(indicator$mode)
+  observeEvent(c(indicator$mode), {
     
     year_options <- subset(list_availability, ind == indicator$mode)$availability
     year_options <- unlist( strsplit(year_options, "[|]"))
     year_options <- unique(year_options)
     
-    
-    # hdc_available <-  subset(list_availability, ind = indicator$mode)$hdc
-    # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
-    
-    
-    tagList(
-      # conditionalPanel(
-      # condition = "ind_cum.indexOf(input.indicator_performance) > -1",
-      # condition = "typeof input.indicator_performance != ''",
-      absolutePanel(
-        # id = "controls",
-        class = "spatial_level",
-        # fixed = TRUE, draggable = FALSE,
-        bottom = 45, left = 300, height = 'auto', width = 120,
-        # 'typeof undefined' identifies when is null 
-        tags$div(class = "title_left_panel", style = "padding: 10px 0", "YEAR" ,
-                 # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-                 # class = "minimize")
-                 tags$button(
-                   id = "tooltip_year",
-                   class="btn btn-light btn-xs",
-                   style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
-                   icon("circle-info")
-                   
-                 ),
-        ),
-        div(
-          bsPopover(id = "tooltip_year",
-                    # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
-                    title = "",
-                    content = HTML(includeHTML('www/tooltips/tooltip_year.html')),
-                    placement = "right",
-                    trigger = "hover",
-                    options = list(container = "body")
-          )
-        ),
-        shinyWidgets::pickerInput(inputId = "year",
-                                  label = NULL,
-                                  choices = year_options,
-                                  selected = 2019,
-                                  options = shinyWidgets::pickerOptions(
-                                    size = 5
-                                  )
-                                  # selected = character(0)
-        )
-        
-      )
-      
-      # )
-    )
+    updatePickerInput(
+      session = session,
+      inputId = "year",
+      choices = year_options,
+      selected = 2022)
     
     
   })
+  
+  
+  # output$left_panel_filter <- renderUI({
+  #   
+  #   # print("input$admin_level")
+  #   # print(input$admin_level)
+  #   
+  #   req(indicator$mode)
+  #   
+  #   year_options <- subset(list_availability, ind == indicator$mode)$availability
+  #   year_options <- unlist( strsplit(year_options, "[|]"))
+  #   year_options <- unique(year_options)
+  #   
+  #   
+  #   # hdc_available <-  subset(list_availability, ind = indicator$mode)$hdc
+  #   # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+  #   
+  #   
+  #   tagList(
+  #     # conditionalPanel(
+  #     # condition = "ind_cum.indexOf(input.indicator_performance) > -1",
+  #     # condition = "typeof input.indicator_performance != ''",
+  #     absolutePanel(
+  #       # id = "controls",
+  #       class = "spatial_level",
+  #       # fixed = TRUE, draggable = FALSE,
+  #       bottom = 45, left = 300, height = 'auto', width = 120,
+  #       # 'typeof undefined' identifies when is null 
+  #       tags$div(class = "title_left_panel", style = "padding: 10px 0", "YEAR" ,
+  #                # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
+  #                # class = "minimize")
+  #                tags$button(
+  #                  id = "tooltip_year",
+  #                  class="btn btn-light btn-xs",
+  #                  style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+  #                  icon("circle-info")
+  #                  
+  #                ),
+  #       ),
+  #       div(
+  #         bsPopover(id = "tooltip_year",
+  #                   # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+  #                   title = "",
+  #                   content = HTML(includeHTML('www/tooltips/tooltip_year.html')),
+  #                   placement = "right",
+  #                   trigger = "hover",
+  #                   options = list(container = "body")
+  #         )
+  #       ),
+  #       shinyWidgets::pickerInput(inputId = "year",
+  #                                 label = NULL,
+  #                                 choices = year_options,
+  #                                 selected = 2019,
+  #                                 options = shinyWidgets::pickerOptions(
+  #                                   size = 5
+  #                                 )
+  #                                 # selected = character(0)
+  #       )
+  #       
+  #     )
+  #     
+  #     # )
+  #   )
+  #   
+  #   
+  # })
   
   
   spatial_level_value <- reactiveValues(last = NULL)
   
   
-  output$comparison_button <- renderUI({
-    
-    req(input$admin_level)
-    
-    
-    absolutePanel(
-      
-      
-      class = "spatial_level",
-      style = "background: #00AE42",
-      # class = "w3-container w3-animate-opacity", 
-      # class = "panel panel-default",
-      # fixed = TRUE, draggable = FALSE,
-      bottom = 45, left = 440, height = 'auto', width = 130,
-      # tags$div(class = "title_left_panel", 
-      #          # "COMPARE", 
-      #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
-      #                       class = "minimize"),
-      #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
-      #                       class = "minimize")
-      # ),
-      actionButton(inputId = "comparison_button", 
-                   label = "COMPARE",
-                   style = "display: inline; padding-right: 2px;"),
-      tags$button(
-        id = "tooltip_compare",
-        class="btn btn-light btn-xs",
-        style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
-        icon("circle-info")
-        
-      ),
-      # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
-      # , onclick = '$("#comparison_panel").toggle("show");'
-      
-      div(
-        bsPopover(id = "tooltip_compare",
-                  title = "",
-                  content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
-                  placement = "top",
-                  trigger = "hover",
-                  options = list(container = "body"))
-      )
-    )
-    
-  })
+  # output$comparison_button <- renderUI({
+  #   
+  #   req(input$admin_level)
+  #   
+  #   
+  #   absolutePanel(
+  #     
+  #     
+  #     class = "spatial_level",
+  #     style = "background: #00AE42",
+  #     # class = "w3-container w3-animate-opacity", 
+  #     # class = "panel panel-default",
+  #     # fixed = TRUE, draggable = FALSE,
+  #     bottom = 45, left = 440, height = 'auto', width = 130,
+  #     # tags$div(class = "title_left_panel", 
+  #     #          # "COMPARE", 
+  #     #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
+  #     #                       class = "minimize"),
+  #     #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
+  #     #                       class = "minimize")
+  #     # ),
+  #     actionButton(inputId = "comparison_button", 
+  #                  label = "COMPARE",
+  #                  style = "display: inline; padding-right: 2px;"),
+  #     tags$button(
+  #       id = "tooltip_compare",
+  #       class="btn btn-light btn-xs",
+  #       style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
+  #       icon("circle-info")
+  #       
+  #     ),
+  #     # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
+  #     # , onclick = '$("#comparison_panel").toggle("show");'
+  #     
+  #     div(
+  #       bsPopover(id = "tooltip_compare",
+  #                 title = "",
+  #                 content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
+  #                 placement = "top",
+  #                 trigger = "hover",
+  #                 options = list(container = "body"))
+  #     )
+  #   )
+  #   
+  # })
   
   
   
@@ -202,10 +218,21 @@ function(input, output, session) {
   # 
   # })
   
-
+  
   # onclick("comparison_button", runjs("$( '#lalala' ).toggle();"))
   onclick("comparison_button", toggle("lalala"))
+  
+  
+  observeEvent(c(city$city_code), {
     
+    req(city$city_code != "", city$times == 0)
+    print("UUUUUUIII")
+    
+    show("compare_panel")
+    
+    
+  }, once = FALSE)
+  
   
   # create regions names for the comparison 
   comparison_values <- reactive({
@@ -215,7 +242,7 @@ function(input, output, session) {
     
     
     # get the admin level original
-    al <- unique(data_ind3_spatial()$admin_level)
+    al <- as.numeric(unique(data_ind3_spatial()$admin_level))
     
     # print("al")
     # print(al)
@@ -228,6 +255,15 @@ function(input, output, session) {
     choices_comparison <- subset(list_osmid_name, admin_level == al)
     # filter hdc with the indicators available
     choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
+    # if is in the neigbourhood level (level >= 10), only show for the city in question
+    if (al >= 10) {
+      
+      # print("uhhhhhhhhhhhhhhhhhhhhhhhhh")
+      
+      choices_comparison <- subset(choices_comparison, hdc == city$city_code)
+      
+    }
+    
     # remove the osmid that is already being shown
     # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
     # extract values
@@ -285,6 +321,8 @@ function(input, output, session) {
   
   output$spatial_level <- renderUI({
     
+    
+    # req(city$times == 1)
     # CALCULATE the spatial levels for each city
     
     # print(paste0("last", spatial_level$last))
@@ -294,16 +332,16 @@ function(input, output, session) {
     # list_spatial_levels <- structure(c("0", "6", "7", "8", "9", "10"),
     #                                  .Names = c("Mais", "6", "7", "8", "9", "Menos"))
     
-    tagList(
+    base <- tagList(
       conditionalPanel(
         condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
         absolutePanel(
-          # id = "controls", 
+          # id = "controls",
           class = "spatial_level",
           # fixed = TRUE, draggable = FALSE,
           bottom = 45, right = 480, height = 'auto', width = 220,
-          # 'typeof undefined' identifies when is null 
-          tags$div(class = "title_left_panel", style = "padding: 10px 0", "LEVEL OF DETAIL", 
+          # 'typeof undefined' identifies when is null
+          tags$div(class = "title_left_panel", style = "padding: 10px 0", "LEVEL OF DETAIL",
                    tags$button(
                      id = "tooltip_level",
                      class="btn btn-light btn-xs",
@@ -333,99 +371,104 @@ function(input, output, session) {
                                         choices = seq(1, go),
                                         label = NULL,
                                         selected = 1,
-                                        grid = TRUE
+                                        grid = TRUE,
+                                        dragRange = FALSE
                                         # selected = character(0)
           )
+          # actionButton("grid", label = "", icon = icon("table-cells-large"))
           
         )
         
       )
     )
     
-  })
-  
-  
-  output$right_panel <- renderUI({
+    # if its a grid base indicator, display the grid option as well
     
-    tagList(
-      
-      # conditionalPanel(
-        # condition = "typeof input.indicator_bike !== 'undefined'",
-        absolutePanel(
-          class = "right_panel",
-          # class = "w3-container w3-animate-opacity", 
-          # class = "panel panel-default",
-          # fixed = TRUE, draggable = FALSE,
-          top = 0, right = 0, width = 300, height = "calc(100vh - 15px)",
-          tabsetPanel(type = "tabs", id = "right_tabs",
-                      tabPanel("OVERVIEW", value = "tab_overview",         
-                               absolutePanel(
-                                 class = "right_panel_textbox",
-                                 top = 65, right = 5, width = 280,
-                                 htmlOutput("text_indicator"),
-                                 tags$button(
-                                   id = "link_see_more",
-                                   class = "btn btn-default action-button shiny-bound-input",
-                                   div(class = "link_button", "Read more")
-                                 ),
-                                 uiOutput("rank_value"),
-                                 uiOutput("rank_text")
-
-                               )
-                               
-                               
-                               
-                      ),
-                      tabPanel("MORE INFO",  value = "tab_viewmore",                                
-                               absolutePanel(
-                                 class = "right_panel_textbox",
-                                 top = 65, right = 5, width = 280,
-                                 htmlOutput("text_indicator2")
-                                 
-                               )
-                      )
-                      
-                      
-          # )
-          
-        )
-        
-      )
-    )
     
   })
   
   
+  # output$right_panel <- renderUI({
+  #   
+  #   tagList(
+  #     
+  #     # conditionalPanel(
+  #     # condition = "typeof input.indicator_bike !== 'undefined'",
+  #     absolutePanel(
+  #       class = "right_panel",
+  #       # class = "w3-container w3-animate-opacity", 
+  #       # class = "panel panel-default",
+  #       # fixed = TRUE, draggable = FALSE,
+  #       top = 0, right = 0, width = 300, height = "calc(100vh - 15px)",
+  #       tabsetPanel(type = "tabs", id = "right_tabs",
+  #                   tabPanel("OVERVIEW", value = "tab_overview",         
+  #                            absolutePanel(
+  #                              class = "right_panel_textbox",
+  #                              top = 65, right = 5, width = 280,
+  #                              htmlOutput("text_indicator"),
+  #                              tags$button(
+  #                                id = "link_see_more",
+  #                                class = "btn btn-default action-button shiny-bound-input",
+  #                                div(class = "link_button", "Read more")
+  #                              ),
+  #                              uiOutput("rank_value"),
+  #                              uiOutput("rank_text")
+  #                              
+  #                            )
+  #                            
+  #                            
+  #                            
+  #                   ),
+  #                   tabPanel("MORE INFO",  value = "tab_viewmore",                                
+  #                            absolutePanel(
+  #                              class = "right_panel_textbox",
+  #                              top = 65, right = 5, width = 280,
+  #                              htmlOutput("text_indicator2")
+  #                              
+  #                            )
+  #                   )
+  #                   
+  #                   
+  #                   # )
+  #                   
+  #       )
+  #       
+  #     )
+  #   )
+  #   
+  # })
+  # 
+  # 
   
   
   observeEvent(input$link_see_more, {
     updateNavbarPage(session, "right_tabs", "tab_viewmore")
   })
   
-  output$back_to_world_panel <- renderUI({
-    
-    tagList(
-      
-      conditionalPanel(
-        condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
-        absolutePanel(
-          class = "about_button",
-          # class = "w3-container w3-animate-opacity", 
-          # class = "panel panel-default",
-          # fixed = TRUE, draggable = FALSE,
-          top = 40, right = 730, width = 130, height = 40,
-          actionButton(inputId = "back_to_world",
-                       icon = icon("rotate-left"),
-                       label = HTML("&nbsp;&nbsp;Reset map")
-                       # selected = character(0)
-          )
-          
-          
-        )
-      )
-    )
-    
-  })
+  # output$back_to_world_panel <- renderUI({
+  #   
+  #   tagList(
+  #     
+  #     conditionalPanel(
+  #       condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
+  #       absolutePanel(
+  #         class = "about_button",
+  #         # class = "w3-container w3-animate-opacity", 
+  #         # class = "panel panel-default",
+  #         # fixed = TRUE, draggable = FALSE,
+  #         top = 40, right = 730, width = 130, height = 40,
+  #         actionButton(inputId = "back_to_world",
+  #                      icon = icon("rotate-left"),
+  #                      label = HTML("&nbsp;&nbsp;Reset map")
+  #                      # selected = character(0)
+  #         )
+  #         
+  #         
+  #       )
+  #     )
+  #   )
+  #   
+  # })
   
   
   
@@ -552,7 +595,7 @@ function(input, output, session) {
   
   
   # first, define the city input ----------------
-  city <- reactiveValues(code = NULL)
+  city <- reactiveValues(code = NULL, times = -1)
   
   observeEvent(c(input$city), {city$city_code <- input$city})
   observeEvent(c(input$map_marker_click), {
@@ -656,6 +699,18 @@ function(input, output, session) {
     session$doBookmark()
   })
   
+  
+  # count how many times a city was selected --------------------------------
+  
+  
+  observeEvent(c(city$city_code), {
+    
+    city$times <- city$times + 1
+    
+    # print("city$times")
+    # print(city$times)
+    
+  })  
   
   
   

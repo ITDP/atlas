@@ -6,7 +6,7 @@ data_ind <- reactive({
   req(city$city_code)
 
   
-  a <- readRDS(sprintf("../data/sample3/ghsl_%s/indicators_%s.rds", city$city_code, city$city_code))
+  a <- readRDS(sprintf("../data/sample5/ghsl_%s/indicators_%s.rds", city$city_code, city$city_code))
   # readRDS(sprintf("data/atlas_%s_indicators.rds", city$city_code))
   # print(head(a))
   spatial_level_value$last <- length(unique(a$admin_level))
@@ -31,7 +31,7 @@ data_overlays <- reactive({
   
   req(city$city_code)
   
-  a <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
+  a <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
   
   
   
@@ -96,7 +96,7 @@ data_ind2 <- reactive({
 })
 data_overlays2 <- reactive({
   
-  req(indicator$mode)
+  req(indicator$mode, input$year)
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # pattern <- sprintf("%s_%s_2019", indicator$type, indicator$mode)
   a <- subset(data_overlays(), indicator == pattern)
@@ -109,12 +109,12 @@ data_overlays2 <- reactive({
   
   if(geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
     
-    overlay_geom$polygon  <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays/%s/overlays_polygons_%s_%s.rds", 
+    overlay_geom$polygon  <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/%s/overlays_polygons_%s_%s.rds", 
                                              city$city_code, indicator$mode, city$city_code, indicator$mode))
     
   } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
     
-    overlay_geom$line <- readRDS(sprintf("../data/sample3/ghsl_%s/overlays/%s/overlays_lines_%s_%s.rds", 
+    overlay_geom$line <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/%s/overlays_lines_%s_%s.rds", 
                                          city$city_code, indicator$mode, city$city_code, indicator$mode))
     
   }
@@ -132,7 +132,7 @@ data_overlays2 <- reactive({
 # filter year when available
 data_ind3 <- reactive({
   
-  req(indicator$mode)
+  req(indicator$mode, input$year)
   
   # print(indicator$mode)
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)

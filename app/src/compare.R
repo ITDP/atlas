@@ -10,7 +10,7 @@
 
 ind_city <- reactive({
   
-  req(city$city_code)
+  req(city$city_code != "")
   # print("input$comparison_button")
   # print(input$comparison_button)
   # req(city$city_code, input$comparison_button == 1)
@@ -25,10 +25,10 @@ ind_city <- reactive({
   # print(pattern)
   
   # open data
-  a <- readRDS(sprintf("../data/sample3/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+  a <- readRDS(sprintf("../data/sample5/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                        city$city_code, city$city_code, pattern))
   
-  print("pera")
+  # print("pera")
   
   return(a)
   
@@ -38,7 +38,7 @@ ind_city <- reactive({
 
 ind_compare <- reactive({
   
-  req(city$city_code, data_ind3_spatial())
+  req(city$city_code != "", data_ind3_spatial())
   # req(city$city_code, data_ind3_spatial(), input$comparison_button == 1)
   
     
@@ -52,8 +52,10 @@ ind_compare <- reactive({
     # print(pattern)
     
     # open data
-    a <- readRDS(sprintf("../data/sample3/comp/indicators_compare_%s_%s.rds",
+    a <- readRDS(sprintf("../data/sample5/comp/indicators_compare_%s_%s.rds",
                          level, pattern))
+    
+    print(a)
     
     return(a)
     
@@ -68,7 +70,7 @@ output$comparison_chart <- renderHighchart({
   
   req(ind_city(), ind_compare())
   
-  print("bug")
+  # print("bug")
   
   ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
   
@@ -181,7 +183,7 @@ observeEvent(c(input$city_compare), {
   } else round(value_compare$value)
   
   # print("ind_compare()")
-  # print(value_compare)
+  # print(value_compare$value)
   
   # print(input$city_compare)
   # print(ordered_colnames())
@@ -189,7 +191,7 @@ observeEvent(c(input$city_compare), {
   # identify type of chart
   
   
-  if (indicator$mode == "pnpb") {
+  if (indicator$mode %in% c("pnpb", "pnab")) {
     
     
     
@@ -538,7 +540,7 @@ observeEvent(c(input$city_compare1), {
   # print(input$city_compare)
   # print(ordered_colnames())
   
-  if (indicator$mode == "pnpb") {
+  if (indicator$mode %in% c("pnpb", "pnab")) {
     
     
     
