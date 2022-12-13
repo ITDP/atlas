@@ -18,9 +18,9 @@ sfc_as_cols <- function(x, names = c("lon","lat")) {
 
 extract_grid <- function(ghsl) {
   
-  # ghsl <- "0200"
-  # ghsl <- "0561"
-  # ghsl <- "1445"
+  # ghsl <- "00200"
+  # ghsl <- "00561"
+  # ghsl <- "01445"
   
   ghsl_new <- ghsl
   
@@ -54,7 +54,7 @@ extract_grid("01445")
 extract_reaches <- function(ghsl) {
   # ghsl <- "0200"
   # ghsl <- "0561"
-  # ghsl <- "1445"
+  # ghsl <- "01445"
   
   ghsl_new <- paste0("0", ghsl)
   
@@ -63,15 +63,6 @@ extract_reaches <- function(ghsl) {
     st_centroid(.) %>%
     sfc_as_cols()
   
-  polygons_admin <- readRDS(sprintf("data/sample5/ghsl_%s/indicators_%s.rds", ghsl_new, ghsl_new)) %>%
-    filter(admin_level == max(as.numeric(admin_level))) %>%
-    select(hdc, osmid)
-  a_centroids <- a %>% select(id, lon, lat) %>% st_as_sf(coords = c("lon", "lat"), crs = 4326)
-  # join with the admin level
-  
-  polygons_reaches <- st_join(polygons_admin, a_centroids) %>%
-    st_set_geometry(NULL) %>%
-    distinct(hdc, osmid, .keep_all = TRUE)
   
   
   a1 <- a %>%
@@ -93,9 +84,20 @@ extract_reaches <- function(ghsl) {
   # join
   reaches_walk_end <- rbind(reaches_walk, reaches_walk_empty) %>% arrange(id)
   # bring centroid
-  reaches_walk_end <- left_join(reaches_walk_end, a1 %>% select(id, lon, lat))
-  readr::write_rds(reaches_walk_end, "reaches_bike.rds")
+  # reaches_walk_end <- left_join(reaches_walk_end, a1 %>% select(osmid = id, lon, lat))
+  # simplify
+  reaches_walk_end <- rmapshaper::ms_simplify(reaches_walk_end, drop_null_geometries = FALSE, keep_shapes = TRUE)
   
+  # save for each id
+  save_by_id <- function(variables) {
+    
+    reaches_walk_end1 <- reaches_walk_end %>% filter(id == variables)
+    readr::write_rds(reaches_walk_end1, sprintf("data/sample5/ghsl_%s/reaches/reaches_%s_%s_walkp45.rds", ghsl, ghsl, variables))
+    
+  }
+  # get list of id
+  ids <- reaches_walk_end$id %>% unique()
+  purrr::walk(ids, save_by_id)
   
   
   
@@ -113,8 +115,22 @@ extract_reaches <- function(ghsl) {
                               crs = 4326)
   # join
   reaches_bike_end <- rbind(reaches_bike, reaches_bike_empty) %>% arrange(id)
-  readr::write_rds(reaches_bike, "reaches_bike.rds")
+  
+  # simplify
+  reaches_bike_end <- rmapshaper::ms_simplify(reaches_bike_end,  drop_null_geometries = FALSE, keep_shapes = TRUE)
+  
+  # save for each id
+  save_by_id <- function(variables) {
+    
+    reaches_bike_end1 <- reaches_bike_end %>% filter(id == variables)
+    readr::write_rds(reaches_bike_end1, sprintf("data/sample5/ghsl_%s/reaches/reaches_%s_%s_bikep45.rds", ghsl, ghsl, variables))
+    
+  }
+  # get list of id
+  ids <- reaches_bike_end$id %>% unique()
+  purrr::walk(ids, save_by_id)
   
 }
 
 
+extract_reaches("01445")

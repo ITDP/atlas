@@ -24,9 +24,13 @@ purrr::map2(list_folders, list_folders_updated, file.rename)
 # base_dir <- sprintf("data-raw/data_sample_2022_08_19/city_results/ghsl_region_%s/", ghsl)
 # data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
 world <- dir("data-raw/data_nov18/city_results", full.names = TRUE, recursive = TRUE)
+# world <- c(world, dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE))
 world <- world[grepl("ghsl_region_\\d{5}/indicator_values.gpkg$", world)]
 # fun to open all data
 open_data <- function(file) {
+  
+  
+  # file <- world[37]
   
   a <- st_read(file)
   a <- st_cast(a, "MULTIPOLYGON")
@@ -36,6 +40,18 @@ open_data <- function(file) {
                     across(starts_with("km"), as.numeric),
                     across(starts_with("rtr"), as.numeric)
   )
+  
+  # # identfy origin
+  # origin1 <- stringr::str_extract(file, "sample_3")
+  # a <- a %>% mutate(origin = origin1)
+  # 
+  # if (isTRUE(origin1 == "sample_3")) {
+  #   
+  #   a <- select(a, name, hdc, osmid, admin_level, performance_bike_lts2_45, performance_walk_45)
+  #   
+  # }
+  
+    
   
 }
 data_all <- purrr::map_dfr(world, open_data)
@@ -67,6 +83,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "0634"
   # ghsl <- "0014"
   # ghsl <- "01406"
+  # ghsl <- "01445"
   # ghsl <- "00021"
   
   # base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
@@ -439,7 +456,7 @@ prep_overlays <- function(ghsl) {
 # apply to all cities
 cities_available <- unique(data_all$hdc)
 purrr::walk(cities_available, prep_overlays)
-
+prep_overlays("01445")
 
 
 

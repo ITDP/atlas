@@ -4,7 +4,7 @@ data_ind <- reactive({
   
   # print(input$city)
   req(city$city_code)
-
+  
   
   a <- readRDS(sprintf("../data/sample5/ghsl_%s/indicators_%s.rds", city$city_code, city$city_code))
   # readRDS(sprintf("data/atlas_%s_indicators.rds", city$city_code))
@@ -132,14 +132,37 @@ data_overlays2 <- reactive({
 # filter year when available
 data_ind3 <- reactive({
   
-  req(indicator$mode, input$year)
+  req(indicator$mode, input$year, indicator$type)
   
   # print(indicator$mode)
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
-  cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
-  a <- data_ind1()[cols]
-  colnames(a) <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', 'valor', 'geom')
-  # print(a)
+  
+  if (indicator$type == "performance" & isTRUE(input$regions_grid == "Grid")) {
+    
+    a <- readRDS(sprintf("../data/sample5/ghsl_%s/grid_%s.rds", city$city_code, city$city_code))
+    a$country <- NA
+    a$admin_level <- NA
+    a$admin_level_ordered <- NA
+    a$name <- NA
+    
+    cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
+    
+    a <- a[cols]
+    colnames(a) <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', 'valor', 'geom')
+    
+    
+  } else {
+    
+    
+    # print(indicator$mode)
+    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+    cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
+    a <- data_ind1()[cols]
+    colnames(a) <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', 'valor', 'geom')
+    # print(a)
+    
+    
+  }
   
   return(a)
   

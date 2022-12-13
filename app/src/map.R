@@ -179,7 +179,7 @@ observeEvent(c(indicator$mode, input$year), {
     addPolygons(data = a_country,
                 fillColor = ~pal_countries(valor), color = "black",  weight = 0, # erro nao eh aqui
                 options = pathOptions(clickable = FALSE)
-                ) %>%
+    ) %>%
     # add polygons with the country color
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
     addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
@@ -373,7 +373,7 @@ observeEvent(c(input$admin_level), {
 observeEvent(c(input$map_shape_click), {
   
   # this will only happen when we are beyond the city level
-  req(isTRUE(input$admin_level >= 1))
+  req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
   
   # first, we should create a vector with the selected elements
   ui <- input$map_shape_click$id
@@ -560,7 +560,18 @@ data_ind3_spatial <- reactive({
   
   req(data_ind3(), input$admin_level)
   
-  a <- subset(data_ind3(), admin_level_ordered == input$admin_level)
+  if (indicator$type == "performance"  & input$regions_grid == "Grid") {
+    
+    
+    a <- data_ind3() 
+    
+  } else {
+    
+    a <- subset(data_ind3(), admin_level_ordered == input$admin_level)
+    
+    
+  }
+  
   
   
   # create the color palette
@@ -579,7 +590,8 @@ data_ind3_spatial <- reactive({
 
 observeEvent(c(input$admin_level,
                indicator$mode,
-               input$year), {
+               input$year,
+               input$regions_grid), {
                  
                  
                  
@@ -597,8 +609,8 @@ observeEvent(c(input$admin_level,
                  #             color = "rgba(233, 235, 240, .4)")
                  
                  
-                 print("obs - switch cities new")
-                 print(Sys.time())
+                 # print("obs - switch cities new")
+                 # print(Sys.time())
                  
                  # extract geom type of this indicator
                  geom_type <- unique(data_overlays2()$geom_type)
@@ -619,7 +631,7 @@ observeEvent(c(input$admin_level,
                    # clearMarkers() %>%
                    removeShape(layerId =  osm_selected$oi) %>%
                    removeTiles(layerId =  "tile") %>%
-                   # clearShapes() %>%
+                   clearShapes() %>%
                    clearControls() %>%
                    addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
                    addMapPane("overlay", zIndex = 420)# shown above ames_lines
@@ -642,7 +654,47 @@ observeEvent(c(input$admin_level,
                      addLegend(pal = pal,  "bottomright",values = seq(0, 1000, 50), title = "teste")
                    
                    
-                 } else  {
+                 } else if (isTRUE(indicator$type == "performance")) {  
+                   
+                   map <- map %>%
+                     addPolygons(data = data_ind3_spatial(), 
+                                 fillColor = data_ind3_spatial()$fill,
+                                 fillOpacity = 0.5,
+                                 color = "black",  weight = 0.01, 
+                                 group = "Regions",
+                                 label = "Click to see the reach",
+                                 labelOptions = labelOptions(
+                                   style = list(
+                                     # "color" = "red",
+                                     # "font-family" = "serif",
+                                     # "font-style" = "italic",
+                                     # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                     "font-size" = "12px"
+                                     # "border-color" = "rgba(0,0,0,0.5)"
+                                   )),
+                                 layerId = ~osmid,
+                                 options = pathOptions(pane = "basemap", 
+                                                       clickable = TRUE),
+                                 highlightOptions = highlightOptions(bringToFront = TRUE, opacity = 1, 
+                                                                     weight = 2, color = "black"
+                                                                     # fillColor = 'yellow'
+                                 )
+                                 # label = ~(label)
+                     ) %>%
+                     addLegend(data = data_ind3_spatial(), "bottomright",
+                               pal = colorNumeric(
+                                 palette = "YlOrRd",
+                                 domain = NULL),
+                               values = ~valor,
+                               title = legend_title,
+                               # bins = c(0, 0.25, 0.50, 0.75, 1),
+                               labFormat = legend_value
+                     )
+                   
+                   
+                   
+                   
+                   } else {
                    
                    
                    # print("data_ind3_spatial()")
@@ -700,69 +752,34 @@ observeEvent(c(input$admin_level,
                  
                })
 
-# observeEvent(c(input$indicator), {
-#   
-#   # filter to selected spatial_level
-#   # the highest visualiztion will be aggregated at cities
-#   # create label
-#   # data_ind2_spatial <- data_ind2_spatial %>% dplyr::mutate(label = sprintf("<h3>%s</h3><br/>Click for more information", name))
-#   # data_ind2_spatial$label <- purrr::map_chr(data_ind2_spatial$label, ~htmltools::HTML)
-#   
-#   pal <- colorNumeric(
-#     palette = "viridis",
-#     domain = data_ind2()$valor)
-#   
-#   
-#   
-#   leafletProxy("map", session) %>%
-#     clearMarkers() %>%
-#     clearShapes() %>%
-#     clearControls() %>%
-#     addPolygons(data = data_ind2(), fillColor = ~pal(valor), color = "black",  weight = 1
-#                 # , layerId = ~name
-#                 # label = ~(label)
-#     ) %>%
-#     addLegend(data = data_ind2(), "bottomleft", pal = pal, values = ~valor) %>%
-#     addPolygons(data = data_overlays2(), group = "Overlay") %>%
-#     addLayersControl(overlayGroups = c("Overlay"),
-#                      # position = c("topleft"),
-#                      options = layersControlOptions(collapsed = FALSE))
-#   
-#   
-# })
 
-# print  
-observeEvent(input$print, {
+
+# display reaches when the map is clicked (grid only) ---------------------
+
+observeEvent(c(input$map_shape_click), {
   
-  print("print")
+  # this will only happen when we are beyond the city level
+  req(isTRUE(input$admin_level >= 1), isTRUE(input$regions_grid == "Grid"))
   
-  leafletProxy("map") %>%
-    addEasyprint(options = easyprintOptions(
-      # position = 'topleft',
-      exportOnly = TRUE,
-      # hideClasses = list("leaflet-overlay-pane", "leaflet-popup"),
-      hidden = TRUE, hideControlContainer = FALSE,
-      sizeModes = list("CurrentSize" = "CurrentSize",
-                       "A4Landscape" = "A4Landscape",
-                       "A4Portrait" = "A4Portrait",
-                       "Custom Landscape"=list(
-                         width= 1800,
-                         height= 700,
-                         name = "A custom landscape size tooltip",
-                         className= 'customCssClass'),
-                       "Custom Portrait"=list(
-                         width= 700,
-                         height= 1800,
-                         name = "A custom portrait size tooltip",
-                         className= 'customCssClass1')
-      )
-      # filename = "mapit",
-      # tileLayer = "basemap",
-      # tileWait = 5000,
-      # customWindowTitle = "Some Fancy Title",
-      # customSpinnerClass = "shiny-spinner-placeholder",
-      # spinnerBgColor = "#b48484"
-    )) %>%
-    easyprintMap(sizeModes = "CurrentSize", filename = sprintf("map_%s", indicator$mode))
-  # easyprintMap(sizeModes = scene, filename = scene)
+  # get id of clicked element
+  ui <- input$map_shape_click$id
+  
+  # open file
+  reach <- readRDS(sprintf("../data/sample5/ghsl_%s/reaches/reaches_%s_%s_%s.rds", city$city_code, city$city_code, ui, indicator$mode))
+  
+  leafletProxy("map", session) %>%
+    removeShape(layerId = "reach") %>%
+    addPolygons(data = reach, 
+                # group = "Overlay",
+                opacity = 0.8,
+                options = pathOptions(clickable = FALSE, pane = "overlay"),
+                layerId = "reach",
+                fillColor = "#00AE42", fillOpacity = 0.6,
+                weight = 1, color = "black"
+    ) 
+    
+  
+  
+  
 })
+

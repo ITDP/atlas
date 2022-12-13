@@ -98,3 +98,17 @@ flex-grow: 0;
   display: none !important;
   
 }
+
+
+#regions_grid {
+  margin-top: -20px;
+  font-family: 'Fira Sans', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+        line-height: 14px;
+    letter-spacing: 0.17em;
+    color: #B1B5B9;
+  text-transform: uppercase
+  
+}

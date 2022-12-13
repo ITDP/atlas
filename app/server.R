@@ -281,10 +281,14 @@ function(input, output, session) {
   output$comparison_panel <- renderUI({
     
     
+    # req(input$regions_grid == "Region")
+    
     # req(input$comparison_button == 1)
     # isolate(input$comparison_button)
     
     # print("gua")
+    
+    # if (input$regions_grid == "Region") {
     
     absolutePanel(
       id = "lalala",
@@ -314,6 +318,9 @@ function(input, output, session) {
       highchartOutput('comparison_chart', height = "250px")
     ) %>% hidden()
     
+    # }
+    
+    
   })
   
   
@@ -322,17 +329,14 @@ function(input, output, session) {
   output$spatial_level <- renderUI({
     
     
-    # req(city$times == 1)
     # CALCULATE the spatial levels for each city
     
     # print(paste0("last", spatial_level$last))
     go <- length(unique(data_ind()$admin_level))
     
     
-    # list_spatial_levels <- structure(c("0", "6", "7", "8", "9", "10"),
-    #                                  .Names = c("Mais", "6", "7", "8", "9", "Menos"))
     
-    base <- tagList(
+    tagList(
       conditionalPanel(
         condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
         absolutePanel(
@@ -354,6 +358,8 @@ function(input, output, session) {
                    
           ),
           
+          
+          
           # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
           # , onclick = '$("#comparison_panel").toggle("show");'
           
@@ -367,13 +373,17 @@ function(input, output, session) {
                       # options = list(container = "body")
             )
           ),
-          shinyWidgets::sliderTextInput(inputId = "admin_level",
-                                        choices = seq(1, go),
-                                        label = NULL,
-                                        selected = 1,
-                                        grid = TRUE,
-                                        dragRange = FALSE
-                                        # selected = character(0)
+          radioGroupButtons(inputId = "regions_grid", label = "", choices = c("Regions"), selected = "Regions", justified = TRUE),
+          conditionalPanel(
+            condition = "input.regions_grid == 'Regions'",
+            shinyWidgets::sliderTextInput(inputId = "admin_level",
+                                          choices = seq(1, go),
+                                          label = NULL,
+                                          selected = 1,
+                                          grid = TRUE,
+                                          dragRange = FALSE
+                                          # selected = character(0)
+            )
           )
           # actionButton("grid", label = "", icon = icon("table-cells-large"))
           
@@ -382,10 +392,45 @@ function(input, output, session) {
       )
     )
     
-    # if its a grid base indicator, display the grid option as well
     
     
   })
+  
+  observeEvent(c(indicator$mode), {
+    
+    req(city$city_code != "")
+    
+    # print("indicator$type")
+    # print(indicator$type)
+    
+    if (indicator$type == "performance") {
+      
+      updateRadioGroupButtons(
+        session = session,
+        "regions_grid",
+        choices = c("Regions", "Grid"),
+        selected = "Regions",
+        justified = TRUE
+      )
+      
+      
+    } else {
+      
+      
+      updateRadioGroupButtons(
+        session = session,
+        "regions_grid",
+        choices = "Regions",
+        selected = "Regions"
+      )
+      
+    }
+    
+    
+    
+  })
+  
+  
   
   
   # output$right_panel <- renderUI({
