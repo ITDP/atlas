@@ -190,7 +190,7 @@ observeEvent(c(indicator$mode, input$year), {
     rank$rank_text_world <- rank$rank_text_value
     
   }
-
+  
   
   
 })
@@ -219,7 +219,8 @@ observeEvent(c(city$city_code), {
 # display rank when region or map is clicked
 observeEvent(c(input$map_shape_click, input$indicator_city,
                input$year,
-               input$indicator_bike, input$indicator_walk, input$indicator_transit), label = "rank", {
+               input$indicator_bike, input$indicator_walk, input$indicator_transit,
+               input$regions_grid), label = "rank", {
                  
                  
                  
@@ -260,12 +261,19 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                  
                  
                  # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-                 rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                                           '<div class="title_indicator" style="font-size: 20px;">', 
-                                           rank_indicator$name, '</div>',
-                                           div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                                           p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
-                 )
+                 if (input$regions_grid == "Grid") {
+                   
+                   rank$rank_value <- ""  
+                   
+                 } else { 
+                   
+                   rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                                             '<div class="title_indicator" style="font-size: 20px;">', 
+                                             rank_indicator$name, '</div>',
+                                             div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                                             p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
+                   )
+                 }
                  
                  # print("rank$rank_value")
                  # print(rank$rank_value)
@@ -274,6 +282,11 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                  # the number of ranks will depend on the admin level
                  
                  # this first condition will show the indicator ranks as soon as the city marker is clicked
+                 if (input$regions_grid == "Grid") {
+                   
+                   base_text <- ""  
+                   
+                 } else { 
                  base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS",
                                   tags$button(
                                     id = "tooltip_compare_right",
@@ -282,6 +295,7 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                                     icon("circle-info")
                                     
                                   ))
+                 }
                  
                  if (!is.null(city$city_code) & isTRUE(is.null(rank$admin_level))) {
                    
@@ -299,16 +313,22 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                    
                    rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                                              base_text, a$rank, a$n)
-                   rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                                             '<div class="title_indicator" style="font-size: 20px;">', 
-                                             rank_indicator$name, '</div>',
-                                             div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                                             p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
-                   
-                                             
-                                             
-                                             
-                                             )
+                   if (input$regions_grid == "Grid") {
+                     
+                     rank$rank_value <- ""  
+                     
+                   } else { 
+                     rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                                               '<div class="title_indicator" style="font-size: 20px;">', 
+                                               rank_indicator$name, '</div>',
+                                               div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                                               p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
+                                               
+                                               
+                                               
+                                               
+                     )
+                   }
                    rank$rank_text_initial <- rank$rank_text
                    rank$rank_value_initial <- rank$rank_value
                    # print(paste0("teste: ", rank$rank_text_initial))
@@ -365,7 +385,7 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
 
 # if I change the spatial_level, the right panel should inform the user
 # that they should click on a region to see more things
-observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
+observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$regions_grid), {
   
   # waiter_show()
   # print(paste0("rank admin level"))
@@ -407,12 +427,18 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
     
     
     # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-    rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                              '<div class="title_indicator" style="font-size: 20px;">', 
-                              rank_indicator$name, '</div>',
-                              div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                              p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
-    )
+    if (input$regions_grid == "Grid") {
+      
+      rank$rank_value <- ""  
+      
+    } else { 
+      rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                                '<div class="title_indicator" style="font-size: 20px;">', 
+                                rank_indicator$name, '</div>',
+                                div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                                p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
+      )
+    }
     
     
     
@@ -443,7 +469,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code), {
   
   
   # waiter_hide()
-
+  
 })
 
 
