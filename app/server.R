@@ -7,6 +7,7 @@ atlas_country_ranks <- readRDS("../data/sample5/ranks/rank_country.rds")
 list_indicators <- readRDS("../data/sample5/list_indicators.rds")
 list_osmid_name <- readRDS("../data/sample5/list_osmid_name.rds")
 list_availability <- readRDS("../data/sample5/list_availability.rds")
+list_block <- readRDS("../data/sample5/list_block_density.rds")
 
 
 
@@ -640,7 +641,7 @@ function(input, output, session) {
   
   
   # first, define the city input ----------------
-  city <- reactiveValues(code = NULL, times = -1)
+  city <- reactiveValues(code = NULL, times = -1, osmid = NULL)
   
   observeEvent(c(input$city), {city$city_code <- input$city})
   observeEvent(c(input$map_marker_click), {

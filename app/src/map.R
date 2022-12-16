@@ -313,7 +313,27 @@ observeEvent(c(city$city_code), {
   
   
   # add overlay
-  if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
+  if (indicator$mode == "poptotal") {
+    
+    # get the style id
+    # print("block_id")
+    # print(list_block)
+    # print(city$city_code)
+    # block_id <- subset(list_block, ghsl == city$city_code)
+    block_id <- list_block[list_block$ghsl == city$city_code,]
+    
+    map <- map %>%
+      addMapboxTiles(style_url = block_id$id,
+                     username = "kauebraga",
+                     access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+                     group = "Overlay",
+                     options = pathOptions(clickable = FALSE, pane = "overlay"),
+                     layerId = "overlay_layer",
+      )
+    
+    
+    
+  } else if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
     
     
     map <- map %>%
@@ -540,12 +560,15 @@ observeEvent(c(city$city_code,
                  
                  # rv$prev_city <- if (length(rv$prev_city)== 1) city$city_code else rv$prev_city
                  # print(rv$prev_city)
-                 rv$prev_city <- c(rv$prev_city, city$city_code)
+                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
                  # a <- if(city$city_code == "") NULL
                  # print(rv$prev_city)
                  
+                 
+                 # print("vai1")
                  # print(rv$prev_city)
                  # print("vai")
+                 # print(rv$prev_city)
                  # print(city$city_code)
                  # print(rv$prev_city[length(rv$prev_city)-1])
                  
@@ -594,7 +617,6 @@ observeEvent(c(input$admin_level,
                input$regions_grid), {
                  
                  
-                 
                  # this observer will only run if whe aren't switching cities
                  previous_city <- rv$prev_city[length(rv$prev_city)-1]
                  
@@ -623,131 +645,76 @@ observeEvent(c(input$admin_level,
                  
                  labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
                  
+                 print("ahahah")
+                 print(osm_selected$oi)
+                 
                  map <- leafletProxy("map", session) %>%
                    # clearMarkers() %>%
                    startSpinner(list("lines" = 10, "length" = 10,
                                      "width" = 5, "radius" = 5,
                                      color = "white")) %>%
                    # clearMarkers() %>%
-                   removeShape(layerId =  osm_selected$oi) %>%
+                   # removeShape(layerId =  osm_selected$oi) %>%
                    removeTiles(layerId =  "tile") %>%
-                   clearShapes() %>%
+                   removeShape(layerId = "reach") %>%
+                   clearGroup(group = "Regions") %>%
+                   # clearShapes() %>%
+                   # removeShape(layerId = city$osmid ) %>%
                    clearControls() %>%
                    addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
                    addMapPane("overlay", zIndex = 420)# shown above ames_lines
                  
                  
-                 if (isTRUE(input$indicator_bike == "pnabb")) {
-                   
-                   
-                   # create the color palette
-                   pal <- colorNumeric(
-                     palette = "YlOrRd",
-                     domain = seq(0, 1000, 50))
-                   
-                   map <- map %>%
-                     mapboxapi::addMapboxTiles(style_id = "cl1b8ovgb001b14nuzqlt28sz",
-                                               username = "kauebraga",
-                                               layerId = "tile",
-                                               options = tileOptions(zIndex = 9999,  opacity = 0.8),
-                                               access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ") %>%
-                     addLegend(pal = pal,  "bottomright",values = seq(0, 1000, 50), title = "teste")
-                   
-                   
-                 } else if (isTRUE(indicator$type == "performance")) {  
-                   
-                   map <- map %>%
-                     addPolygons(data = data_ind3_spatial(), 
-                                 fillColor = data_ind3_spatial()$fill,
-                                 fillOpacity = 0.5,
-                                 color = "black",  weight = 0.01, 
-                                 group = "Regions",
-                                 label = "Click to see the reach",
-                                 labelOptions = labelOptions(
-                                   style = list(
-                                     # "color" = "red",
-                                     # "font-family" = "serif",
-                                     # "font-style" = "italic",
-                                     # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-                                     "font-size" = "12px"
-                                     # "border-color" = "rgba(0,0,0,0.5)"
-                                   )),
-                                 layerId = ~osmid,
-                                 options = pathOptions(pane = "basemap", 
-                                                       clickable = TRUE),
-                                 highlightOptions = highlightOptions(bringToFront = TRUE, opacity = 1, 
-                                                                     weight = 2, color = "black"
-                                                                     # fillColor = 'yellow'
-                                 )
-                                 # label = ~(label)
-                     ) %>%
-                     addLegend(data = data_ind3_spatial(), "bottomright",
-                               pal = colorNumeric(
-                                 palette = "YlOrRd",
-                                 domain = NULL),
-                               values = ~valor,
-                               title = legend_title,
-                               # bins = c(0, 0.25, 0.50, 0.75, 1),
-                               labFormat = legend_value
-                     )
-                   
-                   
-                   
-                   
-                   } else {
-                   
-                   
-                   # print("data_ind3_spatial()")
-                   # print(data_ind3_spatial())
-                   
-                   map <- map %>%
-                     addPolygons(data = data_ind3_spatial(), 
-                                 fillColor = data_ind3_spatial()$fill,
-                                 fillOpacity = 0.5,
-                                 color = "black",  weight = 1, 
-                                 group = "Regions",
-                                 label = lapply(labels, htmltools::HTML),
-                                 labelOptions = labelOptions(
-                                   style = list(
-                                     # "color" = "red",
-                                     # "font-family" = "serif",
-                                     # "font-style" = "italic",
-                                     # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-                                     "font-size" = "12px"
-                                     # "border-color" = "rgba(0,0,0,0.5)"
-                                   )),
-                                 layerId = ~osmid,
-                                 options = pathOptions(pane = "basemap"),
-                                 highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, 
-                                                                     weight = 6, color = "black"
-                                                                     # fillColor = 'yellow'
-                                 )
-                                 # label = ~(label)
-                     ) %>%
-                     addLegend(data = data_ind3_spatial(), "bottomright",
-                               pal = colorNumeric(
-                                 palette = "YlOrRd",
-                                 domain = NULL),
-                               values = ~valor,
-                               title = legend_title,
-                               # bins = c(0, 0.25, 0.50, 0.75, 1),
-                               labFormat = legend_value
-                     )
-                   
-                   
-                 } 
+                 # record the values in a list
+                 leaflet_params <- list(
+                   label1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) "Click to see the reach" else lapply(labels, htmltools::HTML),
+                   bring_to_front <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
+                   weigth1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
+                   weigth2 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
+                 
+                   )
+                 
+                 
+                 map <- map %>%
+                   addPolygons(data = data_ind3_spatial(), 
+                               fillColor = data_ind3_spatial()$fill,
+                               fillOpacity = 0.5,
+                               color = "black",  weight = weigth2, 
+                               group = "Regions",
+                               label = label1,
+                               labelOptions = labelOptions(
+                                 style = list(
+                                   # "color" = "red",
+                                   # "font-family" = "serif",
+                                   # "font-style" = "italic",
+                                   # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                   "font-size" = "12px"
+                                   # "border-color" = "rgba(0,0,0,0.5)"
+                                 )),
+                               layerId = ~osmid,
+                               options = pathOptions(pane = "basemap", 
+                                                     clickable = TRUE),
+                               highlightOptions = highlightOptions(bringToFront = bring_to_front, opacity = 1, 
+                                                                   weight = weigth1, color = "black"
+                                                                   # fillColor = 'yellow'
+                               )
+                               # label = ~(label)
+                   ) %>%
+                   addLegend(data = data_ind3_spatial(), "bottomright",
+                             pal = colorNumeric(
+                               palette = "YlOrRd",
+                               domain = NULL),
+                             values = ~valor,
+                             title = legend_title,
+                             # bins = c(0, 0.25, 0.50, 0.75, 1),
+                             labFormat = legend_value
+                   )
+                 
                  
                  map %>% stopSpinner()
                  
                  osm_selected$oi <- data_ind3_spatial()$osmid
                  
-                 # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')
-                 # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')
-                 
-                 # }
-                 
-                 # waiter_hide()
-                 # v$rng1 <- city$city_code
                  
                  
                })
@@ -777,7 +744,7 @@ observeEvent(c(input$map_shape_click), {
                 fillColor = "#00AE42", fillOpacity = 0.6,
                 weight = 1, color = "black"
     ) 
-    
+  
   
   
   

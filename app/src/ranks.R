@@ -311,6 +311,9 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                    
                    a <- subset(filter_rank(), osmid == ui & rank_type == "world")
                    
+                   print("oiii")
+                   print(a)
+                   
                    rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                                              base_text, a$rank, a$n)
                    if (input$regions_grid == "Grid") {
@@ -354,11 +357,13 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                    a1 <- subset(filter_rank(), osmid == ui & rank_type == "world")
                    a2 <- subset(filter_rank(), osmid == ui & rank_type == "metro")
                    
+                   print("oiii")
+                   print(a1)
                    
                    text1 <- sprintf('%s  <div class="text_compare"  style="padding-bottom: 5px">Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
                                     base_text, a1$rank, a1$n)
                    text2 <- sprintf('<div class="text_compare" style="padding-top: 0px";>Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the metro</div>', 
-                                    a3$rank, a3$n)
+                                    a2$rank, a2$n)
                    
                    rank$rank_text <- paste0(text1, text2)
                    
@@ -419,15 +424,15 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
       
     } else round(rank_indicator$valor)
     
-    print("no idea")
-    print(rank_indicator$name)
-    print(format_indicator_value)
-    print(format_indicator_unit)
+    # print("no idea")
+    # print(rank_indicator$name)
+    # print(format_indicator_value)
+    # print(format_indicator_unit)
     
     
     
     # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-    if (input$regions_grid == "Grid") {
+    if (isTRUE(input$regions_grid == "Grid")) {
       
       rank$rank_value <- ""  
       

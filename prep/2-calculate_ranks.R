@@ -31,6 +31,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "1445" # recife
   # ghsl <- "1445" # recife
   # ghsl <- "0634"
+  # ghsl <- "12080"
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro

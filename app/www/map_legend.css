@@ -5,7 +5,7 @@
     max-width: 200px; */
     width:150px;
     /*height:250px;*/
-font-family: 'Franklin Gothic Medium';
+font-family: 'Fira Sans', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 14px;
@@ -23,7 +23,7 @@ color: #F8F9FA;
 
 
 .legend svg text {
-    font-family: 'Franklin Gothic Medium';
+    font-family: 'Fira Sans', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 13px;
@@ -36,7 +36,7 @@ fill: #F8F9FA;
 
 
 .info {
-      font-family: 'Franklin Gothic Medium';
+      font-family: 'Fira Sans', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 13px;

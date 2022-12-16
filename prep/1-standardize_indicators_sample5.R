@@ -85,6 +85,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "01406"
   # ghsl <- "01445"
   # ghsl <- "00021"
+  # ghsl <- "12080"
   
   # base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
   
@@ -196,7 +197,7 @@ prep_data <- function(ghsl) {
     # mutate(a3 = stringr::str_extract(name, "\\[[:upper:]{3}\\]")) %>%
     # mutate(a3 = gsub(pattern = "\\[|\\]", "", a3)) %>%
     # bring a2
-    left_join(select(maps::iso3166, a3, country = ISOname), by = c("a3")) %>%
+    left_join(select(maps::iso3166, a3, country = ISOname) %>% distinct(a3, .keep_all = TRUE), by = c("a3")) %>%
     tidyr::fill(a3, country) %>%
     ungroup()
   

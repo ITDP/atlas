@@ -5,6 +5,7 @@ library(httr)
 library(data.table)
 library(stringr)
 library(purrr)
+library(sf)
 
 # get all cities with blockdensity indicator
 files <- dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE)
@@ -12,11 +13,14 @@ files <- files[files %like% "blockslatlon.geojson"]
 # extract the codes
 codes <- stringr::str_extract(string = files, pattern = "\\d{5}")
 
+a <- st_read("data-raw/sample_3/ghsl_region_00621/geodata/blockslatlon.geojson")
+mapview::mapview(a)
+
 
 # Use tippecanoe to make a dynamic .mbtiles file that visualizes large data appropriately
 # at any zoom level.  sf objects can also be used as input!
 # (requires installing tippecanoe on your machine separately first)
-map2(files, sprintf("blocks_%s.mbtiles", codes), tippecanoe, layer_name = "block_density")
+pmap(list(files, sprintf("blocks_%s.mbtiles", codes), layer_name = sprintf("block_density_%s", codes)), tippecanoe)
 
 # tippecanoe(input = "Texas.geojson",
 #            output = "Texas.mbtiles",
@@ -24,17 +28,20 @@ map2(files, sprintf("blocks_%s.mbtiles", codes), tippecanoe, layer_name = "block
 
 # Upload the generated tileset to your Mapbox account (requires a Mapbox secret access token
 # to be set as an environment variable)
-upload_tiles(input = "Texas.mbtiles", username = "kwalkertcu",
+upload_tiles(input = "Texas.mbtiles", username = "kauebraga",
              tileset_id = "TX_buildings",
-             multipart = TRUE)
+             multipart = TRUE,
+             access_token = )
 
 upload_tiles1 <- function(input1, tileset_id1, username1, ...) {
   
-  upload_tiles(input = input, tileset_id = tileset_id, username = username, ...)
+  upload_tiles(input = input1, tileset_id = tileset_id1, username = username1, ...)
   
 }
 
-map2()
+map2(sprintf("blocks_%s.mbtiles", codes), sprintf("blocks_%s", codes), upload_tiles1,
+     username1 = "kauebraga", multipart = TRUE,
+     access_token = "sk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNsYnBvcnVzcTA2cXIzb3F0YWEwZ2dkZWoifQ.0AEsn0QCTPue4U0dwNZ21Q")
 
 
 # Head over to Mapbox Studio when the upload is done (check the status with
