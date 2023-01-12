@@ -12,7 +12,7 @@ library(highcharter)
 library(leaflet.extras2)
 library(shinyBS)
 library(shinycssloaders)
-library(mapboxapi)
+# library(mapboxapi)
 
 
 source("fun/accordion_input.R")
