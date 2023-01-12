@@ -31,14 +31,15 @@ data_overlays <- reactive({
   
   req(city$city_code)
   
-  a <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
+  if (indicator$mode != "density") {
+    
+    
+    a <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
+    
+    return(a)
+  }
   
   
-  
-  # print("head(a)")
-  # print(head(a))
-  
-  return(a)
   
   
 })
@@ -97,33 +98,36 @@ data_ind2 <- reactive({
 data_overlays2 <- reactive({
   
   req(indicator$mode, input$year)
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
-  # pattern <- sprintf("%s_%s_2019", indicator$type, indicator$mode)
-  a <- subset(data_overlays(), indicator == pattern)
   
-  # print(a)
-  
-  
-  # open geommetries
-  geom_type <- unique(a$geom_type)
-  
-  if(geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
+  if (indicator$mode != "density") {
     
-    overlay_geom$polygon  <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/%s/overlays_polygons_%s_%s.rds", 
-                                             city$city_code, indicator$mode, city$city_code, indicator$mode))
+    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+    # pattern <- sprintf("%s_%s_2019", indicator$type, indicator$mode)
+    a <- subset(data_overlays(), indicator == pattern)
     
-  } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
+    # print(a)
     
-    overlay_geom$line <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/%s/overlays_lines_%s_%s.rds", 
-                                         city$city_code, indicator$mode, city$city_code, indicator$mode))
+    
+    # open geommetries
+    geom_type <- unique(a$geom_type)
+    
+    if(geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
+      
+      overlay_geom$polygon  <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/%s/overlays_polygons_%s_%s.rds", 
+                                               city$city_code, indicator$mode, city$city_code, indicator$mode))
+      
+    } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
+      
+      overlay_geom$line <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/%s/overlays_lines_%s_%s.rds", 
+                                           city$city_code, indicator$mode, city$city_code, indicator$mode))
+      
+    }
+    
+    
+    
+    return(a)
     
   }
-  
-  
-  # print("a")
-  # print(overlay_geom$polygon)
-  
-  return(a)
   
   
 })
@@ -174,6 +178,9 @@ data_ind3 <- reactive({
 data_overlays_sf <- reactive({
   
   req(indicator$mode)
+  
+  if (indicator$mode != "density") {
+  
   req(data_overlays2())
   # print(head(data_overlays2()))
   
@@ -192,6 +199,12 @@ data_overlays_sf <- reactive({
     data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$polygon, by = "indicator") %>% sf::st_sf()
     
   } else data_overlays_sf <- dplyr::left_join(data_overlays2(), overlay_geom$line, by = "indicator") %>% sf::st_sf() 
+  
+  } else {
+    
+    data_overlays_sf <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/population/overlay_population_%s_%s.rds", city$city_code, city$city_code, input$year))
+    
+  }
   
   
   # print("head(data_overlays_sf)")

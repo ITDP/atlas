@@ -304,12 +304,6 @@ observeEvent(c(city$city_code), {
   
   
   
-  #   htmlwidgets::onRender('
-  #     function() {
-  #         $(".leaflet-control-layers").prepend("<label>My Epic Title</label>");
-  #     }
-  # ')
-  
   
   
   # add overlay
@@ -321,6 +315,7 @@ observeEvent(c(city$city_code), {
     # print(city$city_code)
     # block_id <- subset(list_block, ghsl == city$city_code)
     block_id <- list_block[list_block$ghsl == city$city_code,]
+    # print(block_id)
     
     map <- map %>%
       addMapboxTiles(style_url = block_id$id,
@@ -329,11 +324,34 @@ observeEvent(c(city$city_code), {
                      group = "Overlay",
                      options = pathOptions(clickable = FALSE, pane = "overlay"),
                      layerId = "overlay_layer",
-      )
+      ) %>%
+      # addLayersControl(
+      #   overlayGroups = c("Regions", "Overlay"),
+      #   baseGroups = c("Dark", "Light", "Satellite"),
+      #   options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup("Regions")
     
     
     
-  } else if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
+  } else if(indicator$mode == "density") {
+    
+    map <- map %>%
+      # clearGroup(group = "Regions") %>%
+      addRasterImage(x = data_overlays_sf(),
+                     group = "Overlay",
+                     layerId = "overlay_layer",
+                     opacity = 0.5,
+                     colors = 'Reds') %>%
+      # addLayersControl(
+      #   overlayGroups = c("Regions", "Overlay"),
+      #   baseGroups = c("Dark", "Light", "Satellite"),
+      #   options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup("Regions")
+    
+    
+    
+    
+  } else if(geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
     
     
     map <- map %>%
@@ -388,6 +406,7 @@ observeEvent(c(input$admin_level), {
   element$selected <- NULL
   
 })
+
 
 
 observeEvent(c(input$map_shape_click), {
@@ -498,7 +517,7 @@ observeEvent(c(indicator$mode, input$year), {
                       "width" = 5, "radius" = 5,
                       color = "white")) %>%
     # clearMarkers() %>%
-    removeShape(layerId = "overlay_layer") %>%
+    clearGroup(group =  "Overlay") %>%
     addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
     addMapPane("overlay", zIndex = 420) %>% # shown above ames_lines
     removeLayersControl()
@@ -508,18 +527,59 @@ observeEvent(c(indicator$mode, input$year), {
   # print(geom_type)
   
   # add overlay
-  if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
+  if (indicator$mode == "poptotal") {
+    
+    # get the style id
+    # print("block_id")
+    # print(list_block)
+    # print(city$city_code)
+    # block_id <- subset(list_block, ghsl == city$city_code)
+    block_id <- list_block[list_block$ghsl == city$city_code,]
+    # print(block_id)
+    
+    map <- map %>%
+      addMapboxTiles(style_url = block_id$id,
+                     username = "kauebraga",
+                     access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+                     group = "Overlay",
+                     options = pathOptions(clickable = FALSE, pane = "overlay"),
+                     layerId = "overlay_layer",
+      ) %>%
+      addLayersControl(overlayGroups = c("Regions","Overlay"),
+                       baseGroups = c("Dark", "Light", "Satellite"),
+                       options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup("Regions")
+    
+  } else if(indicator$mode == "density") {
+    
+    map <- map %>%
+      addRasterImage(x = data_overlays_sf(),
+                     group = "Overlay",
+                     # options = pathOptions(clickable = FALSE, pane = "overlay"),
+                     layerId = "overlay_layer",
+                     opacity = 0.5,
+                     colors = "Reds") %>%
+      addLayersControl(overlayGroups = c("Regions", "Overlay"),
+                       baseGroups = c("Dark", "Light", "Satellite"),
+                       options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup("Regions")
+    
+    
+    
+    
+  } else if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
     
     
     map <- map %>%
-      addPolygons(data = data_overlays_sf(), group = "Overlay", opacity = 0.8,
+      addPolygons(data = data_overlays_sf(), 
+                  group = "Overlay", opacity = 0.8,
                   options = pathOptions(clickable = FALSE, pane = "overlay"),
                   layerId = "overlay_layer",
                   fillColor = "#00AE42", fillOpacity = 0.6,
                   weight = 1, color = "black"
       ) %>%
       # addLegend("bottomleft", pal = pal, values = ~valor) %>%
-      addLayersControl(overlayGroups = c("Overlay"),
+      addLayersControl(overlayGroups = c("Regions","Overlay"),
                        baseGroups = c("Dark", "Light", "Satellite"),
                        options = layersControlOptions(collapsed = FALSE))
     
@@ -531,7 +591,7 @@ observeEvent(c(indicator$mode, input$year), {
       addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE),
                    layerId = "overlay_layer") %>%
       # addLegend("bottomleft", pal = pal, values = ~valor) %>%
-      addLayersControl(overlayGroups = c("Overlay"),
+      addLayersControl(overlayGroups = c("Regions", "Overlay"),
                        baseGroups = c("Dark", "Light", "Satellite"),
                        options = layersControlOptions(collapsed = FALSE))
     
@@ -645,8 +705,8 @@ observeEvent(c(input$admin_level,
                  
                  labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
                  
-                 print("ahahah")
-                 print(osm_selected$oi)
+                 # print("ahahah")
+                 # print(osm_selected$oi)
                  
                  map <- leafletProxy("map", session) %>%
                    # clearMarkers() %>%
@@ -655,7 +715,7 @@ observeEvent(c(input$admin_level,
                                      color = "white")) %>%
                    # clearMarkers() %>%
                    # removeShape(layerId =  osm_selected$oi) %>%
-                   removeTiles(layerId =  "tile") %>%
+                   # removeTiles(layerId =  "tile") %>%
                    removeShape(layerId = "reach") %>%
                    clearGroup(group = "Regions") %>%
                    # clearShapes() %>%
@@ -671,8 +731,8 @@ observeEvent(c(input$admin_level,
                    bring_to_front <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
                    weigth1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
                    weigth2 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
-                 
-                   )
+                   
+                 )
                  
                  
                  map <- map %>%
@@ -696,7 +756,7 @@ observeEvent(c(input$admin_level,
                                                      clickable = TRUE),
                                highlightOptions = highlightOptions(bringToFront = bring_to_front, opacity = 1, 
                                                                    weight = weigth1, color = "black"
-                                                                   # fillColor = 'yellow'
+                                                                     # fillColor = 'yellow'
                                )
                                # label = ~(label)
                    ) %>%
@@ -709,6 +769,8 @@ observeEvent(c(input$admin_level,
                              # bins = c(0, 0.25, 0.50, 0.75, 1),
                              labFormat = legend_value
                    )
+                 
+                 if (!(indicator$mode %in% c("poptotal", "density"))) map <- map %>% showGroup("Regions")
                  
                  
                  map %>% stopSpinner()

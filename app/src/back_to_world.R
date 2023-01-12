@@ -104,8 +104,8 @@ observeEvent(c(input$back_to_world), {
   
   
   # value
-  print(paste0("type: ", indicator$type))
-  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+  # print(paste0("type: ", indicator$type))
+  pattern <- sprintf("%s_%s", indicator$type, indicator$mode, "2022")
   # print(pattern)
   cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
   # print(cols)
