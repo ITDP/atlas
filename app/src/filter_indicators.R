@@ -202,7 +202,7 @@ data_overlays_sf <- reactive({
   
   } else {
     
-    data_overlays_sf <- readRDS(sprintf("../data/sample5/ghsl_%s/overlays/population/overlay_population_%s_%s.rds", city$city_code, city$city_code, input$year))
+    data_overlays_sf <- raster(sprintf("../data/sample5/ghsl_%s/overlays/population/overlay_population_%s_%s.tif", city$city_code, city$city_code, input$year))
     
   }
   

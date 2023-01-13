@@ -11,6 +11,7 @@ extract_pop <- function(ghsl) {
   # ghsl <- "00561"
   # ghsl <- "01445"
   # ghsl <- "00021"
+  # ghsl <- "01406"
   
   # salvar por ano
   
@@ -18,11 +19,17 @@ extract_pop <- function(ghsl) {
     
     # year <- 2020
     
-    a <- raster(sprintf("data-raw/data_nov18/city_results/ghsl_region_%s/geodata/population/pop_%s.tif", ghsl, year))
+    # a <- raster(sprintf("data-raw/data_nov18/city_results/ghsl_region_%s/geodata/population/pop_%s.tif", ghsl, year))
+    
+    year1 <- ifelse(year == 2020, 2022, year)
+    
+    origin_file <- sprintf("data-raw/data_nov18/city_results/ghsl_region_%s/geodata/population/pop_%s.tif", ghsl, year)
     
     dir.create(sprintf("data/sample5/ghsl_%s/overlays/population", ghsl))
     
-    readr::write_rds(a, sprintf("data/sample5/ghsl_%s/overlays/population/overlay_population_%s_%s.rds", ghsl, ghsl, year))
+    # readr::write_rds(a, sprintf("data/sample5/ghsl_%s/overlays/population/overlay_population_%s_%s.rds", ghsl, ghsl, year))
+    file.copy(from = origin_file,
+              to = sprintf("data/sample5/ghsl_%s/overlays/population/overlay_population_%s_%s.tif", ghsl, ghsl, year1))
   }
   
   # aplly years
