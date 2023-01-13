@@ -221,14 +221,21 @@ function(input, output, session) {
   
   
   # onclick("comparison_button", runjs("$( '#lalala' ).toggle();"))
+  
+  
+  # show the comparison panel when the user clicks on the compare panel -------------------------
   onclick("comparison_button", toggle("lalala"))
   
   
+  
+  # hides the comparison button when the user is in the global view -----------------------------
   observeEvent(c(city$city_code), {
     
     req(city$city_code != "", city$times == 0)
     
-    show("compare_panel")
+    # print("BEEEEEEEEEEEEEEEM")
+    
+    shinyjs::show("compare_panel")
     
     
   }, once = FALSE)
@@ -322,6 +329,8 @@ function(input, output, session) {
     
     
     # CALCULATE the spatial levels for each city
+    
+    req(input$city != "")
     
     # print(paste0("last", spatial_level$last))
     go <- length(unique(data_ind()$admin_level))

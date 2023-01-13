@@ -22,7 +22,7 @@ list_city <- structure(c(
 ), 
 .Names = c(
   # "Block Density", 
-  "Population Density"))
+  "Population Density&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"))
 
 
 fluidPage(
@@ -198,7 +198,7 @@ fluidPage(
     absolutePanel(
       id = "compare_panel",
       class = "spatial_level",
-      style = "background: #00AE42; display: none;",
+      style = "background: #00AE42; display: none",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
@@ -212,7 +212,7 @@ fluidPage(
       # ),
       actionButton(inputId = "comparison_button", 
                    label = "COMPARE",
-                   style = "display: inline; padding-right: 2px;"),
+                   style = "display: inline; padding-right: 2px; padding-left: 2px;"),
       tags$button(
         id = "tooltip_compare",
         class="btn btn-light btn-xs",

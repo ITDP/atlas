@@ -61,14 +61,14 @@ data_all <- data_all %>% mutate(hdc = stringr::str_pad(hdc, width = 5, side = "l
 
 # remove indicators that we wont use
 data_all <- data_all %>%
-  select(-starts_with("rtr_")) %>%
-  select(-starts_with("stns_")) %>%
-  select(-starts_with("km_")) %>%
+  dplyr::select(-starts_with("rtr_")) %>%
+  dplyr::select(-starts_with("stns_")) %>%
+  dplyr::select(-starts_with("km_")) %>%
   # select(-performance_walk_30, -performance_walk_60, -performance_bike_lts1_30, -performance_bike_lts1_45,
   # -performance_bike_lts1_60, -performance_bike_lts2_30, -performance_bike_lts2_60) %>%
   # select(-density) %>%
   # select(-blockmean_density) %>%
-  select(-recording_time)
+  dplyr::select(-recording_time)
 
 
 
@@ -83,7 +83,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "0634"
   # ghsl <- "0014"
   # ghsl <- "01406"
-  # ghsl <- "01445"
+  # ghsl <- "01445" rec
   # ghsl <- "00021"
   # ghsl <- "12080"
   
@@ -109,7 +109,7 @@ prep_data <- function(ghsl) {
   data <- left_join(data, admin_level_oder, by = "admin_level")
   
   # organize columns
-  data <- data %>% select(hdc, a3 = country, osmid, name, admin_level, admin_level_ordered, everything())
+  data <- data %>% dplyr::select(hdc, a3 = country, osmid, name, admin_level, admin_level_ordered, everything())
   
   
   # table(data$admin_level)
@@ -197,20 +197,20 @@ prep_data <- function(ghsl) {
     # mutate(a3 = stringr::str_extract(name, "\\[[:upper:]{3}\\]")) %>%
     # mutate(a3 = gsub(pattern = "\\[|\\]", "", a3)) %>%
     # bring a2
-    left_join(select(maps::iso3166, a3, country = ISOname) %>% distinct(a3, .keep_all = TRUE), by = c("a3")) %>%
+    left_join(dplyr::select(maps::iso3166, a3, country = ISOname) %>% distinct(a3, .keep_all = TRUE), by = c("a3")) %>%
     tidyr::fill(a3, country) %>%
     ungroup()
   
   # select columns
   data <- data %>%
-    select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, everything())
+    dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, everything())
   
   # rename indicators
   colnames(data) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", ind_columns_new,"geom")
   
   # arrange data correctly
   data <- data %>%
-    select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
+    dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
            starts_with("city_poptotal"),
            starts_with("city_density"),
            starts_with("bike_pnab"),
@@ -233,7 +233,13 @@ prep_data <- function(ghsl) {
   data$admin_level <- as.character(data$admin_level)
   data$admin_level_ordered <- as.character(data$admin_level_ordered)
   
-  
+  # exception for recife
+  if (ghsl == "01445") {
+    
+    data$country <- "Brazil"
+    data$a3 <- "BRA"
+    
+  }
   
   # simplify data
   data <- st_make_valid(data)
@@ -790,6 +796,8 @@ a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
 # group_by(hdc) %>%
 # summarise(ind = first(ind))
 # select(hdc, ind, year)
+
+# add recife manually
 
 readr::write_rds(a1, "data/sample5/list_availability.rds")
 
