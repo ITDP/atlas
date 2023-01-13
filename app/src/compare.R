@@ -55,8 +55,6 @@ ind_compare <- reactive({
     a <- readRDS(sprintf("../data/sample5/comp/indicators_compare_%s_%s.rds",
                          level, pattern))
     
-    print(a)
-    
     return(a)
     
   
@@ -77,7 +75,7 @@ output$comparison_chart <- renderHighchart({
   
   value_city <- subset(ind_city(), osmid == ui)
   
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
   format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
   
@@ -170,7 +168,7 @@ observeEvent(c(input$city_compare), {
   
   value_compare <- subset(ind_compare(), osmid == tail(ordered_colnames(), 1))
   
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
   format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
   
@@ -369,25 +367,43 @@ observeEvent(c(input$maximize_comparison), {
   # print(al)
   
   # first, select only the ones that are available for the indicator in question
-  hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+  hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
+  hdc_available <- hdc_available1$hdc
   
   # fisr, filter the level
   choices_comparison <- subset(list_osmid_name, admin_level == al)
   # get current country
   country_current <- unique(data_ind3_spatial()$country)
+  # hdc_current <- 
+  # get current hdc
+  # hdc_options <- subset(list_osmid_name, admin_level == 0)
+  # print("hdc")
+  # print(hdc_current)
   
   # filter hdc with the indicators available
   choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
   # get countries
   countries <- unique(choices_comparison$country)
-  # get options to show in the comparison
-  choices_comparison <- subset(choices_comparison, country == country_current)
+  # get hdc from that country
+  hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == 0 & hdc %in% hdc_available)
+  # get options to show in the comparison - final
+  choices_comparison <- subset(choices_comparison, hdc == city$city_code)
+  # print(choices_comparison)
   # remove the osmid that is already being shown
   # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
+  
+  
   # extract values
-  choices_values <- choices_comparison$osmid
-  choices_names <- choices_comparison$name
-  names(choices_values) <- choices_names
+  
+  # for the hdc available
+  hdc_comparison_values <- hdc_comparison$osmid
+  hdc_comparison_names <- hdc_comparison$name
+  names(hdc_comparison_values) <- hdc_comparison_names
+  # for the final selection
+  choices_comparison_values <- choices_comparison$osmid
+  choices_comparison_names <- choices_comparison$name
+  names(choices_comparison_values) <- choices_comparison_names
+  
   
   
   
@@ -404,15 +420,29 @@ observeEvent(c(input$maximize_comparison), {
                                     choices = countries,
                                     selected = country_current,
                                     multiple = FALSE,
+                                    width = "200px",
                                     options = shinyWidgets::pickerOptions(size = 15,
                                                                           title = "Search for a country...",
                                                                           liveSearch = TRUE,
                                                                           liveSearchPlaceholder = "Search...")
           )),
       div(style="display:inline-block",
+          shinyWidgets::pickerInput(inputId = "city_compare_hdc",
+                                    label = NULL,
+                                    choices = hdc_comparison_values,
+                                    selected = city$city_code,
+                                    width = "200px",
+                                    multiple = FALSE,
+                                    options = shinyWidgets::pickerOptions(size = 15,
+                                                                          title = "Search for a region...",
+                                                                          liveSearch = TRUE,
+                                                                          liveSearchPlaceholder = "Search...")
+          )),
+      div(style="display:inline-block",
           shinyWidgets::pickerInput(inputId = "city_compare1",
                                     label = NULL,
-                                    choices = choices_values,
+                                    choices = choices_comparison_values,
+                                    width = "200px",
                                     multiple = TRUE,
                                     options = shinyWidgets::pickerOptions(size = 15,
                                                                           # iconBase = "fa",
@@ -472,35 +502,74 @@ observeEvent(c(input$city_compare_country), {
   
   # first, select only the ones that are available for the indicator in question
   hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+  # get hdc from that country
+  hdc_comparison <- subset(list_osmid_name, country == input$city_compare_country & admin_level == 0 & hdc %in% hdc_available)
   
-  # fisr, filter the level
-  choices_comparison <- subset(list_osmid_name, admin_level == al)
+  # for the hdc available
+  hdc_comparison_values <- hdc_comparison$osmid
+  hdc_comparison_names <- hdc_comparison$name
+  names(hdc_comparison_values) <- hdc_comparison_names
   
-  
-  # fisr, filter the level
-  choices_comparison <- subset(list_osmid_name, admin_level == al)
-  
-  # get options to show in the comparison
-  choices_comparison <- subset(choices_comparison, country == input$city_compare_country)
-  # filter hdc with the indicators available
-  choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
-  # remove the osmid that is already being shown
-  # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
-  # extract values
-  choices_values <- choices_comparison$osmid
-  choices_names <- choices_comparison$name
-  names(choices_values) <- choices_names
-  
-  comparison$choices <- choices_values
+  # comparison$choices <- choices_comparison_values
   
   
   updatePickerInput(
     session = session,
-    inputId = "city_compare1",
-    choices = comparison$choices)
+    inputId = "city_compare_hdc",
+    choices = hdc_comparison_values)
+  
+  
+  # updatePickerInput(
+  #   session = session,
+  #   inputId = "city_compare1",
+  #   choices = hdc_comparison_values)
   
   
 })
+
+
+
+
+observeEvent(c(input$city_compare_hdc), {
+
+  # get the admin level original
+  al <- unique(data_ind3_spatial()$admin_level)
+
+  # print("al")
+  # print(al)
+
+  # first, select only the ones that are available for the indicator in question
+  hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+
+  # fisr, filter the level
+  choices_comparison <- subset(list_osmid_name, admin_level == al)
+
+  # get options to show in the comparison
+  choices_comparison <- subset(choices_comparison, country == input$city_compare_country)
+  # filter hdc with the indicators available
+  choices_comparison <- subset(choices_comparison, hdc == input$city_compare_hdc)
+  # remove the osmid that is already being shown
+  # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
+
+  # extract values
+  choices_comparison_values <- choices_comparison$osmid
+  choices_comparison_names <- choices_comparison$name
+  names(choices_comparison_values) <- choices_comparison_names
+
+  comparison$choices <- choices_comparison_values
+
+  updatePickerInput(
+    session = session,
+    inputId = "city_compare1",
+    choices = comparison$choices)
+
+
+})
+
+
+
+
+
 
 # use reactive to get and sort the selected terms in the order of selection
 ordered_colnames1 <- reactive({
@@ -522,7 +591,7 @@ observeEvent(c(input$city_compare1), {
   
   value_compare <- subset(ind_compare(), osmid == tail(ordered_colnames1(), 1))
   
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
   format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
   
@@ -613,12 +682,12 @@ observeEvent(c(input$reset_graph), {
 })
 
 
-observeEvent(c(input$city_compare1), {
-  
-  print("ordered_colnames1()")
-  print(ordered_colnames1())
-  
-}, ignoreNULL = FALSE)
+# observeEvent(c(input$city_compare1), {
+#   
+#   print("ordered_colnames1()")
+#   print(ordered_colnames1())
+#   
+# }, ignoreNULL = FALSE)
 
 
 output$download_button_compare <- renderUI({
