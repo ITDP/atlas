@@ -97,9 +97,9 @@ observeEvent(c(indicator$mode, input$year), {
     # print(head(filter_rank()))
     # print(spatial_level_value$last)
     
-    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     
-    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
     format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     
@@ -241,7 +241,7 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                  # print(spatial_level_value$last)
                  
                  
-                 format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+                 format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
                  format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
                  format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
                  
@@ -408,7 +408,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
   if (isTRUE(rank$admin_level == 1)) {
     
     
-    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
     format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     

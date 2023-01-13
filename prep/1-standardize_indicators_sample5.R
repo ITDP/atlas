@@ -457,7 +457,6 @@ prep_overlays <- function(ghsl) {
 # apply to all cities
 cities_available <- unique(data_all$hdc)
 purrr::walk(cities_available, prep_overlays)
-prep_overlays("01445")
 
 
 

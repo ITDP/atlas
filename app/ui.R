@@ -14,10 +14,15 @@ list_transit <- structure(c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"),
                             "People Near Rapid Transit - BRT&nbsp;&nbsp;&nbsp;"))
 
 list_performance <- structure(c("bikep45", "walkp45"), 
-                              .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
+                              .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
 
-list_city <- structure(c("density"), 
-                       .Names = c("Population Density"))
+list_city <- structure(c(
+  # "poptotal", 
+  "density"
+), 
+.Names = c(
+  # "Block Density", 
+  "Population Density"))
 
 
 fluidPage(

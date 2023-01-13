@@ -227,7 +227,6 @@ function(input, output, session) {
   observeEvent(c(city$city_code), {
     
     req(city$city_code != "", city$times == 0)
-    print("UUUUUUIII")
     
     show("compare_panel")
     
@@ -282,14 +281,6 @@ function(input, output, session) {
   output$comparison_panel <- renderUI({
     
     
-    # req(input$regions_grid == "Region")
-    
-    # req(input$comparison_button == 1)
-    # isolate(input$comparison_button)
-    
-    # print("gua")
-    
-    # if (input$regions_grid == "Region") {
     
     absolutePanel(
       id = "lalala",
