@@ -29,7 +29,7 @@ prep_data <- function(ghsl) {
   # ghsl <- 1022
   # ghsl <- "0621"
   # ghsl <- "1445" # recife
-  # ghsl <- "1445" # recife
+  # ghsl <- "01445" # recife
   # ghsl <- "0634"
   # ghsl <- "12080"
   
@@ -52,6 +52,21 @@ prep_data <- function(ghsl) {
     ungroup()
   
   # in the country
+  # get country
+  rank_country <- data_world %>%
+    # filter only the coyuntry
+    filter(country == unique(data$country)) %>%
+    # somente o ultimo nivel (geralmente de jurisdiction) nao va ser passivel de comparacao com o resto do mundo
+    filter(admin_level != 10) %>%
+    # delete indicators that are NA
+    group_by(admin_level) %>%
+    # calculate size of each group
+    mutate(across(city_poptotal_1975:last_col(), ~rank(-.x, ties = "first", na.last = "keep"))) %>%
+    # create totals - NEED FIX
+    mutate(n = n()) %>%
+    mutate(rank_type = "country") %>%
+    ungroup()
+  
   
   # metro
   rank_city_metro <- data %>%
@@ -65,7 +80,7 @@ prep_data <- function(ghsl) {
     mutate(rank_type = "metro")
   
   # bind the comparions
-  rank_complete <- rbind(rank_world, rank_city_metro)
+  rank_complete <- rbind(rank_world, rank_country, rank_city_metro)
   
   
   
