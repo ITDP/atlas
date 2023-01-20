@@ -1,6 +1,8 @@
 # open boundaries
 atlas_city_markers <- readRDS("../data/sample5/atlas_city_markers.rds")
 atlas_country <- readRDS("../data/sample5/atlas_country_polygons.rds")
+# filter only countries that have indidcators
+atlas_country <- subset(atlas_country, !is.na(bike_pnpb_2022))
 # country rank
 atlas_country_ranks <- readRDS("../data/sample5/ranks/rank_country.rds")
 # list indicators
@@ -374,7 +376,10 @@ function(input, output, session) {
                       # options = list(container = "body")
             )
           ),
-          radioGroupButtons(inputId = "regions_grid", label = "", choices = c("Regions"), selected = "Regions", justified = TRUE),
+          conditionalPanel(
+            condition = "output.panelStatus",
+            radioGroupButtons(inputId = "regions_grid", label = "", choices = c("Regions"), selected = "Regions", justified = TRUE),
+          ),
           conditionalPanel(
             condition = "input.regions_grid == 'Regions'",
             shinyWidgets::sliderTextInput(inputId = "admin_level",
@@ -490,6 +495,11 @@ function(input, output, session) {
   observeEvent(input$link_see_more, {
     updateNavbarPage(session, "right_tabs", "tab_viewmore")
   })
+  
+  output$panelStatus <- reactive({
+    indicator$type == "performance"
+  })
+  outputOptions(output, "panelStatus", suspendWhenHidden = FALSE)
   
   # output$back_to_world_panel <- renderUI({
   #   

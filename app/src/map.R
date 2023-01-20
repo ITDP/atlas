@@ -135,9 +135,31 @@ observeEvent(c(indicator$mode, input$year), {
   # format legend value
   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
   
+  # create the label for the markers
+  format_indicator_value_marker <- if(indicator_info$transformation == "percent") {
+    round(a$valor * 100) 
+    
+  } else if(indicator_info$transformation %in% "thousands") {
+    
+    if (a$valor >= 1000000) scales::comma(a$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(a$valor, accuracy = 1, scale = 0.001, suffix = "k")
+    
+    
+  } else round(a$valor)
+  
+  
+  format_indicator_value_marker <- paste0(format_indicator_value_marker, indicator_info$unit)
+  
+  # print("data_ind3_spatial()$name")
+  # print(data_ind3_spatial()$name)
+  # print(data_ind3_spatial()$name)
+  
+  labels_markers1 <- paste0("<b>", a_available$name, "</b><br/>", 
+                   sprintf("<p style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</p>", format_indicator_value_marker), 
+                   "<br/><i>Click to go to the region</i>")
+  
   
   # print(a)
-  labels <- paste0("<b>", a_available$name,  "</b><br/> <i>Click to go to the region</i>")
+  # labels <- paste0("<b>", a_available$name,  "</b><br/> <i>Click to go to the region</i>")
   labels2 <- paste0("<b>", a_notavailable$name,  "</b><br/> <i>Indicator not available for this region</i>")
   
   leafletProxy("map", data = a_available) %>%
@@ -145,15 +167,19 @@ observeEvent(c(indicator$mode, input$year), {
     clearControls() %>%
     clearShapes() %>%
     flyTo(lng = 0, lat = 0, zoom = 3) %>%
+    addMapPane("countries", zIndex = 410) %>% # shown below ames_circles
+    addMapPane("markers_navailable", zIndex = 420) %>% # shown above ames_lines
+    addMapPane("markers_available", zIndex = 430) %>% # shown above ames_lines
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
       radius = 8,
       # fillColor = ~pal(valor), 
       stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
-      opacity = 0.8,
+      opacity = 0.6,
       weight = 1,
       layerId = ~hdc,
-      label = lapply(labels, htmltools::HTML),
+      label = lapply(labels_markers1, htmltools::HTML),
+      options = pathOptions(clickable = TRUE, pane = "markers_available"),
       labelOptions = labelOptions(
         style = list(
           # "color" = "red",
@@ -174,11 +200,12 @@ observeEvent(c(indicator$mode, input$year), {
                      layerId = ~hdc,
                      label = lapply(labels2, htmltools::HTML),
                      # label = ~htmltools::htmlEscape(name),
-                     options = pathOptions(clickable = FALSE)
+                     options = pathOptions(clickable = FALSE, pane = "markers_navailable")
     ) %>%
     addPolygons(data = a_country,
                 fillColor = ~pal_countries(valor), color = "black",  weight = 0, # erro nao eh aqui
-                options = pathOptions(clickable = FALSE)
+                fillOpacity = 0.7,
+                options = pathOptions(clickable = TRUE, pane = "countries"),
     ) %>%
     # add polygons with the country color
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
@@ -229,13 +256,15 @@ observeEvent(c(city$city_code), {
     color = "rgba(233, 235, 240, .2)")
   
   print("obs - switch cities initial")
-  # print(Sys.time())
   
   # req(input$city)
   bbox <- sf::st_bbox(data_ind())
   
   # subset for the metro region polygons
   data_metro <- subset(data_ind3(), admin_level_ordered == 1)
+  
+  # print("data_metro")
+  # print(data_metro)
   
   
   # if (isTRUE(input$admin_level == 1)) {
@@ -258,7 +287,22 @@ observeEvent(c(city$city_code), {
   waiter_hide()
   
   
-  labels <- paste0("<b>", data_metro$name,  "</b><br/> <i>Click to see more info</i>")
+  format_indicator_value <- if(indicator_info$transformation == "percent") {
+    round(data_metro$valor * 100) 
+    
+  } else if(indicator_info$transformation %in% "thousands") {
+    
+    if (data_metro$valor >= 1000000) scales::comma(data_metro$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_metro$valor, accuracy = 1, scale = 0.001, suffix = "k")
+    
+    
+  } else round(data_metro$valor)
+  
+  format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
+  
+  
+  labels <- paste0("<b>", data_metro$name, "</b><br/>", 
+                  p(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px", format_indicator_value), 
+                   "<br/><i>Click to see more info</i>")
   
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
@@ -620,7 +664,7 @@ observeEvent(c(city$city_code,
                  
                  # rv$prev_city <- if (length(rv$prev_city)== 1) city$city_code else rv$prev_city
                  # print(rv$prev_city)
-                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
+                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
                  # a <- if(city$city_code == "") NULL
                  # print(rv$prev_city)
                  
@@ -680,10 +724,13 @@ observeEvent(c(input$admin_level,
                  # this observer will only run if whe aren't switching cities
                  previous_city <- rv$prev_city[length(rv$prev_city)-1]
                  
+                 
                  req(city$city_code == previous_city,
                      isTRUE(input$admin_level >= 1),
                      data_ind3_spatial())
                  
+                 print("previous_city")
+                 print(previous_city)
                  # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
                  #             color = "rgba(233, 235, 240, .2)")
                  
@@ -703,7 +750,31 @@ observeEvent(c(input$admin_level,
                  # format legend value
                  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
                  
-                 labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
+                 
+                 
+                 
+                 format_indicator_value <- if(indicator_info$transformation == "percent") {
+                   round(data_ind3_spatial()$valor * 100) 
+                   
+                 } else if(indicator_info$transformation %in% "thousands") {
+                   
+                   if (data_ind3_spatial()$valor >= 1000000) scales::comma(data_ind3_spatial()$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_ind3_spatial()$valor, accuracy = 1, scale = 0.001, suffix = "k")
+                   
+                   
+                 } else round(data_ind3_spatial()$valor)
+                 
+                 
+                 format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
+                 
+                 # print("data_ind3_spatial()$name")
+                 # print(data_ind3_spatial()$name)
+                 # print(data_ind3_spatial()$name)
+                 
+                 labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
+                                  sprintf("<p style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</p>", format_indicator_value), 
+                                  "<br/><i>Click to see more info</i>")
+                 
+                 # labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
                  
                  # print("ahahah")
                  # print(osm_selected$oi)

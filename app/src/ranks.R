@@ -18,9 +18,9 @@ filter_rank <- reactive({
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # print("pattern")
   # print(pattern)
-  cols <- c('osmid', 'admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'rank_type', 'n')
+  cols <- c('country', 'osmid', 'admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'rank_type', 'n')
   a <- get_rank()[cols]
-  colnames(a) <- c('osmid','admin_level_ordered', 'name', 'rank', 'rank_type', 'n')
+  colnames(a) <- c('country', 'osmid','admin_level_ordered', 'name', 'rank', 'rank_type', 'n')
   
   # print("head(a)")
   # print(head(a))
@@ -53,6 +53,11 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
                        rank_value_world = NULL, rank_text_world = NULL,
                        admin_level = NULL)
 
+# this reactive value will store the indicator name, 
+indicator_info <- reactiveValues(name = NULL,
+                                 unit = NULL,
+                                 transformation = NULL)
+
 
 # display initial rank with indicators - in the world view
 observeEvent(c(indicator$mode, input$year), {
@@ -78,8 +83,8 @@ observeEvent(c(indicator$mode, input$year), {
     # print("pattern")
     # print(pattern)
     cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
-    print("cols")
-    print(cols)
+    # print("cols")
+    # print(cols)
     a <- atlas_country[cols]
     colnames(a) <- c('name_long', 'valor', 'geometry')
     # print(a)
@@ -103,8 +108,12 @@ observeEvent(c(indicator$mode, input$year), {
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
     format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     
-    print("format_indicator_unit_value")
-    print(format_indicator_unit)
+    indicator_info$name <- format_indicator_name
+    indicator_info$unit <- format_indicator_unit
+    indicator_info$transformation <- format_indicator_unit_value
+    
+    # print("format_indicator_unit_value")
+    # print(format_indicator_unit)
     
     format_indicator_value <- if(format_indicator_unit_value == "percent") {
       round(rank_indicator * 100) 
@@ -245,6 +254,11 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                  format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
                  format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
                  
+                 
+                 indicator_info$name <- format_indicator_name
+                 indicator_info$unit <- format_indicator_unit
+                 indicator_info$transformation <- format_indicator_unit_value
+                 
                  # print(format_indicator_unit_value)
                  # print("format_indicator_unit_value")
                  
@@ -287,35 +301,102 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                    base_text <- ""  
                    
                  } else { 
-                 base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS",
-                                  tags$button(
-                                    id = "tooltip_compare_right",
-                                    class="btn btn-light btn-xs",
-                                    style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
-                                    icon("circle-info")
-                                    
-                                  ))
+                   base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS",
+                                    tags$button(
+                                      id = "tooltip_compare_right",
+                                      class="btn btn-light btn-xs",
+                                      style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                                      icon("circle-info")
+                                      
+                                    ))
                  }
                  
+                 # when is this applying?
                  if (!is.null(city$city_code) & isTRUE(is.null(rank$admin_level))) {
                    
                    a <- subset(filter_rank(), osmid == ui & rank_type == "world")
-                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">3</strong>%s</strong> out of %s</strong> in the world</div>', 
+                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">3</strong>%s</strong> out offff %s</strong> in the world</div>', 
                                              base_text, a$rank, a$n)
                    
                    
                    rank$rank_text_initial <- rank$rank_text
                    rank$rank_value_initial <- rank$rank_value
                    
+                   
+                   # for the region case
                  } else if (rank$admin_level == 1) {
                    
                    a <- subset(filter_rank(), osmid == ui & rank_type == "world")
+                   # get the country
+                   a_country <- subset(filter_rank(), admin_level_ordered == 1 & rank_type == "country")
+                   # print("country_ok")
+                   # print(a_country)
+                   country_ok <- subset(a_country, osmid == ui)
+                   a_country <- subset(a_country, country %in% country_ok$country)
+                   a_country <- a_country[order(a_country$rank, decreasing = FALSE), ]
+                   # get the rakn for all the regions
+                   a_regions <- subset(filter_rank(), rank_type == "world" & admin_level_ordered == 1)
+                   a_regions <- a_regions[order(a_regions$rank, decreasing = FALSE), ]
                    
-                   print("oiii")
-                   print(a)
+                   # print("oiii")
+                   # print(a_regions)
                    
-                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>', 
-                                             base_text, a$rank, a$n)
+                   rank_text_world <- sprintf('<div class="text_compare" style="font-size: 14px";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the world</div>',
+                                              a$rank, a$n)
+                   rank_text_country <- sprintf('<div class="text_compare" style="font-size: 14px";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the country</div>',
+                                                country_ok$rank, country_ok$n)
+                   
+                   
+                   # rank$rank_text <- c(rank_text_world, rank_text_country)
+                   
+                   # bring the scrollable part
+                   scroll_world <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\">%s</div>", a_regions$name)
+                   scroll_world <- c("<div id=\"\" style=\"overflow-y:scroll; height:100px;\">",
+                               scroll_world,
+                               "</div>"
+                   )
+                   scroll_world <- HTML(paste0(scroll_world, collapse = "\n"))
+                   
+                   scroll_country <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\">%s</div>", a_country$name)
+                   scroll_country <- c("<div id=\"\" style=\"overflow-y:scroll; height:100px;\">",
+                                       scroll_country,
+                                     "</div>"
+                   )
+                   scroll_country <- HTML(paste0(scroll_country, collapse = "\n"))
+                   
+                   
+                   
+                   # print(scroll_to_paste)
+                   
+                   text_world <- div(class = "accordion collapsed in",  id="accordionExample",
+                               div(class = "accordion_item",
+                                   tags$button(class="accordion-button", type="button", 'data-toggle'="collapse", 'data-target'=paste0("#", "tesste_rank"), 'aria-expanded'="false", 'aria-controls'="collapseOne",
+                                               tags$label(class = "control_label", 'for' = "tesste_rank", 
+                                                          HTML(rank_text_world))),
+                                   div(id="tesste_rank", class="panel-collapse collapse", 'aria-labelledby'=paste0("tesste_rank", "-label"), 'data-bs-parent'="#accordionExample",
+                                       div(class = "accordion-body",
+                                           # p("parara")
+                                           scroll_world
+
+                                       )))) %>% as.character()
+                   
+                   text_country <- div(class = "accordion collapsed in",  id="accordionExample2",
+                               div(class = "accordion_item",
+                                   tags$button(class="accordion-button", type="button", 'data-toggle'="collapse", 'data-target'=paste0("#", "tesste_rank2"), 'aria-expanded'="false", 'aria-controls'="collapseOne2",
+                                               tags$label(class = "control_label", 'for' = "tesste_rank2", 
+                                                          HTML(rank_text_country))),
+                                   div(id="tesste_rank2", class="panel-collapse collapse", 'aria-labelledby'=paste0("tesste_rank2", "-label"), 'data-bs-parent'="#accordionExample2",
+                                       div(class = "accordion-body",
+                                           # p("parara")
+                                           scroll_country
+                                           
+                                       )))) %>% as.character()
+
+                   # print(pera)
+                   
+                   rank$rank_text <- paste0(base_text, text_world, text_country)
+                   
+                   
                    if (input$regions_grid == "Grid") {
                      
                      rank$rank_value <- ""  
@@ -326,6 +407,9 @@ observeEvent(c(input$map_shape_click, input$indicator_city,
                                                rank_indicator$name, '</div>',
                                                div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
                                                p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
+                                               
+                                               
+                                               
                                                
                                                
                                                
@@ -505,6 +589,7 @@ output$rank_text <- renderUI({
   req(indicator$mode)
   
   HTML(rank$rank_text)
+  # rank$rank_text
   
 })
 
