@@ -753,19 +753,7 @@ observeEvent(c(city$city_code,
                input$admin_level,
                input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
                  
-                 # rv$prev_city <- if (length(rv$prev_city)== 1) city$city_code else rv$prev_city
-                 # print(rv$prev_city)
-                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
-                 # a <- if(city$city_code == "") NULL
-                 # print(rv$prev_city)
-                 
-                 
-                 # print("vai1")
-                 # print(rv$prev_city)
-                 # print("vai")
-                 # print(rv$prev_city)
-                 # print(city$city_code)
-                 # print(rv$prev_city[length(rv$prev_city)-1])
+                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
                  
                  
                }, ignoreInit = TRUE)

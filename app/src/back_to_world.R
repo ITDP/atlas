@@ -83,65 +83,17 @@ observeEvent(c(input$back_to_world), {
               labFormat = world_view$legend_value,
               layerId = "legend_country")
   
-  # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
-  # # print(pattern)
-  # cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
-  # a <- atlas_city_markers[cols]
-  # colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
-  # 
-  # # print(class(atlas_country))
-  # cols_country <- c('a3', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
-  # a_country <- atlas_country[cols_country]
-  # colnames(a_country) <- c('a3', 'valor', 'geometry')
-  # 
-  # pal <- colorNumeric(
-  #   palette = "viridis",
-  #   # palette = "YlGnBu",
-  #   domain = a$valor)
-  # 
-  # 
-  # pal_countries <- colorNumeric(
-  #   palette = "viridis",
-  #   # palette = "YlGnBu",
-  #   domain = a_country$valor)
-  # 
-  # legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-  # legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-  # # format legend value
-  # legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
-  # 
-  # # print(a)
-  # 
-  # leafletProxy("map", data = a) %>%
-  #   clearMarkers() %>%
-  #   clearControls() %>%
-  #   removeLayersControl() %>%
-  #   clearShapes() %>%
-  #   setView(lng = 0, lat = 0, zoom = 3) %>%
-  #   addCircleMarkers(
-  #     # radius = ~ifelse(type == "ship", 6, 10),
-  #     radius = 8,
-  #     # fillColor = ~pal(valor), 
-  #     stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
-  #     opacity = 0.8,
-  #     weight = 1,
-  #     layerId = ~hdc,
-  #     label = ~htmltools::htmlEscape(name)
-  #   ) %>%
-  #   addPolygons(data = a_country, 
-  #               fillColor = ~pal_countries(valor), color = "black",  weight = 0,
-  #               options = pathOptions(clickable = FALSE)) %>%
-  #   # add polygons with the country color
-  #   # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-  #   addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
-  #             title = legend_title,
-  #             # bins = 7,
-  #             labFormat = legend_value,
-  #             layerId = "legend_country") %>%
-  #   addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
-  #                    # overlayGroups = c("Overlay"),
-  #                    options = layersControlOptions(collapsed = FALSE),
-  #                    position = "topright")
+  
+  
+  
+  # display the ranks on the right side -------------------------------------
+  
+  # print("rank$rank_text_world ")
+  # print(rank$rank_text_world)
+  
+  rank$rank_text <- rank$rank_text_world  
+  rank$rank_value <- rank$rank_value_world  
+  
 }) 
 
 

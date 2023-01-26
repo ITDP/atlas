@@ -86,6 +86,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "01445" # rec
   # ghsl <- "00021"
   # ghsl <- "12080"
+  # ghsl <- "00154"
   
   # base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
   

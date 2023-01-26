@@ -156,7 +156,10 @@ observeEvent(c(indicator$mode, input$year), {
     # ranking
     text_title <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "RANKING")
     
-    scroll_world <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 15px\">%s. %s (%s)</div>", 1:length(country_values$name), country_values$name, format_indicator_value)
+    
+    scroll_world <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>",
+                            1:length(country_values$name), country_values$name, indicator_info$unit, format_indicator_value)  
+    
     scroll_world <- c("<div id=\"\" style=\"overflow-y:scroll; height:120px;\">",
                       scroll_world,
                       "</div>"
@@ -165,43 +168,8 @@ observeEvent(c(indicator$mode, input$year), {
     
     rank$rank_text <- paste0(text_title, "<br>", scroll_world)
     
-    # text1 <- sprintf("%s (%s)", 
-    #                  filter_rank_country()$name[1], 
-    #                  format_indicator_value_countries1)
-    # text2 <- sprintf("%s (%s)", 
-    #                  filter_rank_country()$name[2], 
-    #                  format_indicator_value_countries2)
-    # # text3 <- sprintf("%s (%s)", 
-    # #                  filter_rank_country()$name[3], 
-    # #                  format_indicator_value_countries3)
-    # 
-    # flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
-    #                   style = "float:left")
-    # flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[2]), 1, 2)), width = "25",
-    #                   style = "float:left")
-    # # flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", tolower(filter_rank_country()$a2[3])), width = "25",
-    # #                   style = "float:left")
-    # 
-    # # print(flag1)
-    # 
-    # rank$rank_text <- paste0(text_title, "<br>",
-    #                          div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "1º" ),
-    #                          flag1,
-    #                          div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text1),
-    #                          div(style = "clear:both;"),
-    #                          div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "2º" ),
-    #                          flag2,
-    #                          div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text2)
-    #                          # div(style = "clear:both;"),
-    #                          # div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "3º" ),
-    #                          # flag3,
-    #                          # div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3)
-    # )
     
-    # print(rank$rank_text)
-    # print(rank$rank_value)
-    
-    rank$rank_text_world <- rank$rank_text_value
+    rank$rank_text_world <- rank$rank_text
     
   }
   
@@ -250,7 +218,7 @@ observeEvent(c(indicator$mode), {
 # display rank when a country is clicked
 observeEvent(c(input$map_shape_click, indicator$indicator_mode, input$year), {
   
-  req(is.null(input$admin_level), !is.null(input$map_shape_click$id))
+  req(is.null(rank$admin_level), !is.null(input$map_shape_click$id))
   
   # get the click country
   ui <- input$map_shape_click$id
@@ -390,18 +358,18 @@ observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
                    # open the ranks text
                    indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
                    ranks_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
-                   ranks_text1 <- subset(ranks_text, type_rank == "world")
+                   ranks_text1 <- subset(ranks_text, type_rank == "world" & year == input$year)
                    rank_text_world <- ranks_text1$text
                    rank$value <- ranks_text1$rank
                    
-                   ranks_text2 <- subset(ranks_text, type_rank == "country")
+                   ranks_text2 <- subset(ranks_text, type_rank == "country" & year == input$year)
                    rank_text_country <- ranks_text2$text
                    rank$value <- c(rank$value, ranks_text2$rank)
                    
                    # open the scroll text
                    scroll_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
-                   scroll_world <- HTML(subset(scroll_text, type_rank == "world")$text)
-                   scroll_country <- HTML(subset(scroll_text, type_rank == "country")$text)
+                   scroll_world <- HTML(subset(scroll_text, type_rank == "world" & year == input$year)$text)
+                   scroll_country <- HTML(subset(scroll_text, type_rank == "country" & year == input$year)$text)
                    
                    
                    
@@ -454,13 +422,13 @@ observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
                    # open the ranks text
                    indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
                    ranks_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui)
+                   ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == input$year)
                    rank$value <- ranks_text$rank
                    rank_text_country <- ranks_text$text
                    
                    # open the scroll text
                    scroll_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   scroll_country <- scroll_text$metro
+                   scroll_country <- subset(scroll_text, type_rank == "metro" & year == input$year)
                    
                    
                    text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
@@ -473,18 +441,21 @@ observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
                    # open the ranks text
                    indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
                    ranks_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui)
+                   ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui & year == input$year)
                    rank$value <- ranks_text1$rank
                    rank_text_world <- ranks_text1$text
                    
-                   ranks_text2 <- subset(ranks_text, type_rank == "metro" & osmid == ui)
+                   ranks_text2 <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == input$year)
                    rank$value <- c(rank$value, ranks_text2$rank)
                    rank_text_country <- ranks_text2$text
                    
                    # open the scroll text
                    scroll_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   scroll_world <- scroll_text$country
-                   scroll_country <- scroll_text$metro
+                   scroll_world <- HTML(subset(scroll_text, type_rank == "country" & year == input$year)$text)
+                   scroll_country <- HTML(subset(scroll_text, type_rank == "metro"  & year == input$year)$text)
+                   
+                   print("scroll_world")
+                   print(scroll_world)
                    
                    
                    
@@ -506,12 +477,12 @@ observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
 
 observeEvent(c(input$map_shape_click, city$city_code), {
   
-  req(city$city_code != "", rank$rank_text)
+  req(city$city_code != "")
   
-  # print("pa")
+  print("pa")
   
-  delay(2000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '18px'})", rank$value[1])))
-  delay(2000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '18px'})", rank$value[2])))
+  delay(4000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
+  delay(4000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))
   
 })
 
@@ -590,7 +561,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
 
 
 output$rank_value <- renderUI({
-  req(indicator$mode)
+  req(indicator$mode, rank$rank_value)
   
   tagList(
     HTML(rank$rank_value),
@@ -613,12 +584,11 @@ output$rank_value <- renderUI({
 
 
 output$rank_text <- renderUI({
-  req(indicator$mode)
+  
+  req(indicator$mode, rank$rank_text)
   
   HTML(rank$rank_text)
   # rank$rank_text
-  
-  
   
 })
 

@@ -150,7 +150,7 @@ fluidPage(
       # condition = "ind_cum.indexOf(input.indicator_performance) > -1",
       # condition = "typeof input.indicator_performance != ''",
       absolutePanel(
-        # id = "controls",
+        id = "year_panel",
         class = "spatial_level",
         # fixed = TRUE, draggable = FALSE,
         bottom = 45, left = 300, height = 'auto', width = 120,
@@ -198,7 +198,7 @@ fluidPage(
     absolutePanel(
       id = "compare_panel",
       class = "spatial_level",
-      style = "background: #00AE42;",
+      style = "background: #00AE42; display: none",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
@@ -245,15 +245,17 @@ fluidPage(
       # condition = "typeof input.indicator_bike !== 'undefined'",
       absolutePanel(
         class = "right_panel",
+        id = "right_panel_id",
         # class = "w3-container w3-animate-opacity", 
         # class = "panel panel-default",
         # fixed = TRUE, draggable = FALSE,
-        top = 0, right = 0, width = 300, height = "calc(100vh - 15px)",
+        top = 0, right = 0, width = 310, height = "calc(100vh - 15px)",
         tabsetPanel(type = "tabs", id = "right_tabs",
                     tabPanel("OVERVIEW", value = "tab_overview",         
                              absolutePanel(
                                class = "right_panel_textbox",
-                               top = 65, right = 5, width = 280,
+                               id = "right_panel_textbox_id",
+                               top = 65, right = 5, width = 285,
                                htmlOutput("text_indicator"),
                                tags$button(
                                  id = "link_see_more",
@@ -291,6 +293,7 @@ fluidPage(
     # uiOutput('download_button'),
     # uiOutput('download_button_maps'), # da pra trazer
     absolutePanel(class = "about_button", 
+                  id = "download_button_id",
                   style = "background: #00AE42",
                   top = 40, right = 450, height = 40, width = 130,
                   dropdown(
@@ -322,6 +325,7 @@ fluidPage(
     # uiOutput('back_to_world_panel'),
     absolutePanel(
       class = "about_button",
+      id = "back_to_world_button_id",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
@@ -351,6 +355,7 @@ fluidPage(
     # about
     absolutePanel(
       class = "about_button",
+      id = "about_button_id",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
@@ -364,6 +369,7 @@ fluidPage(
     ),
     absolutePanel(
       class = "about_button",
+      id = "share_button_id",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,

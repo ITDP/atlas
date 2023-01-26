@@ -88,3 +88,80 @@ border: 1px solid #495057;
 .leaflet-control-layers-list {
     background: transparent;
 }
+
+
+@media (max-width: 1300px) {
+  #back_to_world_button_id {
+    right: 470px !important;
+    
+  }
+}
+
+@media (max-width: 1300px) {
+  #share_button_id {
+    top: 90px !important;
+    right: 470px !important;
+    
+  }
+}
+
+@media (max-width: 1300px) {
+  #download_button_id {
+    top: 140px !important;
+    right: 470px !important;
+  }
+}
+
+@media (max-width: 1300px) {
+  #compare_panel {
+    bottom: 180px !important;
+    right: 480px !important;
+    left: auto !important;
+  }
+}
+
+@media (max-width: 1300px) {
+  #year_panel {
+    bottom: 250px !important;
+    left: auto !important;
+    right: 480px !important;
+  }
+}
+
+
+/*
+
+  @media only screen and (min-width: 600px) {
+      html {
+        zoom: .8;
+      }
+    }
+
+    @media only screen and (min-width: 800px) {
+      html {
+        zoom: .9;        
+      }
+    }
+
+    @media only screen and (min-width: 1000px) {
+      html {
+        zoom: 1;
+      }
+    }
+    
+      @media only screen and (min-height: 600px) {
+      #right_panel_textbox_id {
+        zoom: 0.8;
+      }
+    }
+    
+        @media only screen and (min-height: 800px) {
+      #right_panel_textbox_id{
+        zoom: 1;
+      }
+    }
+    
+    */
+
+    
+    

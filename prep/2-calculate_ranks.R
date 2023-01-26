@@ -82,6 +82,8 @@ prep_data <- function(ghsl) {
   # ghsl <- "12080"
   # ghsl <- "00021"
   # ghsl <- "01105"
+  # ghsl <- "01361"
+  # ghsl <- "00154"
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
@@ -124,7 +126,8 @@ prep_data <- function(ghsl) {
   # bind the comparions
   rank_complete <- rbind(rank_hdc_world, rank_hdc_country, rank_hdc_metro)
   
-  # level <- 0
+  # level <- 8
+  # level <- 6
   
   # save by osm level
   filter_by_level <- function(level) {
@@ -133,6 +136,13 @@ prep_data <- function(ghsl) {
     
     # ind <- "bike_pnpb"
     # ind <- "city_poptotal"
+    # ind <- "transit_pnrtmrt"
+    # ind <- "walk_pns"
+    # ind <- "bike_abikeways"
+    # ind <- "walk_pnh"
+    # ind <- "walk_pncf"
+    # ind <- "bike_bikeshare"
+    # ind <- "transit_pnrtlrt"
     
     filter_by_ind <- function(ind) {
       
@@ -181,19 +191,19 @@ prep_data <- function(ghsl) {
                            values_from = "count",
                            names_glue = "{type1}") %>%
         # create text
-        arrange(type_rank, rank) %>%
+        arrange(type_rank, year, rank) %>%
         # format indicator value
         mutate(value = case_when(indicator_transformation %in% "percent" ~ as.character(round(value * 100)), 
                                   indicator_transformation %in% "thousands" & value >= 1000000 ~ scales::comma(value, accuracy = 0.1, scale = 0.000001, suffix = "M"),
                                   indicator_transformation %in% "thousands" & value < 1000000 ~ scales::comma(value, accuracy = 1, scale = 0.001, suffix = "k"),
                                   TRUE ~ as.character(round(value)))) %>%
-        mutate(value = paste0(value, format_indicator_unit)) %>%
+        # mutate(value = paste0(value, format_indicator_unit)) %>%
         # create text
-        group_by(type_rank) %>%
-        mutate(text = sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 18px;\">%s </span> %s <span style=\"float:right; font-size: 18px;\">%s</span></div>", 
-                              1:n(), name, value)) %>%
+        group_by(type_rank, year) %>%
+        mutate(text = sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>", 
+                              1:n(), name, format_indicator_unit, value)) %>%
         ungroup() %>%
-        group_by(admin_level, admin_level_ordered, type_rank, year) %>%
+        group_by(admin_level, type_rank, year) %>%
         summarise(text = paste(
           text,
           collapse = "\n"
@@ -216,7 +226,9 @@ prep_data <- function(ghsl) {
       
     }
     
-    colnames_compare <- colnames(data)[8:ncol(data)]
+    # see indicators availabilty
+    data1 <- janitor::remove_empty(data, which = "cols")
+    colnames_compare <- colnames(data1)[8:ncol(data1)]
     # extract year
     years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
                           replacement = "\\1",
@@ -238,9 +250,10 @@ prep_data <- function(ghsl) {
 # apply to every city
 cities_available <- unique(data_world$hdc)
 purrr::walk(cities_available, 
-            purrr::safely(prep_data))
+            prep_data)
 
 
 prep_data("01406")
+prep_data("01361")
 
 

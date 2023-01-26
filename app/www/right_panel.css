@@ -310,3 +310,10 @@ padding-left: 0px;
   
   
 }
+
+    #right_panel_textbox_id {
+      overflow-y: scroll;
+          overflow-x: hidden;
+
+      
+    }
