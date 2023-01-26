@@ -14,3 +14,9 @@ unzip("data-raw/sample_3.zip",
       exdir = "data-raw")
 
 options(shiny.fullstacktrace = TRUE)
+
+
+
+# upload data -------------------------------------------------------------
+library(piggyback)
+pb_new_release(repo = "ITDP/atlas", "v0.0.1")
