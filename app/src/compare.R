@@ -10,27 +10,32 @@
 
 ind_city <- reactive({
   
-  req(city$city_code != "")
-  # print("input$comparison_button")
-  # print(input$comparison_button)
-  # req(city$city_code, input$comparison_button == 1)
+  req(city$city_code)
   
-  # isolate(input$comparison_button)
+  if (city$city_code == "") {
+    
+    pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+    
+    a <- readRDS(sprintf("data/sample5/indicators_compare_country/indicators_compare_country_%s.rds", pattern))
+    
+    return(a)
+    
+    
+    
+  } else {
+    
+    pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+    
+    # open data
+    a <- readRDS(sprintf("../data/sample5/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+                         city$city_code, city$city_code, pattern))
+    
+    return(a)
+    
+    
+  }
   
   
-  
-  # pattern <- sprintf("%s_%s", "bike", "pnab")
-  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-  # print("pattern")
-  # print(pattern)
-  
-  # open data
-  a <- readRDS(sprintf("../data/sample5/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
-                       city$city_code, city$city_code, pattern))
-  
-  # print("pera")
-  
-  return(a)
   
   
   
@@ -41,22 +46,22 @@ ind_compare <- reactive({
   req(city$city_code != "", data_ind3_spatial())
   # req(city$city_code, data_ind3_spatial(), input$comparison_button == 1)
   
-    
-    level <- unique(data_ind3_spatial()$admin_level)
-    
-    # pattern <- sprintf("%s_%s", "bike", "pnab")
-    pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-    
-    # print("AHHHH")
-    # print(level)
-    # print(pattern)
-    
-    # open data
-    a <- readRDS(sprintf("../data/sample5/comp/indicators_compare_%s_%s.rds",
-                         level, pattern))
-    
-    return(a)
-    
+  
+  level <- unique(data_ind3_spatial()$admin_level)
+  
+  # pattern <- sprintf("%s_%s", "bike", "pnab")
+  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+  
+  # print("AHHHH")
+  # print(level)
+  # print(pattern)
+  
+  # open data
+  a <- readRDS(sprintf("../data/sample5/comp/indicators_compare_%s_%s.rds",
+                       level, pattern))
+  
+  return(a)
+  
   
   
   
@@ -66,50 +71,58 @@ ind_compare <- reactive({
 
 output$comparison_chart <- renderHighchart({
   
-  req(ind_city(), ind_compare())
+  req(ind_city())
   
   # print("bug")
   
-  ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
-  
-  
-  value_city <- subset(ind_city(), osmid == ui)
-  
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-  format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-  format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
-  
-  # print(format_indicator_unit_value)
-  # print("format_indicator_unit_value")
-  
-  value_city$value <- if(format_indicator_unit_value == "percent") {
-    round(value_city$value * 100) 
+  if (city$city_code == "") {
     
-  } else round(value_city$value)
-  
-  if (indicator$mode %in% c("pnpb", "pnab")) {
     
-  hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
-         name = unique(value_city$name),
-         tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
-                        valueDecimals = 0)) %>%
-    hc_plotOptions(column = list(
-      pointWidth = 15,
-      grouping = FALSE
-    )
-    ) %>%
-    hc_legend(verticalAlign = "top") %>%
-    hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 15)),
-             labels = list(style = list(fontSize = 14))) %>%
-    hc_xAxis(title = list(text = "", style = list(fontSize = 15)),
-             labels = list(enabled = FALSE, style = list(fontSize = 14))) %>%
-    hc_add_theme(hc_theme_darkunica(
-      chart = list(backgroundColor = "#1C1C1C",
-                   style = list(fontFamily = "Franklin Gothic Book"))
-      ,
-      title = list(style = list(fontFamily = "Franklin Gothic Demi",
-                                textTransform = "none"))
-    ))
+    
+    
+  } else {
+    
+    
+    ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
+    
+    
+    value_city <- subset(ind_city(), osmid == ui)
+    
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+    
+    # print(format_indicator_unit_value)
+    # print("format_indicator_unit_value")
+    
+    value_city$value <- if(format_indicator_unit_value == "percent") {
+      round(value_city$value * 100) 
+      
+    } else round(value_city$value)
+    
+    if (indicator$mode %in% c("pnpb", "pnab")) {
+      
+      hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
+             name = unique(value_city$name),
+             tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
+                            valueDecimals = 0)) %>%
+        hc_plotOptions(column = list(
+          pointWidth = 15,
+          grouping = FALSE
+        )
+        ) %>%
+        hc_legend(verticalAlign = "top") %>%
+        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 15)),
+                 labels = list(style = list(fontSize = 14))) %>%
+        hc_xAxis(title = list(text = "", style = list(fontSize = 15)),
+                 labels = list(enabled = FALSE, style = list(fontSize = 14))) %>%
+        hc_add_theme(hc_theme_darkunica(
+          chart = list(backgroundColor = "#1C1C1C",
+                       style = list(fontFamily = "Franklin Gothic Book"))
+          ,
+          title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                    textTransform = "none"))
+        ))
       
     } else {
       
@@ -124,7 +137,7 @@ output$comparison_chart <- renderHighchart({
         hc_plotOptions(column = list(pointWidth = 10)) %>%
         hc_legend(verticalAlign = "top") %>%
         # hc_title(text = format_indicator_name,
-                 # align = "left", x = 10
+        # align = "left", x = 10
         # ) %>%
         hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
                  labels = list(style = list(fontSize = 15))) %>%
@@ -142,6 +155,9 @@ output$comparison_chart <- renderHighchart({
       
       
     }
+    
+  }
+  
   
   
 })
@@ -531,39 +547,39 @@ observeEvent(c(input$city_compare_country), {
 
 
 observeEvent(c(input$city_compare_hdc), {
-
+  
   # get the admin level original
   al <- unique(data_ind3_spatial()$admin_level)
-
+  
   # print("al")
   # print(al)
-
+  
   # first, select only the ones that are available for the indicator in question
   hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
-
+  
   # fisr, filter the level
   choices_comparison <- subset(list_osmid_name, admin_level == al)
-
+  
   # get options to show in the comparison
   choices_comparison <- subset(choices_comparison, country == input$city_compare_country)
   # filter hdc with the indicators available
   choices_comparison <- subset(choices_comparison, hdc == input$city_compare_hdc)
   # remove the osmid that is already being shown
   # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
-
+  
   # extract values
   choices_comparison_values <- choices_comparison$osmid
   choices_comparison_names <- choices_comparison$name
   names(choices_comparison_values) <- choices_comparison_names
-
+  
   comparison$choices <- choices_comparison_values
-
+  
   updatePickerInput(
     session = session,
     inputId = "city_compare1",
     choices = comparison$choices)
-
-
+  
+  
 })
 
 

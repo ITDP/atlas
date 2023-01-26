@@ -1,8 +1,8 @@
 # open boundaries
 atlas_city_markers <- readRDS("../data/sample5/atlas_city_markers.rds")
-atlas_country <- readRDS("../data/sample5/atlas_country_polygons.rds")
-# filter only countries that have indidcators
-atlas_country <- subset(atlas_country, !is.na(bike_pnpb_2022))
+# atlas_country <- readRDS("../data/sample5/atlas_country_polygons.rds")
+# # filter only countries that have indidcators
+# atlas_country <- subset(atlas_country, !is.na(bike_pnpb_2022))
 # country rank
 atlas_country_ranks <- readRDS("../data/sample5/ranks/rank_country.rds")
 # list indicators
@@ -232,14 +232,14 @@ function(input, output, session) {
   
   # hides the comparison button when the user is in the global view -----------------------------
   observeEvent(c(city$city_code), {
-    
+
     req(city$city_code != "", city$times == 0)
-    
+
     # print("BEEEEEEEEEEEEEEEM")
-    
+
     shinyjs::show("compare_panel")
-    
-    
+
+
   }, once = FALSE)
   
   
@@ -289,6 +289,8 @@ function(input, output, session) {
   
   output$comparison_panel <- renderUI({
     
+    # print("cuma")
+    
     
     
     absolutePanel(
@@ -317,7 +319,7 @@ function(input, output, session) {
                                                                       liveSearch = TRUE)
       ),
       highchartOutput('comparison_chart', height = "250px")
-    ) %>% hidden()
+    ) %>% hidden() # ok
     
     # }
     

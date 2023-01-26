@@ -34,6 +34,40 @@
 # }"
 
 
+
+# store the map config to go back when reseting ---------------------------
+
+world_view <- reactiveValues(a_available = NULL,
+                             pal = NULL,
+                             labels_markers1 = NULL,
+                             a_notavailable = NULL,
+                             labels2 = NULL,
+                             a_country = NULL,
+                             pal_countries = NULL,
+                             labels_country = NULL,
+                             map = NULL)
+
+
+# open country data -------------------------------------------------------
+
+atlas_country <- reactive({
+  
+  req(indicator$mode, indicator$type, is.null(rank$admin_level))
+  
+  # print("oiiiiiiiiiiiiii")
+  
+  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+  
+  # open data
+  a <- readRDS(sprintf("../data/sample5/countries/atlas_country_%s.rds", pattern))
+  
+  # print("aagsagas")
+  # print(a)
+  
+  
+})
+
+
 osm_selected <- reactiveValues(oi = NULL)
 
 admin_level_previous <- reactiveValues(a = NULL)
@@ -83,7 +117,7 @@ counter <- reactiveValues(obs1 = NULL,
 # update the world map when the indicators is changed ---------------------
 observeEvent(c(indicator$mode, input$year), {
   
-  req(indicator$mode, is.null(rank$admin_level), input$year)
+  req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
   
   
   # print("obs1")
@@ -101,10 +135,10 @@ observeEvent(c(indicator$mode, input$year), {
   # print(pattern)
   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
   a <- atlas_city_markers[cols]
-  colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
+  colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'value', 'geom')
   
-  a_available <- subset(a, !is.na(valor))
-  a_notavailable <- subset(a, is.na(valor))
+  a_available <- subset(a, !is.na(value))
+  a_notavailable <- subset(a, is.na(value))
   if(nrow(a_notavailable) > 0) {
     
     a_notavailable$name <- paste0(a_notavailable$name, "<br>Not available for this city")
@@ -112,21 +146,24 @@ observeEvent(c(indicator$mode, input$year), {
   }
   
   # print(class(atlas_country))
-  cols_country <- c('a3', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], 'geometry')
-  a_country <- atlas_country[cols_country]
-  colnames(a_country) <- c('a3', 'valor', 'geometry')
+  cols_country <- c('a3', 'name', colnames(atlas_country())[startsWith(colnames(atlas_country()), pattern)], 'geometry')
+  a_country <- atlas_country()[cols_country]
+  colnames(a_country) <- c('a3', 'name', 'value', 'geometry')
+  
+  # print("A CONOCN")
+  # print(a_country)
   
   pal <- colorNumeric(
     palette = "viridis",
     na.color = "#808080",
     # palette = "YlGnBu",
-    domain = a$valor)
+    domain = a$value)
   
   
   pal_countries <- colorNumeric(
     palette = "viridis",
     # palette = "YlGnBu",
-    domain = a_country$valor)
+    domain = a_country$value)
   
   
   
@@ -137,14 +174,14 @@ observeEvent(c(indicator$mode, input$year), {
   
   # create the label for the markers
   format_indicator_value_marker <- if(indicator_info$transformation == "percent") {
-    round(a$valor * 100) 
+    round(a$value * 100) 
     
   } else if(indicator_info$transformation %in% "thousands") {
     
-    if (a$valor >= 1000000) scales::comma(a$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(a$valor, accuracy = 1, scale = 0.001, suffix = "k")
+    if (a$value >= 1000000) scales::comma(a$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(a$value, accuracy = 1, scale = 0.001, suffix = "k")
     
     
-  } else round(a$valor)
+  } else round(a$value)
   
   
   format_indicator_value_marker <- paste0(format_indicator_value_marker, indicator_info$unit)
@@ -154,15 +191,46 @@ observeEvent(c(indicator$mode, input$year), {
   # print(data_ind3_spatial()$name)
   
   labels_markers1 <- paste0("<b>", a_available$name, "</b><br/>", 
-                   sprintf("<p style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</p>", format_indicator_value_marker), 
-                   "<br/><i>Click to go to the region</i>")
+                            sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", format_indicator_value_marker), 
+                            "<br/><i>Click to go to the region</i>")
   
   
   # print(a)
   # labels <- paste0("<b>", a_available$name,  "</b><br/> <i>Click to go to the region</i>")
   labels2 <- paste0("<b>", a_notavailable$name,  "</b><br/> <i>Indicator not available for this region</i>")
   
-  leafletProxy("map", data = a_available) %>%
+  
+  # tooltip for the countries
+  format_indicator_value_country<- if(indicator_info$transformation == "percent") {
+    round(a_country$value * 100) 
+    
+  } else if(indicator_info$transformation %in% "thousands") {
+    
+    if (a_country$value >= 1000000) scales::comma(a_country$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(a_country$value, accuracy = 1, scale = 0.001, suffix = "k")
+    
+    
+  } else round(a_country$value)
+  
+  format_indicator_value_country <- paste0(format_indicator_value_country, indicator_info$unit)
+  
+  
+  labels_country <- paste0("<b>", a_country$name, "</b><br/>", 
+                            sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 20px; padding-bottom: 0px\"> %s</span>", format_indicator_value_country)
+  )  
+  
+  world_view$a_available <- a_available
+  world_view$pal <- pal
+  world_view$labels_markers1 <- labels_markers1
+  world_view$a_notavailable <- a_notavailable
+  world_view$labels2 <- labels2
+  world_view$a_country <- a_country
+  world_view$pal_countries <- pal_countries
+  world_view$labels_country <- labels_country
+  world_view$legend_title <- legend_title
+  world_view$legend_value <- legend_value
+  
+  
+  map <- leafletProxy("map", data = a_available) %>%
     clearMarkers() %>%
     clearControls() %>%
     clearShapes() %>%
@@ -173,10 +241,10 @@ observeEvent(c(indicator$mode, input$year), {
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
       radius = 8,
-      # fillColor = ~pal(valor), 
-      stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
-      opacity = 0.6,
-      weight = 1,
+      fillColor = ~pal(value),
+      stroke = TRUE, fillOpacity = 0.9, color = "black",
+      opacity = 0.9,
+      # weight = 1,
       layerId = ~hdc,
       label = lapply(labels_markers1, htmltools::HTML),
       options = pathOptions(clickable = TRUE, pane = "markers_available"),
@@ -203,44 +271,29 @@ observeEvent(c(indicator$mode, input$year), {
                      options = pathOptions(clickable = FALSE, pane = "markers_navailable")
     ) %>%
     addPolygons(data = a_country,
-                fillColor = ~pal_countries(valor), color = "black",  weight = 0, # erro nao eh aqui
+                layerId = ~name,
+                fillColor = ~pal_countries(value), color = "black",  weight = 0, # erro nao eh aqui
                 fillOpacity = 0.7,
                 options = pathOptions(clickable = TRUE, pane = "countries"),
+                group = "Countries",
+                label = lapply(labels_country, htmltools::HTML)
     ) %>%
     # add polygons with the country color
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-    addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
+    addLegend("bottomright", pal = pal_countries, values = ~a_country$value,
               title = legend_title,
               # bins = 7,
               labFormat = legend_value,
-              layerId = "legend_country") 
+              layerId = "legend_country")
   
-  # addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
-  #                  options = layersControlOptions(collapsed = FALSE),
-  #                  position = "topright") %>%
-  
-  
-  
-  #   htmlwidgets::onRender("
-  #     function(el, x) {
-  #         $('.leaflet-control-layers').prepend('<label>My Epic Title</label>');
-  #     }
-  # ")
-  
-  
-  # shinyjs::runjs('$( ".leaflet-control-layers > label" ).remove();')                     
-  # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>MAP DETAILS</label>" );')                       
-  
-  # }
-  
-  # print("ahhhh")
-  # print(Sys.time() - at)
+  map
   
   
 }) 
 
 
-
+# reactive values to store the indicator values
+indicator <- reactiveValues(values = NULL, format = NULL, unit = NULL)
 
 
 
@@ -299,9 +352,11 @@ observeEvent(c(city$city_code), {
   
   format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
   
+  indicator$values <- format_indicator_value
+  
   
   labels <- paste0("<b>", data_metro$name, "</b><br/>", 
-                  p(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px", format_indicator_value), 
+                   span(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px", indicator$values), 
                    "<br/><i>Click to see more info</i>")
   
   map <- leafletProxy("map", session) %>%
@@ -416,7 +471,7 @@ observeEvent(c(city$city_code), {
     
     
     map <- map %>%
-      addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE),
+      addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE, pane = "overlay"),
                    layerId = "overlay_layer")
     
     
@@ -479,12 +534,48 @@ observeEvent(c(input$map_shape_click), {
     data_previous <- subset(data_ind3_spatial(), osmid == tail(element$selected, 2)[1])
     # print("data_previous")
     # print(data_previous)
-    labels1 <- paste0("<b>", data_previous$name,  "</b><br/> <i>Click to see more info</i>")
+    
+    format_indicator_value <- if(indicator_info$transformation == "percent") {
+      round(data_previous$valor * 100) 
+      
+    } else if(indicator_info$transformation %in% "thousands") {
+      
+      if (data_previous$valor >= 1000000) scales::comma(data_previous$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_previous$valor, accuracy = 1, scale = 0.001, suffix = "k")
+      
+      
+    } else round(data_previous$valor)
+    
+    
+    format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
+    
+    
+    
+    labels1 <- paste0("<b>", data_previous$name, "</b><br/>", 
+                      sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", format_indicator_value), 
+                      "<br/><i>Click to see more info</i>")    
     
     
   }
   
-  labels <- paste0("<b>", data$name,  "</b> <br/> <i>Click to see more info</i>")
+  format_indicator_value <- if(indicator_info$transformation == "percent") {
+    round(data$valor * 100) 
+    
+  } else if(indicator_info$transformation %in% "thousands") {
+    
+    if (data$valor >= 1000000) scales::comma(data$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data$valor, accuracy = 1, scale = 0.001, suffix = "k")
+    
+    
+  } else round(data$valor)
+  
+  
+  format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
+  
+  
+  labels <- paste0("<b>", data$name, "</b><br/>", 
+                   sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", format_indicator_value), 
+                   "<br/><i>Click to see more info</i>")
+  
+  
   
   # update the map
   map <- leafletProxy("map", session) %>%
@@ -632,7 +723,7 @@ observeEvent(c(indicator$mode, input$year), {
     
     
     map <- map %>%
-      addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE),
+      addPolylines(data = data_overlays_sf(), group = "Overlay", options = pathOptions(clickable = FALSE, pane = "overlay"),
                    layerId = "overlay_layer") %>%
       # addLegend("bottomleft", pal = pal, values = ~valor) %>%
       addLayersControl(overlayGroups = c("Regions", "Overlay"),
@@ -729,8 +820,8 @@ observeEvent(c(input$admin_level,
                      isTRUE(input$admin_level >= 1),
                      data_ind3_spatial())
                  
-                 print("previous_city")
-                 print(previous_city)
+                 # print("previous_city")
+                 # print(previous_city)
                  # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
                  #             color = "rgba(233, 235, 240, .2)")
                  
@@ -766,12 +857,14 @@ observeEvent(c(input$admin_level,
                  
                  format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
                  
+                 indicator$values <- format_indicator_value
+                 
                  # print("data_ind3_spatial()$name")
                  # print(data_ind3_spatial()$name)
                  # print(data_ind3_spatial()$name)
                  
                  labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
-                                  sprintf("<p style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</p>", format_indicator_value), 
+                                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
                                   "<br/><i>Click to see more info</i>")
                  
                  # labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")

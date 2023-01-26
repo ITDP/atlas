@@ -198,7 +198,7 @@ fluidPage(
     absolutePanel(
       id = "compare_panel",
       class = "spatial_level",
-      style = "background: #00AE42; display: none",
+      style = "background: #00AE42;",
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,

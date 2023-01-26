@@ -51,7 +51,7 @@ open_data <- function(file) {
   #   
   # }
   
-    
+  
   
 }
 data_all <- purrr::map_dfr(world, open_data)
@@ -211,24 +211,24 @@ prep_data <- function(ghsl) {
   # arrange data correctly
   data <- data %>%
     dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
-           starts_with("city_poptotal"),
-           starts_with("city_density"),
-           starts_with("bike_pnab"),
-           starts_with("bike_pnpb"),
-           starts_with("bike_abikeways"),
-           starts_with("bike_pbikeways"),
-           starts_with("bike_bikeshare"),
-           starts_with("walk_pnh"),
-           starts_with("walk_pne"),
-           starts_with("walk_pns"),
-           starts_with("walk_pncf"),
-           starts_with("transit_pnft"),
-           starts_with("transit_pnrtall"),
-           starts_with("transit_pnrtbrt"),
-           starts_with("transit_pnrtlrt"),
-           starts_with("transit_pnrtmrt"),
-           starts_with("performance_bike"),
-           starts_with("performance_walk"))
+                  starts_with("city_poptotal"),
+                  starts_with("city_density"),
+                  starts_with("bike_pnab"),
+                  starts_with("bike_pnpb"),
+                  starts_with("bike_abikeways"),
+                  starts_with("bike_pbikeways"),
+                  starts_with("bike_bikeshare"),
+                  starts_with("walk_pnh"),
+                  starts_with("walk_pne"),
+                  starts_with("walk_pns"),
+                  starts_with("walk_pncf"),
+                  starts_with("transit_pnft"),
+                  starts_with("transit_pnrtall"),
+                  starts_with("transit_pnrtbrt"),
+                  starts_with("transit_pnrtlrt"),
+                  starts_with("transit_pnrtmrt"),
+                  starts_with("performance_bike"),
+                  starts_with("performance_walk"))
   
   data$admin_level <- as.character(data$admin_level)
   data$admin_level_ordered <- as.character(data$admin_level_ordered)
@@ -511,17 +511,16 @@ atlas_country <- rmapshaper::ms_simplify(atlas_country)
 
 # bring the names
 atlas_country <- atlas_country %>%
-  mutate(iso_a2  = substr(index, 1, 2)) %>%
+  filter(index != "-99") %>%
   left_join(
-    spData::world %>% select(iso_a2, name_long) %>% 
-      st_set_geometry(NULL), 
+    countrycode::codelist %>% dplyr::select(country.name.en, iso3c),
     
-    by = c("iso_a2")) %>%
-  select(-iso_a2)
+    by = c("index" = "iso3c")) %>%
+  rename(name = country.name.en)
 
 # rename indicators
 # get available indicators for this city
-ind_columns <- colnames(atlas_country)[colnames(atlas_country) %nin% c("index", "name_long", "geometry")]
+ind_columns <- colnames(atlas_country)[colnames(atlas_country) %nin% c("index", "name", "geometry")]
 
 
 # first, rename indicators that are divided by year
@@ -593,11 +592,11 @@ ind_columns_new <- fcase(
 )
 
 
-colnames(atlas_country) <- c("a3", ind_columns_new, "name_long", "geometry")
+colnames(atlas_country) <- c("a3", ind_columns_new, "name", "geometry")
 
 # arrange data correctly
 atlas_country <- atlas_country %>%
-  select(a3, name_long,
+  select(a3, name,
          starts_with("city_poptotal"),
          starts_with("city_density"),
          starts_with("bike_pnab"),
@@ -617,137 +616,49 @@ atlas_country <- atlas_country %>%
          starts_with("performance_bike"),
          starts_with("performance_walk"))
 
-# save
-readr::write_rds(atlas_country, "data/sample5/atlas_country_polygons.rds")
-
-
-
-
-
-# save indicators by each city by each admin level - for comparison --------
-
-indicators_all <- purrr::map_dfr(dir("data/sample5", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
-                                 readr::read_rds)
-
-# remove polygon
-indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
-
-# ghsl <- "0634"
-# ghsl <- "01406"
-
-export_by_osmid <- function(ghsl) {
-  
-  indicators <- indicators_all_df %>% filter(hdc == ghsl)
-  
-  # save by each admin
-  # ind <- "city_poptotal"
-  # ind <- "bike_pnpb"
-  save_ind <- function(ind) {
-    
-    indicators_ind <- indicators %>% 
-      select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
-             starts_with(ind))
-    # to long format
-    colnames_compare <- colnames(indicators_ind)[8:ncol(indicators_ind)]
-    # extract year
-    years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
-                          replacement = "\\2",
-                          x = colnames_compare)
-    
-    colnames(indicators_ind) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", 
-                                  years_compare)
-    
-    indicators_ind <- tidyr::pivot_longer(indicators_ind,
-                                          cols = matches("\\d{4}"),
-                                          names_to = "year",
-                                          values_to = "value")
-    
-    dir.create(sprintf("data/sample5/ghsl_%s/indicators_compare",
-                       ghsl))
-    
-    # save
-    readr::write_rds(indicators_ind, sprintf("data/sample5/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
-                                             ghsl, ghsl, ind))
-    
-    
-  }
-  # to long format
-  colnames_compare <- colnames(indicators)[8:ncol(indicators)]
-  # extract year
-  years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
-                        replacement = "\\1",
-                        x = colnames_compare)
-  ind_list <- unique(years_compare)
-  # apply
-  purrr::walk(ind_list, save_ind)
-  
-}
-
-# apply to all cities
-cities_available <- unique(data_all$hdc)
-purrr::walk(cities_available, export_by_osmid)
-
-
-# export only for comparison
-# ghsl <- "1406"
-# ind <- "bike_pnpb"
-# level <- 10
-
-export_comparison1 <- function(level) {
+# save by indicator
+save_countries <- function(ind) {
   
   
-  # filter levels
-  indicators_all_level <- indicators_all_df %>%
-    filter(admin_level  == level)
+  atlas_country_ind <- atlas_country %>% 
+    select(a3, name, 
+           starts_with(ind))
   
-  export_comparison <- function(ind) {
+  # filter for no data
+  if (ind == "city_poptotal") {
     
-    
-    indicators_ind <- indicators_all_level %>% 
-      select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
-             starts_with(ind)) %>%
-      mutate(admin_level = as.integer(admin_level))
-    # delete the last level
-    # filter(admin_level < 10)
-    
-    
-    # to long format
-    colnames_compare <- colnames(indicators_ind)[8:ncol(indicators_ind)]
-    # extract year
-    years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
-                          replacement = "\\2",
-                          x = colnames_compare)
-    
-    colnames(indicators_ind) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", 
-                                  years_compare)
-    
-    indicators_ind <- tidyr::pivot_longer(indicators_ind,
-                                          cols = matches("\\d{4}"),
-                                          names_to = "year",
-                                          values_to = "value")
-    
-    # save
-    readr::write_rds(indicators_ind, sprintf("data/sample5/comp/indicators_compare_%s_%s.rds",
-                                             level, ind))
-    
+    atlas_country_ind <- atlas_country_ind %>% mutate(across(starts_with("city_poptotal"), ~ifelse(.x == 0, NA, .x)))
     
   }
   
-  # to long format
-  colnames_compare <- colnames(indicators_all_level)[8:ncol(indicators_all_level)]
-  # extract year
-  years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
-                        replacement = "\\1",
-                        x = colnames_compare)
-  ind_list <- unique(years_compare)
-  # apply
-  purrr::walk(ind_list, export_comparison)
+  # drop all NA
+  atlas_country_ind <- tidyr::drop_na(atlas_country_ind)
   
+  # save
+  if (nrow(atlas_country_ind) > 0) {
+    
+    readr::write_rds(atlas_country_ind, sprintf("data/sample5/countries/atlas_country_%s.rds",
+                                                ind))
+    
+  }
 }
 
 
-# filter level
-purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
+# to long format
+colnames_compare <- colnames(atlas_country)[3:ncol(atlas_country)]
+# extract year
+years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
+                      replacement = "\\1",
+                      x = colnames_compare)
+years_compare <- years_compare[-length(years_compare)]
+ind_list <- unique(years_compare)
+# apply
+purrr::walk(ind_list, save_countries)
+
+
+
+
+
 
 
 # list all osmid and names availables -------------------------------------

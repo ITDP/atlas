@@ -17,6 +17,7 @@ library(shinycssloaders)
 
 source("fun/accordion_input.R")
 source("fun/label_with_info.R")
+source("fun/accordion_ranks.R")
 
 `%nin%` = Negate(`%in%`)
 

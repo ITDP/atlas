@@ -27,66 +27,121 @@ observeEvent(c(input$back_to_world), {
   
   # print(paste0("pa: ", input$map_marker_click))
   
-  
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
-  # print(pattern)
-  cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
-  a <- atlas_city_markers[cols]
-  colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
-  
-  # print(class(atlas_country))
-  cols_country <- c('a3', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
-  a_country <- atlas_country[cols_country]
-  colnames(a_country) <- c('a3', 'valor', 'geometry')
-  
-  pal <- colorNumeric(
-    palette = "viridis",
-    # palette = "YlGnBu",
-    domain = a$valor)
-  
-  
-  pal_countries <- colorNumeric(
-    palette = "viridis",
-    # palette = "YlGnBu",
-    domain = a_country$valor)
-  
-  legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-  legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-  # format legend value
-  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
-  
-  # print(a)
-  
-  leafletProxy("map", data = a) %>%
+  map <- leafletProxy("map", data = world_view$a_available) %>%
     clearMarkers() %>%
     clearControls() %>%
-    removeLayersControl() %>%
     clearShapes() %>%
-    setView(lng = 0, lat = 0, zoom = 3) %>%
+    flyTo(lng = 0, lat = 0, zoom = 3) %>%
+    addMapPane("countries", zIndex = 410) %>% # shown below ames_circles
+    addMapPane("markers_navailable", zIndex = 420) %>% # shown above ames_lines
+    addMapPane("markers_available", zIndex = 430) %>% # shown above ames_lines
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
       radius = 8,
-      # fillColor = ~pal(valor), 
-      stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
-      opacity = 0.8,
-      weight = 1,
+      fillColor = ~world_view$pal(value),
+      stroke = TRUE, fillOpacity = 0.9, color = "black",
+      opacity = 0.9,
+      # weight = 1,
       layerId = ~hdc,
-      label = ~htmltools::htmlEscape(name)
+      label = lapply(world_view$labels_markers1, htmltools::HTML),
+      options = pathOptions(clickable = TRUE, pane = "markers_available"),
+      labelOptions = labelOptions(
+        style = list(
+          # "color" = "red",
+          "font-family" = "'Fira Sans', sans-serif",
+          # "font-style" = "italic",
+          # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+          "font-size" = "12px"
+          # "border-color" = "rgba(0,0,0,0.5)"
+        ))
     ) %>%
-    addPolygons(data = a_country, 
-                fillColor = ~pal_countries(valor), color = "black",  weight = 0,
-                options = pathOptions(clickable = FALSE)) %>%
+    addCircleMarkers(data = world_view$a_notavailable,
+                     # radius = ~ifelse(type == "ship", 6, 10),
+                     radius = 8,
+                     # fillColor = ~pal(valor), 
+                     stroke = TRUE, fillOpacity = 0.9, color = "#808080",
+                     opacity = 0.8,
+                     weight = 1,
+                     layerId = ~hdc,
+                     label = lapply(world_view$labels2, htmltools::HTML),
+                     # label = ~htmltools::htmlEscape(name),
+                     options = pathOptions(clickable = FALSE, pane = "markers_navailable")
+    ) %>%
+    addPolygons(data = world_view$a_country,
+                layerId = ~name,
+                fillColor = ~world_view$pal_countries(value), color = "black",  weight = 0, # erro nao eh aqui
+                fillOpacity = 0.7,
+                options = pathOptions(clickable = TRUE, pane = "countries"),
+                group = "Countries",
+                label = lapply(world_view$labels_country, htmltools::HTML)
+    ) %>%
     # add polygons with the country color
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-    addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
-              title = legend_title,
+    addLegend("bottomright", pal = world_view$pal_countries, values = ~world_view$a_country$value,
+              title = world_view$legend_title,
               # bins = 7,
-              labFormat = legend_value,
-              layerId = "legend_country") %>%
-    addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
-                     # overlayGroups = c("Overlay"),
-                     options = layersControlOptions(collapsed = FALSE),
-                     position = "topright")
+              labFormat = world_view$legend_value,
+              layerId = "legend_country")
+  
+  # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+  # # print(pattern)
+  # cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)])
+  # a <- atlas_city_markers[cols]
+  # colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'valor', 'geom')
+  # 
+  # # print(class(atlas_country))
+  # cols_country <- c('a3', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
+  # a_country <- atlas_country[cols_country]
+  # colnames(a_country) <- c('a3', 'valor', 'geometry')
+  # 
+  # pal <- colorNumeric(
+  #   palette = "viridis",
+  #   # palette = "YlGnBu",
+  #   domain = a$valor)
+  # 
+  # 
+  # pal_countries <- colorNumeric(
+  #   palette = "viridis",
+  #   # palette = "YlGnBu",
+  #   domain = a_country$valor)
+  # 
+  # legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+  # legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+  # # format legend value
+  # legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " km", transform = function(x) as.integer(x))
+  # 
+  # # print(a)
+  # 
+  # leafletProxy("map", data = a) %>%
+  #   clearMarkers() %>%
+  #   clearControls() %>%
+  #   removeLayersControl() %>%
+  #   clearShapes() %>%
+  #   setView(lng = 0, lat = 0, zoom = 3) %>%
+  #   addCircleMarkers(
+  #     # radius = ~ifelse(type == "ship", 6, 10),
+  #     radius = 8,
+  #     # fillColor = ~pal(valor), 
+  #     stroke = TRUE, fillOpacity = 0.9, color = "#00AE42",
+  #     opacity = 0.8,
+  #     weight = 1,
+  #     layerId = ~hdc,
+  #     label = ~htmltools::htmlEscape(name)
+  #   ) %>%
+  #   addPolygons(data = a_country, 
+  #               fillColor = ~pal_countries(valor), color = "black",  weight = 0,
+  #               options = pathOptions(clickable = FALSE)) %>%
+  #   # add polygons with the country color
+  #   # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
+  #   addLegend("bottomright", pal = pal_countries, values = ~a_country$valor,
+  #             title = legend_title,
+  #             # bins = 7,
+  #             labFormat = legend_value,
+  #             layerId = "legend_country") %>%
+  #   addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
+  #                    # overlayGroups = c("Overlay"),
+  #                    options = layersControlOptions(collapsed = FALSE),
+  #                    position = "topright")
 }) 
 
 
@@ -96,112 +151,112 @@ observeEvent(c(input$back_to_world), {
 # content of the right panel ----------------------------------------------
 
 
-observeEvent(c(input$back_to_world), {
-  
-  
-  
-  req(input$back_to_world >= 1)
-  
-  
-  # value
-  # print(paste0("type: ", indicator$type))
-  pattern <- sprintf("%s_%s", indicator$type, indicator$mode, "2022")
-  # print(pattern)
-  cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
-  # print(cols)
-  a <- atlas_country[cols]
-  colnames(a) <- c('name_long', 'valor', 'geometry')
-  # print(a)
-  # only top five
-  a <- a[order(-a$valor),]
-  a <- a[1:3,]
-  # mean for the world
-  rank_indicator <- mean(a$valor)
-  
-  # print("oooia")
-  # print(rank_indicator)
-  
-  # print(head(filter_rank()))
-  # print(spatial_level_value$last)
-  
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
-  
-  # format_indicator_name <- switch (indicator$mode,
-  #                                  "pnpb" = "People Near Protected Bike Lanes",
-  #                                  "pnab" = "People Near Bike Lanes",
-  #                                  "pnh" = "People Near pnh",
-  #                                  "pne" = "People Near pne",
-  #                                  "hs" = "People Near Services"
-  # )
-  
-  format_indicator_value <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-    scales::percent(rank_indicator)
-  } else round(rank_indicator)
-  
-  
-  format_indicator_value_countries1 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-    scales::percent(a$valor[1])
-  } else round(a$valor[1])
-  
-  format_indicator_value_countries2 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-    scales::percent(a$valor[2])
-  } else round(a$valor[2])
-  
-  format_indicator_value_countries3 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-    scales::percent(a$valor[3])
-  } else round((a$valor[3]))
-  
-  
-  # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-  rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
-                            '<div class="title_indicator" style="font-size: 20px;">', 
-                            'THE WORLD', '</div>',
-                            div(class = "value_indicator_rightpanel", format_indicator_value))
-  
-  rank$rank_value_world <- rank$rank_value
-  
-  
-  # ranking
-  
-  text_title <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "RANKING")
-  text1 <- sprintf("%s (%s)", 
-                   filter_rank_country()$name_long[1], 
-                   format_indicator_value_countries1)
-  text2 <- sprintf("%s (%s)", 
-                   filter_rank_country()$name_long[2], 
-                   format_indicator_value_countries2)
-  text3 <- sprintf("%s (%s)", 
-                   filter_rank_country()$name_long[3], 
-                   format_indicator_value_countries3)
-  
-  flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
-                    style = "float:left")
-  flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
-                    style = "float:left")
-  flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
-                    style = "float:left")
-  
-  # print(flag1)
-  
-  rank$rank_text <- paste0(text_title, "<br>",
-                           div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "1º" ),
-                           flag1,
-                           div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text1),
-                           div(style = "clear:both;"),
-                           div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "2º" ),
-                           flag2,
-                           div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text2),
-                           div(style = "clear:both;"),
-                           div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "3º" ),
-                           flag3,
-                           div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3))
-  
-  # print(rank$rank_text)
-  # print(rank$rank_value)
-  
-  rank$rank_text_world <- rank$rank_text_value
-  
-  
-  
-})
+# observeEvent(c(input$back_to_world), {
+#   
+#   
+#   
+#   req(input$back_to_world >= 1)
+#   
+#   
+#   # value
+#   # print(paste0("type: ", indicator$type))
+#   pattern <- sprintf("%s_%s", indicator$type, indicator$mode, "2022")
+#   # print(pattern)
+#   cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
+#   # print(cols)
+#   a <- atlas_country[cols]
+#   colnames(a) <- c('name_long', 'valor', 'geometry')
+#   # print(a)
+#   # only top five
+#   a <- a[order(-a$valor),]
+#   a <- a[1:3,]
+#   # mean for the world
+#   rank_indicator <- mean(a$valor)
+#   
+#   # print("oooia")
+#   # print(rank_indicator)
+#   
+#   # print(head(filter_rank()))
+#   # print(spatial_level_value$last)
+#   
+#   format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
+#   
+#   # format_indicator_name <- switch (indicator$mode,
+#   #                                  "pnpb" = "People Near Protected Bike Lanes",
+#   #                                  "pnab" = "People Near Bike Lanes",
+#   #                                  "pnh" = "People Near pnh",
+#   #                                  "pne" = "People Near pne",
+#   #                                  "hs" = "People Near Services"
+#   # )
+#   
+#   format_indicator_value <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+#     scales::percent(rank_indicator)
+#   } else round(rank_indicator)
+#   
+#   
+#   format_indicator_value_countries1 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+#     scales::percent(a$valor[1])
+#   } else round(a$valor[1])
+#   
+#   format_indicator_value_countries2 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+#     scales::percent(a$valor[2])
+#   } else round(a$valor[2])
+#   
+#   format_indicator_value_countries3 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
+#     scales::percent(a$valor[3])
+#   } else round((a$valor[3]))
+#   
+#   
+#   # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
+#   rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
+#                             '<div class="title_indicator" style="font-size: 20px;">', 
+#                             'THE WORLD', '</div>',
+#                             div(class = "value_indicator_rightpanel", format_indicator_value))
+#   
+#   rank$rank_value_world <- rank$rank_value
+#   
+#   
+#   # ranking
+#   
+#   text_title <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "RANKING")
+#   text1 <- sprintf("%s (%s)", 
+#                    filter_rank_country()$name_long[1], 
+#                    format_indicator_value_countries1)
+#   text2 <- sprintf("%s (%s)", 
+#                    filter_rank_country()$name_long[2], 
+#                    format_indicator_value_countries2)
+#   text3 <- sprintf("%s (%s)", 
+#                    filter_rank_country()$name_long[3], 
+#                    format_indicator_value_countries3)
+#   
+#   flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
+#                     style = "float:left")
+#   flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
+#                     style = "float:left")
+#   flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
+#                     style = "float:left")
+#   
+#   # print(flag1)
+#   
+#   rank$rank_text <- paste0(text_title, "<br>",
+#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "1º" ),
+#                            flag1,
+#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text1),
+#                            div(style = "clear:both;"),
+#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "2º" ),
+#                            flag2,
+#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text2),
+#                            div(style = "clear:both;"),
+#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "3º" ),
+#                            flag3,
+#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3))
+#   
+#   # print(rank$rank_text)
+#   # print(rank$rank_value)
+#   
+#   rank$rank_text_world <- rank$rank_text_value
+#   
+#   
+#   
+# })
 
