@@ -1,38 +1,10 @@
 # show ranks on the right panel -------------------------------------------
 
-# get_rank <- reactive({
-#   
-#   # only for city level
-#   req(city$city_code)
-#   # filter rank from rank files
-#   a <- readRDS(sprintf("../data/sample5/ranks/rank_%s.rds", city$city_code))
-#   
-#   
-# })
-
-# filter_rank <- reactive({
-#   
-#   
-#   req(city$city_code, indicator$mode)
-#   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
-#   # print("pattern")
-#   # print(pattern)
-#   cols <- c('country', 'osmid', 'admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'type_rank', 'n')
-#   a <- get_rank()[cols]
-#   colnames(a) <- c('country', 'osmid','admin_level_ordered', 'name', 'rank', 'type_rank', 'n')
-#   
-#   # print("head(a)")
-#   # print(head(a))
-#   return(a)
-#   
-# })  
-
 rank_country <- reactive({
   
   req(indicator$type, is.null(rank$admin_level))    
   
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-  # print(paste0("pattern: ", indicator$mode))
   
   # open data
   a <- readRDS(sprintf("../data/sample5/countries/ranks/atlas_country_rank_%s.rds", pattern))
@@ -268,13 +240,17 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, input$year), {
 )
 
 # display rank when region or map is clicked
-observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
+observeEvent(c(input$map_shape_click, city$city_code,
                input$year,
-               input$indicator_bike, input$indicator_walk, input$indicator_transit,
+               indicator$mode,
+               # input$indicator_bike, input$indicator_walk, input$indicator_transit,
                input$regions_grid), label = "rank", {
                  
                  
-                 req(data_ind3(), input$regions_grid)
+                 req(data_ind3())
+                 
+                 # print("rank$admin_level")
+                 # print(rank$admin_level)
                  
                  # get the region that was clicked
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
@@ -298,6 +274,7 @@ observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
                    
                    
                  } else round(rank_indicator$valor)
+                 
                  
                  
                  
@@ -353,7 +330,7 @@ observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
                    # for the region case
                  } else if (rank$admin_level == 1) {
                    
-                   
+                   print("puhhh")
                    
                    # open the ranks text
                    indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
@@ -454,8 +431,8 @@ observeEvent(c(input$map_shape_click, input$indicator_city, input$city,
                    scroll_world <- HTML(subset(scroll_text, type_rank == "country" & year == input$year)$text)
                    scroll_country <- HTML(subset(scroll_text, type_rank == "metro"  & year == input$year)$text)
                    
-                   print("scroll_world")
-                   print(scroll_world)
+                   # print("scroll_world")
+                   # print(scroll_world)
                    
                    
                    
@@ -479,7 +456,7 @@ observeEvent(c(input$map_shape_click, city$city_code), {
   
   req(city$city_code != "")
   
-  print("pa")
+  # print("pa")
   
   delay(4000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
   delay(4000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))

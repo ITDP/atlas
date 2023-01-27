@@ -19,4 +19,9 @@ options(shiny.fullstacktrace = TRUE)
 
 # upload data -------------------------------------------------------------
 library(piggyback)
+pb_release_delete(repo = "ITDP/atlas", "v0.0.1")
 pb_new_release(repo = "ITDP/atlas", "v0.0.1")
+
+pb_upload("data/sample5.zip", 
+          repo = "ITDP/atlas", 
+          tag = "v0.0.1")
