@@ -1,9 +1,23 @@
-list_bike <- structure(c("pnpb", "pnab", "abikeways", "pbikeways"), 
-                       .Names = c("People Near Protected Bikelanes", "People Near All Bikelanes",
-                                  "Bikeways", "Protected Bikeways"))
+list_bike <- structure(c("pnpb" 
+                         # "pnab", 
+                         # "abikeways", 
+                         # "pbikeways"
+), 
+.Names = c("People Near Protected Bikelanes"
+           # "People Near All Bikelanes",
+           # "Bikeways", 
+           # "Protected Bikeways"
+))
 
-list_walk <- structure(c("pnh", "pne", "pns"), 
-                       .Names = c("People Near Healthcare", "People Near Education", "People Near Services"))
+list_walk <- structure(c(
+  # "pnh", 
+  # "pne", 
+  "pns"
+), 
+.Names = c(
+  # "People Near Healthcare", 
+  # "People Near Education", 
+  "People Near Services"))
 
 list_transit <- structure(c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
                           .Names = c(
@@ -19,15 +33,15 @@ list_performance <- structure(c("bikep45", "walkp45"),
 list_city <- structure(c(
   # "poptotal", 
   "popdensity",
-  "blockdensity"
-  # "pnnhighways"
+  "blockdensity",
+  "pnnhighways"
 ), 
 .Names = c(
   # "Block Density", 
   "Population Density&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
-  "Block Density&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-  # "People Not Near Highways"
-  ))
+  "Block Density&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
+  "People Not Near Highways"
+))
 
 
 fluidPage(
@@ -279,7 +293,8 @@ fluidPage(
                     tabPanel("MORE INFO",  value = "tab_viewmore",                                
                              absolutePanel(
                                class = "right_panel_textbox",
-                               top = 65, right = 5, width = 280,
+                               id = "right_panel_textbox_id_more",
+                               top = 65, right = 5, width = 285,
                                htmlOutput("text_indicator2")
                                
                              )
@@ -301,7 +316,7 @@ fluidPage(
     absolutePanel(class = "about_button", 
                   id = "download_button_id",
                   style = "background: #00AE42",
-                  top = 40, right = 450, height = 40, width = 130,
+                  top = 40, right = 452, height = 40, width = 130,
                   dropdown(
                     tagList(
                       downloadButton("downloadData1", "Download indicator for this region", icon = NULL),

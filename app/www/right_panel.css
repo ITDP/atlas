@@ -21,7 +21,7 @@
 position: relative;
 /* Gray/900 */
  background: #1C1C1C;
- height: calc(100vh - 150px) !important;
+ height: calc(100vh - 130px) !important;
 
   
 }
@@ -311,7 +311,7 @@ padding-left: 0px;
   
 }
 
-    #right_panel_textbox_id {
+    #right_panel_textbox_id, #right_panel_textbox_id_more {
       overflow-y: scroll;
           overflow-x: hidden;
 

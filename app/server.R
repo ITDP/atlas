@@ -786,6 +786,7 @@ function(input, output, session) {
   source("src/compare.R", local = TRUE)  
   source("src/download.R", local = TRUE)  
   source("src/indicator_not_available.R", local = TRUE)  
+  source("src/indicator_not_available_countries.R", local = TRUE)  
   
   
   

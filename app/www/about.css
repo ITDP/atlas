@@ -11,6 +11,11 @@ background: rgba(28, 28, 28, 0.8);
   border-radius: 4px;
   padding: 0px;
 border: 1px solid #495057;
+overflow-y: scroll;
+}
+
+.tab-content {
+overflow-y: scroll !important;  
 }
 
 .about_button {

@@ -1,3 +1,6 @@
+# this script is disabled for now - all cities have all the indicators
+
+
 # function to disable indicators on the left panel
 disable_indicators <- function(indicators) {
   
