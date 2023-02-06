@@ -108,7 +108,7 @@ fluidPage(
     # title = "Atlas", 
     # value = "tab_general",
     # Output the map
-    leafglOutput("map"),
+    leafletOutput("map"),
     # leafletOutput("map"),
     # create the napel to select city
     
