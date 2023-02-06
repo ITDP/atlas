@@ -12,10 +12,12 @@ observeEvent(c(input$back_to_world), {
   
   req(input$back_to_world >= 1)
   
-  print("back to world")
+  # print("back to world")
   
   # reset the admin level
   rank$admin_level <- NULL
+  # reset the indicator
+  indicator$mode <- "pnpb"
   
   # reset the city values
   shinyWidgets::updatePickerInput(session = session, inputId = "city",
@@ -94,121 +96,16 @@ observeEvent(c(input$back_to_world), {
   rank$rank_text <- rank$rank_text_world  
   rank$rank_value <- rank$rank_value_world  
   
+  
+
+  # remove the compare button (not available at the world view) ---------------------------------
+  delay(2, runjs("$('#compare_panel').css('display', 'none');"))
+
+  
+  
 }) 
 
 
 
 
-
-# content of the right panel ----------------------------------------------
-
-
-# observeEvent(c(input$back_to_world), {
-#   
-#   
-#   
-#   req(input$back_to_world >= 1)
-#   
-#   
-#   # value
-#   # print(paste0("type: ", indicator$type))
-#   pattern <- sprintf("%s_%s", indicator$type, indicator$mode, "2022")
-#   # print(pattern)
-#   cols <- c('name_long', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], "geometry")
-#   # print(cols)
-#   a <- atlas_country[cols]
-#   colnames(a) <- c('name_long', 'valor', 'geometry')
-#   # print(a)
-#   # only top five
-#   a <- a[order(-a$valor),]
-#   a <- a[1:3,]
-#   # mean for the world
-#   rank_indicator <- mean(a$valor)
-#   
-#   # print("oooia")
-#   # print(rank_indicator)
-#   
-#   # print(head(filter_rank()))
-#   # print(spatial_level_value$last)
-#   
-#   format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicador_name
-#   
-#   # format_indicator_name <- switch (indicator$mode,
-#   #                                  "pnpb" = "People Near Protected Bike Lanes",
-#   #                                  "pnab" = "People Near Bike Lanes",
-#   #                                  "pnh" = "People Near pnh",
-#   #                                  "pne" = "People Near pne",
-#   #                                  "hs" = "People Near Services"
-#   # )
-#   
-#   format_indicator_value <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-#     scales::percent(rank_indicator)
-#   } else round(rank_indicator)
-#   
-#   
-#   format_indicator_value_countries1 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-#     scales::percent(a$valor[1])
-#   } else round(a$valor[1])
-#   
-#   format_indicator_value_countries2 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-#     scales::percent(a$valor[2])
-#   } else round(a$valor[2])
-#   
-#   format_indicator_value_countries3 <- if(indicator$mode %in% c("pnpb", "pnab", "pnh", "pne", "pns")) {
-#     scales::percent(a$valor[3])
-#   } else round((a$valor[3]))
-#   
-#   
-#   # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-#   rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 20px">THIS INDICATOR IN </div>', 
-#                             '<div class="title_indicator" style="font-size: 20px;">', 
-#                             'THE WORLD', '</div>',
-#                             div(class = "value_indicator_rightpanel", format_indicator_value))
-#   
-#   rank$rank_value_world <- rank$rank_value
-#   
-#   
-#   # ranking
-#   
-#   text_title <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "RANKING")
-#   text1 <- sprintf("%s (%s)", 
-#                    filter_rank_country()$name_long[1], 
-#                    format_indicator_value_countries1)
-#   text2 <- sprintf("%s (%s)", 
-#                    filter_rank_country()$name_long[2], 
-#                    format_indicator_value_countries2)
-#   text3 <- sprintf("%s (%s)", 
-#                    filter_rank_country()$name_long[3], 
-#                    format_indicator_value_countries3)
-#   
-#   flag1 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
-#                     style = "float:left")
-#   flag2 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
-#                     style = "float:left")
-#   flag3 <- tags$img(src = sprintf("https://flagicons.lipis.dev/flags/4x3/%s.svg", substr(tolower(filter_rank_country()$a3[1]), 1, 2)), width = "25",
-#                     style = "float:left")
-#   
-#   # print(flag1)
-#   
-#   rank$rank_text <- paste0(text_title, "<br>",
-#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "1º" ),
-#                            flag1,
-#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text1),
-#                            div(style = "clear:both;"),
-#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "2º" ),
-#                            flag2,
-#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text2),
-#                            div(style = "clear:both;"),
-#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; font-size: 20px; float: left", "3º" ),
-#                            flag3,
-#                            div(class = "text_compare", style = "padding-bottom: 0px; padding-top: 0px; float: left", text3))
-#   
-#   # print(rank$rank_text)
-#   # print(rank$rank_value)
-#   
-#   rank$rank_text_world <- rank$rank_text_value
-#   
-#   
-#   
-# })
 

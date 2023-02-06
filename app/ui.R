@@ -18,11 +18,16 @@ list_performance <- structure(c("bikep45", "walkp45"),
 
 list_city <- structure(c(
   # "poptotal", 
-  "density"
+  "popdensity",
+  "blockdensity"
+  # "pnnhighways"
 ), 
 .Names = c(
   # "Block Density", 
-  "Population Density&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"))
+  "Population Density&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
+  "Block Density&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+  # "People Not Near Highways"
+  ))
 
 
 fluidPage(
@@ -89,7 +94,7 @@ fluidPage(
     # title = "Atlas", 
     # value = "tab_general",
     # Output the map
-    leafletOutput("map"),
+    leafglOutput("map"),
     # leafletOutput("map"),
     # create the napel to select city
     
@@ -132,11 +137,12 @@ fluidPage(
                                 accordion_input(inputId = "indicator_transit",
                                                 label = "Transit",
                                                 choices = c(list_transit),
-                                                selected = character(0)),
-                                accordion_input(inputId = "indicator_performance",
-                                                label = "Performance",
-                                                choices = c(list_performance),
                                                 selected = character(0))
+                                # for now, this indicators will not be available
+                                # accordion_input(inputId = "indicator_performance",
+                                #                 label = "Performance",
+                                #                 choices = c(list_performance),
+                                #                 selected = character(0))
                                 
                   )
                   

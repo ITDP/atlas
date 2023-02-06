@@ -16,7 +16,7 @@ ind_city <- reactive({
     
     pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
     
-    a <- readRDS(sprintf("data/sample5/indicators_compare_country/indicators_compare_country_%s.rds", pattern))
+    a <- readRDS(sprintf("data/data_alpha/indicators_compare_country/indicators_compare_country_%s.rds", pattern))
     
     return(a)
     
@@ -27,7 +27,7 @@ ind_city <- reactive({
     pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
     
     # open data
-    a <- readRDS(sprintf("../data/sample5/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+    a <- readRDS(sprintf("../data/data_alpha/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                          city$city_code, city$city_code, pattern))
     
     return(a)
@@ -57,7 +57,7 @@ ind_compare <- reactive({
   # print(pattern)
   
   # open data
-  a <- readRDS(sprintf("../data/sample5/comp/indicators_compare_%s_%s.rds",
+  a <- readRDS(sprintf("../data/data_alpha/comp/indicators_compare_%s_%s.rds",
                        level, pattern))
   
   return(a)

@@ -7,7 +7,7 @@ rank_country <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/sample5/countries/ranks/atlas_country_rank_%s.rds", pattern))
+  a <- readRDS(sprintf("../data/data_alpha/countries/ranks/atlas_country_rank_%s.rds", pattern))
   
   return(a)
   
@@ -100,15 +100,17 @@ observeEvent(c(indicator$mode, input$year), {
     } else round(rank_indicator)
     
     
-    format_indicator_value <- if(format_indicator_unit_value == "percent") {
-      round(country_values$value * 100) 
-      
-    } else if(format_indicator_unit_value %in% "thousands") {
-      
-      if (country_values$value >= 1000000) scales::comma(country_values$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(country_values$value, accuracy = 1, scale = 0.001, suffix = "k")
-      
-      
-    } else round(country_values$value)
+    format_indicator_value <- format_indicator_values(country_values$value, transformation = format_indicator_unit_value)
+    
+    # format_indicator_value <- if(format_indicator_unit_value == "percent") {
+    #   round(country_values$value * 100) 
+    #   
+    # } else if(format_indicator_unit_value %in% "thousands") {
+    #   
+    #   if (country_values$value >= 1000000) scales::comma(country_values$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(country_values$value, accuracy = 1, scale = 0.001, suffix = "k")
+    #   
+    #   
+    # } else round(country_values$value)
     
     # print("here")
     # print(format_indicator_value_countries)
@@ -247,7 +249,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                input$regions_grid), label = "rank", {
                  
                  
-                 req(data_ind3())
+                 req(data_ind3(), data_ind3_spatial())
                  
                  # print("rank$admin_level")
                  # print(rank$admin_level)
@@ -265,15 +267,18 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  # print(format_indicator_unit_value)
                  # print("format_indicator_unit_value")
                  
-                 format_indicator_value <- if(indicator_info$transformation == "percent") {
-                   round(rank_indicator$valor * 100) 
-                   
-                 } else if(indicator_info$transformation %in% "thousands") {
-                   
-                   if (rank_indicator$valor >= 1000000) scales::comma(rank_indicator$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator$valor, accuracy = 1, scale = 0.001, suffix = "k")
+                 format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
                    
                    
-                 } else round(rank_indicator$valor)
+                 #   if(indicator_info$transformation == "percent") {
+                 #   round(rank_indicator$value * 100) 
+                 #   
+                 # } else if(indicator_info$transformation %in% "thousands") {
+                 #   
+                 #   if (rank_indicator$value >= 1000000) scales::comma(rank_indicator$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator$value, accuracy = 1, scale = 0.001, suffix = "k")
+                 #   
+                 #   
+                 # } else round(rank_indicator$value)
                  
                  
                  
@@ -334,7 +339,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                    # open the ranks text
                    indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                   ranks_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                   ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
                    ranks_text1 <- subset(ranks_text, type_rank == "world" & year == input$year)
                    rank_text_world <- ranks_text1$text
                    rank$value <- ranks_text1$rank
@@ -344,7 +349,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    rank$value <- c(rank$value, ranks_text2$rank)
                    
                    # open the scroll text
-                   scroll_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                   scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
                    scroll_world <- HTML(subset(scroll_text, type_rank == "world" & year == input$year)$text)
                    scroll_country <- HTML(subset(scroll_text, type_rank == "country" & year == input$year)$text)
                    
@@ -398,14 +403,14 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                    # open the ranks text
                    indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                   ranks_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                   ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                    ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == input$year)
                    rank$value <- ranks_text$rank
                    rank_text_country <- ranks_text$text
                    
                    # open the scroll text
-                   scroll_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   scroll_country <- subset(scroll_text, type_rank == "metro" & year == input$year)
+                   scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                   scroll_country <- HTML(subset(scroll_text, type_rank == "metro" & year == input$year)$text)
                    
                    
                    text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
@@ -417,7 +422,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                    # open the ranks text
                    indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                   ranks_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                   ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                    ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui & year == input$year)
                    rank$value <- ranks_text1$rank
                    rank_text_world <- ranks_text1$text
@@ -427,7 +432,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    rank_text_country <- ranks_text2$text
                    
                    # open the scroll text
-                   scroll_text <- readRDS(sprintf("../data/sample5/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                   scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                    scroll_world <- HTML(subset(scroll_text, type_rank == "country" & year == input$year)$text)
                    scroll_country <- HTML(subset(scroll_text, type_rank == "metro"  & year == input$year)$text)
                    
@@ -487,16 +492,16 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
     
     
     # print(format_indicator_unit_value)
-    # print(rank_indicator$valor)
+    # print(rank_indicator$value)
     
     format_indicator_value <- if(indicator_info$transformation == "percent") {
-      round(rank_indicator$valor * 100) 
+      round(rank_indicator$value * 100) 
       
     } else if(indicator_info$transformation %in% "thousands") {
       
-      if (rank_indicator$valor >= 1000000) scales::comma(rank_indicator$valor, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator$valor, accuracy = 1, scale = 0.001, suffix = "k")
+      if (rank_indicator$value >= 1000000) scales::comma(rank_indicator$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator$value, accuracy = 1, scale = 0.001, suffix = "k")
       
-    } else round(rank_indicator$valor)
+    } else round(rank_indicator$value)
     
     # print("no idea")
     # print(rank_indicator$name)

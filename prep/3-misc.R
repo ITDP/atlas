@@ -11,15 +11,15 @@ list_indicators <- read_sheet(
 
 
 # salvar
-write_rds(list_indicators, "data/sample5/list_indicators.rds")
+write_rds(list_indicators, "data/data_alpha/list_indicators.rds")
 
 
-# block density list
-list_block <- read_sheet(
-  ss = "https://docs.google.com/spreadsheets/d/1c3KL909dthuTFMq_snm55fURK4v5yCWJ-30kRqtnaqw/edit?usp=sharing",
-  sheet = "Sheet1"
-) %>% as.data.frame()
-
-
-# salvar
-write_rds(list_block, "data/sample5/list_block_density.rds")
+# # block density list
+# list_block <- read_sheet(
+#   ss = "https://docs.google.com/spreadsheets/d/1c3KL909dthuTFMq_snm55fURK4v5yCWJ-30kRqtnaqw/edit?usp=sharing",
+#   sheet = "Sheet1"
+# ) %>% as.data.frame()
+# 
+# 
+# # salvar
+# write_rds(list_block, "data/sample5/list_block_density.rds")

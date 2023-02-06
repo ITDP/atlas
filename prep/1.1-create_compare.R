@@ -2,7 +2,7 @@
 
 # save indicators by each city by each admin level - for comparison --------
 
-indicators_all <- purrr::map_dfr(dir("data/sample5", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+indicators_all <- purrr::map_dfr(dir("data/data_alpha", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
 # remove polygon
@@ -21,7 +21,7 @@ export_by_osmid <- function(ghsl) {
   save_ind <- function(ind) {
     
     indicators_ind <- indicators %>% 
-      select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
+      dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
              starts_with(ind))
     # to long format
     colnames_compare <- colnames(indicators_ind)[8:ncol(indicators_ind)]
@@ -38,11 +38,11 @@ export_by_osmid <- function(ghsl) {
                                           names_to = "year",
                                           values_to = "value")
     
-    dir.create(sprintf("data/sample5/ghsl_%s/indicators_compare",
+    dir.create(sprintf("data/data_alpha/ghsl_%s/indicators_compare",
                        ghsl))
     
     # save
-    readr::write_rds(indicators_ind, sprintf("data/sample5/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+    readr::write_rds(indicators_ind, sprintf("data/data_alpha/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                                              ghsl, ghsl, ind))
     
     
@@ -60,7 +60,7 @@ export_by_osmid <- function(ghsl) {
 }
 
 # apply to all cities
-cities_available <- unique(data_all$hdc)
+cities_available <- unique(indicators_all$hdc)
 purrr::walk(cities_available, export_by_osmid)
 
 
@@ -80,7 +80,7 @@ export_comparison1 <- function(level) {
     
     
     indicators_ind <- indicators_all_level %>% 
-      select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
+      dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
              starts_with(ind)) %>%
       mutate(admin_level = as.integer(admin_level))
     # delete the last level
@@ -103,7 +103,7 @@ export_comparison1 <- function(level) {
                                           values_to = "value")
     
     # save
-    readr::write_rds(indicators_ind, sprintf("data/sample5/comp/indicators_compare_%s_%s.rds",
+    readr::write_rds(indicators_ind, sprintf("data/data_alpha/comp/indicators_compare_%s_%s.rds",
                                              level, ind))
     
     
@@ -137,7 +137,7 @@ purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 # save indicators by each city by each admin level - for comparison --------
 
 # open data
-indicators_all <- readRDS("data/sample5/atlas_country_polygons.rds")
+indicators_all <- readRDS("data/data_alpha/atlas_country_polygons.rds")
 
 # remove countties without data
 # indicators_all <- indicators_all %>% dplyr::filter(!is.na(bike_pnpb_2022))

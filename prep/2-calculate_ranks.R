@@ -9,7 +9,7 @@ indicators_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/13LZoiy0R
                                sheet = "Indicators")
 
 # open overall data
-world <- dir("data/sample5", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{5}.rds")
+world <- dir("data/data_alpha", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{5}.rds")
 data_world <- lapply(world, function(x) st_set_geometry(read_rds(x), NULL)) %>% rbindlist(fill = TRUE)
 data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level))
 
@@ -19,11 +19,11 @@ data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level))
 # create ranks for countries -------------------------------
 ranks_countries <- function(ind ) {
   
-  if(file.exists(sprintf("data/sample5/countries/atlas_country_%s.rds",
+  if(file.exists(sprintf("data/data_alpha/countries/atlas_country_%s.rds",
                          ind))) {
     
     
-    atlas_country <- readRDS(sprintf("data/sample5/countries/atlas_country_%s.rds",
+    atlas_country <- readRDS(sprintf("data/data_alpha/countries/atlas_country_%s.rds",
                                      ind))
     
     # calculate size of each group
@@ -34,7 +34,7 @@ ranks_countries <- function(ind ) {
       # create totals - NEED FIX
       mutate(n = n()) 
     
-    readr::write_rds(country_ranks, sprintf("data/sample5/countries/ranks/atlas_country_rank_%s.rds", ind))
+    readr::write_rds(country_ranks, sprintf("data/data_alpha/countries/ranks/atlas_country_rank_%s.rds", ind))
     
   }
   
@@ -62,7 +62,7 @@ rank_world <- data_world %>%
   # delete indicators that are NA
   group_by(admin_level) %>%
   # calculate size of each group
-  mutate(across(city_poptotal_1975:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+  mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
   # create totals - NEED FIX
   mutate(n = n()) %>%
   mutate(type_rank = "world") %>%
@@ -88,7 +88,7 @@ prep_data <- function(ghsl) {
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
   
-  dir.create(sprintf("data/sample5/ghsl_%s/ranks", ghsl))
+  dir.create(sprintf("data/data_alpha/ghsl_%s/ranks", ghsl))
   
   data <- data_world %>% filter(hdc == ghsl)
   
@@ -105,7 +105,7 @@ prep_data <- function(ghsl) {
     # delete indicators that are NA
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(across(city_poptotal_1975:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+    mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
     # create totals - NEED FIX
     mutate(n = n()) %>%
     mutate(type_rank = "country") %>%
@@ -117,7 +117,7 @@ prep_data <- function(ghsl) {
     filter(admin_level != 0) %>%
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(across(city_poptotal_1975:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+    mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
     # create totals - NEED FIX
     mutate(n = n()) %>%
     # create type of rank
@@ -151,7 +151,7 @@ prep_data <- function(ghsl) {
       # create the rankins for the hdc only / filter the indicator
       rank_complete_level_ind <- rank_complete_level %>%
         filter(hdc == ghsl) %>%
-        select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
+        dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
         # rename the indicators ranks/values to account for the years
         rename_with(~stringr::str_replace(.x, paste0(ind, "_"), ""), starts_with("rank")) %>%
         rename_with(~stringr::str_replace(.x, paste0(ind, "_"), "value_"), starts_with(ind)) %>%
@@ -177,7 +177,7 @@ prep_data <- function(ghsl) {
       
       # create the full list of rankings
       rank_complete_level_ind_full <- rank_complete_level %>%
-        select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
+        dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
         # rename the indicators ranks/values to account for the years
         rename_with(~stringr::str_replace(.x, paste0(ind, "_"), ""), starts_with("rank")) %>%
         rename_with(~stringr::str_replace(.x, paste0(ind, "_"), "value_"), starts_with(ind)) %>%
@@ -219,10 +219,10 @@ prep_data <- function(ghsl) {
       
       
       # save
-      write_rds(rank_complete_level_ind, sprintf("data/sample5/ghsl_%s/ranks/ranks_%s_%s_%s.rds", ghsl, ghsl, level, ind))
+      write_rds(rank_complete_level_ind, sprintf("data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", ghsl, ghsl, level, ind))
       
       # save the full list html code for this indicator
-      write_rds(rank_complete_level_ind_full, sprintf("data/sample5/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", ghsl, ghsl, level, ind))
+      write_rds(rank_complete_level_ind_full, sprintf("data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", ghsl, ghsl, level, ind))
       
     }
     
@@ -253,7 +253,7 @@ purrr::walk(cities_available,
             prep_data)
 
 
-prep_data("01406")
-prep_data("01361")
+# prep_data("01406")
+# prep_data("01361")
 
 
