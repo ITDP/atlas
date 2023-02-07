@@ -100,7 +100,8 @@ output$comparison_chart <- renderHighchart({
       
     } else round(value_city$value)
     
-    if (indicator$mode %in% c("pnpb", "pnab")) {
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                              "pncf", "pnft")) {
       
       hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
              name = unique(value_city$name),
@@ -205,7 +206,8 @@ observeEvent(c(input$city_compare), {
   # identify type of chart
   
   
-  if (indicator$mode %in% c("pnpb", "pnab")) {
+  if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                            "pncf", "pnft")) {
     
     
     
@@ -283,7 +285,8 @@ output$comparison_max <- renderHighchart({
     
   } else round(value_city$value)
   
-  if (indicator$mode %in% c("pnpb", "pnab")) {
+  if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                            "pncf", "pnft")) {
     
     
     hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
@@ -625,7 +628,8 @@ observeEvent(c(input$city_compare1), {
   # print(input$city_compare)
   # print(ordered_colnames())
   
-  if (indicator$mode %in% c("pnpb", "pnab")) {
+  if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                            "pncf", "pnft")) {
     
     
     
