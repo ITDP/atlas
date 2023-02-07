@@ -29,7 +29,7 @@ indicator_info <- reactiveValues(name = NULL,
 
 
 # display initial rank with indicators - in the world view
-observeEvent(c(indicator$mode, input$year), {
+observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   
   
   

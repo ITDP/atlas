@@ -115,7 +115,7 @@ counter <- reactiveValues(obs1 = NULL,
 
 
 # update the world map when the indicators is changed ---------------------
-observeEvent(c(indicator$mode, input$year), {
+observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   
   req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
   

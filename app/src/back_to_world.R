@@ -17,7 +17,7 @@ observeEvent(c(input$back_to_world), {
   # reset the admin level
   rank$admin_level <- NULL
   # reset the indicator
-  indicator$mode <- "pnpb"
+  # indicator$mode <- "pnpb"
   
   # reset the city values
   shinyWidgets::updatePickerInput(session = session, inputId = "city",

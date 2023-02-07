@@ -10,8 +10,8 @@ observeEvent(c(city$city_code, indicator$mode), {
   
   print("a2")
   
-  delay(1, runjs(sprintf('$("#indicator_city > div > div:nth-child(2) > button").prop("disabled", true);', "popdensity" )))
-  delay(1, runjs(sprintf('$("#indicator_city > div > div:nth-child(3) > button").prop("disabled", true);', "popdensity" )))
+  delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").prop("disabled", true);' ))
+  delay(1, runjs('$("#indicator_city > div > div:nth-child(3) > button").prop("disabled", true);' ))
   
   
   
@@ -25,8 +25,8 @@ observeEvent(c(city$city_code), {
   
   # print("a2")
   
-  delay(1, runjs(sprintf('$("#indicator_city > div > div:nth-child(2) > button").prop("disabled", false);', "popdensity" )))
-  delay(1, runjs(sprintf('$("#indicator_city > div > div:nth-child(3) > button").prop("disabled", false);', "popdensity" )))
+  delay(1, runjs('$("#indicator_city > div > div:nth-child(2) > button").prop("disabled", false);'))
+  delay(1, runjs('$("#indicator_city > div > div:nth-child(3) > button").prop("disabled", false);'))
   
   
   
