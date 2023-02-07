@@ -134,7 +134,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     scroll_world <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>",
                             1:length(country_values$name), country_values$name, indicator_info$unit, format_indicator_value)  
     
-    scroll_world <- c("<div id=\"\" style=\"overflow-y:scroll; height:120px;\">",
+    scroll_world <- c("<div id=\"\" style=\"overflow-y:scroll; height:170px;\">",
                       scroll_world,
                       "</div>"
     )
@@ -457,14 +457,26 @@ observeEvent(c(input$map_shape_click, city$city_code,
 
 # change color of selected region in carrousel ----------------------------
 
-observeEvent(c(input$map_shape_click, city$city_code), {
+observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
   
   req(city$city_code != "")
   
   # print("pa")
   
-  delay(4000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
-  delay(4000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))
+  admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
+  
+  if(admin_level_osm >= 10) {
+    
+    delay(2000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
+    
+  } else {
+    
+    
+  delay(2000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
+  delay(2000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))
+    
+  }
+  
   
 })
 

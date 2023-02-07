@@ -209,7 +209,7 @@ prep_data <- function(ghsl) {
           collapse = "\n"
         )) %>%
         ungroup() %>%
-        mutate(text = paste("<div id=\"\" style=\"overflow-y:scroll; height:100px;\">",
+        mutate(text = paste("<div id=\"\" style=\"overflow-y:scroll; height:150px;\">",
                             text,
                             "</div>",
                             sep = "\n"

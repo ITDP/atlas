@@ -286,12 +286,16 @@ walk(cities_available, prep_data)
 
 # prep overlays -----------------------------------------------------------
 
+indicators_all <- purrr::map_dfr(dir("data/data_alpha", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+                                 readr::read_rds)
+
 # ghsl <- "0014"
 # ghsl <- "0088"
 # ghsl <- "0154"
 # ghsl <- "0634"
 # ghsl <- "01406"
 # ghsl <- "00021"
+# ghsl <- "09691"
 # ghsl <- cities_available[21]
 prep_overlays <- function(ghsl) {
   
@@ -303,7 +307,7 @@ prep_overlays <- function(ghsl) {
   overlay_pop <- dir(paste0(base_dir, "geodata/population"), full.names = TRUE, pattern = ".tif$", recursive = TRUE)
   
   # filter only our overlays
-  overlay_files1 <- overlay_files[overlay_files %like% c("allbike_latlon|h\\+slatlon|healthcarelatlon|pnablatlon|pnpblatlon|pnftlatlon|protectedbike|schools|block_densities_latlon")]
+  overlay_files1 <- overlay_files[overlay_files %like% c("allbike_latlon|h\\+slatlon|healthcarelatlon|pnablatlon|pnpblatlon|pnftlatlon|protectedbike|schools|block_densities_latlon|buffered_hwys_latlon|carfreelatlon")]
   
   # the overlay files only have the shape geom, so we need to give them names based on the filename
   # read overlays
@@ -441,6 +445,7 @@ prep_overlays <- function(ghsl) {
     
     ~ind, ~indicator,
     "pop.tif",            "city_popdensity",
+    "buffered_hwys_latlon.geojson",            "city_pnnhighways",
     "block_densities_latlon.geojson",            "city_blockdensity",
     "pnpblatlon.geojson",            "bike_pnpb",
     "pnablatlon.geojson",            "bike_pnab",
@@ -449,7 +454,7 @@ prep_overlays <- function(ghsl) {
     "healthcarelatlon.geojson",      "walk_pnh",
     "schoolslatlon.geojson",         "walk_pne",
     "h+slatlon.geojson",             "walk_pns",
-    "carfreelatlon.geojson",         "walk_cf",
+    "carfreelatlon.geojson",         "walk_pncf",
     "pnftlatlon.geojson",            "transit_pnft",
     "all_isochrones_ll.geojson",     "transit_pnrtall",
     "lrt_isochrones_ll.geojson",     "transit_pnrtlrt",
@@ -488,7 +493,7 @@ prep_overlays <- function(ghsl) {
     dplyr::select(-ind)
   
   # we should overlays for all available indicators, so we need to check that
-  overlay_missing <- setdiff(colnames(data)[8:(length(colnames(data)) - 1)], overlay_df$indicator)
+  overlay_missing <- setdiff(colnames(indicators_all)[8:(length(colnames(indicators_all)) - 1)], overlay_df$indicator)
   
   if (!is.null(overlay_missing)) {
     
@@ -588,20 +593,6 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_alpha/atlas_city_markers.
 
 # calculate mean for each country -----------------
 
-# # extract the country
-# atlas_country <- indicators_all %>%
-#   st_set_geometry(NULL) %>%
-#   # select(-geom) %>%
-#   filter(admin_level == 0) %>%
-#   group_by(a3) %>%
-#   summarise(across(city_poptotal_1975:last_col(), mean, na.rm = TRUE)) %>%
-#   ungroup()
-# 
-# # bring the shapes
-# atlas_country <- atlas_country %>%
-#   left_join(select(spData::world, iso_a2, name_long), by = c("a2" = "iso_a2")) %>%
-#   st_sf(crs = 4326) %>%
-#   select(a2, name_long, everything())
 
 atlas_country <- st_read("data-raw/data_alpha/country_results/country_results.geojson")
 atlas_country <- rmapshaper::ms_simplify(atlas_country)
@@ -705,6 +696,7 @@ atlas_country <- atlas_country %>%
   dplyr::select(a3, name,
                 starts_with("city_popdensity"),
                 starts_with("city_blockdensity"),
+                starts_with("city_pnnhighways"),
                 starts_with("bike_pnab"),
                 starts_with("bike_pnpb"),
                 starts_with("bike_abikeways"),

@@ -12,12 +12,15 @@ list_bike <- structure(c("pnpb"
 list_walk <- structure(c(
   # "pnh", 
   # "pne", 
-  "pns"
+  "pns",
+  "pncf"
 ), 
 .Names = c(
   # "People Near Healthcare", 
   # "People Near Education", 
-  "People Near Services"))
+  "People Near Services",
+  "People New Car Free Places"
+  ))
 
 list_transit <- structure(c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
                           .Names = c(

@@ -401,15 +401,15 @@ observeEvent(c(city$city_code), {
     
     pal <- colorNumeric(
       palette = "Blues",
-      domain = data_overlays_sf()$value.x)
+      domain = overlay_geom$polygon$value)
     
     map <- map %>%
-      addPolygons(data = data_overlays_sf(),
+      addPolygons(data = overlay_geom$polygon,
                   group = "Overlay",
                   options = pathOptions(clickable = FALSE, pane = "overlay"),
                   # layerId = "overlay_layer",
-                  opacity = 0.7,
-                  color =  ~pal(value.x),
+                  fillOpacity = 0.5,
+                  color =  ~pal(value),
                   weight = 0) %>%
       addLayersControl(overlayGroups = c("Regions", "Overlay"),
                        baseGroups = c("Dark", "Light", "Satellite"),
@@ -654,7 +654,7 @@ observeEvent(c(indicator$mode, input$year), {
                   group = "Overlay",
                   options = pathOptions(clickable = FALSE, pane = "overlay"),
                   # layerId = "overlay_layer",
-                  opacity = 0.7,
+                  fillOpacity = 0.5,
                   color =  ~pal(value),
                   weight = 0) %>%
       addLayersControl(overlayGroups = c("Regions", "Overlay"),
