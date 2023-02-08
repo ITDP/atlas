@@ -99,7 +99,7 @@ observeEvent(c(input$back_to_world), {
   
 
   # remove the compare button (not available at the world view) ---------------------------------
-  delay(2, runjs("$('#compare_panel').css('display', 'none');"))
+  # delay(2, runjs("$('#compare_panel').css('display', 'none');"))
 
   
   
