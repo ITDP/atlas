@@ -726,7 +726,7 @@ observeEvent(c(city$city_code,
                input$admin_level,
                input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
                  
-                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
+                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
                  
                  
                }, ignoreInit = TRUE)
