@@ -232,14 +232,14 @@ function(input, output, session) {
   
   # hides the comparison button when the user is in the global view -----------------------------
   observeEvent(c(city$city_code), {
-
+    
     req(city$city_code != "", city$times == 0)
-
+    
     # print("BEEEEEEEEEEEEEEEM")
-
+    
     shinyjs::show("compare_panel")
-
-
+    
+    
   }, once = FALSE)
   
   
@@ -248,11 +248,15 @@ function(input, output, session) {
     
     req(input$admin_level, data_ind3_spatial(), indicator$mode)
     
+    # print("Compare AAAAAAA")
+    # print(data_ind3_spatial())
     
-    
-    # get the admin level original
-    al <- as.numeric(unique(data_ind3_spatial()$admin_level))
-    
+    # try again if input is not ready
+      
+      # get the admin level original
+      al <- as.numeric(unique(data_ind3_spatial()$admin_level))
+      
+      
     # print("al")
     # print(al)
     
@@ -289,7 +293,10 @@ function(input, output, session) {
   
   output$comparison_panel <- renderUI({
     
-    # print("cuma")
+    
+    req(city$city_code != "")
+    
+    print("cuma")
     
     
     

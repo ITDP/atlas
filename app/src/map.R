@@ -298,6 +298,7 @@ observeEvent(c(city$city_code), {
   bbox <- sf::st_bbox(data_ind())
   
   # subset for the metro region polygons
+  # data_metro <- subset(data_ind3_spatial())
   data_metro <- subset(data_ind3(), admin_level_ordered == 1)
   
   # print("data_metro")
@@ -696,7 +697,7 @@ observeEvent(c(indicator$mode, input$year), {
                      layerId = "overlay_layer",
                      color = "#00AE42"
                      # pane = "overlay"
-                     ) %>%
+      ) %>%
       # addLegend("bottomleft", pal = pal, values = ~value) %>%
       addLayersControl(overlayGroups = c("Regions", "Overlay"),
                        baseGroups = c("Dark", "Light", "Satellite"),
@@ -725,7 +726,7 @@ observeEvent(c(city$city_code,
                input$admin_level,
                input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
                  
-                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
+                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
                  
                  
                }, ignoreInit = TRUE)
@@ -742,6 +743,7 @@ data_ind3_spatial <- reactive({
   
   req(data_ind3(), input$admin_level)
   
+  
   # print("pera")
   
   if (indicator$type == "performance"  & input$regions_grid == "Grid") {
@@ -751,7 +753,18 @@ data_ind3_spatial <- reactive({
     
   } else {
     
-    a <- subset(data_ind3(), admin_level_ordered == input$admin_level)
+    
+    # print("QUEEEEEEEEEEEE")
+    if (length(data_ind3()$admin_level) == 1) {
+      
+      a <- subset(data_ind3(), admin_level_ordered == 1)
+      print("QUEEEEEEEEEEEE")
+      
+    } else {
+      
+      a <- subset(data_ind3(), admin_level_ordered == input$admin_level)
+    }
+    
     
     
   }
