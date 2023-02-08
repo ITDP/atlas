@@ -741,10 +741,17 @@ data_ind3_spatial <- reactive({
   # print(data_ind3())
   # print(input$admin_level)
   
-  req(data_ind3(), input$admin_level)
+  req(city$city_code != "", indicator$mode,  input$regions_grid)
+  # req(data_ind3(), input$admin_level, rank$admin_level)
   
   
   # print("pera")
+  # print(indicator$mode)
+  
+  # rank$admin_level
+  input$admin_level
+  
+  isolate({
   
   if (indicator$type == "performance"  & input$regions_grid == "Grid") {
     
@@ -754,21 +761,22 @@ data_ind3_spatial <- reactive({
   } else {
     
     
-    # print("QUEEEEEEEEEEEE")
     if (length(data_ind3()$admin_level) == 1) {
       
       a <- subset(data_ind3(), admin_level_ordered == 1)
-      print("QUEEEEEEEEEEEE")
       
     } else {
       
-      a <- subset(data_ind3(), admin_level_ordered == input$admin_level)
+      # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
+      a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
     }
+    
+    print("QUEEEEEEEEEEEE")
+    # print(a)
     
     
     
   }
-  
   
   
   # create the color palette
@@ -780,6 +788,8 @@ data_ind3_spatial <- reactive({
   a$fill <- pal(a$value)
   
   return(a)
+  
+  })
   
 })
 

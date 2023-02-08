@@ -89,137 +89,9 @@ function(input, output, session) {
   })
   
   
-  # output$left_panel_filter <- renderUI({
-  #   
-  #   # print("input$admin_level")
-  #   # print(input$admin_level)
-  #   
-  #   req(indicator$mode)
-  #   
-  #   year_options <- subset(list_availability, ind == indicator$mode)$availability
-  #   year_options <- unlist( strsplit(year_options, "[|]"))
-  #   year_options <- unique(year_options)
-  #   
-  #   
-  #   # hdc_available <-  subset(list_availability, ind = indicator$mode)$hdc
-  #   # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
-  #   
-  #   
-  #   tagList(
-  #     # conditionalPanel(
-  #     # condition = "ind_cum.indexOf(input.indicator_performance) > -1",
-  #     # condition = "typeof input.indicator_performance != ''",
-  #     absolutePanel(
-  #       # id = "controls",
-  #       class = "spatial_level",
-  #       # fixed = TRUE, draggable = FALSE,
-  #       bottom = 45, left = 300, height = 'auto', width = 120,
-  #       # 'typeof undefined' identifies when is null 
-  #       tags$div(class = "title_left_panel", style = "padding: 10px 0", "YEAR" ,
-  #                # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-  #                # class = "minimize")
-  #                tags$button(
-  #                  id = "tooltip_year",
-  #                  class="btn btn-light btn-xs",
-  #                  style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
-  #                  icon("circle-info")
-  #                  
-  #                ),
-  #       ),
-  #       div(
-  #         bsPopover(id = "tooltip_year",
-  #                   # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
-  #                   title = "",
-  #                   content = HTML(includeHTML('www/tooltips/tooltip_year.html')),
-  #                   placement = "right",
-  #                   trigger = "hover",
-  #                   options = list(container = "body")
-  #         )
-  #       ),
-  #       shinyWidgets::pickerInput(inputId = "year",
-  #                                 label = NULL,
-  #                                 choices = year_options,
-  #                                 selected = 2019,
-  #                                 options = shinyWidgets::pickerOptions(
-  #                                   size = 5
-  #                                 )
-  #                                 # selected = character(0)
-  #       )
-  #       
-  #     )
-  #     
-  #     # )
-  #   )
-  #   
-  #   
-  # })
   
   
   spatial_level_value <- reactiveValues(last = NULL)
-  
-  
-  # output$comparison_button <- renderUI({
-  #   
-  #   req(input$admin_level)
-  #   
-  #   
-  #   absolutePanel(
-  #     
-  #     
-  #     class = "spatial_level",
-  #     style = "background: #00AE42",
-  #     # class = "w3-container w3-animate-opacity", 
-  #     # class = "panel panel-default",
-  #     # fixed = TRUE, draggable = FALSE,
-  #     bottom = 45, left = 440, height = 'auto', width = 130,
-  #     # tags$div(class = "title_left_panel", 
-  #     #          # "COMPARE", 
-  #     #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
-  #     #                       class = "minimize"),
-  #     #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
-  #     #                       class = "minimize")
-  #     # ),
-  #     actionButton(inputId = "comparison_button", 
-  #                  label = "COMPARE",
-  #                  style = "display: inline; padding-right: 2px;"),
-  #     tags$button(
-  #       id = "tooltip_compare",
-  #       class="btn btn-light btn-xs",
-  #       style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
-  #       icon("circle-info")
-  #       
-  #     ),
-  #     # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
-  #     # , onclick = '$("#comparison_panel").toggle("show");'
-  #     
-  #     div(
-  #       bsPopover(id = "tooltip_compare",
-  #                 title = "",
-  #                 content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
-  #                 placement = "top",
-  #                 trigger = "hover",
-  #                 options = list(container = "body"))
-  #     )
-  #   )
-  #   
-  # })
-  
-  
-  
-  # observeEvent(c(input$comparison_button), {
-  # 
-  #   # print("input$comparison_button")
-  #   # print(as.numeric(input$comparison_button))
-  #   req(input$comparison_button >= 1)
-  #   
-  #   # toggle("lalala")
-  # 
-  #   # runjs("$( '#lalala' ).toggle();")
-  # 
-  #   print("parara")
-  #   
-  # 
-  # })
   
   
   # onclick("comparison_button", runjs("$( '#lalala' ).toggle();"))
@@ -244,19 +116,15 @@ function(input, output, session) {
   
   
   # create regions names for the comparison 
-  comparison_values <- reactive({
+  compare_rv <- reactiveValues(test = NULL)
+  
+  
+  observeEvent(c(data_ind3_spatial()), {
     
-    req(input$admin_level, data_ind3_spatial(), indicator$mode)
+    # get the admin level original
+    al <- as.numeric(unique(data_ind3_spatial()$admin_level))
     
-    # print("Compare AAAAAAA")
-    # print(data_ind3_spatial())
     
-    # try again if input is not ready
-      
-      # get the admin level original
-      al <- as.numeric(unique(data_ind3_spatial()$admin_level))
-      
-      
     # print("al")
     # print(al)
     
@@ -286,17 +154,65 @@ function(input, output, session) {
     
     # print("choices_names")
     # print(choices_names)
+    compare_rv$test <- choices_values
+    # return(choices_values)
     
-    return(choices_values)
     
   })
+  
+  # comparison_values <- reactive({
+  #   
+  #   req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level)
+  #   
+  #   # print("Compare AAAAAAA")
+  #   # print(data_ind3_spatial())
+  #   
+  #   # try again if input is not ready
+  #   
+  #   # get the admin level original
+  #   al <- as.numeric(unique(data_ind3_spatial()$admin_level))
+  #   
+  #   
+  #   # print("al")
+  #   # print(al)
+  #   
+  #   # first, select only the ones that are available for the indicator in question
+  #   hdc_available <-  subset(list_availability, ind == indicator$mode)$hdc
+  #   # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+  #   
+  #   # get options to show in the comparison
+  #   choices_comparison <- subset(list_osmid_name, admin_level == al)
+  #   # filter hdc with the indicators available
+  #   choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
+  #   # if is in the neigbourhood level (level >= 10), only show for the city in question
+  #   if (al >= 10) {
+  #     
+  #     # print("uhhhhhhhhhhhhhhhhhhhhhhhhh")
+  #     
+  #     choices_comparison <- subset(choices_comparison, hdc == city$city_code)
+  #     
+  #   }
+  #   
+  #   # remove the osmid that is already being shown
+  #   # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
+  #   # extract values
+  #   choices_values <- choices_comparison$osmid
+  #   choices_names <- choices_comparison$name
+  #   names(choices_values) <- choices_names
+  #   
+  #   # print("choices_names")
+  #   # print(choices_names)
+  #   
+  #   return(choices_values)
+  #   
+  # })
   
   output$comparison_panel <- renderUI({
     
     
     req(city$city_code != "")
     
-    print("cuma")
+    # print("cuma")
     
     
     
@@ -317,7 +233,7 @@ function(input, output, session) {
       
       shinyWidgets::pickerInput(inputId = "city_compare",
                                 label = NULL,
-                                choices = comparison_values(),
+                                choices = compare_rv$test,
                                 multiple = TRUE,
                                 options = shinyWidgets::pickerOptions(size = 15,
                                                                       iconBase = "fa",

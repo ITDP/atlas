@@ -161,6 +161,14 @@ observeEvent(c(input$admin_level), {
 
 observeEvent(c(city$city_code), {
   
+  req(city$city_code != "")
+  
+  rank$admin_level <- 1
+  
+})
+
+observeEvent(c(city$city_code), {
+  
   if (city$city_code != "") {
     
     rank$admin_level <- 1

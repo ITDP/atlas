@@ -88,7 +88,7 @@ data_ind2 <- reactive({
   cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'geom')
   a <- data_ind1()[cols]
   
-  indicator$mode <-indicator$mode
+  # indicator$mode <-indicator$mode
   
   # print(a)
   
@@ -144,7 +144,7 @@ data_overlays2 <- reactive({
 # filter year when available
 data_ind3 <- reactive({
   
-  req(indicator$mode, input$year, indicator$type)
+  req(indicator$mode, input$year)
   
   # print(indicator$mode)
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)

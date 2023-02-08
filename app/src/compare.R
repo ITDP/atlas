@@ -12,6 +12,8 @@ ind_city <- reactive({
   
   req(city$city_code)
   
+  city$city_code
+  
   if (city$city_code == "") {
     
     pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
@@ -84,6 +86,9 @@ output$comparison_chart <- renderHighchart({
     
     
     ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
+    
+    print("bumbaaaaaaaa\n")
+    print(ui)
     
     
     value_city <- subset(ind_city(), osmid == ui)
