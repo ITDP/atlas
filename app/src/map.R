@@ -258,7 +258,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
                 layerId = ~name,
                 fillColor = ~pal_countries(value), color = "black",  weight = 0, # erro nao eh aqui
                 fillOpacity = 0.7,
-                options = pathOptions(clickable = TRUE, pane = "countries"),
+                options = pathOptions(clickable = FALSE, pane = "countries"),
                 group = "Countries",
                 label = lapply(labels_country, htmltools::HTML)
     ) %>%
