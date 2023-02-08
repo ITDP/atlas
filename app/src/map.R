@@ -486,6 +486,9 @@ observeEvent(c(input$admin_level), {
 
 observeEvent(c(input$map_shape_click), {
   
+  waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+                          color = "rgba(233, 235, 240, .2)")
+  
   # this will only happen when we are beyond the city level
   req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
   
@@ -602,6 +605,8 @@ observeEvent(c(input$map_shape_click), {
   
   
   map
+  
+  waiter_hide()
   
 })
 
@@ -870,6 +875,9 @@ observeEvent(c(input$admin_level,
                  # print("ahahah")
                  # print(osm_selected$oi)
                  
+                 
+                 
+                 
                  map <- leafletProxy("map", session) %>%
                    # clearMarkers() %>%
                    startSpinner(list("lines" = 10, "length" = 10,
@@ -897,9 +905,10 @@ observeEvent(c(input$admin_level,
                  )
                  
                  
-                 print("pegouuuu")
+                 # print("pegouuuu")
                  
-                 
+                 # print("AHHHHHHHH")
+                 # print(data_ind3_spatial())
                  
                  map <- map %>%
                    addPolygons(data = data_ind3_spatial(), 

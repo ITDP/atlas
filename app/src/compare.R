@@ -1,44 +1,38 @@
-# data_all <- reactive({
-#   
-#   data_all <- readRDS("../data/sample3/all_indicators.rds")
-#   
-# })
-
 
 
 # get the values from other cities
 
 ind_city <- reactive({
+  # print("foi")
   
-  req(city$city_code)
+  req(city$city_code != "")
   
-  city$city_code
+  # if (city$city_code == "") {
+  #   
+  #   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+  #   
+  #   a <- readRDS(sprintf("data/data_alpha/indicators_compare_country/indicators_compare_country_%s.rds", pattern))
+  #   
+  #   return(a)
+  #   
+  #   
+  #   
+  # } else {
+  #   
+  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
-  if (city$city_code == "") {
-    
-    pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-    
-    a <- readRDS(sprintf("data/data_alpha/indicators_compare_country/indicators_compare_country_%s.rds", pattern))
-    
-    return(a)
-    
-    
-    
-  } else {
-    
-    pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-    
-    # open data
-    a <- readRDS(sprintf("../data/data_alpha/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
-                         city$city_code, city$city_code, pattern))
-    
-    return(a)
-    
-    
-  }
+  # open data
+  a <- readRDS(sprintf("../data/data_alpha/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+                       city$city_code, city$city_code, pattern))
   
+  # print("foi")
+  # print(a)
+  
+  return(a)
   
   
+  
+  # }
   
   
 })
@@ -73,22 +67,29 @@ ind_compare <- reactive({
 
 output$comparison_chart <- renderHighchart({
   
+  # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+  #             color = "rgba(233, 235, 240, .2)")
+  
   req(ind_city())
   
-  # print("bug")
   
-  if (city$city_code == "") {
+  
+  print("foi")
+  # print(ind_city())
+  
+  # if (city$city_code == "") {
+  #   
+  #   
+  #   
+  #   
+  # } else {
+  
+  ind_city()
+  input$map_shape_click
+  
+  isolate({
     
-    
-    
-    
-  } else {
-    
-    
-    ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
-    
-    print("bumbaaaaaaaa\n")
-    print(ui)
+    ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
     
     
     value_city <- subset(ind_city(), osmid == ui)
@@ -162,10 +163,39 @@ output$comparison_chart <- renderHighchart({
       
     }
     
-  }
+  })
   
   
+  # }
   
+  # waiter_hide()
+  
+})
+
+
+
+# if I change the spatial level, I want to clean the grapH
+# i WILL NOT ACTIVE THIS SO FAR - STILL NEEDS TESTING
+# I WANT TO ADD A PLACEHOLDER SAYING THE USER CAN CLICK ON THE MAP
+observeEvent(c(input$admin_level), {
+
+  req(input$admin_level != 1)
+
+  hide("lalala")
+
+  # print("kakakak")
+
+  # delay(500,   highchartProxy("comparison_chart") %>%
+  #         hcpxy_remove_series(all = TRUE) %>%
+  #         hcpxy_add_series(plotBackgroundImage = "https://media1.giphy.com/media/lJ88OkVp8NdOP74ucu/giphy.gif")
+  # )
+
+  # placeholder
+
+
+
+
+
 })
 
 # create a reactiveValues to store the selected terms in the order of selection
@@ -187,6 +217,8 @@ observe({ ordered_colnames() }) # use an observe to update the reactive function
 
 observeEvent(c(input$city_compare), {
   
+  
+  # print("kakakak2")
   
   value_compare <- subset(ind_compare(), osmid == tail(ordered_colnames(), 1))
   

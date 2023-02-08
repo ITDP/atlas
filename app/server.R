@@ -98,8 +98,9 @@ function(input, output, session) {
   
   
   # show the comparison panel when the user clicks on the compare panel -------------------------
-  onclick("comparison_button", toggle("lalala"))
-  
+  onclick("comparison_button", toggle("lalala", anim = TRUE, animType = "fade"))
+  onclick("teste5", hide("lalala", anim = TRUE, animType = "fade"))
+  observeEvent(c(city$city_code), { hide("lalala") })
   
   
   # hides the comparison button when the user is in the global view -----------------------------
@@ -120,6 +121,12 @@ function(input, output, session) {
   
   
   observeEvent(c(data_ind3_spatial()), {
+  # observeEvent(c(input$comparison_button), {
+    
+    # print(input$comparison_button)
+    
+    # req(input$comparison_button >= 1)
+    # 
     
     # get the admin level original
     al <- as.numeric(unique(data_ind3_spatial()$admin_level))
@@ -159,6 +166,7 @@ function(input, output, session) {
     
     
   })
+
   
   # comparison_values <- reactive({
   #   
@@ -210,11 +218,9 @@ function(input, output, session) {
   output$comparison_panel <- renderUI({
     
     
-    req(city$city_code != "")
+    req(city$city_code != "", compare_rv$test)
     
-    # print("cuma")
-    
-    
+    print("duuhhh")
     
     absolutePanel(
       id = "lalala",
@@ -224,11 +230,12 @@ function(input, output, session) {
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
       bottom = 115, left = 440, height = 'auto', width = 500,
-      tags$div(class = "title_left_panel", "COMPARE", 
+      tags$div(class = "title_left_panel", HTML("COMPARE<br>"), 
+               # tags$i("Click on the map to update the chart", style = "font-size: 12px"), 
                actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
+                            class = "minimize"),
+               actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px",
                             class = "minimize")
-               # actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
-               #              class = "minimize")
       ),
       
       shinyWidgets::pickerInput(inputId = "city_compare",
@@ -238,11 +245,11 @@ function(input, output, session) {
                                 options = shinyWidgets::pickerOptions(size = 15,
                                                                       iconBase = "fa",
                                                                       tickIcon = "fa-check",
-                                                                      title = "Search for a region...",
+                                                                      title = "Select a region to add ...",
                                                                       liveSearch = TRUE)
       ),
       highchartOutput('comparison_chart', height = "250px")
-    ) %>% hidden() # ok
+    ) %>% hidden()
     
     # }
     

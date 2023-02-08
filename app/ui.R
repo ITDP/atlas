@@ -92,6 +92,9 @@ fluidPage(
   # disconnectMessage(),
   # Use loading page
   use_waiter(),
+  autoWaiter(c("comparison_chart"),
+             html = tagList(spin_loaders(id = 2, color = "black")),
+             color = "rgba(233, 235, 240, .2)"),
   # waiter_on_busy(),
   # autoWaiter(    html = tagList(spin_loaders(id = 2, color = "black")),
   #                color = "rgba(233, 235, 240, .0)"),
