@@ -289,7 +289,7 @@ observeEvent(c(city$city_code), {
   req(city$city_code != "")
   
   waiter_show(
-    html = tagList(spin_loaders(id = 2, color = "black")),
+    html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
   
   print("obs - switch cities initial")
@@ -486,8 +486,8 @@ observeEvent(c(input$admin_level), {
 
 observeEvent(c(input$map_shape_click), {
   
-  waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
-                          color = "rgba(233, 235, 240, .2)")
+  waiter_show(html = tagList(spin_loaders(id = 3, color = "black")),
+                          color = "rgba(233, 235, 240, .1)")
   
   # this will only happen when we are beyond the city level
   req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
@@ -814,6 +814,10 @@ observeEvent(c(input$admin_level,
                      isTRUE(input$admin_level >= 1),
                      data_ind3_spatial())
                  
+                 waiter_show(
+                   html = tagList(spin_loaders(id = 3, color = "black")),
+                   color = "rgba(233, 235, 240, .2)")
+                 
                  # print("previous_city")
                  # print(previous_city)
                  # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
@@ -952,7 +956,7 @@ observeEvent(c(input$admin_level,
                  
                  osm_selected$oi <- data_ind3_spatial()$osmid
                  
-                 
+                 waiter_hide()
                  
                })
 
