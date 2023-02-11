@@ -87,7 +87,7 @@ output$download_overlay <- downloadHandler(
   },
   content = function(file) {
     
-    sf::st_write(data_overlays2(), file)
+    sf::st_write(data_overlays_sf(), file)
     
   }
   

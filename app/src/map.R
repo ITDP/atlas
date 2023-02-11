@@ -81,6 +81,10 @@ output$map <- renderLeaflet({
   
   # input$print
   
+  # https://stackoverflow.com/questions/43194575/leaflet-plugin-and-leafletproxy
+  # https://stackoverflow.com/questions/48054756/overlay-an-image-in-a-shiny-leaflet-observe-event
+  # https://stackoverflow.com/questions/70286037/r-leaflet-how-to-bind-a-client-side-event-to-a-polygon
+  
   map <- leaflet(data = atlas_city_markers, options = leafletOptions(zoomControl = FALSE)) %>%
     addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
     addProviderTiles(providers$CartoDB.Positron, group = "Light", layerId = "epa") %>%
@@ -457,7 +461,8 @@ observeEvent(c(city$city_code), {
   # print("data_overlays_sf()")
   # print(data_overlays_sf())
   
-  map %>% stopSpinner()
+  map %>% stopSpinner() 
+
   
   tl$transition <- 1
   # admin_level_previous$a <- 1
@@ -727,11 +732,12 @@ observeEvent(c(indicator$mode, input$year), {
 
 rv <- reactiveValues(prev_city = 1)  
 
-observeEvent(c(city$city_code,
-               input$admin_level,
-               input$indicator_bike, input$indicator_walk, input$indicator_transit, input$indicator_city), {
+observeEvent(c(city$city_code
+), {
                  
-                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
+                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
+                 
+                 print(rv$prev_city)
                  
                  
                }, ignoreInit = TRUE)
@@ -807,9 +813,13 @@ observeEvent(c(input$admin_level,
                  
                  
                  # this observer will only run if whe aren't switching cities
-                 previous_city <- rv$prev_city[length(rv$prev_city)-1]
+                 previous_city <- rv$prev_city[length(rv$prev_city)]
                  
+                 # print("AHHHHHHHHH")
+                 # print(city$city_code)
+                 # print(previous_city)
                  
+                 # it will only run if the actual city is equal to the previous city
                  req(city$city_code == previous_city,
                      isTRUE(input$admin_level >= 1),
                      data_ind3_spatial())

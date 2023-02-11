@@ -120,19 +120,20 @@ function(input, output, session) {
   compare_rv <- reactiveValues(test = NULL)
   
   
-  observeEvent(c(data_ind3_spatial()), {
-  # observeEvent(c(input$comparison_button), {
+  # observeEvent(c(data_ind3_spatial(), ), {
+  # comparison_values <- reactive({
+  observeEvent(c(input$comparison_button), {
     
-    # print(input$comparison_button)
+    # input$comparison_button
     
     # req(input$comparison_button >= 1)
-    # 
+    req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level)
     
     # get the admin level original
     al <- as.numeric(unique(data_ind3_spatial()$admin_level))
     
     
-    # print("al")
+    print("al")
     # print(al)
     
     # first, select only the ones that are available for the indicator in question
@@ -215,12 +216,24 @@ function(input, output, session) {
   #   
   # })
   
+  # whe had a problem that the comparison panel was showing when switching cities
+  # to avoid that, we need to reset the comparison values, so it doesn't trigger the absolutepanel below
+  observeEvent(c(city$city_code), {
+    
+    req(city$city_code != "")
+    compare_rv$test <- NULL
+    
+    
+  })
+  
   output$comparison_panel <- renderUI({
     
+    # print("duuhhh")
+    # print(compare_rv$test)
+    # print(city$city_code)
     
     req(city$city_code != "", compare_rv$test)
     
-    print("duuhhh")
     
     absolutePanel(
       id = "lalala",
@@ -241,6 +254,7 @@ function(input, output, session) {
       shinyWidgets::pickerInput(inputId = "city_compare",
                                 label = NULL,
                                 choices = compare_rv$test,
+                                # choices = comparison_values(),
                                 multiple = TRUE,
                                 options = shinyWidgets::pickerOptions(size = 15,
                                                                       iconBase = "fa",
@@ -249,7 +263,7 @@ function(input, output, session) {
                                                                       liveSearch = TRUE)
       ),
       highchartOutput('comparison_chart', height = "250px")
-    ) %>% hidden()
+    ) 
     
     # }
     
