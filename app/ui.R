@@ -288,8 +288,9 @@ fluidPage(
                                  class = "btn btn-default action-button shiny-bound-input",
                                  div(class = "link_button", "Read more")
                                ),
-                               uiOutput("rank_value"),
-                               uiOutput("rank_text")
+                               # uiOutput("rank_value"),
+                               # uiOutput("rank_text")
+                               uiOutput("rank_final")
                                
                              )
                              

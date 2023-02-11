@@ -462,7 +462,7 @@ observeEvent(c(city$city_code), {
   # print(data_overlays_sf())
   
   map %>% stopSpinner() 
-
+  
   
   tl$transition <- 1
   # admin_level_previous$a <- 1
@@ -491,8 +491,11 @@ observeEvent(c(input$admin_level), {
 
 observeEvent(c(input$map_shape_click), {
   
-  waiter_show(html = tagList(spin_loaders(id = 3, color = "black")),
-                          color = "rgba(233, 235, 240, .1)")
+  # waiter_show(html = tagList(
+  #   spin_loaders(id = 3, color = "black"
+  #                # style = "right: 150px; top: 200px"
+  #                )),
+  #   color = "rgba(233, 235, 240, .1)")
   
   # this will only happen when we are beyond the city level
   req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
@@ -586,7 +589,7 @@ observeEvent(c(input$map_shape_click), {
                     # "border-color" = "rgba(0,0,0,0.5)"
                   )),
                 options = pathOptions(pane = "basemap"))
-
+  
   # if there was a previous element, revert it to the oringial color and stroke
   if (length(element$selected) > 1) {
     map <- map %>%
@@ -607,11 +610,11 @@ observeEvent(c(input$map_shape_click), {
                   color = "black",  weight = 1, layerId = ~osmid
       )
   }
-
-
+  
+  
   map
   
-  waiter_hide()
+  # waiter_hide()
   
 })
 
@@ -734,13 +737,13 @@ rv <- reactiveValues(prev_city = 1)
 
 observeEvent(c(city$city_code
 ), {
-                 
-                 rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
-                 
-                 print(rv$prev_city)
-                 
-                 
-               }, ignoreInit = TRUE)
+  
+  rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
+  
+  print(rv$prev_city)
+  
+  
+}, ignoreInit = TRUE)
 
 
 # update the basemap  --------------------------------
@@ -763,43 +766,43 @@ data_ind3_spatial <- reactive({
   input$admin_level
   
   isolate({
-  
-  if (indicator$type == "performance"  & input$regions_grid == "Grid") {
     
-    
-    a <- data_ind3() 
-    
-  } else {
-    
-    
-    if (length(data_ind3()$admin_level) == 1) {
+    if (indicator$type == "performance"  & input$regions_grid == "Grid") {
       
-      a <- subset(data_ind3(), admin_level_ordered == 1)
+      
+      a <- data_ind3() 
       
     } else {
       
-      # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
-      a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
+      
+      if (length(data_ind3()$admin_level) == 1) {
+        
+        a <- subset(data_ind3(), admin_level_ordered == 1)
+        
+      } else {
+        
+        # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
+        a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
+      }
+      
+      print("QUEEEEEEEEEEEE")
+      # print(a)
+      
+      
+      
     }
     
-    print("QUEEEEEEEEEEEE")
-    # print(a)
     
+    # create the color palette
+    pal <- colorNumeric(
+      palette = "YlOrRd",
+      domain = a$value)
     
+    # create a column with the colors
+    a$fill <- pal(a$value)
     
-  }
-  
-  
-  # create the color palette
-  pal <- colorNumeric(
-    palette = "YlOrRd",
-    domain = a$value)
-  
-  # create a column with the colors
-  a$fill <- pal(a$value)
-  
-  return(a)
-  
+    return(a)
+    
   })
   
 })

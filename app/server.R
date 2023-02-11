@@ -16,7 +16,13 @@ list_availability <- readRDS("../data/data_alpha/list_availability.rds")
 
 function(input, output, session) {
   
-  
+  w <- Waiter$new(id = c("rank_final"),
+                  html = tagList(
+                    spin_loaders(id = 3, color = "#00AE42"
+                                 # style = "right: 150px; top: 200px"
+                    )),
+                  # color = "rgba(233, 235, 240, .1)")
+                  color = "#1C1C1C")
   
   # ui----------------------------------------------------------------------
   

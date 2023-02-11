@@ -259,6 +259,8 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  
                  req(data_ind3(), data_ind3_spatial())
                  
+                 w$show()
+                 
                  # print("rank$admin_level")
                  # print(rank$admin_level)
                  
@@ -276,8 +278,8 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  # print("format_indicator_unit_value")
                  
                  format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
-                   
-                   
+                 
+                 
                  #   if(indicator_info$transformation == "percent") {
                  #   round(rank_indicator$value * 100) 
                  #   
@@ -480,8 +482,8 @@ observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
   } else {
     
     
-  delay(2000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
-  delay(2000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))
+    delay(2000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
+    delay(2000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))
     
   }
   
@@ -562,7 +564,40 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
 })
 
 
-output$rank_value <- renderUI({
+# output$rank_value <- renderUI({
+#   req(indicator$mode, rank$rank_value)
+#   
+#   tagList(
+#     HTML(rank$rank_value),
+#     div(
+#       bsPopover(id = "tooltip_compare_right",
+#                 # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+#                 title = "",
+#                 content = HTML("Compared with the same Administrative Level"),
+#                 placement = "top",
+#                 trigger = "hover"
+#                 # options = list(container = "body")
+#       )
+#     )
+#   )
+#   
+# })
+# 
+# # create chart with indicator value
+# 
+# 
+# 
+# output$rank_text <- renderUI({
+#   
+#   req(indicator$mode, rank$rank_text)
+#   
+#   HTML(rank$rank_text)
+#   # rank$rank_text
+#   
+# })
+
+
+output$rank_final <- renderUI({
   req(indicator$mode, rank$rank_value)
   
   tagList(
@@ -576,7 +611,8 @@ output$rank_value <- renderUI({
                 trigger = "hover"
                 # options = list(container = "body")
       )
-    )
+    ),
+    HTML(rank$rank_text)
   )
   
 })
@@ -593,4 +629,3 @@ output$rank_text <- renderUI({
   # rank$rank_text
   
 })
-
