@@ -502,7 +502,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
   
   req(data_ind3())
   
-  
+  print("req")
   
   rank_indicator <- subset(data_ind3(), osmid == city$city_code)[1,]
   # it will run only when we are at the city level

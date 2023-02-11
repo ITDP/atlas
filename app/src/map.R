@@ -571,7 +571,7 @@ observeEvent(c(input$map_shape_click), {
     # 2) create the selected polygon with the stronger stroke
     addPolygons(data = data,
                 fillColor = data$fill, fillOpacity = 1,
-                # fillColor = ~pal(value), 
+                # fillColor = ~pal(value),
                 # fillOpacity = 0.5,
                 color = "black",  weight = 8, layerId = ~osmid, opacity = 1,
                 group = "Regions",
@@ -586,11 +586,11 @@ observeEvent(c(input$map_shape_click), {
                     # "border-color" = "rgba(0,0,0,0.5)"
                   )),
                 options = pathOptions(pane = "basemap"))
-  
+
   # if there was a previous element, revert it to the oringial color and stroke
   if (length(element$selected) > 1) {
     map <- map %>%
-      addPolygons(data = data_previous, 
+      addPolygons(data = data_previous,
                   group = "Regions",
                   # fis theses colors
                   fillColor = data_previous$fill, fillOpacity = 0.5,
@@ -607,8 +607,8 @@ observeEvent(c(input$map_shape_click), {
                   color = "black",  weight = 1, layerId = ~osmid
       )
   }
-  
-  
+
+
   map
   
   waiter_hide()
