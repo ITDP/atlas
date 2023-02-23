@@ -123,7 +123,11 @@ function(input, output, session) {
   
   
   # create regions names for the comparison 
-  compare_rv <- reactiveValues(test = NULL)
+  compare_rv <- reactiveValues(test = NULL,
+                               country = NULL,
+                               countries = NULL,
+                               hdc = NULL,
+                               choices = NULL)
   
   
   # observeEvent(c(data_ind3_spatial(), ), {
@@ -135,41 +139,83 @@ function(input, output, session) {
     # req(input$comparison_button >= 1)
     req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level)
     
-    # get the admin level original
-    al <- as.numeric(unique(data_ind3_spatial()$admin_level))
+    # # get the admin level original
+    # al <- as.numeric(unique(data_ind3_spatial()$admin_level))
+    # 
+    # 
+    # # first, select only the ones that are available for the indicator in question
+    # hdc_available <-  subset(list_availability, ind == indicator$mode)$hdc
+    # # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+    # 
+    # # get options to show in the comparison
+    # choices_comparison <- subset(list_osmid_name, admin_level == al)
+    # # filter hdc with the indicators available
+    # choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
+    # # if is in the neigbourhood level (level >= 10), only show for the city in question
+    # if (al >= 10) {
+    #   
+    #   choices_comparison <- subset(choices_comparison, hdc == city$city_code)
+    #   
+    # }
+    # 
+    # # remove the osmid that is already being shown
+    # # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
+    # # extract values
+    # choices_values <- choices_comparison$osmid
+    # choices_names <- choices_comparison$name
+    # names(choices_values) <- choices_names
+    # 
+    # compare_rv$test <- choices_values
     
     
-    print("al")
+    
+    al <- unique(data_ind3_spatial()$admin_level)
+    
+    # print("al")
     # print(al)
     
     # first, select only the ones that are available for the indicator in question
-    hdc_available <-  subset(list_availability, ind == indicator$mode)$hdc
-    # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+    hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
+    hdc_available <- hdc_available1$hdc
     
-    # get options to show in the comparison
+    # fisr, filter the level
     choices_comparison <- subset(list_osmid_name, admin_level == al)
+    # get current country
+    country_current <- unique(data_ind3_spatial()$country)
+    # hdc_current <- 
+    # get current hdc
+    # hdc_options <- subset(list_osmid_name, admin_level == 0)
+    # print("hdc")
+    # print(hdc_current)
+    
     # filter hdc with the indicators available
     choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
-    # if is in the neigbourhood level (level >= 10), only show for the city in question
-    if (al >= 10) {
-      
-      # print("uhhhhhhhhhhhhhhhhhhhhhhhhh")
-      
-      choices_comparison <- subset(choices_comparison, hdc == city$city_code)
-      
-    }
-    
+    # get countries
+    countries <- unique(choices_comparison$country)
+    # get hdc from that country
+    hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == 0 & hdc %in% hdc_available)
+    # get options to show in the comparison - final
+    choices_comparison <- subset(choices_comparison, hdc == city$city_code)
+    # print(choices_comparison)
     # remove the osmid that is already being shown
     # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
-    # extract values
-    choices_values <- choices_comparison$osmid
-    choices_names <- choices_comparison$name
-    names(choices_values) <- choices_names
     
-    # print("choices_names")
-    # print(choices_names)
-    compare_rv$test <- choices_values
-    # return(choices_values)
+    
+    # extract values
+    
+    # for the hdc available
+    hdc_comparison_values <- hdc_comparison$osmid
+    hdc_comparison_names <- hdc_comparison$name
+    names(hdc_comparison_values) <- hdc_comparison_names
+    # for the final selection
+    choices_comparison_values <- choices_comparison$osmid
+    choices_comparison_names <- choices_comparison$name
+    names(choices_comparison_values) <- choices_comparison_names
+    
+    compare_rv$country <- country_current
+    compare_rv$countries <- countries
+    compare_rv$hdc <- hdc_comparison_names
+    compare_rv$choices <- choices_comparison_values
     
     
   })
@@ -227,7 +273,7 @@ function(input, output, session) {
   observeEvent(c(city$city_code), {
     
     req(city$city_code != "")
-    compare_rv$test <- NULL
+    compare_rv$hdc <- NULL
     
     
   })
@@ -238,7 +284,7 @@ function(input, output, session) {
     # print(compare_rv$test)
     # print(city$city_code)
     
-    req(city$city_code != "", compare_rv$test)
+    req(city$city_code != "", compare_rv$hdc)
     
     
     absolutePanel(
@@ -257,17 +303,56 @@ function(input, output, session) {
                             class = "minimize")
       ),
       
-      shinyWidgets::pickerInput(inputId = "city_compare",
-                                label = NULL,
-                                choices = compare_rv$test,
-                                # choices = comparison_values(),
-                                multiple = TRUE,
-                                options = shinyWidgets::pickerOptions(size = 15,
-                                                                      iconBase = "fa",
-                                                                      tickIcon = "fa-check",
-                                                                      title = "Select a region to add ...",
-                                                                      liveSearch = TRUE)
-      ),
+      # shinyWidgets::pickerInput(inputId = "city_compare",
+      #                           label = NULL,
+      #                           choices = compare_rv$test,
+      #                           # choices = comparison_values(),
+      #                           multiple = TRUE,
+      #                           options = shinyWidgets::pickerOptions(size = 15,
+      #                                                                 iconBase = "fa",
+      #                                                                 tickIcon = "fa-check",
+      #                                                                 title = "Select a region to add ...",
+      #                                                                 liveSearch = TRUE)
+      # ),
+      div(style="display:inline-block",
+          shinyWidgets::pickerInput(inputId = "city_compare_country_initial",
+                                    label = NULL,
+                                    choices = compare_rv$countries,
+                                    selected = compare_rv$country,
+                                    multiple = FALSE,
+                                    width = "125px",
+                                    options = shinyWidgets::pickerOptions(size = 15,
+                                                                          title = "Country...",
+                                                                          liveSearch = TRUE,
+                                                                          liveSearchPlaceholder = "Search...")
+          )),
+      div(style="display:inline-block",
+          shinyWidgets::pickerInput(inputId = "city_compare_hdc_initial",
+                                    label = NULL,
+                                    choices = compare_rv$hdc,
+                                    selected = city$city_code,
+                                    width = "150px",
+                                    multiple = FALSE,
+                                    options = shinyWidgets::pickerOptions(size = 15,
+                                                                          title = "Region...",
+                                                                          liveSearch = TRUE,
+                                                                          liveSearchPlaceholder = "Search...")
+          )),
+      div(style="display:inline-block",
+          shinyWidgets::pickerInput(inputId = "city_compare1_initial",
+                                    label = NULL,
+                                    choices = compare_rv$choices,
+                                    width = "125px",
+                                    multiple = TRUE,
+                                    options = shinyWidgets::pickerOptions(size = 15,
+                                                                          # iconBase = "fa",
+                                                                          # tickIcon = "fa-check",
+                                                                          title = "Add...",
+                                                                          liveSearch = TRUE,
+                                                                          liveSearchPlaceholder = "Search...",
+                                                                          selectedTextFormat = "static"
+                                    )
+          )),
       highchartOutput('comparison_chart', height = "250px")
     ) 
     
