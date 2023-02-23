@@ -17,7 +17,7 @@ observe({
   blockdensity_text <- 'Average number of blocks per square kilometer'
   
   peoplennhighways_title <- 'Safety from Highways'
-  peoplennhighways_text <- 'Percentage of people living at least 500km from a grade-separated highway'
+  peoplennhighways_text <- 'Percentage of people living at least 500m from a grade-separated highway'
   
   pnpb_title <- 'People Near Protected Bikeways'
   pnpb_text <- 'Percentage of people living within a 300-meter walk of a protected bicycle lane'
