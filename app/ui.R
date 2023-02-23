@@ -333,9 +333,9 @@ fluidPage(
                     tagList(
                       downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
                     ),
-                    hr(),
-                    actionButton("downloadDic", "Download Data Dictionary", 
-                                 onclick = "location.href='https://www.ipea.gov.br/acessooportunidades/dados';"),
+                    # hr(),
+                    # actionButton("downloadDic", "Download Data Dictionary", 
+                    #              onclick = "window.open('https://www.ipea.gov.br/acessooportunidades/dados');"),
                     circle = FALSE, 
                     # status = "danger",
                     label = HTML("&nbsp;&nbsp;Download"),
