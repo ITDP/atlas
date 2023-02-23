@@ -28,16 +28,16 @@ observe({
   pnft_title <- 'People Near Frequent Transit'
   pnft_text <- 'Number of people living within 500m of a stop where public transport comes at least every ten minutes'
   
-  pnrtall_title <- 'People Near Rapid Transit'
+  pnrtall_title <- 'People Near Rapid Transport'
   pnrtall_text <- 'Number of people living within 1km of a rapid transit station'
   
-  pnrtlrt_title <- 'People Near Rapid Transit - Light Rail'
+  pnrtlrt_title <- 'People Near Rapid Transport - Light Rail'
   pnrtlrt_text <- 'Number of people living within 1km of a rapid transit station'
   
-  pnrtmrt_title <- 'People Near Rapid Transit - Medium Rail'
+  pnrtmrt_title <- 'People Near Rapid Transport - Medium Rail'
   pnrtmrt_text <- 'Number of people living within 1km of a rapid transit station'
   
-  pnrtbrt_title <- 'People Near Rapid Transit - Bus Rapid'
+  pnrtbrt_title <- 'People Near Rapid Transport - Bus Rapid'
   pnrtbrt_text <- 'Number of people living within 1km of a rapid transit station'
   
   

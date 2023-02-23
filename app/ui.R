@@ -24,11 +24,11 @@ list_walk <- structure(c(
 
 list_transit <- structure(c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
                           .Names = c(
-                            "People Near Frequent Transit&nbsp;&nbsp;&nbsp;", 
-                            "People Near Rapid Transit&nbsp;&nbsp;&nbsp;", 
-                            "People Near Rapid Transit - LRT&nbsp;&nbsp;&nbsp;",
-                            "People Near Rapid Transit - MRT&nbsp;&nbsp;&nbsp;",
-                            "People Near Rapid Transit - BRT&nbsp;&nbsp;&nbsp;"))
+                            "People Near Frequent Transit", 
+                            "People Near Rapid Transport", 
+                            "People Near Rapid Transport - LRT",
+                            "People Near Rapid Transport - MRT",
+                            "People Near Rapid Transport - BRT"))
 
 list_performance <- structure(c("bikep45", "walkp45"), 
                               .Names = c("Bicycle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "Walk"))
@@ -128,7 +128,7 @@ fluidPage(
     ),
     # Create the left side panel  
     absolutePanel(class = "left_panel", 
-                  bottom = 45, left = 15, width = 270, height = 'auto',
+                  bottom = 45, left = 10, width = 285, height = 'auto',
                   # Output the 'UI' that was generated in the server
                   # uiOutput('left_panel')
                   tags$div(class = "title_left_panel", "INDICATORS", 
@@ -139,7 +139,7 @@ fluidPage(
                   
                   # Create the left side panel  
                   absolutePanel(class = "left_panel_indicators", 
-                                bottom = 5, left = -2, width = 260, height = 'auto',
+                                bottom = 5, left = -2, width = 270, height = 'auto',
                                 
                                 accordion_input(inputId = "indicator_city",
                                                 label = "City",
