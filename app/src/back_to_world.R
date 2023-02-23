@@ -33,7 +33,7 @@ observeEvent(c(input$back_to_world), {
     clearMarkers() %>%
     clearControls() %>%
     clearShapes() %>%
-    flyTo(lng = 0, lat = 0, zoom = 3) %>%
+    setView(lng = 0, lat = 0, zoom = 3) %>%
     addMapPane("countries", zIndex = 410) %>% # shown below ames_circles
     addMapPane("markers_navailable", zIndex = 420) %>% # shown above ames_lines
     addMapPane("markers_available", zIndex = 430) %>% # shown above ames_lines

@@ -296,7 +296,7 @@ observeEvent(c(city$city_code), {
     html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
   
-  print("obs - switch cities initial")
+  # print("obs - switch cities initial")
   
   # req(input$city)
   bbox <- sf::st_bbox(data_ind())
