@@ -124,7 +124,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
   
   
-  # print("obs1")
+  print("obs1")
   
   # print(indicator$mode)
   
@@ -296,7 +296,7 @@ observeEvent(c(city$city_code), {
     html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
   
-  # print("obs - switch cities initial")
+  print("obs - switch cities initial")
   
   # req(input$city)
   bbox <- sf::st_bbox(data_ind())
@@ -359,7 +359,8 @@ observeEvent(c(city$city_code), {
                       color = "white")) %>%
     removeMarker(layerId = data_metro$osmid) %>%
     clearShapes() %>%
-    removeControl(layerId = "legend_country") %>%
+    removeControl(layerId = c("legend_country")) %>%
+    removeControl(layerId = c("legend_city")) %>%
     removeLayersControl() %>%
     # clearControls() %>%
     fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
@@ -785,7 +786,7 @@ data_ind3_spatial <- reactive({
         a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
       }
       
-      print("QUEEEEEEEEEEEE")
+      # print("QUEEEEEEEEEEEE")
       # print(a)
       
       
@@ -818,14 +819,16 @@ observeEvent(c(input$admin_level,
                  # this observer will only run if whe aren't switching cities
                  previous_city <- rv$prev_city[length(rv$prev_city)]
                  
-                 # print("AHHHHHHHHH")
-                 # print(city$city_code)
-                 # print(previous_city)
                  
                  # it will only run if the actual city is equal to the previous city
                  req(city$city_code == previous_city,
                      isTRUE(input$admin_level >= 1),
                      data_ind3_spatial())
+                 
+                 
+                 print("AHHHHHHHHH")
+                 print(city$city_code)
+                 print(previous_city)
                  
                  waiter_show(
                    html = tagList(spin_loaders(id = 3, color = "black")),
@@ -951,7 +954,12 @@ observeEvent(c(input$admin_level,
                                                                    # fillColor = 'yellow'
                                )
                                # label = ~(label)
-                   ) %>%
+                   )
+                 
+                 
+                 if (input$admin_level != 1)  {
+                   
+                   map <- map %>%
                    addLegend(data = data_ind3_spatial(), "bottomright",
                              pal = colorNumeric(
                                palette = "YlOrRd",
@@ -959,8 +967,11 @@ observeEvent(c(input$admin_level,
                              values = ~value,
                              title = legend_title,
                              # bins = c(0, 0.25, 0.50, 0.75, 1),
-                             labFormat = legend_value
+                             labFormat = legend_value,
+                             layerId = "legend_city"
                    )
+                 } else map <- map
+                   
                  
                  if (!(indicator$mode %in% c("popdensity", "blockdensity"))) map <- map %>% showGroup("Regions")
                  
