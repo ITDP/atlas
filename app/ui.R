@@ -19,7 +19,7 @@ list_walk <- structure(c(
   # "People Near Healthcare", 
   # "People Near Education", 
   "People Near Services",
-  "People New Car Free Places"
+  "People Near Car-Free Places"
   ))
 
 list_transit <- structure(c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
