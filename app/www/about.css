@@ -127,9 +127,17 @@ border: 1px solid #495057;
 
 @media (max-width: 1300px) {
   #year_panel {
-    bottom: 250px !important;
+    bottom: 290px !important;
     left: auto !important;
+    right: 315px !important;
+  }
+}
+
+@media (max-width: 1300px) {
+  #lalala {
+    bottom: 240px !important;
     right: 480px !important;
+    left: auto !important;
   }
 }
 
