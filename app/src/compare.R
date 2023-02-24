@@ -201,12 +201,29 @@ observeEvent(c(input$admin_level), {
 # create a reactiveValues to store the selected terms in the order of selection
 reV_order <- reactiveValues(values = NULL, values_max = NULL)
 
+# if the city is selected, it will take the value
+observeEvent(c(city$city_code, rank$admin_level), {
+  req(ind_city())
+  
+  reV_order$values <-  if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
+  
+})
+
 # use reactive to get and sort the selected terms in the order of selection
 ordered_colnames <- reactive({
+  
+  req(input$city_compare1_initial)
+  # print("que1")
+  print(input$city_compare1_initial)
+  
   if (length(reV_order$values) > length(input$city_compare1_initial)) {
     reV_order$values <- reV_order$values[reV_order$values %in% input$city_compare1_initial]
+  # print("que1")
+    
   }else {
     reV_order$values <- c(reV_order$values, input$city_compare1_initial[!input$city_compare1_initial %in% reV_order$values])
+    # print("aqui")
+    # print(reV_order$values)
   }
   reV_order$values
 })
@@ -214,8 +231,10 @@ ordered_colnames <- reactive({
 observe({ ordered_colnames() }) # use an observe to update the reactive function above
 
 
-
+# update the graph with the new selection
 observeEvent(c(input$city_compare1_initial), {
+  
+  # it will only run if the selection is diferente from the previous selection
   
   
   # print("kakakak2")
@@ -298,6 +317,13 @@ observeEvent(c(input$city_compare1_initial), {
 })
 
 
+
+# if the user selectcs a city that is already selected, make sure the graph remove this city accordingly
+observeEvent(c(input$city_compare1_initial), {
+  
+  print(ordered_colnames())
+  
+})
 
 # modal
 
