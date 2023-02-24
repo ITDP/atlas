@@ -214,7 +214,7 @@ function(input, output, session) {
     
     compare_rv$country <- country_current
     compare_rv$countries <- countries
-    compare_rv$hdc <- hdc_comparison_names
+    compare_rv$hdc <- hdc_comparison_values
     compare_rv$choices <- choices_comparison_values
     
     
