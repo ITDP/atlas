@@ -24,4 +24,4 @@ source("fun/format_indicator_value.R")
 `%nin%` = Negate(`%in%`)
 
 
-enableBookmarking(store = "server")
+enableBookmarking(store = "url")

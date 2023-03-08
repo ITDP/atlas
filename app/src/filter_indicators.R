@@ -97,11 +97,11 @@ data_ind2 <- reactive({
 })
 data_overlays2 <- reactive({
   
-  req(indicator$mode, input$year)
+  req(indicator$mode, year$ok)
   
   if (indicator$mode != "density") {
 
-    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
     # pattern <- sprintf("%s_%s_2019", indicator$type, indicator$mode)
     a <- subset(data_overlays(), indicator == pattern)
 
@@ -111,13 +111,19 @@ data_overlays2 <- reactive({
 
     # open geommetries
     geom_type <- unique(a$geom_type)
+    
+
 
     if(geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
 
       overlay_geom$polygon  <- readRDS(sprintf("../data/data_alpha/ghsl_%s/overlays/%s/overlays_polygons_%s_%s.rds",
                                                city$city_code, indicator$mode, city$city_code, indicator$mode))
       
-      overlay_geom$polygon <- subset(overlay_geom$polygon, year == input$year)
+      print("geom_type")
+      print(year$ok)
+      print(overlay_geom$polygon)
+      que <- year$ok
+      overlay_geom$polygon <- subset(overlay_geom$polygon, year == que)
       
       
 
@@ -144,10 +150,10 @@ data_overlays2 <- reactive({
 # filter year when available
 data_ind3 <- reactive({
   
-  req(indicator$mode, input$year)
+  req(indicator$mode, year$ok)
   
   # print(indicator$mode)
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
   
   if (indicator$type == "performance" & isTRUE(input$regions_grid == "Grid")) {
     
@@ -167,7 +173,7 @@ data_ind3 <- reactive({
     
     
     # print(indicator$mode)
-    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
     cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
     a <- data_ind1()[cols]
     colnames(a) <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', 'value', 'geom')
@@ -211,7 +217,7 @@ data_overlays_sf <- reactive({
   } 
   # else {
   #   
-  #   data_overlays_sf <- raster::raster(sprintf("../data/data_alpha/ghsl_%s/overlays/population/overlay_population_%s_%s.tif", city$city_code, city$city_code, input$year))
+  #   data_overlays_sf <- raster::raster(sprintf("../data/data_alpha/ghsl_%s/overlays/population/overlay_population_%s_%s.tif", city$city_code, city$city_code, year$ok))
   #   
   # }
   

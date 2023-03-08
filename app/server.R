@@ -79,17 +79,26 @@ function(input, output, session) {
   })
   
   
+  
+  # update year according to the indicator
+  year <- reactiveValues(ok = as.character(2022))
+    
   observeEvent(c(indicator$mode), {
     
     year_options <- subset(list_availability, ind == indicator$mode)$availability
     year_options <- unlist( strsplit(year_options, "[|]"))
     year_options <- unique(year_options)
     
+    # print("year_options")
+    # print(year_options)
+    
     updatePickerInput(
       session = session,
       inputId = "year",
       choices = year_options,
       selected = 2022)
+    
+    year$ok <- as.character(2022)
     
     
   })
@@ -786,10 +795,52 @@ function(input, output, session) {
   })
   
   
-  setBookmarkExclude(c("bookmark"))
+  # setBookmarkExclude(c("shinyjs-delay"))
+  # setBookmarkExclude(c("bookmark"))
+  # 
+  # observeEvent(input$bookmark, {
+  #   session$doBookmark()
+  # })
   
-  observeEvent(input$bookmark, {
+  observe({
+    reactiveValuesToList(input)
     session$doBookmark()
+  })
+  # Update the query string
+  onBookmarked(updateQueryString)
+  
+  
+  onBookmark(function(state) {
+    state$values$city_code <- city$city_code
+    state$values$admin_level <- rank$admin_level
+    # state$values$region_selected <- element$selected
+  })
+  
+  # Read values from state$values when we restore
+  onRestore(function(state) {
+    city$city_code <- state$values$city_code
+    rank$admin_level <- state$values$admin_level
+    # element$selected <- state$values$region_selected
+  })
+  
+  ExcludedIDs <- reactiveVal(value = NULL)
+  
+  observe({
+    toExclude <- c("bookmarkBtn", "comparison_button", "map_center", "map_marker_mouseover", "map_zoom", 
+                   "download_dropdown_maps", "back_to_world", "indicator_transit", "teste1", "bookmark",
+                   "indicator_walk","indicator_bike",  "map_groups", "indicator_city", "map_bounds", "link_see_more", "map_marker_mouseout",
+                   "about", "right_tabs", "waiter_shown", "waiter_hidden", "map_shape_mouseover", "map_shape_mouseout", "map_click", "map_marker_click", "teste2",
+                   "regions_grid",
+                   "map_shape_click", "admin_level"
+                   )
+    
+    delayExclude <- grep("delay", names(input), value = TRUE)
+    if(length(delayExclude) > 0){
+      toExclude <- c(toExclude, delayExclude)
+    }
+    
+    setBookmarkExclude(toExclude)
+    ExcludedIDs(toExclude)
   })
   
   
