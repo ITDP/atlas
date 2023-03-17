@@ -203,7 +203,12 @@ reV_order <- reactiveValues(values = NULL, values_max = NULL)
 
 # if the city is selected, it will take the value
 observeEvent(c(city$city_code, rank$admin_level), {
+  
   req(ind_city())
+  
+  
+  print("ahhhh")
+  print(rank$admin_level)
   
   reV_order$values <-  if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
   

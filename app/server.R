@@ -470,7 +470,7 @@ function(input, output, session) {
   
   observeEvent(c(indicator$mode), {
     
-    req(city$city_code != "")
+    req(city$city_code != "", indicator$type)
     
     # print("indicator$type")
     # print(indicator$type)
