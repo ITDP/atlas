@@ -1,37 +1,3 @@
-# # update map --------------------------------------------------------------
-# 
-# # https://gist.github.com/jcheng5/c084a59717f18e947a17955007dc5f92
-# # https://stackoverflow.com/questions/52846472/leaflet-plugin-and-leafletproxy-with-polylinedecorator-as-example
-# spinPlugin <- htmlDependency(
-#   "spin.js",
-#   "2.3.2",
-#   src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2"),
-#   script = "spin.min.js") # there's no spin.css
-# 
-# leafletspinPlugin <- htmlDependency(
-#   "Leaflet.Spin",
-#   "1.1.2",
-#   src = c(href = "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2"),
-#   script = "leaflet.spin.min.js")
-# 
-# registerPlugin1 <- function(map, plugin) {
-#   map$dependencies <- c(map$dependencies, list(plugin))
-#   map
-# }
-# 
-# # Note: Ctrl-Shift-J opens the javascript console in the browser
-# spin_event <- "function(el, x) {
-#   console.log('spin event added');
-#   var mymap = this;
-#   mymap.on('layerremove', function(e) {
-#     console.log('layerremove fired');
-#     mymap.spin(true);
-#   });
-#   mymap.on('layeradd', function(e) {
-#     console.log('layeradd fired');
-#     mymap.spin(false);
-#   });
-# }"
 
 
 
@@ -89,12 +55,22 @@ output$map <- renderLeaflet({
     addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
     addProviderTiles(providers$CartoDB.Positron, group = "Light", layerId = "epa") %>%
     addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
+    addCircleMarkers(
+      # radius = ~ifelse(type == "ship", 6, 10),
+      radius = 8,
+      fillColor = "#00AE42",
+      stroke = TRUE, fillOpacity = 0.9, color = "black",
+      opacity = 0.9,
+      # weight = 1,
+      options = pathOptions(clickable = FALSE)
+    ) %>%
     # registerPlugin1(spinPlugin) %>% 
     # registerPlugin1(leafletspinPlugin) %>% 
     addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
-                     position = "topright") %>%
+                     position = "bottomright") %>%
+    setView(lng = 0, lat = 0, zoom = 3) %>%
     leaflet.extras2::addSpinner() %>%
     
     # onRender(spin_event)
@@ -124,7 +100,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
   
   
-  print("obs1")
+  # print("obs1")
   
   # print(indicator$mode)
   
@@ -393,7 +369,7 @@ observeEvent(c(city$city_code), {
       overlayGroups = c("Regions", "Overlay"),
       baseGroups = c("Dark", "Light", "Satellite"),
       options = layersControlOptions(collapsed = FALSE),
-      position = "topright")
+      position = "bottomright")
   
   
   
@@ -419,7 +395,8 @@ observeEvent(c(city$city_code), {
                   weight = 0) %>%
       addLayersControl(overlayGroups = c("Regions", "Overlay"),
                        baseGroups = c("Dark", "Light", "Satellite"),
-                       options = layersControlOptions(collapsed = FALSE)) %>%
+                       options = layersControlOptions(collapsed = FALSE),
+                       position = "bottomright") %>%
       hideGroup("Regions")
     
     
@@ -826,9 +803,9 @@ observeEvent(c(input$admin_level,
                      data_ind3_spatial())
                  
                  
-                 print("AHHHHHHHHH")
-                 print(city$city_code)
-                 print(previous_city)
+                 # print("AHHHHHHHHH")
+                 # print(city$city_code)
+                 # print(previous_city)
                  
                  waiter_show(
                    html = tagList(spin_loaders(id = 3, color = "black")),

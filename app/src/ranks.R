@@ -117,7 +117,8 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     
     
-    rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+    rank$rank_value <- paste0(
+      # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                               '<div class="title_indicator" style="font-size: 20px;">', 
                               "THE WORLD", '</div>',
                               div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), " ", 
@@ -238,7 +239,8 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   # print("value_indicator$value")
   # print(value_indicator)
   
-  rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+  rank$rank_value <- paste0(
+    # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                             '<div class="title_indicator" style="font-size: 20px;">', 
                             rank_indicator$name, '</div>',
                             div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
@@ -301,7 +303,8 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                  } else { 
                    
-                   rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                   rank$rank_value <- paste0(
+                     # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                                              '<div class="title_indicator" style="font-size: 20px;">', 
                                              rank_indicator$name, '</div>',
                                              div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
@@ -383,7 +386,8 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      rank$rank_value <- ""  
                      
                    } else { 
-                     rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                     rank$rank_value <- paste0(
+                       # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                                                '<div class="title_indicator" style="font-size: 20px;">', 
                                                rank_indicator$name, '</div>',
                                                div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
@@ -539,7 +543,8 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
       rank$rank_value <- ""  
       
     } else { 
-      rank$rank_value <- paste0('<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+      rank$rank_value <- paste0(
+        # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                                 '<div class="title_indicator" style="font-size: 20px;">', 
                                 rank_indicator$name, '</div>',
                                 div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
@@ -599,22 +604,37 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
 
 
 output$rank_final <- renderUI({
-  req(indicator$mode, rank$rank_value)
   
-  tagList(
-    HTML(rank$rank_value),
-    div(
-      bsPopover(id = "tooltip_compare_right",
-                # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
-                title = "",
-                content = HTML("Compared with the same Administrative Level"),
-                placement = "top",
-                trigger = "hover"
-                # options = list(container = "body")
-      )
-    ),
-    HTML(rank$rank_text)
-  )
+  # req(input$indicator)
+  print(input$indicator)
+  
+  if (input$indicator == "") {
+    
+    tagList(
+      HTML('<div class="title_indicator" style="font-size: 22px;">Welcome to the Atlas of Urban Transportation</div>'),
+      p(style = "color: #B1B5B9; display: inline; font-size: 16px;", "Start by selecting an indicator")
+    )
+    
+  } else {
+    
+    
+    tagList(
+      HTML(rank$rank_value),
+      div(
+        bsPopover(id = "tooltip_compare_right",
+                  # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+                  title = "",
+                  content = HTML("Compared with the same Administrative Level"),
+                  placement = "top",
+                  trigger = "hover"
+                  # options = list(container = "body")
+        )
+      ),
+      HTML(rank$rank_text)
+    )
+    
+    
+  }
   
 })
 

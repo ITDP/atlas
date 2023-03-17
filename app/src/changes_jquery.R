@@ -1,8 +1,8 @@
 # disable the reset map when in the world view
 observeEvent(c(city$city_code), {
   
-  print("city$city_code")
-  print(city$city_code)
+  # print("city$city_code")
+  # print(city$city_code)
   
   if (city$city_code == "") {
     

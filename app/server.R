@@ -28,6 +28,11 @@ function(input, output, session) {
   
   output$city_selection <- renderUI({
     
+    # validate(
+    #   need(input$indicator != "", '')
+    # )
+    
+    
     # make list
     oi <- split(list_availability, list_availability$country)
     pera <- function(variables) {
@@ -43,46 +48,61 @@ function(input, output, session) {
     }
     list_selection <- lapply(oi, pera)
     
+    conditionalPanel(
+      condition = "input.indicator != ''",
+      tagList(
+        
+        
+        
+        # 1) CITY SELECTION -------------------------------------------------------
+        # https://www.rapidtables.com/code/text/unicode-characters.html
+        
+        
+        # h3(style = "color: #00AE42; display: inline-block; font-size: 28px; margin-right: 15px", strong("ATLAS")),
+        div(style = "display: inline-block;",
+            shinyWidgets::pickerInput(inputId = "city",
+                                      label = "IN",
+                                      width = "250px",
+                                      choices = list_selection,
+                                      options = shinyWidgets::pickerOptions(size = 15,
+                                                                            iconBase = "fa",
+                                                                            tickIcon = "fa-check",
+                                                                            title = "Go to a region ...",
+                                                                            liveSearch = TRUE,
+                                                                            width = 'fit')
+            )
+        )
+      )
+    )
     
-    tagList(
-      
-      
-      
-      # 1) CITY SELECTION -------------------------------------------------------
-      # https://www.rapidtables.com/code/text/unicode-characters.html
-      
-      
-      # tags$button(id = "back_to_world",
-      #             class = "btn btn-default",
-      #             type = "reset",
-      #             style = "background: transparent; font-size: 26px; color: #00AE42;",
-      #             "ATLAS"),
-      # actionButton(inputId = "back_to_world",
-      #              label = "ATLAS",
-      #              style = "background: transparent; font-size: 26px; color: #00AE42;"
-      # ),
-      h3(style = "color: #00AE42; display: inline-block; font-size: 28px; margin-right: 15px", strong("ATLAS")),
-      div(style = "display: inline-block;",
-          shinyWidgets::pickerInput(inputId = "city",
-                                    label = NULL,
-                                    width = "220px",
-                                    choices = list_selection,
-                                    options = shinyWidgets::pickerOptions(size = 15,
-                                                                          iconBase = "fa",
-                                                                          tickIcon = "fa-check",
-                                                                          title = "Search for a metro region ...",
-                                                                          liveSearch = TRUE)
-          )
+  })
+  
+  output$year <- renderUI({
+    
+    
+    # validate(
+    #   need(input$indicator, '')
+    # )
+    conditionalPanel(
+      condition = "input.indicator != ''",
+      shinyWidgets::pickerInput(inputId = "year",
+                                label = NULL,
+                                choices = 2022,
+                                selected = 2022,
+                                width = "250px",
+                                options = shinyWidgets::pickerOptions(
+                                  size = 5
+                                )
+                                # selected = character(0)
       )
     )
     
   })
   
   
-  
   # update year according to the indicator
   year <- reactiveValues(ok = as.character(2022))
-    
+  
   observeEvent(c(indicator$mode), {
     
     year_options <- subset(list_availability, ind == indicator$mode)$availability
@@ -228,7 +248,7 @@ function(input, output, session) {
     
     
   })
-
+  
   
   # comparison_values <- reactive({
   #   
@@ -303,7 +323,7 @@ function(input, output, session) {
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      bottom = 115, left = 440, height = 'auto', width = 500,
+      bottom = 115, left = 330, height = 'auto', width = 500,
       tags$div(class = "title_left_panel", HTML("COMPARE<br>"), 
                # tags$i("Click on the map to update the chart", style = "font-size: 12px"), 
                actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
@@ -392,7 +412,7 @@ function(input, output, session) {
           # id = "controls",
           class = "spatial_level",
           # fixed = TRUE, draggable = FALSE,
-          bottom = 45, right = 480, height = 'auto', width = 220,
+          bottom = 45, right = 180, height = 'auto', width = 220,
           # 'typeof undefined' identifies when is null
           tags$div(class = "title_left_panel", style = "padding: 10px 0", "LEVEL OF DETAIL",
                    tags$button(
@@ -542,6 +562,11 @@ function(input, output, session) {
     updateNavbarPage(session, "right_tabs", "tab_viewmore")
   })
   
+  
+  observeEvent(input$teste_id_uh, {
+    updateNavbarPage(session, "right_tabs", "tab_overview")
+  })
+  
   output$panelStatus <- reactive({
     indicator$type == "performance"
   })
@@ -620,79 +645,104 @@ function(input, output, session) {
   
   indicator <- reactiveValues(type = NULL, mode = NULL)
   
-  
-  observeEvent(c(input$indicator_bike), {
+  observeEvent(c(input$indicator), {
     
+    indicator$mode <- input$indicator
     
-    indicator$type <- "bike"
-    # update the others
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
-    # print("performance :", input$indicator_performance)
-    # print(input$city)
-    # print(indicator$type)
-    indicator$mode <- input$indicator_bike
+    if (input$indicator %in% c(  "popdensity", "blockdensity", "pnnhighways")) {
+      
+      indicator$type <- "city"
+      
+    } else if (input$indicator %in% c("pnpb")) {
+      
+      indicator$type <- "bike"
+      
+    } else if (input$indicator %in% c("pns", "pncf")) {
+      
+      indicator$type <- "walk"
+      
+    } else if (input$indicator %in% c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt")) {
+      
+      indicator$type <- "transit"
+      
+    }
     
-  })
-  
-  observeEvent(c(input$indicator_walk), {
-    
-    indicator$type <- "walk"
-    # update the others
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
-    
-    indicator$mode <- input$indicator_walk
     
     
   })
   
-  observeEvent(c(input$indicator_transit), {
-    
-    indicator$type <- "transit"
-    # update the others
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
-    
-    indicator$mode <- input$indicator_transit
-    
-  })
-  
-  observeEvent(c(input$indicator_performance), {
-    
-    indicator$type <- "performance"
-    # update the others
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-    
-    indicator$mode <- input$indicator_performance
-    
-    # print("performance :", input$indicator_performance)
-    
-  })
-  
-  observeEvent(c(input$indicator_city), {
-    
-    indicator$type <- "city"
-    # update the others
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-    shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
-    # print("ai!")
-    indicator$mode <- input$indicator_city
-    
-  })
-  
-  
+  # observeEvent(c(input$indicator_bike), {
+  #   
+  #   
+  #   indicator$type <- "bike"
+  #   # update the others
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+  #   # print("performance :", input$indicator_performance)
+  #   # print(input$city)
+  #   # print(indicator$type)
+  #   indicator$mode <- input$indicator_bike
+  #   
+  # })
+  # 
+  # observeEvent(c(input$indicator_walk), {
+  #   
+  #   indicator$type <- "walk"
+  #   # update the others
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+  #   
+  #   indicator$mode <- input$indicator_walk
+  #   
+  #   
+  # })
+  # 
+  # observeEvent(c(input$indicator_transit), {
+  #   
+  #   indicator$type <- "transit"
+  #   # update the others
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+  #   
+  #   indicator$mode <- input$indicator_transit
+  #   
+  # })
+  # 
+  # observeEvent(c(input$indicator_performance), {
+  #   
+  #   indicator$type <- "performance"
+  #   # update the others
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+  #   
+  #   indicator$mode <- input$indicator_performance
+  #   
+  #   # print("performance :", input$indicator_performance)
+  #   
+  # })
+  # 
+  # observeEvent(c(input$indicator_city), {
+  #   
+  #   indicator$type <- "city"
+  #   # update the others
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+  #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+  #   # print("ai!")
+  #   indicator$mode <- input$indicator_city
+  #   
+  # })
+  # 
+  # 
   
   
   
@@ -813,13 +863,15 @@ function(input, output, session) {
   onBookmark(function(state) {
     state$values$city_code <- city$city_code
     state$values$admin_level <- rank$admin_level
+    state$values$indicator <- indicator$mode
     # state$values$region_selected <- element$selected
   })
   
   # Read values from state$values when we restore
   onRestore(function(state) {
     city$city_code <- state$values$city_code
-    rank$admin_level <- state$values$admin_level
+    # rank$admin_level <- state$values$admin_level
+    indicator$mode <- state$values$indicator
     # element$selected <- state$values$region_selected
   })
   
@@ -831,8 +883,9 @@ function(input, output, session) {
                    "indicator_walk","indicator_bike",  "map_groups", "indicator_city", "map_bounds", "link_see_more", "map_marker_mouseout",
                    "about", "right_tabs", "waiter_shown", "waiter_hidden", "map_shape_mouseover", "map_shape_mouseout", "map_click", "map_marker_click", "teste2",
                    "regions_grid",
-                   "map_shape_click", "admin_level"
-                   )
+                   "map_shape_click", "admin_level",
+                   "city_open", "city_code", "year", "indicator_open", "city", "indicator", "year_open"
+    )
     
     delayExclude <- grep("delay", names(input), value = TRUE)
     if(length(delayExclude) > 0){
