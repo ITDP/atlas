@@ -208,7 +208,7 @@ observeEvent(c(city$city_code, rank$admin_level), {
   
   
   print("ahhhh")
-  print(rank$admin_level)
+  # print(rank$admin_level)
   
   reV_order$values <-  if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
   
