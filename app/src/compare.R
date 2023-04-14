@@ -7,18 +7,6 @@ ind_city <- reactive({
   
   req(city$city_code != "")
   
-  # if (city$city_code == "") {
-  #   
-  #   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-  #   
-  #   a <- readRDS(sprintf("data/data_alpha/indicators_compare_country/indicators_compare_country_%s.rds", pattern))
-  #   
-  #   return(a)
-  #   
-  #   
-  #   
-  # } else {
-  #   
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
@@ -63,105 +51,200 @@ ind_compare <- reactive({
   
 })
 
-
+ind_country <- reactive({
+  
+  req(city$city_code == "")
+  
+  
+})
 
 output$comparison_chart <- renderHighchart({
   
   # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
   #             color = "rgba(233, 235, 240, .2)")
   
-  req(ind_city())
+  # req(ind_city())
   
   
+  # print("COUNTRYyyyy")
   
-  # print("foi")
-  # print(ind_city())
   
-  # if (city$city_code == "") {
-  #   
-  #   
-  #   
-  #   
-  # } else {
-  
-  ind_city()
+  # ind_city()
   input$map_shape_click
+  input$map_marker_click
+  rank$admin_level
   
   isolate({
     
-    ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
     
-    
-    value_city <- subset(ind_city(), osmid == ui)
-    
-    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
-    
-    # print(format_indicator_unit_value)
-    # print("format_indicator_unit_value")
-    
-    value_city$value <- if(format_indicator_unit_value == "percent") {
-      round(value_city$value * 100) 
+    if (city$city_code == "") {
       
-    } else round(value_city$value)
-    
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
-                              "pncf", "pnft")) {
       
-      hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
-             name = unique(value_city$name),
-             tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
-                            valueDecimals = 0)) %>%
-        hc_plotOptions(column = list(
-          pointWidth = 30,
-          grouping = FALSE
-        )
-        ) %>%
-        hc_legend(verticalAlign = "top") %>%
-        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 15)),
-                 labels = list(style = list(fontSize = 14))) %>%
-        hc_xAxis(title = list(text = "", style = list(fontSize = 15)),
-                 labels = list(enabled = FALSE, style = list(fontSize = 14))) %>%
-        hc_add_theme(hc_theme_darkunica(
-          chart = list(backgroundColor = "#1C1C1C",
-                       style = list(fontFamily = "Franklin Gothic Book"))
-          ,
-          title = list(style = list(fontFamily = "Franklin Gothic Demi",
-                                    textTransform = "none"))
-        ))
+      
+      ui <- input$map_shape_click$id
+      
+      
+      value_city <- subset(atlas_country(), name == ui)
+      colnames(value_city) <- c('a3', 'name', 'value', 'geometry')
+      cols <- c('a3', 'name', 'value')
+      value_city <- value_city[cols]
+      # print(value_city)
+      
+      format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+      format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+      format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+      
+      # print(format_indicator_unit_value)
+      # print("format_indicator_unit_value")
+      
+      value_city$value <- if(format_indicator_unit_value == "percent") {
+        round(value_city$value * 100) 
+        
+      } else round(value_city$value)
+      
+      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                                "pncf", "pnft")) {
+        
+        hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
+               name = unique(value_city$name),
+               tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
+                              valueDecimals = 0)) %>%
+          hc_plotOptions(column = list(
+            pointWidth = 30,
+            grouping = FALSE
+          )
+          ) %>%
+          hc_legend(verticalAlign = "top") %>%
+          hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 15)),
+                   labels = list(style = list(fontSize = 14))) %>%
+          hc_xAxis(title = list(text = "", style = list(fontSize = 15)),
+                   labels = list(enabled = FALSE, style = list(fontSize = 14))) %>%
+          hc_add_theme(hc_theme_darkunica(
+            chart = list(backgroundColor = "#1C1C1C",
+                         style = list(fontFamily = "Franklin Gothic Book"))
+            ,
+            title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                      textTransform = "none"))
+          ))
+        
+      } else {
+        
+        
+        # print("value_city")
+        # print(value_city)
+        
+        hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
+               name = unique(value_city$name),
+               tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                              valueDecimals = 0)) %>%
+          hc_plotOptions(column = list(pointWidth = 10)) %>%
+          hc_legend(verticalAlign = "top") %>%
+          # hc_title(text = format_indicator_name,
+          # align = "left", x = 10
+          # ) %>%
+          hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
+                   labels = list(style = list(fontSize = 15))) %>%
+          hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
+                   labels = list(style = list(fontSize = 15))) %>%
+          hc_add_theme(hc_theme_darkunica(
+            chart = list(backgroundColor = "#1C1C1C",
+                         style = list(fontFamily = "Franklin Gothic Book"))
+            ,
+            title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                      textTransform = "none"))
+            
+          ))
+        
+        
+        
+      }
+      
+      
       
     } else {
       
+      # print("goooooooooo")
+      # print(input$map_shape_click)
+      # print(rank$admin_level)
+      # print(is.null(input$map_shape_click))
       
-      # print("value_city")
-      # print(value_city)
+      ui <- if(input$map_shape_click$group == "Countries" | isTRUE(rank$admin_level == 1)) city$city_code else input$map_shape_click$id
       
-      hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
-             name = unique(value_city$name),
-             tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
-                            valueDecimals = 0)) %>%
-        hc_plotOptions(column = list(pointWidth = 10)) %>%
-        hc_legend(verticalAlign = "top") %>%
-        # hc_title(text = format_indicator_name,
-        # align = "left", x = 10
-        # ) %>%
-        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
-                 labels = list(style = list(fontSize = 15))) %>%
-        hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
-                 labels = list(style = list(fontSize = 15))) %>%
-        hc_add_theme(hc_theme_darkunica(
-          chart = list(backgroundColor = "#1C1C1C",
-                       style = list(fontFamily = "Franklin Gothic Book"))
-          ,
-          title = list(style = list(fontFamily = "Franklin Gothic Demi",
-                                    textTransform = "none"))
-          
-        ))
       
+      value_city <- subset(ind_city(), osmid == ui)
+      
+      format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+      format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+      format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+      
+      # print(format_indicator_unit_value)
+      # print("format_indicator_unit_value")
+      
+      value_city$value <- if(format_indicator_unit_value == "percent") {
+        round(value_city$value * 100) 
+        
+      } else round(value_city$value)
+      
+      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                                "pncf", "pnft")) {
+        
+        hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
+               name = unique(value_city$name),
+               tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
+                              valueDecimals = 0)) %>%
+          hc_plotOptions(column = list(
+            pointWidth = 30,
+            grouping = FALSE
+          )
+          ) %>%
+          hc_legend(verticalAlign = "top") %>%
+          hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 15)),
+                   labels = list(style = list(fontSize = 14))) %>%
+          hc_xAxis(title = list(text = "", style = list(fontSize = 15)),
+                   labels = list(enabled = FALSE, style = list(fontSize = 14))) %>%
+          hc_add_theme(hc_theme_darkunica(
+            chart = list(backgroundColor = "#1C1C1C",
+                         style = list(fontFamily = "Franklin Gothic Book"))
+            ,
+            title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                      textTransform = "none"))
+          ))
+        
+      } else {
+        
+        
+        # print("value_city")
+        # print(value_city)
+        
+        hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
+               name = unique(value_city$name),
+               tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                              valueDecimals = 0)) %>%
+          hc_plotOptions(column = list(pointWidth = 10)) %>%
+          hc_legend(verticalAlign = "top") %>%
+          # hc_title(text = format_indicator_name,
+          # align = "left", x = 10
+          # ) %>%
+          hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
+                   labels = list(style = list(fontSize = 15))) %>%
+          hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
+                   labels = list(style = list(fontSize = 15))) %>%
+          hc_add_theme(hc_theme_darkunica(
+            chart = list(backgroundColor = "#1C1C1C",
+                         style = list(fontFamily = "Franklin Gothic Book"))
+            ,
+            title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                      textTransform = "none"))
+            
+          ))
+        
+        
+        
+      }
       
       
     }
+    
     
   })
   
@@ -178,24 +261,24 @@ output$comparison_chart <- renderHighchart({
 # i WILL NOT ACTIVE THIS SO FAR - STILL NEEDS TESTING
 # I WANT TO ADD A PLACEHOLDER SAYING THE USER CAN CLICK ON THE MAP
 observeEvent(c(input$admin_level), {
-
+  
   req(input$admin_level != 1)
-
+  
   hide("lalala")
-
+  
   # print("kakakak")
-
+  
   # delay(500,   highchartProxy("comparison_chart") %>%
   #         hcpxy_remove_series(all = TRUE) %>%
   #         hcpxy_add_series(plotBackgroundImage = "https://media1.giphy.com/media/lJ88OkVp8NdOP74ucu/giphy.gif")
   # )
-
+  
   # placeholder
-
-
-
-
-
+  
+  
+  
+  
+  
 })
 
 # create a reactiveValues to store the selected terms in the order of selection
@@ -223,7 +306,7 @@ ordered_colnames <- reactive({
   
   if (length(reV_order$values) > length(input$city_compare1_initial)) {
     reV_order$values <- reV_order$values[reV_order$values %in% input$city_compare1_initial]
-  # print("que1")
+    # print("que1")
     
   }else {
     reV_order$values <- c(reV_order$values, input$city_compare1_initial[!input$city_compare1_initial %in% reV_order$values])
@@ -244,76 +327,150 @@ observeEvent(c(input$city_compare1_initial), {
   
   # print("kakakak2")
   
-  value_compare <- subset(ind_compare(), osmid == tail(ordered_colnames(), 1))
-  
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-  format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-  format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
-  
-  # print(format_indicator_unit_value)
-  # print("format_indicator_unit_value")
-  
-  value_compare$value <- if(format_indicator_unit_value == "percent") {
-    round(value_compare$value * 100) 
-    
-  } else round(value_compare$value)
-  
-  # print("ind_compare()")
-  # print(value_compare$value)
-  
-  # print(input$city_compare)
-  # print(ordered_colnames())
-  
-  # identify type of chart
-  
-  
-  if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
-                            "pncf", "pnft")) {
+  if (city$city_code == "") {
     
     
     
-    # add total
-    highchartProxy("comparison_chart") %>%
-      # hcpxy_remove_series(id = "que") %>%
-      hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                       id = "que",
-                       type = "column",
-                       # color = "white",
-                       name = unique(value_compare$name),
-                       # size = 5,
-                       tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
-                                      valueDecimals = 0),
-                       pointWidth = 30
-                       # pointPadding = "on"
-                       
-      )
+    value_compare <- subset(atlas_country(), name == tail(ordered_colnames(), 1))
+    colnames(value_compare) <- c('a3', 'name', 'value', 'geometry')
+    cols <- c('a3', 'name', 'value')
+    value_compare <- value_compare[cols]
+    
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+    
+    # print(format_indicator_unit_value)
+    # print("format_indicator_unit_value")
+    
+    value_compare$value <- if(format_indicator_unit_value == "percent") {
+      round(value_compare$value * 100) 
+      
+    } else round(value_compare$value)
+    
+    
+    
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                              "pncf", "pnft")) {
+      
+      
+      
+      # add total
+      highchartProxy("comparison_chart") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
+                         id = "que",
+                         type = "column",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         # size = 5,
+                         tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0),
+                         pointWidth = 30
+                         # pointPadding = "on"
+                         
+        )
+      
+    } else {
+      
+      
+      
+      # add total
+      highchartProxy("comparison_chart") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
+                         id = "que",
+                         type = "line",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         size = 5,
+                         tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0)
+                         # marker = list(radius = 5, symbol = "circle"),
+                         # dataLabels = list(enabled = TRUE,
+                         #                   align = "center",
+                         #                   y = -20,
+                         #                   # format = "City: {point.y}",
+                         #                   format = "{point.y}",
+                         #                   style = list(fontSize = 12,
+                         #                                color = "white",
+                         #                                textOutline = "0.3px black",
+                         #                                fontWeight = "bold"))
+        )
+      
+    }
+    
     
   } else {
     
     
+    value_compare <- subset(ind_compare(), osmid == tail(ordered_colnames(), 1))
     
-    # add total
-    highchartProxy("comparison_chart") %>%
-      # hcpxy_remove_series(id = "que") %>%
-      hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
-                       id = "que",
-                       type = "line",
-                       # color = "white",
-                       name = unique(value_compare$name),
-                       size = 5,
-                       tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
-                                      valueDecimals = 0)
-                       # marker = list(radius = 5, symbol = "circle"),
-                       # dataLabels = list(enabled = TRUE,
-                       #                   align = "center",
-                       #                   y = -20,
-                       #                   # format = "City: {point.y}",
-                       #                   format = "{point.y}",
-                       #                   style = list(fontSize = 12,
-                       #                                color = "white",
-                       #                                textOutline = "0.3px black",
-                       #                                fontWeight = "bold"))
-      )
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+    
+    # print(format_indicator_unit_value)
+    # print("format_indicator_unit_value")
+    
+    value_compare$value <- if(format_indicator_unit_value == "percent") {
+      round(value_compare$value * 100) 
+      
+    } else round(value_compare$value)
+    
+    
+    
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                              "pncf", "pnft")) {
+      
+      
+      
+      # add total
+      highchartProxy("comparison_chart") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
+                         id = "que",
+                         type = "column",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         # size = 5,
+                         tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0),
+                         pointWidth = 30
+                         # pointPadding = "on"
+                         
+        )
+      
+    } else {
+      
+      
+      
+      # add total
+      highchartProxy("comparison_chart") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
+                         id = "que",
+                         type = "line",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         size = 5,
+                         tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0)
+                         # marker = list(radius = 5, symbol = "circle"),
+                         # dataLabels = list(enabled = TRUE,
+                         #                   align = "center",
+                         #                   y = -20,
+                         #                   # format = "City: {point.y}",
+                         #                   format = "{point.y}",
+                         #                   style = list(fontSize = 12,
+                         #                                color = "white",
+                         #                                textOutline = "0.3px black",
+                         #                                fontWeight = "bold"))
+        )
+      
+    }
+    
+    
     
   }
   

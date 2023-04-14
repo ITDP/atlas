@@ -18,7 +18,7 @@ world_view <- reactiveValues(a_available = NULL,
 
 atlas_country <- reactive({
   
-  req(indicator$mode, indicator$type, is.null(rank$admin_level))
+  req(indicator$mode, indicator$type)
   
   # print("oiiiiiiiiiiiiii")
   
@@ -238,7 +238,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
                 layerId = ~name,
                 fillColor = ~pal_countries(value), color = "black",  weight = 0, # erro nao eh aqui
                 fillOpacity = 0.7,
-                options = pathOptions(clickable = FALSE, pane = "countries"),
+                options = pathOptions(clickable = TRUE, pane = "countries"),
                 group = "Countries",
                 label = lapply(labels_country, htmltools::HTML)
     ) %>%
@@ -272,7 +272,7 @@ observeEvent(c(city$city_code), {
     html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
   
-  print("obs - switch cities initial")
+  # print("obs - switch cities initial")
   
   # req(input$city)
   bbox <- sf::st_bbox(data_ind())

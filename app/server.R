@@ -139,15 +139,15 @@ function(input, output, session) {
   
   
   # hides the comparison button when the user is in the global view -----------------------------
-  observeEvent(c(city$city_code), {
-    
-    req(city$city_code != "", city$times == 0)
-    
-    # print("BEEEEEEEEEEEEEEEM")
-    
+  observeEvent(c(input$indicator), {
+
+    req(input$indicator != "")
+    # req(city$times == 0)
+    # req(city$city_code != "", city$times == 0)
+
     shinyjs::show("compare_panel")
-    
-    
+
+
   }, once = FALSE)
   
   
@@ -161,46 +161,38 @@ function(input, output, session) {
   
   # observeEvent(c(data_ind3_spatial(), ), {
   # comparison_values <- reactive({
-  observeEvent(c(input$comparison_button), {
+  observeEvent(c(input$map_shape_click), {
     
     # input$comparison_button
     
     # req(input$comparison_button >= 1)
-    req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level)
+    # req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level)
     
-    # # get the admin level original
-    # al <- as.numeric(unique(data_ind3_spatial()$admin_level))
-    # 
-    # 
-    # # first, select only the ones that are available for the indicator in question
-    # hdc_available <-  subset(list_availability, ind == indicator$mode)$hdc
-    # # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
-    # 
-    # # get options to show in the comparison
-    # choices_comparison <- subset(list_osmid_name, admin_level == al)
-    # # filter hdc with the indicators available
-    # choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
-    # # if is in the neigbourhood level (level >= 10), only show for the city in question
-    # if (al >= 10) {
-    #   
-    #   choices_comparison <- subset(choices_comparison, hdc == city$city_code)
-    #   
-    # }
-    # 
-    # # remove the osmid that is already being shown
-    # # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
-    # # extract values
-    # choices_values <- choices_comparison$osmid
-    # choices_names <- choices_comparison$name
-    # names(choices_values) <- choices_names
-    # 
-    # compare_rv$test <- choices_values
+    req(city$city_code == "")
+    
+      
+      
+      compare_rv$country <- NULL
+      compare_rv$countries <- NULL
+      compare_rv$hdc <- NULL
+      compare_rv$choices <- atlas_country()$name
+      
+      
+      # print("quero comer")
+      # print("al")
+      
+     
+    
+  })
+  
+  
+  observeEvent(c(city$city_code, rank$admin_level), {
     
     
+    req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level, city$city_code != "")
     
     al <- unique(data_ind3_spatial()$admin_level)
     
-    # print("al")
     # print(al)
     
     # first, select only the ones that are available for the indicator in question
@@ -299,13 +291,13 @@ function(input, output, session) {
   
   # whe had a problem that the comparison panel was showing when switching cities
   # to avoid that, we need to reset the comparison values, so it doesn't trigger the absolutepanel below
-  observeEvent(c(city$city_code), {
-    
-    req(city$city_code != "")
-    compare_rv$hdc <- NULL
-    
-    
-  })
+  # observeEvent(c(city$city_code), {
+  #   
+  #   req(city$city_code != "")
+  #   compare_rv$hdc <- NULL
+  #   
+  #   
+  # })
   
   output$comparison_panel <- renderUI({
     
@@ -313,8 +305,11 @@ function(input, output, session) {
     # print(compare_rv$test)
     # print(city$city_code)
     
-    req(city$city_code != "", compare_rv$hdc)
+    # req(compare_rv$hdc)
+    req(compare_rv$choices)
     
+    print("quaqua")
+    print(compare_rv$countries)
     
     absolutePanel(
       id = "lalala",
@@ -343,6 +338,7 @@ function(input, output, session) {
       #                                                                 title = "Select a region to add ...",
       #                                                                 liveSearch = TRUE)
       # ),
+      conditionalPanel("input.city != '' || typeof input.map_marker_click !== 'undefined'",
       div(style="display:inline-block",
           shinyWidgets::pickerInput(inputId = "city_compare_country_initial",
                                     label = NULL,
@@ -366,7 +362,7 @@ function(input, output, session) {
                                                                           title = "Region...",
                                                                           liveSearch = TRUE,
                                                                           liveSearchPlaceholder = "Search...")
-          )),
+          ))),
       div(style="display:inline-block",
           shinyWidgets::pickerInput(inputId = "city_compare1_initial",
                                     label = NULL,
@@ -383,7 +379,7 @@ function(input, output, session) {
                                     )
           )),
       highchartOutput('comparison_chart', height = "250px")
-    ) 
+    ) %>% hidden()
     
     # }
     
