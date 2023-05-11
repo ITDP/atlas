@@ -68,12 +68,13 @@ border: 1px solid #495057;
 }
 
 
+/*
 @media (max-width: 1281px) {
   #about {
     left: 30%;;
   }
 }
-
+*/
 
 
 .leaflet-control-layers-list {
@@ -97,33 +98,36 @@ border: 1px solid #495057;
 
 @media (max-width: 1300px) {
   #back_to_world_button_id {
-    right: 470px !important;
+    left: 330px !important;
+    top: 90px !important;
     
   }
 }
 
 @media (max-width: 1300px) {
   #share_button_id {
-    top: 90px !important;
-    right: 470px !important;
+    left: 330px !important;
+    top: 140px !important;
     
   }
 }
 
 @media (max-width: 1300px) {
   #download_button_id {
-    top: 140px !important;
-    right: 470px !important;
+    left: 330px !important;
+    top: 190px !important;
   }
 }
 
+/*
 @media (max-width: 1300px) {
   #compare_panel {
-    bottom: 180px !important;
-    right: 480px !important;
-    left: auto !important;
+    left: 330px !important;
+    bottom: 190px !important;
+    right: auto !important;
   }
 }
+*/
 
 @media (max-width: 1300px) {
   #year_panel {
@@ -133,6 +137,11 @@ border: 1px solid #495057;
   }
 }
 
+#teste_id_uh {
+  float: right;
+}
+
+/*
 @media (max-width: 1300px) {
   #lalala {
     bottom: 240px !important;
@@ -140,6 +149,7 @@ border: 1px solid #495057;
     left: auto !important;
   }
 }
+*/
 
 
 /*

@@ -3,7 +3,15 @@ output$text_indicator <- renderUI({
   
   req(indicator$mode)
   
-  includeHTML(sprintf("www/text/text_indicator_%s.html", indicator$mode))
+  tagList(
+    includeHTML(sprintf("www/text/text_indicator_%s.html", indicator$mode)),
+    
+    tags$button(
+      id = "link_see_more",
+      class = "btn btn-default action-button shiny-bound-input",
+      div(class = "link_button", "Read more")
+    )
+  )
   
 })
 
@@ -20,6 +28,14 @@ output$text_indicator2 <- renderUI({
   req(indicator$mode)
   # print(indicator_mode())
   
-  includeHTML(sprintf("www/text/text_indicator_more_%s.html", indicator$mode))
+  tagList(
+    
+    tags$button(
+      id = "teste_id_uh",
+      class = "btn btn-default action-button shiny-bound-input",
+      icon("backward")
+    ),
+    includeHTML(sprintf("www/text/text_indicator_more_%s.html", indicator$mode))
+  )
   
 })

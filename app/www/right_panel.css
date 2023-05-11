@@ -21,7 +21,7 @@
 position: relative;
 /* Gray/900 */
  background: #1C1C1C;
- height: calc(100vh - 130px) !important;
+ height: calc(100vh - 90px) !important;
 
   
 }
@@ -104,6 +104,10 @@ line-height: 27px;
 color: #FFFFFF;
 
   
+}
+
+#text_indicator {
+  padding-top: 60px;
 }
 
 .text_indicator {

@@ -70,3 +70,34 @@ g.highcharts-exporting-group > g > text {
   display: none!important;
 }
 */
+
+
+
+#compare_dropdown {
+    background: transparent;
+    padding: 10px;
+font-family: 'Fira Sans', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 16px;
+/* identical to box height */
+
+/*letter-spacing: 0.2em;*/
+
+/* Gray / 200 */
+
+color: #E9ECEF;
+
+background: transparent;
+    border: transparent;
+    box-shadow: none;
+    
+  z-index: 999999;
+      position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  
+}
