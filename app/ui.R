@@ -222,43 +222,7 @@ fluidPage(
     uiOutput('spatial_level'),
     # create the panel with the comparison
     # uiOutput('comparison_button'),
-    absolutePanel(
-      id = "compare_panel",
-      class = "spatial_level",
-      style = "background: #00AE42; display: none",
-      # class = "w3-container w3-animate-opacity", 
-      # class = "panel panel-default",
-      # fixed = TRUE, draggable = FALSE,
-      bottom = 45, left = 330, height = 'auto', width = 130,
-      # tags$div(class = "title_left_panel", 
-      #          # "COMPARE", 
-      #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
-      #                       class = "minimize"),
-      #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
-      #                       class = "minimize")
-      # ),
-      actionButton(inputId = "comparison_button", 
-                   label = "COMPARE",
-                   style = "display: inline; padding-right: 2px; padding-left: 2px;"),
-      tags$button(
-        id = "tooltip_compare",
-        class="btn btn-light btn-xs",
-        style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
-        icon("circle-info")
-        
-      ),
-      # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
-      # , onclick = '$("#comparison_panel").toggle("show");'
-      
-      div(
-        bsPopover(id = "tooltip_compare",
-                  title = "",
-                  content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
-                  placement = "top",
-                  trigger = "hover",
-                  options = list(container = "body"))
-      )
-    ),
+
     
     
     
@@ -297,6 +261,35 @@ fluidPage(
                                uiOutput('year'),
                                uiOutput('city_selection'),
                                uiOutput("rank_final"),
+                               absolutePanel(
+                                 id = "compare_panel",
+                                 class = "spatial_level",
+                                 style = "background: #00AE42; display: none; text-align: center;",
+                                 # class = "w3-container w3-animate-opacity", 
+                                 # class = "panel panel-default",
+                                 # fixed = TRUE, draggable = FALSE,
+                                 # bottom = 45, left = 10, 
+                                 height = 50, width = 270,
+                                 actionButton(inputId = "comparison_button", 
+                                              label = "COMPARE",
+                                              icon = icon("chart-simple"),
+                                              style = "display: inline; padding-right: 2px; padding-left: 2px;"),
+                                 tags$button(
+                                   id = "tooltip_compare",
+                                   class="btn btn-light btn-xs",
+                                   style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
+                                   icon("circle-info")
+                                   
+                                 ),
+                                 div(
+                                   bsPopover(id = "tooltip_compare",
+                                             title = "",
+                                             content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
+                                             placement = "top",
+                                             trigger = "hover",
+                                             options = list(container = "body"))
+                                 )
+                               ),
                                htmlOutput("text_indicator")
                                # uiOutput("rank_value"),
                                # uiOutput("rank_text")

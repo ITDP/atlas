@@ -477,6 +477,7 @@ observeEvent(c(input$map_shape_click), {
   
   # this will only happen when we are beyond the city level
   req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
+  # req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
   
   # first, we should create a vector with the selected elements
   ui <- input$map_shape_click$id

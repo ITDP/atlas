@@ -82,13 +82,16 @@ output$comparison_chart <- renderHighchart({
       
       
       ui <- input$map_shape_click$id
-      
-      
       value_city <- subset(atlas_country(), name == ui)
-      colnames(value_city) <- c('a3', 'name', 'value', 'geometry')
-      cols <- c('a3', 'name', 'value')
-      value_city <- value_city[cols]
-      # print(value_city)
+      value_city <- st_sf(value_city)
+      value_city <- st_set_geometry(value_city, NULL)
+      value_city <- tidyr::pivot_longer(value_city,
+                                        cols = 3:last_col(),
+                                        names_sep = "_",
+                                        names_to = c("ind_type", "ind", "year"),
+                                        values_to = "value")
+      
+      
       
       format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
       format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
@@ -332,9 +335,13 @@ observeEvent(c(input$city_compare1_initial), {
     
     
     value_compare <- subset(atlas_country(), name == tail(ordered_colnames(), 1))
-    colnames(value_compare) <- c('a3', 'name', 'value', 'geometry')
-    cols <- c('a3', 'name', 'value')
-    value_compare <- value_compare[cols]
+    value_compare <- st_sf(value_compare)
+    value_compare <- st_set_geometry(value_compare, NULL)
+    value_compare <- tidyr::pivot_longer(value_compare,
+                                      cols = 3:last_col(),
+                                      names_sep = "_",
+                                      names_to = c("ind_type", "ind", "year"),
+                                      values_to = "value")
     
     format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit

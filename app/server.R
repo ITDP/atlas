@@ -16,6 +16,23 @@ list_availability <- readRDS("../data/data_alpha/list_availability.rds")
 
 function(input, output, session) {
   
+  
+  
+  # the modal at startup
+  query_modal <- modalDialog(
+    # title = "Important message",
+    icon("arrow-left"), HTML("&nbsp;&nbsp;"), "Start by selecting an indicator",
+    easyClose = TRUE,
+    size = "m",
+    footer = NULL
+    # footer = tagList(
+    #   actionButton("run", "Run query")
+    # )
+  )
+  
+  # Show the model on start up ...
+  showModal(query_modal)
+  
   w <- Waiter$new(id = c("rank_final"),
                   html = tagList(
                     spin_loaders(id = 3, color = "#00AE42"

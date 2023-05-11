@@ -1,3 +1,7 @@
+
+
+
+
 .about_modal {
   
   position: relative !important;
@@ -7,6 +11,23 @@
 }
 
 .modal-dialog {
+    position: absolute;
+left: 300px;
+top: 10px;
+z-index: 999999999999999;
+width: 315px;
+  
+}
+
+
+.modal-dialog > .modal-content > .modal-body {
+  
+  font-size: 19px;
+  
+}
+  
+  
+.modal-lg {
   
   position: absolute;
 left: 50%;
