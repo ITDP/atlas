@@ -156,10 +156,11 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
 # store the admin level in this reactivevalue, so it behaves as it should
 observeEvent(c(input$admin_level), {
   
-  # print("ARROCHA 1")
   # print(rank$admin_level)
   
   rank$admin_level <- input$admin_level
+  # print("ARROCHA 1")
+  print(rank$admin_level)
   
 })
 

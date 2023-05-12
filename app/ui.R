@@ -218,8 +218,7 @@ fluidPage(
     # ),
     
     
-    # create the panel with the spatial scale
-    uiOutput('spatial_level'),
+
     # create the panel with the comparison
     # uiOutput('comparison_button'),
 
@@ -260,6 +259,8 @@ fluidPage(
                                ),
                                uiOutput('year'),
                                uiOutput('city_selection'),
+                               # create the panel with the spatial scale
+                               uiOutput('spatial_level'),
                                uiOutput("rank_final"),
                                absolutePanel(
                                  id = "compare_panel",

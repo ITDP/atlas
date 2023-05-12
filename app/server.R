@@ -421,29 +421,25 @@ function(input, output, session) {
     tagList(
       conditionalPanel(
         condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
-        absolutePanel(
-          # id = "controls",
-          class = "spatial_level",
+        # absolutePanel(
+        #   # id = "controls",
+        #   class = "spatial_level",
           # fixed = TRUE, draggable = FALSE,
-          bottom = 45, right = 180, height = 'auto', width = 220,
+          # bottom = 45, right = 180, height = 'auto', width = 220,
           # 'typeof undefined' identifies when is null
-          tags$div(class = "title_left_panel", style = "padding: 10px 0", "LEVEL OF DETAIL",
+          tags$div(class = "title_left_panel", style = "padding: 10px 0", "AT THE LEVEL OF",
                    tags$button(
                      id = "tooltip_level",
                      class="btn btn-light btn-xs",
                      style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
                      icon("circle-info")
                      
-                   ),
-                   actionButton("teste2", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-                                class = "minimize")
+                   )
                    
           ),
           
           
           
-          # label = label_with_info("COMPARE", tooltip_id = "tooltip_compare")
-          # , onclick = '$("#comparison_panel").toggle("show");'
           
           div(
             bsPopover(id = "tooltip_level",
@@ -461,20 +457,21 @@ function(input, output, session) {
           ),
           conditionalPanel(
             condition = "input.regions_grid == 'Regions'",
-            shinyWidgets::sliderTextInput(inputId = "admin_level",
+            shinyWidgets::pickerInput(inputId = "admin_level",
                                           choices = seq(1, go),
                                           label = NULL,
                                           selected = 1,
-                                          grid = TRUE,
-                                          dragRange = FALSE
+                                      width = 250,
+                                      
+                                          # grid = TRUE,
+                                          # dragRange = FALSE
                                           # selected = character(0)
             )
           )
-          # actionButton("grid", label = "", icon = icon("table-cells-large"))
           
         )
         
-      )
+      # )
     )
     
     

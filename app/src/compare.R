@@ -73,9 +73,13 @@ output$comparison_chart <- renderHighchart({
   input$map_shape_click
   input$map_marker_click
   rank$admin_level
+  city$city_code
   
   isolate({
     
+    
+    # print("Agoraaaaaaaaa")
+    # print(city$city_code)
     
     if (city$city_code == "") {
       
@@ -166,12 +170,15 @@ output$comparison_chart <- renderHighchart({
       
     } else {
       
-      # print("goooooooooo")
+      print("goooooooooo")
       # print(input$map_shape_click)
       # print(rank$admin_level)
       # print(is.null(input$map_shape_click))
       
-      ui <- if(input$map_shape_click$group == "Countries" | isTRUE(rank$admin_level == 1)) city$city_code else input$map_shape_click$id
+      print("TOINNNN")
+      print(rank$admin_level)
+      
+      ui <- if(isTRUE(input$map_shape_click$group == "Countries") | isTRUE(rank$admin_level == 1)) city$city_code else input$map_shape_click$id
       
       
       value_city <- subset(ind_city(), osmid == ui)

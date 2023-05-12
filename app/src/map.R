@@ -741,7 +741,7 @@ data_ind3_spatial <- reactive({
   # print("pera")
   # print(indicator$mode)
   
-  # rank$admin_level
+  rank$admin_level
   input$admin_level
   
   isolate({
@@ -756,12 +756,16 @@ data_ind3_spatial <- reactive({
       
       if (length(data_ind3()$admin_level) == 1) {
         
+        
         a <- subset(data_ind3(), admin_level_ordered == 1)
         
       } else {
         
         # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
         a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
+        # print("caindo aquiiii")
+        # print(rank$admin_level)
+        # print(input$admin_level)
       }
       
       # print("QUEEEEEEEEEEEE")
@@ -780,6 +784,7 @@ data_ind3_spatial <- reactive({
     # create a column with the colors
     a$fill <- pal(a$value)
     
+    # print(a)
     return(a)
     
   })
@@ -788,7 +793,7 @@ data_ind3_spatial <- reactive({
 
 
 
-observeEvent(c(input$admin_level,
+observeEvent(c(rank$admin_level,
                indicator$mode,
                input$year,
                input$regions_grid), {
@@ -804,9 +809,9 @@ observeEvent(c(input$admin_level,
                      data_ind3_spatial())
                  
                  
-                 # print("AHHHHHHHHH")
+                 print("AHHHHHHHHH")
                  # print(city$city_code)
-                 # print(previous_city)
+                 print(data_ind3_spatial())
                  
                  waiter_show(
                    html = tagList(spin_loaders(id = 3, color = "black")),
