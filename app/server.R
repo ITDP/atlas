@@ -11,12 +11,28 @@ list_osmid_name <- readRDS("../data/data_alpha/list_osmid_name.rds")
 list_availability <- readRDS("../data/data_alpha/list_availability.rds")
 # list_block <- readRDS("../data/data_alpha/list_block_density.rds")
 
-
-
+# define some credentials
+credentials <- data.frame(
+  user = c("taylor", "kaue"), # mandatory
+  password = c("taylor_atlas", "kaue_atlas"), # mandatory
+  start = c("2019-04-15"), # optinal (all others)
+  expire = c(NA, "2023-12-31"),
+  admin = c(FALSE, TRUE),
+  comment = "Simple and secure authentification mechanism 
+  for single ‘Shiny’ applications.",
+  stringsAsFactors = FALSE
+)
 
 function(input, output, session) {
   
+  # password protection related
+  res_auth <- secure_server(
+    check_credentials = check_credentials(credentials)
+  )
   
+  output$auth_output <- renderPrint({
+    reactiveValuesToList(res_auth)
+  })
   
   # the modal at startup
   query_modal <- modalDialog(
@@ -31,7 +47,13 @@ function(input, output, session) {
   )
   
   # Show the model on start up ...
-  showModal(query_modal)
+  delay(200, showModal(query_modal))
+  
+  observe({
+    
+  delay(200, shinyjs::runjs('$( ".mfb-component--br" ).remove();'))
+    
+  })
   
   w <- Waiter$new(id = c("rank_final"),
                   html = tagList(

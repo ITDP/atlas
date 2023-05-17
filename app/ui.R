@@ -47,7 +47,7 @@ list_city <- structure(c(
 ))
 
 
-fluidPage(
+ui <- fluidPage(
   # this script will add elements to the right side of the topbar (links etc) ok
   # Load Css
   tags$head(includeCSS("www/styles.css")),
@@ -412,7 +412,8 @@ fluidPage(
         icon = icon("share"),
         id = "bookmark"
       )
-    )
+    ),
+    verbatimTextOutput("auth_output")
     
     
     
@@ -423,3 +424,6 @@ fluidPage(
     
   )
 )
+
+
+ui <- secure_app(ui)

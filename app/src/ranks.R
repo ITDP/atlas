@@ -135,7 +135,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     scroll_world <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>",
                             1:length(country_values$name), country_values$name, indicator_info$unit, format_indicator_value)  
     
-    scroll_world <- c("<div id=\"\" style=\"overflow-y:scroll; height:170px;\">",
+    scroll_world <- c("<div id=\"\" style=\"overflow-y:scroll; height:170px; margin-right: 15px;\">",
                       scroll_world,
                       "</div>"
     )

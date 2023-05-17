@@ -1,5 +1,8 @@
 
-
+.accordion-button::after {
+  
+      margin-right: 15px;
+}
 
 
 .about_modal {
