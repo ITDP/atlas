@@ -100,7 +100,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
   
   
-  # print("obs1")
+  print("obs1")
   
   # print(indicator$mode)
   
@@ -263,7 +263,6 @@ indicator <- reactiveValues(values = NULL, format = NULL, unit = NULL)
 
 # observer to travel between cities ---------------------------------------
 
-
 observeEvent(c(city$city_code), {
   
   req(city$city_code != "")
@@ -272,7 +271,7 @@ observeEvent(c(city$city_code), {
     html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
   
-  # print("obs - switch cities initial")
+  print("obs - switch cities initial")
   
   # req(input$city)
   bbox <- sf::st_bbox(data_ind())
@@ -349,8 +348,8 @@ observeEvent(c(city$city_code), {
     #                            noMoveStart = TRUE)) %>%
     
     addPolygons(data = data_metro,
-                fillColor = ~pal(value), fillOpacity = 0.5,
-                color = "black",  weight = 1, layerId = ~osmid,
+                fillColor = ~pal(value), fillOpacity = 0.1,
+                color = "#00AE42",  weight = 2, layerId = ~osmid,
                 group = "Regions",
                 label = lapply(labels, htmltools::HTML),
                 labelOptions = labelOptions(
@@ -809,163 +808,176 @@ observeEvent(c(rank$admin_level,
                      data_ind3_spatial())
                  
                  
-                 print("AHHHHHHHHH")
+                 # print("AHHHHHHHHH")
                  # print(city$city_code)
-                 print(data_ind3_spatial())
-                 
-                 waiter_show(
-                   html = tagList(spin_loaders(id = 3, color = "black")),
-                   color = "rgba(233, 235, 240, .2)")
-                 
-                 # print("previous_city")
-                 # print(previous_city)
-                 # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
-                 #             color = "rgba(233, 235, 240, .2)")
-                 
-                 # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
-                 #             color = "rgba(233, 235, 240, .4)")
-                 
-                 
-                 # print("obs - switch cities new")
-                 # print(Sys.time())
-                 
-                 # extract geom type of this indicator
-                 geom_type <- unique(data_overlays2()$geom_type)
-                 
-                 # filter legend title and values
-                 legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-                 legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-                 # format legend value
-                 legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
-                 
-                 
-                 # print("indicator_info$transformation")
                  # print(data_ind3_spatial())
                  
-                 format_indicator_value <- if(indicator_info$transformation == "percent") {
-                   round(data_ind3_spatial()$value * 100) 
+
                    
-                 } else if(indicator_info$transformation %in% "thousands") {
+                   waiter_show(
+                     html = tagList(spin_loaders(id = 3, color = "black")),
+                     color = "rgba(233, 235, 240, .2)")
                    
-                   ifelse(data_ind3_spatial()$value >= 1000000, 
-                          scales::comma(data_ind3_spatial()$value, accuracy = 0.1, scale = 0.000001, suffix = "M"), 
-                          scales::comma(data_ind3_spatial()$value, accuracy = 1, scale = 0.001, suffix = "k"))
+                   # print("previous_city")
+                   # print(previous_city)
+                   # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+                   #             color = "rgba(233, 235, 240, .2)")
+                   
+                   # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
+                   #             color = "rgba(233, 235, 240, .4)")
                    
                    
-                 } else round(data_ind3_spatial()$value)
-                 
-                 
-                 # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
-                 
-                 indicator$values <- format_indicator_value
-                 indicator$unit <- indicator_info$unit
-                 
-                 # print("data_ind3_spatial()$name")
-                 # print(data_ind3_spatial()$name)
-                 # print(data_ind3_spatial()$name)
-                 
-                 # labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
-                 #                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
-                 #                  "<br/><i>Click to see more info</i>")
-                 
-                 labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
-                                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
-                                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9;\"> %s</span>", indicator$unit), 
-                                  "<br/><i>Click to see more info</i>")
-                 
-                 # labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
-                 
-                 # print("ahahah")
-                 # print(osm_selected$oi)
-                 
-                 
-                 
-                 
-                 map <- leafletProxy("map", session) %>%
-                   # clearMarkers() %>%
-                   startSpinner(list("lines" = 10, "length" = 10,
-                                     "width" = 5, "radius" = 5,
-                                     color = "white")) %>%
-                   # clearMarkers() %>%
-                   # removeShape(layerId =  osm_selected$oi) %>%
-                   # removeTiles(layerId =  "tile") %>%
-                   removeShape(layerId = "reach") %>%
-                   clearGroup(group = "Regions") %>%
-                   # clearShapes() %>%
-                   # removeShape(layerId = city$osmid ) %>%
-                   clearControls() %>%
-                   addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
-                   addMapPane("overlay", zIndex = 420)# shown above ames_lines
-                 
-                 
-                 # record the values in a list
-                 leaflet_params <- list(
-                   label1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) "Click to see the reach" else lapply(labels, htmltools::HTML),
-                   bring_to_front <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
-                   weigth1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
-                   weigth2 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
+                   # print("obs - switch cities new")
+                   # print(Sys.time())
                    
-                 )
-                 
-                 
-                 # print("pegouuuu")
-                 
-                 # print("AHHHHHHHH")
-                 # print(data_ind3_spatial())
-                 
-                 map <- map %>%
-                   addPolygons(data = data_ind3_spatial(), 
-                               fillColor = data_ind3_spatial()$fill,
-                               fillOpacity = 0.5,
-                               color = "black",  weight = weigth2, 
-                               group = "Regions",
-                               label = label1,
-                               labelOptions = labelOptions(
-                                 style = list(
-                                   # "color" = "red",
-                                   # "font-family" = "serif",
-                                   # "font-style" = "italic",
-                                   # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-                                   "font-size" = "12px"
-                                   # "border-color" = "rgba(0,0,0,0.5)"
-                                 )),
-                               layerId = ~osmid,
-                               options = pathOptions(pane = "basemap", 
-                                                     clickable = TRUE),
-                               highlightOptions = highlightOptions(bringToFront = bring_to_front, opacity = 1, 
-                                                                   weight = weigth1, color = "black"
-                                                                   # fillColor = 'yellow'
-                               )
-                               # label = ~(label)
+                   # extract geom type of this indicator
+                   geom_type <- unique(data_overlays2()$geom_type)
+                   
+                   # filter legend title and values
+                   legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+                   legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+                   # format legend value
+                   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
+                   
+                   
+                   # print("indicator_info$transformation")
+                   # print(data_ind3_spatial())
+                   
+                   format_indicator_value <- if(indicator_info$transformation == "percent") {
+                     round(data_ind3_spatial()$value * 100) 
+                     
+                   } else if(indicator_info$transformation %in% "thousands") {
+                     
+                     ifelse(data_ind3_spatial()$value >= 1000000, 
+                            scales::comma(data_ind3_spatial()$value, accuracy = 0.1, scale = 0.000001, suffix = "M"), 
+                            scales::comma(data_ind3_spatial()$value, accuracy = 1, scale = 0.001, suffix = "k"))
+                     
+                     
+                   } else round(data_ind3_spatial()$value)
+                   
+                   
+                   # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
+                   
+                   indicator$values <- format_indicator_value
+                   indicator$unit <- indicator_info$unit
+                   
+                   # print("data_ind3_spatial()$name")
+                   # print(data_ind3_spatial()$name)
+                   # print(data_ind3_spatial()$name)
+                   
+                   # labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
+                   #                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
+                   #                  "<br/><i>Click to see more info</i>")
+                   
+                   labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
+                                    sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
+                                    sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9;\"> %s</span>", indicator$unit), 
+                                    "<br/><i>Click to see more info</i>")
+                   
+                   # labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
+                   
+                   # print("ahahah")
+                   # print(osm_selected$oi)
+                   
+                   
+                   
+                   
+                   map <- leafletProxy("map", session) %>%
+                     # clearMarkers() %>%
+                     startSpinner(list("lines" = 10, "length" = 10,
+                                       "width" = 5, "radius" = 5,
+                                       color = "white")) %>%
+                     # clearMarkers() %>%
+                     # removeShape(layerId =  osm_selected$oi) %>%
+                     # removeTiles(layerId =  "tile") %>%
+                     removeShape(layerId = "reach") %>%
+                     clearGroup(group = "Regions") %>%
+                     # clearShapes() %>%
+                     # removeShape(layerId = city$osmid ) %>%
+                     clearControls() %>%
+                     addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
+                     addMapPane("overlay", zIndex = 420)# shown above ames_lines
+                   
+                   
+                   # record the values in a list
+                   leaflet_params <- list(
+                     label1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) "Click to see the reach" else lapply(labels, htmltools::HTML),
+                     bring_to_front <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
+                     weigth1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
+                     weigth2 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
+                     
                    )
-                 
-                 
-                 if (input$admin_level != 1)  {
+                   
+                   # opacity
+                   if (input$admin_level == 1) {
+                     
+                     color_stroke <- "#00AE42"
+                     weight_stroke <- 2
+                     opacity <- 0.1
+                     
+                     } else {
+                       color_stroke <- "black"
+                       weight_stroke <- weigth2
+                       opacity <- 0.5
+                     }
+                   # print("pegouuuu")
+                   
+                   # print("AHHHHHHHH")
+                   # print(data_ind3_spatial())
                    
                    map <- map %>%
-                   addLegend(data = data_ind3_spatial(), "bottomright",
-                             pal = colorNumeric(
-                               palette = "YlOrRd",
-                               domain = NULL),
-                             values = ~value,
-                             title = legend_title,
-                             # bins = c(0, 0.25, 0.50, 0.75, 1),
-                             labFormat = legend_value,
-                             layerId = "legend_city"
-                   )
-                 } else map <- map
+                     addPolygons(data = data_ind3_spatial(), 
+                                 fillColor = data_ind3_spatial()$fill,
+                                 fillOpacity = opacity,
+                                 color = color_stroke,  weight = weight_stroke, 
+                                 group = "Regions",
+                                 label = label1,
+                                 labelOptions = labelOptions(
+                                   style = list(
+                                     # "color" = "red",
+                                     # "font-family" = "serif",
+                                     # "font-style" = "italic",
+                                     # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                     "font-size" = "12px"
+                                     # "border-color" = "rgba(0,0,0,0.5)"
+                                   )),
+                                 layerId = ~osmid,
+                                 options = pathOptions(pane = "basemap", 
+                                                       clickable = TRUE),
+                                 highlightOptions = highlightOptions(bringToFront = bring_to_front, opacity = 1, 
+                                                                     weight = weigth1, color = "black"
+                                                                     # fillColor = 'yellow'
+                                 )
+                                 # label = ~(label)
+                     )
                    
-                 
-                 if (!(indicator$mode %in% c("popdensity", "blockdensity"))) map <- map %>% showGroup("Regions")
-                 
-                 
-                 map %>% stopSpinner()
-                 
-                 osm_selected$oi <- data_ind3_spatial()$osmid
-                 
-                 waiter_hide()
-                 
-               })
+                   
+                   if (input$admin_level != 1)  {
+                     
+                     map <- map %>%
+                       addLegend(data = data_ind3_spatial(), "bottomright",
+                                 pal = colorNumeric(
+                                   palette = "YlOrRd",
+                                   domain = NULL),
+                                 values = ~value,
+                                 title = legend_title,
+                                 # bins = c(0, 0.25, 0.50, 0.75, 1),
+                                 labFormat = legend_value,
+                                 layerId = "legend_city"
+                       )
+                   } else map <- map
+                   
+                   
+                   if (!(indicator$mode %in% c("popdensity", "blockdensity"))) map <- map %>% showGroup("Regions")
+                   
+                   
+                   map %>% stopSpinner()
+                   
+                   osm_selected$oi <- data_ind3_spatial()$osmid
+                   
+                   waiter_hide()
+                   
+                 })
 
 
 

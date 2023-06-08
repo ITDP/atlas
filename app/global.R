@@ -21,6 +21,7 @@ source("fun/accordion_input.R")
 source("fun/label_with_info.R")
 source("fun/accordion_ranks.R")
 source("fun/format_indicator_value.R")
+source("fun/modalDialog.R")
 
 `%nin%` = Negate(`%in%`)
 

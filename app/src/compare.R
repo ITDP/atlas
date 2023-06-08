@@ -299,11 +299,11 @@ observeEvent(c(city$city_code, rank$admin_level), {
   
   req(ind_city())
   
-  
-  print("ahhhh")
+  # print("FONFON")
   # print(rank$admin_level)
+  # print(input$map_shape_click$id)
   
-  reV_order$values <-  if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
+  reV_order$values <-  if(isTRUE(is.null(input$map_shape_click)) | isTRUE(rank$admin_level == 1)) city$city_code else input$map_shape_click$id
   
 })
 

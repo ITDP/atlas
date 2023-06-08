@@ -14,13 +14,30 @@
 }
 
 .modal-dialog {
+
+
+}
+
+#modal_about {
+  
+    position: absolute;
+left: 50%;
+top: 50%;
+transform: translate(-50%, -50%) !important;
+width: 900px !important;
+  
+  
+}
+
+
+#modal_initial {
+  
     position: absolute;
 left: 300px;
 top: 10px;
 z-index: 999999999999999;
 width: 315px;
-
-
+  
   
 }
 
@@ -31,14 +48,7 @@ width: 315px;
   
 }
   
-  
-.modal-lg {
-  
-  position: absolute;
-left: 50%;
-top: 50%;
-transform: translate(-50%, -50%) !important;
-}
+
 
 
 .modal-content {

@@ -4,11 +4,12 @@ observeEvent(c(input$about), {
   
   req(input$about >= 1)
   
-  showModal(modalDialog(
+  showModal(modalDialog1(
     title = "ABOUT",
-    size = c("l"),
+    # size = c("l"),
     easyClose = TRUE,
     footer = NULL,
+    id1 = "modal_about",
     tabsetPanel(type = "tabs", id = "about_tabs",
                 tabPanel("THE ATLAS PROJECT",  value = "about_atlas",                                
                          absolutePanel(

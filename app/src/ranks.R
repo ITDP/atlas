@@ -480,7 +480,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
 
 observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
   
-  req(city$city_code != "")
+  req(city$city_code != "", length(data_ind3_spatial()$admin_level) > 0)
   
   # print("pa")
   
@@ -506,7 +506,17 @@ observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
 
 # if I change the spatial_level, the right panel should inform the user
 # that they should click on a region to see more things
-observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$regions_grid), {
+observeEvent(c(indicator$mode), {
+  
+  
+  # print("QUAQUA")
+  rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>'
+  rank$rank_text <- ""
+  
+})
+
+
+observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$regions_grid), {
   
   # waiter_show()
   # print(paste0("rank admin level"))
@@ -515,7 +525,7 @@ observeEvent(c(input$admin_level, input$map_marker_click, city$city_code, input$
   
   req(data_ind3())
   
-  print("req")
+  # print("req")
   
   rank_indicator <- subset(data_ind3(), osmid == city$city_code)[1,]
   # it will run only when we are at the city level

@@ -15,7 +15,7 @@ observeEvent(c(input$back_to_world), {
   # print("back to world")
   
   # reset the admin level
-  rank$admin_level <- 1
+  rank$admin_level <- NULL
   # reset the indicator
   # indicator$mode <- "pnpb"
   

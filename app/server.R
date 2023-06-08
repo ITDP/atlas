@@ -25,22 +25,23 @@ credentials <- data.frame(
 
 function(input, output, session) {
   
-  # password protection related
-  res_auth <- secure_server(
-    check_credentials = check_credentials(credentials)
-  )
-  
-  output$auth_output <- renderPrint({
-    reactiveValuesToList(res_auth)
-  })
+  # # password protection related
+  # res_auth <- secure_server(
+  #   check_credentials = check_credentials(credentials)
+  # )
+  # 
+  # output$auth_output <- renderPrint({
+  #   reactiveValuesToList(res_auth)
+  # })
   
   # the modal at startup
-  query_modal <- modalDialog(
+  query_modal <- modalDialog1(
     # title = "Important message",
     icon("arrow-left"), HTML("&nbsp;&nbsp;"), "Start by selecting an indicator",
     easyClose = TRUE,
-    size = "m",
-    footer = NULL
+    # size = "m",
+    footer = NULL,
+    id1 = "modal_initial"
     # footer = tagList(
     #   actionButton("run", "Run query")
     # )
@@ -347,8 +348,8 @@ function(input, output, session) {
     # req(compare_rv$hdc)
     req(compare_rv$choices)
     
-    print("quaqua")
-    print(compare_rv$countries)
+    # print("quaqua")
+    # print(compare_rv$countries)
     
     absolutePanel(
       id = "lalala",
