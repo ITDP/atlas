@@ -508,6 +508,7 @@ observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
 # that they should click on a region to see more things
 observeEvent(c(indicator$mode), {
   
+  req(!is.null(rank$admin_level))
   
   # print("QUAQUA")
   rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>'
