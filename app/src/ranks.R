@@ -20,7 +20,8 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
                        rank_value_initial = NULL, rank_text_initial = NULL,
                        rank_value_world = NULL, rank_text_world = NULL,
                        admin_level = NULL,
-                       rank_text_level0 = NULL)
+                       rank_text_level0 = NULL,
+                       country = NULL)
 
 # this reactive value will store the indicator name, 
 indicator_info <- reactiveValues(name = NULL,
@@ -67,6 +68,8 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     country_values <- country_values[order(-country_values$value),]
     country_ranks <- country_ranks[order(-country_ranks$rank),]
     
+    
+    
     # mean for the world
     rank_indicator <- mean(country_values$value)
     
@@ -102,27 +105,14 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     format_indicator_value <- format_indicator_values(country_values$value, transformation = format_indicator_unit_value)
     
-    # format_indicator_value <- if(format_indicator_unit_value == "percent") {
-    #   round(country_values$value * 100) 
-    #   
-    # } else if(format_indicator_unit_value %in% "thousands") {
-    #   
-    #   if (country_values$value >= 1000000) scales::comma(country_values$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(country_values$value, accuracy = 1, scale = 0.001, suffix = "k")
-    #   
-    #   
-    # } else round(country_values$value)
-    
-    # print("here")
-    # print(format_indicator_value_countries)
-    
     
     
     rank$rank_value <- paste0(
       # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                              '<div class="title_indicator" style="font-size: 20px;">', 
-                              "THE WORLD", '</div>',
-                              div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), " ", 
-                              p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
+      '<div class="title_indicator" style="font-size: 20px;">', 
+      "THE WORLD", '</div>',
+      div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), " ", 
+      p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
     )
     
     rank$rank_value_world <- rank$rank_value
@@ -135,7 +125,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     scroll_world <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>",
                             1:length(country_values$name), country_values$name, indicator_info$unit, format_indicator_value)  
     
-    scroll_world <- c("<div id=\"\" style=\"overflow-y:scroll; height:170px; margin-right: 15px;\">",
+    scroll_world <- c("<div id=\"accordion_world1\" style=\"overflow-y:scroll; height:170px; margin-right: 15px;\">",
                       scroll_world,
                       "</div>"
     )
@@ -215,9 +205,18 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   value_indicator <- subset(st_set_geometry(atlas_country(), NULL), name == ui)
   rank_indicator <- subset(rank_country(), name == ui)
   
+  
+  # print("rank_indicator")
+  # print(rank_indicator)
+  
+  # rank$country <- 
+  
   # rename the columns
   colnames(value_indicator) <- c('a3', 'name', 'value')
   colnames(rank_indicator) <- c('a3', 'name', 'rank')
+  
+  rank$country <- rank_indicator$rank
+  
   
   format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
   format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
@@ -247,10 +246,10 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   
   rank$rank_value <- paste0(
     # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                            '<div class="title_indicator" style="font-size: 20px;">', 
-                            rank_indicator$name, '</div>',
-                            div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                            p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
+    '<div class="title_indicator" style="font-size: 20px;">', 
+    rank_indicator$name, '</div>',
+    div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+    p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
   )
   
   
@@ -311,10 +310,10 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                    rank$rank_value <- paste0(
                      # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                                             '<div class="title_indicator" style="font-size: 20px;">', 
-                                             rank_indicator$name, '</div>',
-                                             div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                                             p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
+                     '<div class="title_indicator" style="font-size: 20px;">', 
+                     rank_indicator$name, '</div>',
+                     div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                     p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
                    )
                  }
                  
@@ -394,17 +393,17 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    } else { 
                      rank$rank_value <- paste0(
                        # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                                               '<div class="title_indicator" style="font-size: 20px;">', 
-                                               rank_indicator$name, '</div>',
-                                               div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                                               p(style = "color: #B1B5B9; display: inline; font-size: 22px;", indicator_info$unit)
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
-                                               
+                       '<div class="title_indicator" style="font-size: 20px;">', 
+                       rank_indicator$name, '</div>',
+                       div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                       p(style = "color: #B1B5B9; display: inline; font-size: 22px;", indicator_info$unit)
+                       
+                       
+                       
+                       
+                       
+                       
+                       
                      )
                    }
                    rank$rank_text_initial <- rank$rank_text
@@ -478,13 +477,26 @@ observeEvent(c(input$map_shape_click, city$city_code,
 
 # change color of selected region in carrousel ----------------------------
 
+# observeEvent(c(input$map_shape_click), {
+observeEvent(c(input$map_shape_click), {
+  
+  
+  req(is.null(rank$admin_level))  
+  
+  delay(1000, runjs(sprintf("$('#accordion_world1 > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$country)))
+  
+  
+  
+})
+
+
 observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
   
-  req(city$city_code != "", length(data_ind3_spatial()$admin_level) > 0)
-  
-  # print("pa")
+  req(length(data_ind3_spatial()$admin_level) > 0)
   
   admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
+  print("AQUIIIIIIIII")
+  # print(admin_level_osm)
   
   if(admin_level_osm >= 10) {
     
@@ -492,17 +504,13 @@ observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
     
   } else {
     
-    
+    print("bumpppp")
     delay(2000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
     delay(2000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))
     
   }
   
-  
 })
-
-
-
 
 # if I change the spatial_level, the right panel should inform the user
 # that they should click on a region to see more things
@@ -562,10 +570,10 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
     } else { 
       rank$rank_value <- paste0(
         # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                                '<div class="title_indicator" style="font-size: 20px;">', 
-                                rank_indicator$name, '</div>',
-                                div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                                p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
+        '<div class="title_indicator" style="font-size: 20px;">', 
+        rank_indicator$name, '</div>',
+        div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+        p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
       )
     }
     
