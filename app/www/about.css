@@ -38,7 +38,7 @@ border: 1px solid #495057;
 }
 
 
-#about:focus {
+#about:focus, #about:hover {
   color: #F8F9FA;
     background-color: transparent;
     border-color: transparent;

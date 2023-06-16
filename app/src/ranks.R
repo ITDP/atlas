@@ -256,216 +256,251 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
 }
 )
 
+
+# if I change the indicator, I need to reset the element selected
+
+observeEvent(c(indicator$mode), {
+  
+  
+  element$selected1 <- NULL
+  
+})
+
 # display rank when region or map is clicked
 observeEvent(c(input$map_shape_click, city$city_code,
                year$ok,
-               indicator$mode,
-               # input$indicator_bike, input$indicator_walk, input$indicator_transit,
+               # indicator$mode,
                input$regions_grid), label = "rank", {
                  
                  
                  req(data_ind3(), data_ind3_spatial())
                  
-                 w$show()
-                 
-                 # print("rank$admin_level")
-                 # print(rank$admin_level)
-                 
                  # get the region that was clicked
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
                  
+                 element$selected1 <- c(element$selected1, ui)
                  
-                 # extract the admin_level
-                 admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
+                 # print("GOGOGOGO")
+                 # print(element$selected1)
+                 # print(variables$indicator)
                  
-                 rank_indicator <- subset(data_ind3(), osmid == ui)[1,]
+                 variables$indicator <- variables$indicator[variables$indicator != ""]
                  
-                 que <- year$ok
-                 
-                 # print(format_indicator_unit_value)
-                 # print("format_indicator_unit_value")
-                 
-                 format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
-                 
-                 
-                 #   if(indicator_info$transformation == "percent") {
-                 #   round(rank_indicator$value * 100) 
-                 #   
-                 # } else if(indicator_info$transformation %in% "thousands") {
-                 #   
-                 #   if (rank_indicator$value >= 1000000) scales::comma(rank_indicator$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(rank_indicator$value, accuracy = 1, scale = 0.001, suffix = "k")
-                 #   
-                 #   
-                 # } else round(rank_indicator$value)
+                 # conditions that this should run:
+                 # when 
+                 run <- if (isTRUE(length(element$selected1) == 1)) {
+                   
+                   TRUE
+                   
+                   # if the selected element is different to the previous one
+                 }  else if (isTRUE(element$selected1[length(element$selected1)] != element$selected1[length(element$selected1)-1])) {
+                   
+                   TRUE
+                   
+                 } else {FALSE}
                  
                  
+                 # print("RUNNNNN")
+                 # print(run)
                  
                  
-                 # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
-                 if (input$regions_grid == "Grid") {
-                   
-                   rank$rank_value <- ""  
-                   
-                 } else { 
-                   
-                   rank$rank_value <- paste0(
-                     # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                     '<div class="title_indicator" style="font-size: 20px;">', 
-                     rank_indicator$name, '</div>',
-                     div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                     p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
-                   )
-                 }
-                 
-                 # print("rank$rank_value")
-                 # print(rank$rank_value)
-                 
-                 
-                 # the number of ranks will depend on the admin level
-                 
-                 # this first condition will show the indicator ranks as soon as the city marker is clicked
-                 if (input$regions_grid == "Grid") {
-                   
-                   base_text <- ""  
-                   
-                 } else { 
-                   base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS",
-                                    tags$button(
-                                      id = "tooltip_compare_right",
-                                      class="btn btn-light btn-xs",
-                                      style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
-                                      icon("circle-info")
-                                      
-                                    ))
-                 }
-                 
-                 # when is this applying?
-                 if (!is.null(city$city_code) & isTRUE(is.null(rank$admin_level))) {
-                   
-                   a <- subset(filter_rank(), osmid == ui & type_rank == "world")
-                   rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">3</strong>%s</strong> out offff %s</strong> in the world</div>', 
-                                             base_text, a$rank, a$n)
-                   
-                   
-                   rank$rank_text_initial <- rank$rank_text
-                   rank$rank_value_initial <- rank$rank_value
-                   
-                   
-                   # for the region case
-                 } else if (rank$admin_level == 1) {
-                   
-                   print("puhhh")
-                   
-                   # open the ranks text
-                   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                   ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
-                   ranks_text1 <- subset(ranks_text, type_rank == "world" & year == que)
-                   rank_text_world <- ranks_text1$text
-                   rank$value <- ranks_text1$rank
-                   
-                   ranks_text2 <- subset(ranks_text, type_rank == "country" & year == que)
-                   rank_text_country <- ranks_text2$text
-                   rank$value <- c(rank$value, ranks_text2$rank)
-                   
-                   # open the scroll text
-                   scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
-                   scroll_world <- HTML(subset(scroll_text, type_rank == "world" & year == que)$text)
-                   scroll_country <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
+                 if(run) {
                    
                    
                    
-                   text_world <- accordion_ranks("accordion_world", rank_text_world, scroll_world)
-                   
-                   text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
-                   
-                   # print(pera)
-                   
-                   rank$rank_text <- paste0(base_text, text_world, text_country)
-                   rank$rank_text_level0 <- paste0(base_text, text_world, text_country)
-                   # print("rank$rank_text")
-                   # print(rank$rank_text)
                    
                    
+                   
+                   w$show()
+                   
+                   # print("rank$admin_level")
+                   # print(rank$admin_level)
+                   
+                   
+                   
+                   
+                   # extract the admin_level
+                   admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
+                   
+                   rank_indicator <- subset(data_ind3(), osmid == ui)[1,]
+                   
+                   que <- year$ok
+                   
+                   # print(format_indicator_unit_value)
+                   # print("format_indicator_unit_value")
+                   
+                   format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
+                   
+                   
+                   
+                   
+                   # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
                    if (input$regions_grid == "Grid") {
                      
                      rank$rank_value <- ""  
                      
                    } else { 
+                     
                      rank$rank_value <- paste0(
                        # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
                        '<div class="title_indicator" style="font-size: 20px;">', 
                        rank_indicator$name, '</div>',
                        div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                       p(style = "color: #B1B5B9; display: inline; font-size: 22px;", indicator_info$unit)
-                       
-                       
-                       
-                       
-                       
-                       
-                       
+                       p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
                      )
                    }
-                   rank$rank_text_initial <- rank$rank_text
-                   rank$rank_value_initial <- rank$rank_value
-                   # print(paste0("teste: ", rank$rank_text_initial))
                    
-                   
-                   
-                   # print("olha")
+                   # print("rank$rank_value")
                    # print(rank$rank_value)
-                   # print(a$rank)
-                   # print(a$n)
                    
                    
-                   # will run when we are above or equal to the neighborhood level
-                 } else if (admin_level_osm >= 10) {
+                   # the number of ranks will depend on the admin level
                    
-                   # open the ranks text
-                   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                   ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
-                   rank$value <- ranks_text$rank
-                   rank_text_country <- ranks_text$text
+                   # this first condition will show the indicator ranks as soon as the city marker is clicked
+                   if (input$regions_grid == "Grid") {
+                     
+                     base_text <- ""  
+                     
+                   } else { 
+                     base_text <- div(class = "title_indicator_label", style ="padding-bottom: 0px", "COMPARED TO OTHER REGIONS",
+                                      tags$button(
+                                        id = "tooltip_compare_right",
+                                        class="btn btn-light btn-xs",
+                                        style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                                        icon("circle-info")
+                                        
+                                      ))
+                   }
                    
-                   # open the scroll text
-                   scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   scroll_country <- HTML(subset(scroll_text, type_rank == "metro" & year == que)$text)
-                   
-                   
-                   text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
-                   
-                   rank$rank_text <- paste0(base_text, text_country)
-                   
-                   # will run for all situation from city to neighborhood
-                 } else {
-                   
-                   # open the ranks text
-                   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                   ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui & year == que)
-                   rank$value <- ranks_text1$rank
-                   rank_text_world <- ranks_text1$text
-                   
-                   ranks_text2 <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
-                   rank$value <- c(rank$value, ranks_text2$rank)
-                   rank_text_country <- ranks_text2$text
-                   
-                   # open the scroll text
-                   scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
-                   scroll_world <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
-                   scroll_country <- HTML(subset(scroll_text, type_rank == "metro"  & year == que)$text)
-                   
-                   # print("scroll_world")
-                   # print(scroll_world)
-                   
-                   
-                   
-                   text_world <- accordion_ranks("accordion_world", rank_text_world, scroll_world)
-                   
-                   text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
-                   
-                   rank$rank_text <- paste0(base_text, text_world, text_country)
+                   # when is this applying?
+                   if (!is.null(city$city_code) & isTRUE(is.null(rank$admin_level))) {
+                     
+                     a <- subset(filter_rank(), osmid == ui & type_rank == "world")
+                     rank$rank_text <- sprintf('%s <div class="text_compare"> Ranks <strong style="font-size: 35px;">3</strong>%s</strong> out offff %s</strong> in the world</div>', 
+                                               base_text, a$rank, a$n)
+                     
+                     
+                     rank$rank_text_initial <- rank$rank_text
+                     rank$rank_value_initial <- rank$rank_value
+                     
+                     
+                     # for the region case
+                   } else if (rank$admin_level == 1) {
+                     
+                     print("puhhh")
+                     
+                     # open the ranks text
+                     indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+                     ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                     ranks_text1 <- subset(ranks_text, type_rank == "world" & year == que)
+                     rank_text_world <- ranks_text1$text
+                     rank$value <- ranks_text1$rank
+                     
+                     ranks_text2 <- subset(ranks_text, type_rank == "country" & year == que)
+                     rank_text_country <- ranks_text2$text
+                     rank$value <- c(rank$value, ranks_text2$rank)
+                     
+                     # open the scroll text
+                     scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                     scroll_world <- HTML(subset(scroll_text, type_rank == "world" & year == que)$text)
+                     scroll_country <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
+                     
+                     
+                     
+                     text_world <- accordion_ranks("accordion_world", rank_text_world, scroll_world)
+                     
+                     text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
+                     
+                     # print(pera)
+                     
+                     rank$rank_text <- paste0(base_text, text_world, text_country)
+                     rank$rank_text_level0 <- paste0(base_text, text_world, text_country)
+                     # print("rank$rank_text")
+                     # print(rank$rank_text)
+                     
+                     
+                     if (input$regions_grid == "Grid") {
+                       
+                       rank$rank_value <- ""  
+                       
+                     } else { 
+                       rank$rank_value <- paste0(
+                         # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                         '<div class="title_indicator" style="font-size: 20px;">', 
+                         rank_indicator$name, '</div>',
+                         div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                         p(style = "color: #B1B5B9; display: inline; font-size: 22px;", indicator_info$unit)
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                       )
+                     }
+                     rank$rank_text_initial <- rank$rank_text
+                     rank$rank_value_initial <- rank$rank_value
+                     # print(paste0("teste: ", rank$rank_text_initial))
+                     
+                     
+                     
+                     # print("olha")
+                     # print(rank$rank_value)
+                     # print(a$rank)
+                     # print(a$n)
+                     
+                     
+                     # will run when we are above or equal to the neighborhood level
+                   } else if (admin_level_osm >= 10) {
+                     
+                     # open the ranks text
+                     indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+                     ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
+                     rank$value <- ranks_text$rank
+                     rank_text_country <- ranks_text$text
+                     
+                     # open the scroll text
+                     scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     scroll_country <- HTML(subset(scroll_text, type_rank == "metro" & year == que)$text)
+                     
+                     
+                     text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
+                     
+                     rank$rank_text <- paste0(base_text, text_country)
+                     
+                     # will run for all situation from city to neighborhood
+                   } else {
+                     
+                     # open the ranks text
+                     indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+                     ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui & year == que)
+                     rank$value <- ranks_text1$rank
+                     rank_text_world <- ranks_text1$text
+                     
+                     ranks_text2 <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
+                     rank$value <- c(rank$value, ranks_text2$rank)
+                     rank_text_country <- ranks_text2$text
+                     
+                     # open the scroll text
+                     scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     scroll_world <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
+                     scroll_country <- HTML(subset(scroll_text, type_rank == "metro"  & year == que)$text)
+                     
+                     # print("scroll_world")
+                     # print(scroll_world)
+                     
+                     
+                     
+                     text_world <- accordion_ranks("accordion_world", rank_text_world, scroll_world)
+                     
+                     text_country <- accordion_ranks("accordion_country", rank_text_country, scroll_country)
+                     
+                     rank$rank_text <- paste0(base_text, text_world, text_country)
+                     
+                   }
                    
                  }
                  
@@ -495,7 +530,7 @@ observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
   req(length(data_ind3_spatial()$admin_level) > 0)
   
   admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
-  print("AQUIIIIIIIII")
+  # print("AQUIIIIIIIII")
   # print(admin_level_osm)
   
   if(admin_level_osm >= 10) {
@@ -595,37 +630,6 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
 })
 
 
-# output$rank_value <- renderUI({
-#   req(indicator$mode, rank$rank_value)
-#   
-#   tagList(
-#     HTML(rank$rank_value),
-#     div(
-#       bsPopover(id = "tooltip_compare_right",
-#                 # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
-#                 title = "",
-#                 content = HTML("Compared with the same Administrative Level"),
-#                 placement = "top",
-#                 trigger = "hover"
-#                 # options = list(container = "body")
-#       )
-#     )
-#   )
-#   
-# })
-# 
-# # create chart with indicator value
-# 
-# 
-# 
-# output$rank_text <- renderUI({
-#   
-#   req(indicator$mode, rank$rank_text)
-#   
-#   HTML(rank$rank_text)
-#   # rank$rank_text
-#   
-# })
 
 
 output$rank_final <- renderUI({

@@ -25,14 +25,14 @@ credentials <- data.frame(
 
 function(input, output, session) {
   
-  # # password protection related
-  # res_auth <- secure_server(
-  #   check_credentials = check_credentials(credentials)
-  # )
-  # 
-  # output$auth_output <- renderPrint({
-  #   reactiveValuesToList(res_auth)
-  # })
+  # password protection related
+  res_auth <- secure_server(
+    check_credentials = check_credentials(credentials)
+  )
+
+  output$auth_output <- renderPrint({
+    reactiveValuesToList(res_auth)
+  })
   
   # the modal at startup
   query_modal <- modalDialog1(
@@ -367,18 +367,7 @@ function(input, output, session) {
                             class = "minimize")
       ),
       
-      # shinyWidgets::pickerInput(inputId = "city_compare",
-      #                           label = NULL,
-      #                           choices = compare_rv$test,
-      #                           # choices = comparison_values(),
-      #                           multiple = TRUE,
-      #                           options = shinyWidgets::pickerOptions(size = 15,
-      #                                                                 iconBase = "fa",
-      #                                                                 tickIcon = "fa-check",
-      #                                                                 title = "Select a region to add ...",
-      #                                                                 liveSearch = TRUE)
-      # ),
-      conditionalPanel("input.city != '' || typeof input.map_marker_click !== 'undefined'",
+      conditionalPanel("output.city",
       div(style="display:inline-block",
           shinyWidgets::pickerInput(inputId = "city_compare_country_initial",
                                     label = NULL,
@@ -604,6 +593,12 @@ function(input, output, session) {
     indicator$type == "performance"
   })
   outputOptions(output, "panelStatus", suspendWhenHidden = FALSE)
+  
+  
+  output$city <- reactive({
+    city$city_code != ""
+  })
+  outputOptions(output, "city", suspendWhenHidden = FALSE)
   
   # output$back_to_world_panel <- renderUI({
   #   
@@ -959,6 +954,7 @@ function(input, output, session) {
   source("src/download.R", local = TRUE)  
   source("src/indicator_not_available.R", local = TRUE)  
   source("src/indicator_not_available_countries.R", local = TRUE)  
+  source("src/variables.R", local = TRUE)  
   
   
   

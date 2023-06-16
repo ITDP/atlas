@@ -13,7 +13,7 @@ download.file("https://github.com/ITDP/atlas/releases/download/mvp1/sample_3.zip
 unzip("data-raw/sample_3.zip",
       exdir = "data-raw")
 
-options(shiny.fullstacktrace = TRUE)
+options(shiny.fullstacktrace = FALSE)
 
 
 
