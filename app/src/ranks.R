@@ -150,7 +150,7 @@ observeEvent(c(input$admin_level), {
   
   rank$admin_level <- input$admin_level
   # print("ARROCHA 1")
-  print(rank$admin_level)
+  # print(rank$admin_level)
   
 })
 
@@ -269,7 +269,7 @@ observeEvent(c(indicator$mode), {
 # display rank when region or map is clicked
 observeEvent(c(input$map_shape_click, city$city_code,
                year$ok,
-               # indicator$mode,
+               indicator$mode,
                input$regions_grid), label = "rank", {
                  
                  
@@ -387,7 +387,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      # for the region case
                    } else if (rank$admin_level == 1) {
                      
-                     print("puhhh")
+                     # print("puhhh")
                      
                      # open the ranks text
                      indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
@@ -554,14 +554,17 @@ observeEvent(c(indicator$mode), {
   req(!is.null(rank$admin_level))
   
   
-  # if (rank$admin_level != 1) {
+  if (rank$admin_level != 1) {
     
     # print("QUAQUA")
-    rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>'
-    rank$rank_text <- ""
+  
+  delay(50, 
+        rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>')
+
+  delay(50, 
+        rank$rank_text <- "")
     
-    
-  # }
+  }
   
   
 })
