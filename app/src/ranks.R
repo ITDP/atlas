@@ -547,15 +547,22 @@ observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
   
 })
 
-# if I change the spatial_level, the right panel should inform the user
+# if I change the mode, the right panel should inform the user
 # that they should click on a region to see more things
 observeEvent(c(indicator$mode), {
   
   req(!is.null(rank$admin_level))
   
-  # print("QUAQUA")
-  rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>'
-  rank$rank_text <- ""
+  
+  # if (rank$admin_level != 1) {
+    
+    # print("QUAQUA")
+    rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>'
+    rank$rank_text <- ""
+    
+    
+  # }
+  
   
 })
 
