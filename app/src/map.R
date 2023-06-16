@@ -93,22 +93,11 @@ output$map <- renderLeaflet({
 counter <- reactiveValues(obs1 = NULL,
                           obs2 = NULL)
 
-
-# update the world map when the indicators is changed ---------------------
-observeEvent(c(indicator$mode, input$year, input$back_to_world), {
+# update world values when indicator is changed -------
+observeEvent(c(indicator$mode, input$year), {
   
-  req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
+  req(indicator$mode, input$year, indicator_info$transformation)
   
-  
-  print("obs1")
-  
-  # print(indicator$mode)
-  
-  # this will only runs if we are at the wold view (admin level = null)
-  # if(is.null(input$admin_level)) {
-  
-  # print(atlas_city_markers)
-  # at <- Sys.time()
   
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   # print("pattern")
@@ -194,7 +183,103 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   world_view$legend_value <- legend_value
   
   
-  map <- leafletProxy("map", data = a_available) %>%
+  
+})
+
+
+# update the world map when the indicators is changed ---------------------
+observeEvent(c(indicator$mode, input$year, input$back_to_world), {
+  
+  req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
+  
+  
+  print("obs1")
+  
+  # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+  # # print("pattern")
+  # # print(pattern)
+  # cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
+  # a <- atlas_city_markers[cols]
+  # colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'value', 'geom')
+  # 
+  # a_available <- subset(a, !is.na(value))
+  # a_notavailable <- subset(a, is.na(value))
+  # if(nrow(a_notavailable) > 0) {
+  #   
+  #   a_notavailable$name <- paste0(a_notavailable$name, "<br>Not available for this city")
+  #   
+  # }
+  # 
+  # # print(class(atlas_country))
+  # cols_country <- c('a3', 'name', colnames(atlas_country())[startsWith(colnames(atlas_country()), pattern)], 'geometry')
+  # a_country <- atlas_country()[cols_country]
+  # colnames(a_country) <- c('a3', 'name', 'value', 'geometry')
+  # 
+  # # print("A CONOCN")
+  # # print(a_country)
+  # 
+  # pal <- colorNumeric(
+  #   palette = "viridis",
+  #   na.color = "#808080",
+  #   # palette = "YlGnBu",
+  #   domain = a$value)
+  # 
+  # 
+  # pal_countries <- colorNumeric(
+  #   palette = "viridis",
+  #   # palette = "YlGnBu",
+  #   domain = a_country$value)
+  # 
+  # 
+  # 
+  # legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+  # legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+  # # format legend value
+  # legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
+  # 
+  # # create the label for the markers
+  # format_indicator_value_marker <- format_indicator_values(a$value, transformation = indicator_info$transformation)
+  # 
+  # 
+  # # format_indicator_value_marker <- paste0(format_indicator_value_marker, indicator_info$unit)
+  # 
+  # # print("data_ind3_spatial()$name")
+  # # print(data_ind3_spatial()$name)
+  # # print(data_ind3_spatial()$name)
+  # 
+  # labels_markers1 <- paste0("<b>", a_available$name, "</b><br/>", 
+  #                           sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", format_indicator_value_marker), 
+  #                           sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9\"> %s</span>", indicator_info$unit), 
+  #                           "<br/><i>Click to go to the region</i>")
+  # 
+  # 
+  # # print(a)
+  # # labels <- paste0("<b>", a_available$name,  "</b><br/> <i>Click to go to the region</i>")
+  # labels2 <- paste0("<b>", a_notavailable$name,  "</b><br/> <i>Indicator not available for this region</i>")
+  # 
+  # 
+  # # tooltip for the countries
+  # format_indicator_value_country <- format_indicator_values(a_country$value, transformation = indicator_info$transformation)
+  # 
+  # 
+  # labels_country <- paste0("<b>", a_country$name, "</b><br/>", 
+  #                          sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 20px; padding-bottom: 0px\"> %s</span>", format_indicator_value_country),
+  #                          sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9\"> %s</span>", indicator_info$unit)
+  # )  
+  # 
+  # world_view$a_available <- a_available
+  # world_view$pal <- pal
+  # world_view$labels_markers1 <- labels_markers1
+  # world_view$a_notavailable <- a_notavailable
+  # world_view$labels2 <- labels2
+  # world_view$a_country <- a_country
+  # world_view$pal_countries <- pal_countries
+  # world_view$labels_country <- labels_country
+  # world_view$legend_title <- legend_title
+  # world_view$legend_value <- legend_value
+  
+  
+  map <- leafletProxy("map", data = world_view$a_available) %>%
     clearMarkers() %>%
     clearControls() %>%
     clearShapes() %>%
@@ -205,12 +290,12 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
       radius = 8,
-      fillColor = ~pal(value),
+      fillColor = ~world_view$pal(value),
       stroke = TRUE, fillOpacity = 0.9, color = "black",
       opacity = 0.9,
       # weight = 1,
       layerId = ~hdc,
-      label = lapply(labels_markers1, htmltools::HTML),
+      label = lapply(world_view$labels_markers1, htmltools::HTML),
       options = pathOptions(clickable = TRUE, pane = "markers_available"),
       labelOptions = labelOptions(
         style = list(
@@ -222,7 +307,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
           # "border-color" = "rgba(0,0,0,0.5)"
         ))
     ) %>%
-    addCircleMarkers(data = a_notavailable,
+    addCircleMarkers(data = world_view$a_notavailable,
                      # radius = ~ifelse(type == "ship", 6, 10),
                      radius = 8,
                      # fillColor = ~pal(value), 
@@ -230,24 +315,24 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
                      opacity = 0.8,
                      weight = 1,
                      layerId = ~hdc,
-                     label = lapply(labels2, htmltools::HTML),
+                     label = lapply(world_view$labels2, htmltools::HTML),
                      # label = ~htmltools::htmlEscape(name),
                      options = pathOptions(clickable = FALSE, pane = "markers_navailable")
     ) %>%
-    addPolygons(data = a_country,
+    addPolygons(data = world_view$a_country,
                 layerId = ~name,
-                fillColor = ~pal_countries(value), color = "black",  weight = 0, # erro nao eh aqui
+                fillColor = ~world_view$pal_countries(value), color = "black",  weight = 0, # erro nao eh aqui
                 fillOpacity = 0.7,
                 options = pathOptions(clickable = TRUE, pane = "countries"),
                 group = "Countries",
-                label = lapply(labels_country, htmltools::HTML)
+                label = lapply(world_view$labels_country, htmltools::HTML)
     ) %>%
     # add polygons with the country color
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-    addLegend("bottomright", pal = pal_countries, values = ~a_country$value,
-              title = legend_title,
+    addLegend("bottomright", pal = world_view$pal_countries, values = ~world_view$a_country$value,
+              title = world_view$legend_title,
               # bins = 7,
-              labFormat = legend_value,
+              labFormat = world_view$legend_value,
               layerId = "legend_country")
   
   map
