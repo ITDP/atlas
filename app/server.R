@@ -29,7 +29,7 @@ function(input, output, session) {
   res_auth <- secure_server(
     check_credentials = check_credentials(credentials)
   )
-
+  
   output$auth_output <- renderPrint({
     reactiveValuesToList(res_auth)
   })
@@ -52,7 +52,7 @@ function(input, output, session) {
   
   observe({
     
-  delay(200, shinyjs::runjs('$( ".mfb-component--br" ).remove();'))
+    delay(200, shinyjs::runjs('$( ".mfb-component--br" ).remove();'))
     
   })
   
@@ -180,14 +180,14 @@ function(input, output, session) {
   
   # hides the comparison button when the user is in the global view -----------------------------
   observeEvent(c(input$indicator), {
-
+    
     req(input$indicator != "")
     # req(city$times == 0)
     # req(city$city_code != "", city$times == 0)
-
+    
     shinyjs::show("compare_panel")
-
-
+    
+    
   }, once = FALSE)
   
   
@@ -210,18 +210,18 @@ function(input, output, session) {
     
     req(city$city_code == "")
     
-      
-      
-      compare_rv$country <- NULL
-      compare_rv$countries <- NULL
-      compare_rv$hdc <- NULL
-      compare_rv$choices <- atlas_country()$name
-      
-      
-      # print("quero comer")
-      # print("al")
-      
-     
+    
+    
+    compare_rv$country <- NULL
+    compare_rv$countries <- NULL
+    compare_rv$hdc <- NULL
+    compare_rv$choices <- atlas_country()$name
+    
+    
+    # print("quero comer")
+    # print("al")
+    
+    
     
   })
   
@@ -253,11 +253,25 @@ function(input, output, session) {
     choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
     # get countries
     countries <- unique(choices_comparison$country)
-    # get hdc from that country
-    hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == 0 & hdc %in% hdc_available)
-    # get options to show in the comparison - final
-    choices_comparison <- subset(choices_comparison, hdc == city$city_code)
-    # print(choices_comparison)
+    
+    if (rank$admin_level != 1) {
+      
+      # get options to show in the comparison - final
+      # get hdc from that country
+      hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == 0 & hdc %in% hdc_available)
+      choices_comparison <- subset(choices_comparison, hdc == city$city_code)
+      
+    } else {
+      
+      
+      # get hdc from that country
+      hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == 0 & hdc %in% hdc_available)
+      choices_comparison <- subset(choices_comparison, country == country_current)
+      # print("OOOOOHHHH")
+      # print(choices_comparison)
+      
+    }
+    
     # remove the osmid that is already being shown
     # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
     
@@ -279,65 +293,9 @@ function(input, output, session) {
     compare_rv$choices <- choices_comparison_values
     
     
+    
   })
   
-  
-  # comparison_values <- reactive({
-  #   
-  #   req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level)
-  #   
-  #   # print("Compare AAAAAAA")
-  #   # print(data_ind3_spatial())
-  #   
-  #   # try again if input is not ready
-  #   
-  #   # get the admin level original
-  #   al <- as.numeric(unique(data_ind3_spatial()$admin_level))
-  #   
-  #   
-  #   # print("al")
-  #   # print(al)
-  #   
-  #   # first, select only the ones that are available for the indicator in question
-  #   hdc_available <-  subset(list_availability, ind == indicator$mode)$hdc
-  #   # hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
-  #   
-  #   # get options to show in the comparison
-  #   choices_comparison <- subset(list_osmid_name, admin_level == al)
-  #   # filter hdc with the indicators available
-  #   choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
-  #   # if is in the neigbourhood level (level >= 10), only show for the city in question
-  #   if (al >= 10) {
-  #     
-  #     # print("uhhhhhhhhhhhhhhhhhhhhhhhhh")
-  #     
-  #     choices_comparison <- subset(choices_comparison, hdc == city$city_code)
-  #     
-  #   }
-  #   
-  #   # remove the osmid that is already being shown
-  #   # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
-  #   # extract values
-  #   choices_values <- choices_comparison$osmid
-  #   choices_names <- choices_comparison$name
-  #   names(choices_values) <- choices_names
-  #   
-  #   # print("choices_names")
-  #   # print(choices_names)
-  #   
-  #   return(choices_values)
-  #   
-  # })
-  
-  # whe had a problem that the comparison panel was showing when switching cities
-  # to avoid that, we need to reset the comparison values, so it doesn't trigger the absolutepanel below
-  # observeEvent(c(city$city_code), {
-  #   
-  #   req(city$city_code != "")
-  #   compare_rv$hdc <- NULL
-  #   
-  #   
-  # })
   
   output$comparison_panel <- renderUI({
     
@@ -350,6 +308,8 @@ function(input, output, session) {
     
     # print("quaqua")
     # print(compare_rv$countries)
+    # print("compare_rv$choices")
+    # print(compare_rv$choices)
     
     absolutePanel(
       id = "lalala",
@@ -367,36 +327,38 @@ function(input, output, session) {
                             class = "minimize")
       ),
       
-      conditionalPanel("output.city",
-      div(style="display:inline-block",
-          shinyWidgets::pickerInput(inputId = "city_compare_country_initial",
-                                    label = NULL,
-                                    choices = compare_rv$countries,
-                                    selected = compare_rv$country,
-                                    multiple = FALSE,
-                                    width = "125px",
-                                    options = shinyWidgets::pickerOptions(size = 15,
-                                                                          title = "Country...",
-                                                                          liveSearch = TRUE,
-                                                                          liveSearchPlaceholder = "Search...")
-          )),
-      div(style="display:inline-block",
-          shinyWidgets::pickerInput(inputId = "city_compare_hdc_initial",
-                                    label = NULL,
-                                    choices = compare_rv$hdc,
-                                    selected = city$city_code,
-                                    width = "150px",
-                                    multiple = FALSE,
-                                    options = shinyWidgets::pickerOptions(size = 15,
-                                                                          title = "Region...",
-                                                                          liveSearch = TRUE,
-                                                                          liveSearchPlaceholder = "Search...")
-          ))),
+      conditionalPanel("output.city", style = "display:inline-block",
+                       div(style="display:inline-block",
+                           shinyWidgets::pickerInput(inputId = "city_compare_country_initial",
+                                                     label = NULL,
+                                                     choices = compare_rv$countries,
+                                                     selected = compare_rv$country,
+                                                     multiple = FALSE,
+                                                     width = "125px",
+                                                     options = shinyWidgets::pickerOptions(size = 15,
+                                                                                           title = "Country...",
+                                                                                           liveSearch = TRUE,
+                                                                                           liveSearchPlaceholder = "Search...")
+                           )),
+                       
+                       conditionalPanel("output.admin_level", style = "display:inline-block",
+                                        div(style="display:inline-block",
+                                            shinyWidgets::pickerInput(inputId = "city_compare_hdc_initial",
+                                                                      label = NULL,
+                                                                      choices = compare_rv$hdc,
+                                                                      selected = city$city_code,
+                                                                      width = "150px",
+                                                                      multiple = FALSE,
+                                                                      options = shinyWidgets::pickerOptions(size = 15,
+                                                                                                            title = "Region...",
+                                                                                                            liveSearch = TRUE,
+                                                                                                            liveSearchPlaceholder = "Search...")
+                                            )))),
       div(style="display:inline-block",
           shinyWidgets::pickerInput(inputId = "city_compare1_initial",
                                     label = NULL,
                                     choices = compare_rv$choices,
-                                    width = "125px",
+                                    width = "135px",
                                     multiple = TRUE,
                                     options = shinyWidgets::pickerOptions(size = 15,
                                                                           # iconBase = "fa",
@@ -436,53 +398,53 @@ function(input, output, session) {
         # absolutePanel(
         #   # id = "controls",
         #   class = "spatial_level",
-          # fixed = TRUE, draggable = FALSE,
-          # bottom = 45, right = 180, height = 'auto', width = 220,
-          # 'typeof undefined' identifies when is null
-          tags$div(class = "title_left_panel", style = "padding: 10px 0", "AT THE LEVEL OF",
-                   tags$button(
-                     id = "tooltip_level",
-                     class="btn btn-light btn-xs",
-                     style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
-                     icon("circle-info")
-                     
-                   )
+        # fixed = TRUE, draggable = FALSE,
+        # bottom = 45, right = 180, height = 'auto', width = 220,
+        # 'typeof undefined' identifies when is null
+        tags$div(class = "title_left_panel", style = "padding: 10px 0", "AT THE LEVEL OF",
+                 tags$button(
+                   id = "tooltip_level",
+                   class="btn btn-light btn-xs",
+                   style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
+                   icon("circle-info")
                    
-          ),
-          
-          
-          
-          
-          div(
-            bsPopover(id = "tooltip_level",
-                      # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
-                      title = "",
-                      content = HTML(includeHTML('www/tooltips/tooltip_level.html')),
-                      placement = "top",
-                      trigger = "hover"
-                      # options = list(container = "body")
-            )
-          ),
-          conditionalPanel(
-            condition = "output.panelStatus",
-            radioGroupButtons(inputId = "regions_grid", label = "", choices = c("Regions"), selected = "Regions", justified = TRUE),
-          ),
-          conditionalPanel(
-            condition = "input.regions_grid == 'Regions'",
-            shinyWidgets::pickerInput(inputId = "admin_level",
-                                          choices = seq(1, go),
-                                          label = NULL,
-                                          selected = 1,
-                                      width = 250,
-                                      
-                                          # grid = TRUE,
-                                          # dragRange = FALSE
-                                          # selected = character(0)
-            )
+                 )
+                 
+        ),
+        
+        
+        
+        
+        div(
+          bsPopover(id = "tooltip_level",
+                    # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
+                    title = "",
+                    content = HTML(includeHTML('www/tooltips/tooltip_level.html')),
+                    placement = "top",
+                    trigger = "hover"
+                    # options = list(container = "body")
           )
-          
+        ),
+        conditionalPanel(
+          condition = "output.panelStatus",
+          radioGroupButtons(inputId = "regions_grid", label = "", choices = c("Regions"), selected = "Regions", justified = TRUE),
+        ),
+        conditionalPanel(
+          condition = "input.regions_grid == 'Regions'",
+          shinyWidgets::pickerInput(inputId = "admin_level",
+                                    choices = seq(1, go),
+                                    label = NULL,
+                                    selected = 1,
+                                    width = 250,
+                                    
+                                    # grid = TRUE,
+                                    # dragRange = FALSE
+                                    # selected = character(0)
+          )
         )
         
+      )
+      
       # )
     )
     
@@ -599,6 +561,11 @@ function(input, output, session) {
     city$city_code != ""
   })
   outputOptions(output, "city", suspendWhenHidden = FALSE)
+  
+  output$admin_level <- reactive({
+    rank$admin_level > 1
+  })
+  outputOptions(output, "admin_level", suspendWhenHidden = FALSE)
   
   # output$back_to_world_panel <- renderUI({
   #   

@@ -759,24 +759,48 @@ observeEvent(c(input$city_compare_country_initial), {
   
   # print("al")
   # print(al)
-  
-  # first, select only the ones that are available for the indicator in question
-  hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
-  # get hdc from that country
-  hdc_comparison <- subset(list_osmid_name, country == input$city_compare_country_initial & admin_level == 0 & hdc %in% hdc_available)
-  
-  # for the hdc available
-  hdc_comparison_values <- hdc_comparison$osmid
-  hdc_comparison_names <- hdc_comparison$name
-  names(hdc_comparison_values) <- hdc_comparison_names
-  
-  # comparison$choices <- choices_comparison_values
-  
-  
-  updatePickerInput(
-    session = session,
-    inputId = "city_compare_hdc_initial",
-    choices = hdc_comparison_values)
+  if (rank$admin_level > 1) {
+    
+    # first, select only the ones that are available for the indicator in question
+    hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+    # get hdc from that country
+    hdc_comparison <- subset(list_osmid_name, country == input$city_compare_country_initial & admin_level == 0 & hdc %in% hdc_available)
+    
+    # for the hdc available
+    hdc_comparison_values <- hdc_comparison$osmid
+    hdc_comparison_names <- hdc_comparison$name
+    names(hdc_comparison_values) <- hdc_comparison_names
+    
+    # comparison$choices <- choices_comparison_values
+    
+    
+    updatePickerInput(
+      session = session,
+      inputId = "city_compare_hdc_initial",
+      choices = hdc_comparison_values)
+    
+    
+  } else {
+    
+    # first, select only the ones that are available for the indicator in question
+    hdc_available <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))$hdc
+    # get hdc from that country
+    hdc_comparison <- subset(list_osmid_name, country == input$city_compare_country_initial & admin_level == 0 & hdc %in% hdc_available)
+    
+    
+    # extract values
+    choices_comparison_values <- hdc_comparison$osmid
+    choices_comparison_names <- hdc_comparison$name
+    names(choices_comparison_values) <- choices_comparison_names
+    
+    comparison$choices <- choices_comparison_values
+    
+    updatePickerInput(
+      session = session,
+      inputId = "city_compare1_initial",
+      choices = comparison$choices)
+    
+  }
   
   
   # updatePickerInput(
@@ -792,10 +816,13 @@ observeEvent(c(input$city_compare_country_initial), {
 
 observeEvent(c(input$city_compare_hdc_initial), {
   
+  req(rank$admin_level > 1)
+  
+  
   # get the admin level original
   al <- unique(data_ind3_spatial()$admin_level)
   
-  # print("al")
+  # print("alllllllllllllllllll")
   # print(al)
   # print(input$city_compare_country_initial)
   # print(input$city_compare_hdc_initial)
