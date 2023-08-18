@@ -9,21 +9,23 @@ indicators_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/13LZoiy0R
                                sheet = "Indicators")
 
 # open overall data
-world <- dir("data/data_alpha", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{5}.rds")
+world <- dir("data/data_july2023", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{5}.rds")
 data_world <- lapply(world, function(x) st_set_geometry(read_rds(x), NULL)) %>% rbindlist(fill = TRUE)
-data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level))
-
-
-
-
-# create ranks for countries -------------------------------
+data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level)) %>%
+  mutate(across(8:last_col(), as.numeric))
+  
+  
+  
+  
+  # create ranks for countries -------------------------------
+ind <- "bike_pnpb"
 ranks_countries <- function(ind ) {
   
-  if(file.exists(sprintf("data/data_alpha/countries/atlas_country_%s.rds",
+  if(file.exists(sprintf("data/data_july2023/countries/atlas_country_%s.rds",
                          ind))) {
     
     
-    atlas_country <- readRDS(sprintf("data/data_alpha/countries/atlas_country_%s.rds",
+    atlas_country <- readRDS(sprintf("data/data_july2023/countries/atlas_country_%s.rds",
                                      ind))
     
     # calculate size of each group
@@ -34,7 +36,7 @@ ranks_countries <- function(ind ) {
       # create totals - NEED FIX
       mutate(n = n()) 
     
-    readr::write_rds(country_ranks, sprintf("data/data_alpha/countries/ranks/atlas_country_rank_%s.rds", ind))
+    readr::write_rds(country_ranks, sprintf("data/data_july2023/countries/ranks/atlas_country_rank_%s.rds", ind))
     
   }
   
@@ -83,12 +85,12 @@ prep_data <- function(ghsl) {
   # ghsl <- "00021"
   # ghsl <- "01105"
   # ghsl <- "01361"
-  # ghsl <- "00154"
+  # ghsl <- "00010"
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
   
-  dir.create(sprintf("data/data_alpha/ghsl_%s/ranks", ghsl))
+  dir.create(sprintf("data/data_july2023/ghsl_%s/ranks", ghsl))
   
   data <- data_world %>% filter(hdc == ghsl)
   
@@ -116,7 +118,7 @@ prep_data <- function(ghsl) {
   rank_hdc_metro <- data %>%
     filter(admin_level != 0) %>%
     group_by(admin_level) %>%
-    # calculate size of each group
+    # calculate size of each grou
     mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
     # create totals - NEED FIX
     mutate(n = n()) %>%
@@ -126,6 +128,7 @@ prep_data <- function(ghsl) {
   # bind the comparions
   rank_complete <- rbind(rank_hdc_world, rank_hdc_country, rank_hdc_metro)
   
+  # level <- "Agglomeration"
   # level <- 8
   # level <- 6
   
@@ -142,7 +145,7 @@ prep_data <- function(ghsl) {
     # ind <- "walk_pnh"
     # ind <- "walk_pncf"
     # ind <- "bike_bikeshare"
-    # ind <- "transit_pnrtlrt"
+    # ind <- "city_pnnhighways"
     
     filter_by_ind <- function(ind) {
       
@@ -194,9 +197,9 @@ prep_data <- function(ghsl) {
         arrange(type_rank, year, rank) %>%
         # format indicator value
         mutate(value = case_when(indicator_transformation %in% "percent" ~ as.character(round(value * 100)), 
-                                  indicator_transformation %in% "thousands" & value >= 1000000 ~ scales::comma(value, accuracy = 0.1, scale = 0.000001, suffix = "M"),
-                                  indicator_transformation %in% "thousands" & value < 1000000 ~ scales::comma(value, accuracy = 1, scale = 0.001, suffix = "k"),
-                                  TRUE ~ as.character(round(value)))) %>%
+                                 indicator_transformation %in% "thousands" & value >= 1000000 ~ scales::comma(value, accuracy = 0.1, scale = 0.000001, suffix = "M"),
+                                 indicator_transformation %in% "thousands" & value < 1000000 ~ scales::comma(value, accuracy = 1, scale = 0.001, suffix = "k"),
+                                 TRUE ~ as.character(round(value)))) %>%
         # mutate(value = paste0(value, format_indicator_unit)) %>%
         # create text
         group_by(type_rank, year) %>%
@@ -219,10 +222,10 @@ prep_data <- function(ghsl) {
       
       
       # save
-      write_rds(rank_complete_level_ind, sprintf("data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", ghsl, ghsl, level, ind))
+      write_rds(rank_complete_level_ind, sprintf("data/data_july2023/ghsl_%s/ranks/ranks_%s_%s_%s.rds", ghsl, ghsl, level, ind))
       
       # save the full list html code for this indicator
-      write_rds(rank_complete_level_ind_full, sprintf("data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", ghsl, ghsl, level, ind))
+      write_rds(rank_complete_level_ind_full, sprintf("data/data_july2023/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", ghsl, ghsl, level, ind))
       
     }
     
@@ -238,11 +241,15 @@ prep_data <- function(ghsl) {
     # apply to every indicator
     purrr::walk(ind_list, filter_by_ind)
     
+    # uiui <- lapply(ind_list, possibly(filter_by_ind, otherwise = "error"))
+    
   }
   
   levels <- unique(data$admin_level)
   # apply to every indicator
   purrr::walk(levels, filter_by_level)
+  
+  # uiui <- lapply(levels, possibly(filter_by_level, otherwise = "error"))
   
   
 }
@@ -251,7 +258,8 @@ prep_data <- function(ghsl) {
 cities_available <- unique(data_world$hdc)
 purrr::walk(cities_available, 
             prep_data)
-
+results <- lapply(cities_available, 
+            possibly(prep_data, "error"))
 
 # prep_data("01406")
 # prep_data("01361")

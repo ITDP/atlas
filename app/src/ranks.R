@@ -7,7 +7,7 @@ rank_country <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/data_alpha/countries/ranks/atlas_country_rank_%s.rds", pattern))
+  a <- readRDS(sprintf("../data/data_july2023/countries/ranks/atlas_country_rank_%s.rds", pattern))
   
   return(a)
   
@@ -21,7 +21,8 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
                        rank_value_world = NULL, rank_text_world = NULL,
                        admin_level = NULL,
                        rank_text_level0 = NULL,
-                       country = NULL)
+                       country = NULL,
+                       indicator = NULL)
 
 # this reactive value will store the indicator name, 
 indicator_info <- reactiveValues(name = NULL,
@@ -323,6 +324,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
                    
                    rank_indicator <- subset(data_ind3(), osmid == ui)[1,]
+                   rank$indicator <- rank_indicator
                    
                    que <- year$ok
                    
@@ -331,7 +333,18 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                    format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
                    
-                   
+                   # create the indicator label for each indicator
+                   indicator_label <- switch(indicator$mode,
+                                             "popdensity" = sprintf("%s has a weighted population density of %s people per km2", rank_indicator$name, format_indicator_value),
+                                             "blockdensity" = sprintf("%s has an average of %s blocks per km2", rank_indicator$name, format_indicator_value),
+                                             "pns" = sprintf("%s %% of people in %s live within 1km of both healthcare and education services.", format_indicator_value, rank_indicator$name),
+                                             "pncf" = sprintf("%s %% of people in %s live within 100m of a car-free space.", format_indicator_value, rank_indicator$name),
+                                             "pnh" = sprintf("%s %% of people in %s live farther than 500m from a grade-separated highway. ", format_indicator_value, rank_indicator$name),
+                                             "pnpb" = sprintf("%s %% of people in %s live within a 300m walk of a protected bikeway. ", format_indicator_value, rank_indicator$name),
+                                             "pnrtall" = sprintf("%s %% of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", format_indicator_value, rank_indicator$name),
+                                             "pnft" = sprintf("%s %% of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", format_indicator_value, rank_indicator$name)
+                                             
+                                             )
                    
                    
                    # rank$rank_value <- sprintf("<h1>%s</h1><h2>%s</h2>", rank_indicator$name, rank_indicator$value)
@@ -341,13 +354,20 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      
                    } else { 
                      
+                     # rank$rank_value <- paste0(
+                     #   # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                     #   '<div class="title_indicator" style="font-size: 20px;">', 
+                     #   rank_indicator$name, "has a weighted population density of", '</div>',
+                     #   div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                     #   p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
+                     # )
+                     
                      rank$rank_value <- paste0(
-                       # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                       '<div class="title_indicator" style="font-size: 20px;">', 
-                       rank_indicator$name, '</div>',
-                       div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                       p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
+                       '<div class="title_indicator" style="font-size: 19px; font-weight: normal;">', 
+                       indicator_label,
+                       '</div>'
                      )
+                     
                    }
                    
                    # print("rank$rank_value")
@@ -391,7 +411,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      
                      # open the ranks text
                      indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                     ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                     ranks_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
                      ranks_text1 <- subset(ranks_text, type_rank == "world" & year == que)
                      rank_text_world <- ranks_text1$text
                      rank$value <- ranks_text1$rank
@@ -401,7 +421,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      rank$value <- c(rank$value, ranks_text2$rank)
                      
                      # open the scroll text
-                     scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                     scroll_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
                      scroll_world <- HTML(subset(scroll_text, type_rank == "world" & year == que)$text)
                      scroll_country <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
                      
@@ -424,21 +444,23 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        rank$rank_value <- ""  
                        
                      } else { 
+                       # rank$rank_value <- paste0(
+                       #   # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+                       #   '<div class="title_indicator" style="font-size: 20px;">', 
+                       #   rank_indicator$name, '</div>',
+                       #   div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+                       #   p(style = "color: #B1B5B9; display: inline; font-size: 22px;", indicator_info$unit)
+                       #   
+                       # )
+                     
                        rank$rank_value <- paste0(
-                         # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-                         '<div class="title_indicator" style="font-size: 20px;">', 
-                         rank_indicator$name, '</div>',
-                         div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-                         p(style = "color: #B1B5B9; display: inline; font-size: 22px;", indicator_info$unit)
-                         
-                         
-                         
-                         
-                         
-                         
-                         
+                         '<div class="title_indicator" style="font-size: 19px; font-weight: normal;">', 
+                         indicator_label,
+                         '</div>'
                        )
-                     }
+                       
+                       
+                       }
                      rank$rank_text_initial <- rank$rank_text
                      rank$rank_value_initial <- rank$rank_value
                      # print(paste0("teste: ", rank$rank_text_initial))
@@ -456,13 +478,13 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      
                      # open the ranks text
                      indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                     ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     ranks_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                      ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
                      rank$value <- ranks_text$rank
                      rank_text_country <- ranks_text$text
                      
                      # open the scroll text
-                     scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     scroll_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                      scroll_country <- HTML(subset(scroll_text, type_rank == "metro" & year == que)$text)
                      
                      
@@ -475,7 +497,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      
                      # open the ranks text
                      indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                     ranks_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     ranks_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                      ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui & year == que)
                      rank$value <- ranks_text1$rank
                      rank_text_world <- ranks_text1$text
@@ -485,7 +507,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      rank_text_country <- ranks_text2$text
                      
                      # open the scroll text
-                     scroll_text <- readRDS(sprintf("../data/data_alpha/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                     scroll_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                      scroll_world <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
                      scroll_country <- HTML(subset(scroll_text, type_rank == "metro"  & year == que)$text)
                      
@@ -539,7 +561,7 @@ observeEvent(c(input$map_shape_click, city$city_code, data_ind3_spatial()), {
     
   } else {
     
-    print("bumpppp")
+    # print("bumpppp")
     delay(2000, runjs(sprintf("$('#accordion_world > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[1])))
     delay(2000, runjs(sprintf("$('#accordion_country > div > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$value[2])))
     
@@ -583,6 +605,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
   
   rank_indicator <- subset(data_ind3(), osmid == city$city_code)[1,]
   # it will run only when we are at the city level
+
   
   
   if (isTRUE(rank$admin_level == 1)) {
@@ -593,6 +616,9 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
     
     format_indicator_value <- if(indicator_info$transformation == "percent") {
       round(rank_indicator$value * 100) 
+      
+      
+
       
     } else if(indicator_info$transformation %in% "thousands") {
       
@@ -613,13 +639,34 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
       rank$rank_value <- ""  
       
     } else { 
-      rank$rank_value <- paste0(
-        # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-        '<div class="title_indicator" style="font-size: 20px;">', 
-        rank_indicator$name, '</div>',
-        div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
-        p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
+      # rank$rank_value <- paste0(
+      #   # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+      #   '<div class="title_indicator" style="font-size: 20px;">', 
+      #   rank_indicator$name, '</div>',
+      #   div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+      #   p(style = "color: #B1B5B9; display: inline; font-size: 22px", indicator_info$unit)
+      # )
+      
+      # create the indicator label for each indicator
+      indicator_label <- switch(indicator$mode,
+                                "popdensity" = sprintf("%s has a weighted population density of %s people per km2", rank_indicator$name, format_indicator_value),
+                                "blockdensity" = sprintf("%s has an average of %s blocks per km2", rank_indicator$name, format_indicator_value),
+                                "pns" = sprintf("%s %% of people in %s live within 1km of both healthcare and education services.", format_indicator_value, rank_indicator$name),
+                                "pncf" = sprintf("%s %% of people in %s live within 100m of a car-free space.", format_indicator_value, rank_indicator$name),
+                                "pnh" = sprintf("%s %% of people in %s live farther than 500m from a grade-separated highway. ", format_indicator_value, rank_indicator$name),
+                                "pnpb" = sprintf("%s %% of people in %s live within a 300m walk of a protected bikeway. ", format_indicator_value, rank_indicator$name),
+                                "pnrtall" = sprintf("%s %% of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", format_indicator_value, rank_indicator$name),
+                                "pnft" = sprintf("%s %% of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", format_indicator_value, rank_indicator$name)
+                                
       )
+      
+      
+      rank$rank_value <- paste0(
+        '<div class="title_indicator" style="font-size: 19px; font-weight: normal;">', 
+        indicator_label,
+        '</div>'
+      )
+      
     }
     
     

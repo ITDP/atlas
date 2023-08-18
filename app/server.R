@@ -1,14 +1,15 @@
 # open boundaries
-atlas_city_markers <- readRDS("../data/data_alpha/atlas_city_markers.rds")
+atlas_city_markers <- readRDS("../data/data_july2023/atlas_city_markers.rds")
 # atlas_country <- readRDS("../data/data_alpha/atlas_country_polygons.rds")
 # # filter only countries that have indidcators
 # atlas_country <- subset(atlas_country, !is.na(bike_pnpb_2022))
 # country rank
 # atlas_country_ranks <- readRDS("../data/data_alpha/ranks/rank_country.rds")
 # list indicators
-list_indicators <- readRDS("../data/data_alpha/list_indicators.rds")
-list_osmid_name <- readRDS("../data/data_alpha/list_osmid_name.rds")
-list_availability <- readRDS("../data/data_alpha/list_availability.rds")
+list_indicators <- readRDS("../data/data_july2023/list_indicators.rds")
+list_osmid_name <- readRDS("../data/data_july2023/list_osmid_name.rds")
+list_availability <- readRDS("../data/data_july2023/list_availability.rds")
+overlay_table <- readRDS("../data/data_july2023/overlay_table.rds")
 # list_block <- readRDS("../data/data_alpha/list_block_density.rds")
 
 # define some credentials
