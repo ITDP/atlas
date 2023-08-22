@@ -499,6 +499,7 @@ observeEvent(c(city$city_code), {
     
     for(i in unique(data_overlays()[["polygons"]]$ind)){
       data1 <- subset(data_overlays()[["polygons"]], ind == i)
+      ai <- sfheaders::sf_cast(data1, "POLYGON")
       
       fix <- indicator$mode
       
@@ -507,13 +508,27 @@ observeEvent(c(city$city_code), {
       overlay_name <- unique(overlay_subset$overlay_label)
       overlay_status <- unique(overlay_subset$overlay_show)
       
-      map <-  map %>% addPolygons(data = data1,
+      if (i == "pop") {
+        
+        pal <- colorNumeric(
+          palette = "Blues",
+          domain = ai$value)
+        
+      }
+      
+      # print("overlay_name")
+      # print(overlay_name)
+      
+      map <-  map %>% addGlPolygons(data = ai,
                                   group = overlay_name,
                                   opacity = 0.8,
                                   options = pathOptions(clickable = FALSE, pane = "overlay"),
                                   # layerId = "overlay_layer",
-                                  fillColor = "#00AE42", fillOpacity = 0.6,
-                                  weight = 1, color = "black")
+                                  fillColor = if(i == "pop") ~pal(value) else "#00AE42", 
+                                  fillOpacity = 0.7,
+                                  weight = 1, 
+                                  color = "black",
+                                  pane = "overlay")
       
     }
     
@@ -524,25 +539,21 @@ observeEvent(c(city$city_code), {
   if ("lines" %in% names(data_overlays())) {
     
     
-    # ai <- sfheaders::sf_cast(data_overlays(), "LINESTRING")
     
     for(i in unique(data_overlays()[["lines"]]$ind)){
+      
       data1 <- subset(data_overlays()[["lines"]], ind == i)
+      ai <- sfheaders::sf_cast(data1, "LINESTRING")
       
       fix <- indicator$mode
-      # get name and default on or off
-      print("siehaush")
-      print(overlay_table)
-      print(i)
       overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "MULTILINESTRING")
       overlay_name <- unique(overlay_subset$overlay_label)
       overlay_status <- unique(overlay_subset$overlay_show)
       
-      
-      map = map %>% addPolylines(data = data1,
+      map = map %>% addGlPolylines(data = ai,
                                  group = overlay_name,
-                                 color = "#00AE42"
-                                 # pane = "overlay"
+                                 color = "#00AE42",
+                                 pane = "overlay"
                                  # layerId = "overlay_layer",
       )
     }
@@ -553,12 +564,25 @@ observeEvent(c(city$city_code), {
   
   if ("points" %in% names(data_overlays())) {
     
+    # print("TUTUTUTU")
+    fix <- indicator$mode
     
-    for(i in 1:nrow(data_overlays()[["points"]])){
-      data1 <- data_overlays()[["points"]][i, ]
-      map = map %>% addMarkers(data = data1,
-                                     group = data1$ind
-                                     # radius = 8,
+    # print(overlay_name)
+    
+    for(i in unique(data_overlays()[["points"]]$ind)){
+    # get name and default on or off
+    overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "POINT")
+    overlay_name <- unique(overlay_subset$overlay_label)
+    overlay_status <- unique(overlay_subset$overlay_show)
+      
+    
+    data1 <- subset(data_overlays()[["points"]], ind == i)
+      map = map %>% addGlPoints(data = data1,
+                                     group = overlay_name,
+                                     stroke = FALSE, fillOpacity = 0.5,
+                                     radius = 6,
+                                     color = "black",
+                                     pane = "overlay"
                                      # fillColor = "#00AE42",
                                      # stroke = TRUE, fillOpacity = 0.9, color = "black",
                                      # opacity = 0.9
@@ -580,6 +604,9 @@ observeEvent(c(city$city_code), {
   overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
   # identify groups to hide
   overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_label
+  
+  print("overlay_labels")
+  print(overlay_labels)
   
   map <- map %>%
     addLayersControl(
@@ -894,7 +921,7 @@ observeEvent(c(indicator$mode, input$year), {
     # } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
     
     
-    print("Corretoooooo1")
+    # print("Corretoooooo1")
     
     ai <- sfheaders::sf_cast(data_overlays(), "LINESTRING")
     
@@ -959,7 +986,7 @@ observeEvent(c(indicator$mode, input$year), {
   map <- map %>%
     addLayersControl(
       baseGroups = c("Dark", "Light", "Satellite"),
-      overlayGroups = c("Regions", data_overlays()[["polygons"]]$ind, data_overlays()[["lines"]]$ind),
+      overlayGroups = c("Regions", data_overlays()[["polygons"]]$ind, data_overlays()[["lines"]]$ind, data_overlays()[["points"]]$ind),
       options = layersControlOptions(collapsed = FALSE))
   
   

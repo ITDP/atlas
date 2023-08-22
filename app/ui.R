@@ -114,7 +114,7 @@ ui <- fluidPage(
     # title = "Atlas", 
     # value = "tab_general",
     # Output the map
-    leafletOutput("map"),
+    leafglOutput("map"),
     # leafletOutput("map"),
     # create the napel to select city
     

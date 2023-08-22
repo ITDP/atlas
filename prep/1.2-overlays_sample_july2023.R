@@ -28,9 +28,10 @@ indicators_all <- purrr::map_dfr(dir("data/data_july2023", pattern = "^indicator
 # ghsl <- "0088"
 # ghsl <- "0154"
 # ghsl <- "0634"
-# ghsl <- "01406"
+# ghsl <- "01406" # fortaleza
 # ghsl <- "00021"
 # ghsl <- "09691"
+# ghsl <- "00816"
 # ghsl <- unique(indicators_all$hdc)[20]
 prep_overlays <- function(ghsl) {
   
@@ -49,28 +50,28 @@ prep_overlays <- function(ghsl) {
   # purrr::walk2(before, after, file.copy)
   # walk(before, file.remove)
   
-  # change name of folder h+s
-  folder_hs <- dir(paste0(base_dir, "geodata")
-                   , pattern = "h\\+slatlon"
-                   ,full.names = TRUE
-  )
-  folder_hs_new <- paste0(paste0(base_dir, "/geodata/hslatlon"))
-  # rename
-  walk2(folder_hs, folder_hs_new, file.rename)
-  files_hs <- dir(paste0(base_dir, "geodata/hslatlon")
-                  , pattern = ".geojson"
-                  ,full.names = TRUE
-  )
-  files_hs_new <- stringr::str_remove(files_hs, "\\+")
-  walk2(files_hs, files_hs_new, file.rename)
-  # pop
-  folder_pop <- dir(paste0(base_dir, "geodata")
-                   , pattern = "population"
-                   ,full.names = TRUE
-  )
-  folder_pop_new <- paste0(paste0(base_dir, "/geodata/pop"))
-  # rename
-  walk2(folder_pop, folder_pop_new, file.rename)
+  # # change name of folder h+s
+  # folder_hs <- dir(paste0(base_dir, "geodata")
+  #                  , pattern = "h\\+slatlon"
+  #                  ,full.names = TRUE
+  # )
+  # folder_hs_new <- paste0(paste0(base_dir, "/geodata/hslatlon"))
+  # # rename
+  # walk2(folder_hs, folder_hs_new, file.rename)
+  # files_hs <- dir(paste0(base_dir, "geodata/hslatlon")
+  #                 , pattern = ".geojson"
+  #                 ,full.names = TRUE
+  # )
+  # files_hs_new <- stringr::str_remove(files_hs, "\\+")
+  # walk2(files_hs, files_hs_new, file.rename)
+  # # pop
+  # folder_pop <- dir(paste0(base_dir, "geodata")
+  #                  , pattern = "population"
+  #                  ,full.names = TRUE
+  # )
+  # folder_pop_new <- paste0(paste0(base_dir, "/geodata/pop"))
+  # # rename
+  # walk2(folder_pop, folder_pop_new, file.rename)
   
   
   
@@ -90,7 +91,7 @@ prep_overlays <- function(ghsl) {
   # the overlay files only have the shape geom, so we need to give them names based on the filename
   # read overlays
   open_overlay <- function(file) {
-    # file <- overlay_files1[[84]]
+    # file <- overlay_files1[[13]]
     
     a <- st_read(file)
     
@@ -129,7 +130,7 @@ prep_overlays <- function(ghsl) {
     # a <- st_cast(a, "MULTIPOLYGON")
     geom_type <- st_geometry_type(a) %>% unique() %>% as.character()
     if (isTRUE(geom_type == "POLYGON")) a <- st_cast(a, "MULTIPOLYGON")
-    if (isTRUE(geom_type == "POINT")) a <- st_cast(a, "MULTIPOINT")
+    if (isTRUE(geom_type == "MULTIPOINT")) a <- st_cast(a, "POINT")
     a <- a %>% mutate(geom_type = st_geometry_type(.))
     a <- st_transform(a, 4326)
     
@@ -160,7 +161,7 @@ prep_overlays <- function(ghsl) {
     geom_type <- st_geometry_type(a) %>% unique() %>% as.character()
     
     if (geom_type == "POLYGON") a <- st_cast(a, "MULTIPOLYGON")
-    if (geom_type == "POINT") a <- st_cast(a, "MULTIPOINT")
+    if (geom_type == "MULTIPOINT") a <- st_cast(a, "POINT")
     a <- a %>% mutate(geom_type = st_geometry_type(.))
     
     a <- st_transform(a, 4326)
@@ -203,6 +204,7 @@ prep_overlays <- function(ghsl) {
     # a <- st_cast(a, "MULTIPOLYGON")
     geom_type <- st_geometry_type(a) %>% unique() %>% as.character()
     if (geom_type %in% c("POLYGON")) a <- st_cast(a, "MULTIPOLYGON")
+    if (isTRUE(geom_type == "MULTIPOINT")) a <- st_cast(a, "POINT")
     a <- a %>% mutate(geom_type = st_geometry_type(.))
     a <- st_transform(a, 4326)
 
@@ -224,7 +226,7 @@ prep_overlays <- function(ghsl) {
   # separate between polygons and lines and points
   overlay_polygons <- overlay[grep("MULTIPOLYGON|POLYGON", names(overlay))] %>% rbindlist()
   overlay_lines <- overlay[grep("MULTILINESTRING", names(overlay))] %>% rbindlist()
-  overlay_points <- overlay[grep("MULTIPOINT", names(overlay))] %>% rbindlist()
+  overlay_points <- overlay[grep("POINT", names(overlay))] %>% rbindlist()
   
   
   
@@ -435,13 +437,16 @@ prep_overlays <- function(ghsl) {
   # readr::write_rds(overlay_polygons, sprintf("data/sample3/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
   # readr::write_rds(overlay_lines,    sprintf("data/sample3/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
   
+  return("a")
+  
 }
 
 # apply to all cities
 cities_available <- unique(indicators_all$hdc)
 walk(cities_available, prep_overlays)
+lapply <- lapply(cities_available, safely(prep_overlays))
 
-
+prep_overlays("01406")
 
 
 
