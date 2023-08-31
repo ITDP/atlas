@@ -13,22 +13,27 @@ list_walk <- structure(c(
   # "pnh", 
   # "pne", 
   "pns",
-  "pncf"
+  "pncf",
+  "pnnhighways"
 ), 
 .Names = c(
   # "People Near Healthcare", 
   # "People Near Education", 
   "People Near Services",
-  "People Near Car-Free Places"
+  "People Near Car-Free Places",
+  "People Not Near Highways"
   ))
 
-list_transit <- structure(c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt"), 
+list_transit <- structure(c("pnft", "pnrtall"
+                            # "pnrtlrt", "pnrtmrt", "pnrtbrt"
+                            ), 
                           .Names = c(
                             "People Near Frequent Transit", 
-                            "People Near Rapid Transport", 
-                            "People Near Rapid Transport - LRT",
-                            "People Near Rapid Transport - MRT",
-                            "People Near Rapid Transport - BRT"))
+                            "People Near Rapid Transport"
+                            # "People Near Rapid Transport - LRT",
+                            # "People Near Rapid Transport - MRT",
+                            # "People Near Rapid Transport - BRT"
+                            ))
 
 list_performance <- structure(c("bikep45", "walkp45"), 
                               .Names = c("Bicycle", "Walk"))
@@ -37,13 +42,13 @@ list_city <- structure(c(
   # "poptotal", 
   "popdensity",
   "blockdensity",
-  "pnnhighways"
+  "journeygap"
 ), 
 .Names = c(
   # "Block Density", 
   "Population Density",
   "Block Density",
-  "People Not Near Highways"
+  "Journey Gap"
 ))
 
 
@@ -114,8 +119,8 @@ ui <- fluidPage(
     # title = "Atlas", 
     # value = "tab_general",
     # Output the map
-    leafglOutput("map"),
-    # leafletOutput("map"),
+    # leafglOutput("map"),
+    leafletOutput("map"),
     # create the napel to select city
     
     # absolutePanel(id = "city_selection", 

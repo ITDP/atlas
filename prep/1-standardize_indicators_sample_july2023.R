@@ -98,6 +98,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "0634"
   # ghsl <- "0014"
   # ghsl <- "01406"
+  # ghsl <- "02051" # barcelona
   # ghsl <- "01445" # rec
   # ghsl <- "00021"
   # ghsl <- "12080"
@@ -141,61 +142,94 @@ prep_data <- function(ghsl) {
   # data <- data %>% mutate(admin_level = level_name)
   
   # organize columns
-  data <- data %>% dplyr::select(hdc, a3 = country, osmid, name, admin_level, admin_level_ordered, everything())
+  data <- data %>% dplyr::select(hdc, a3 = country, osmid, name, admin_level, admin_level_ordered, admin_level_name = level_name, everything())
   
   
   # get available indicators for this city
-  ind_columns <- colnames(data)[colnames(data) %nin% c("hdc", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "geom")]
+  ind_columns <- colnames(data)[colnames(data) %nin% c("hdc", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name",  "geom")]
   
   
   # first, rename indicators that are divided by year
   ind_columns <- gsub(pattern = "(total_pop)_(\\d{4})",
                       replacement = "city_poptotal_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(density)_(\\d{4})",
+  ind_columns <- gsub(pattern = "^(density)_(\\d{4})",
                       replacement = "city_popdensity_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(block_density)_(\\d{4})",
                       replacement = "city_blockdensity_\\2",
                       x = ind_columns)
+  ind_columns <- gsub(pattern = "(time_journeygap)_(\\d{4})",
+                      replacement = "city_journeygap_\\2",
+                      x = ind_columns,
+                      perl = TRUE)
+  
+  
   ind_columns <- gsub(pattern = "(pnab)_(\\d{4})",
-                      replacement = "bike_pnab_\\2",
+                      replacement = "bike_pnpbpnab_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(pnpb)_(\\d{4})",
                       replacement = "bike_pnpb_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(all_bikeways_km)_(\\d{4})",
-                      replacement = "bike_abikeways_\\2",
+                      replacement = "bike_pnpbabikewayskm_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(protected_bikeways_km)_(\\d{4})",
-                      replacement = "bike_pbikeways_\\2",
+                      replacement = "bike_pnpbpbikewayskm_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(bikeshare)_(\\d{4})",
                       replacement = "bike_bikeshare_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(healthcare)_(\\d{4})",
-                      replacement = "walk_pnh_\\2",
+  
+  
+   ind_columns <- gsub(pattern = "(^healthcare)_(\\d{4})",
+                      replacement = "walk_pnspnh_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(schools)_(\\d{4})",
-                      replacement = "walk_pne_\\2",
+  ind_columns <- gsub(pattern = "(^n_points_healthcare)_(\\d{4})",
+                      replacement = "walk_pnshealthpoints_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(h.s)_(\\d{4})",
+  ind_columns <- gsub(pattern = "(^schools)_(\\d{4})",
+                      replacement = "walk_pnspne_\\2",
+                      x = ind_columns)
+  ind_columns <- gsub(pattern = "(^n_points_schools)_(\\d{4})",
+                      replacement = "walk_pnsschoolspoints_\\2",
+                      x = ind_columns)
+  ind_columns <- gsub(pattern = "(^h.s)_(\\d{4})",
                       replacement = "walk_pns_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(carfree)_(\\d{4})",
+  ind_columns <- gsub(pattern = "(^carfree)_(\\d{4})",
                       replacement = "walk_pncf_\\2",
                       x = ind_columns)
+  ind_columns <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
+                      replacement = "walk_pnnhighways_\\2",
+                      x = ind_columns,
+                      perl = TRUE)
+  
+  
+  
   ind_columns <- gsub(pattern = "(pnft)_(\\d{4})",
                       replacement = "transit_pnft_\\2",
                       x = ind_columns)
+  
+  ind_columns <- gsub(pattern = "(n_points_transit_pnft)_(\\d{4})",
+                      replacement = "transit_pnftpoints_\\2",
+                      x = ind_columns)
+  
+  
   ind_columns <- gsub(pattern = "(PNrT)_([[:lower:]]{3})_(\\d{4})",
                       replacement = "transit_\\L\\1\\E\\2_\\3",
                       x = ind_columns,
                       perl = TRUE)
-  ind_columns <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
-                      replacement = "city_pnnhighways_\\2",
+  ind_columns <- gsub(pattern = "(km)_([[:lower:]]{3})_(\\d{4})",
+                      replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
                       x = ind_columns,
                       perl = TRUE)
+  ind_columns <- gsub(pattern = "(rtr)_([[:lower:]]{3})_(\\d{4})",
+                      replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+                      x = ind_columns,
+                      perl = TRUE)
+  
+
   
   
   # create new column names with new standardized id
@@ -203,18 +237,24 @@ prep_data <- function(ghsl) {
     startsWith(ind_columns, "city_poptotal"), ind_columns,
     startsWith(ind_columns, "city_popdensity"), ind_columns,
     startsWith(ind_columns, "city_blockdensity"), ind_columns,
-    startsWith(ind_columns, "transit_pnrt"), ind_columns,
+    startsWith(ind_columns, "city_journeygap"), ind_columns,
+    
     startsWith(ind_columns, "bike_pnab"),                  ind_columns,
     startsWith(ind_columns, "bike_pnpb"),                  ind_columns,
-    startsWith(ind_columns, "bike_abikeways"),       ind_columns,
-    startsWith(ind_columns, "bike_pbikeways"), ind_columns,
+    startsWith(ind_columns, "bike_abikewayskm"),       ind_columns,
+    startsWith(ind_columns, "bike_pbikewayskm"), ind_columns,
     startsWith(ind_columns, "bike_bikeshare"),             ind_columns,
-    startsWith(ind_columns, "walk_pnh"),            ind_columns,
-    startsWith(ind_columns, "walk_pne"),               ind_columns,
+    
     startsWith(ind_columns, "walk_pns"),                   ind_columns,
     startsWith(ind_columns, "walk_pncf"),               ind_columns,
+    startsWith(ind_columns, "walk_pnnhighways"),                  ind_columns,
+    
     startsWith(ind_columns, "transit_pnft"),                  ind_columns,
-    startsWith(ind_columns, "city_pnnhighways"),                  ind_columns,
+    
+    startsWith(ind_columns, "transit_pnrt"), ind_columns,
+    startsWith(ind_columns, "transit_km"), ind_columns,
+    startsWith(ind_columns, "transit_rtr"), ind_columns,
+    
     
     ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2022",
     ind_columns == "performance_bike_lts2_45",               "performance_bikep45_2022",
@@ -227,48 +267,48 @@ prep_data <- function(ghsl) {
   
   # # bring country name
   data <- data %>%
-    # select(-geom) %>%
-    # filter(admin_level == 0) %>%
-    # mutate(a3 = stringr::str_extract(name, "\\[[:upper:]{3}\\]")) %>%
-    # mutate(a3 = gsub(pattern = "\\[|\\]", "", a3)) %>%
-    # bring a2
     left_join(dplyr::select(maps::iso3166, a3, country = ISOname) %>% distinct(a3, .keep_all = TRUE), by = c("a3")) %>%
     tidyr::fill(a3, country) %>%
     ungroup()
   
   # select columns
   data <- data %>%
-    dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, everything())
+    dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, admin_level_name, everything())
+    
   
   # rename indicators
-  colnames(data) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", ind_columns_new,"geom")
+  colnames(data) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name", ind_columns_new,"geom")
   
   # arrange data correctly
   data <- data %>%
-    dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
+    dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, admin_level_name,
                   # starts_with("city_poptotal"),
                   starts_with("city_popdensity"),
                   starts_with("city_blockdensity"),
-                  starts_with("city_pnnhighways"),
+                  starts_with("city_journeygap"),
                   starts_with("bike_pnab"),
                   starts_with("bike_pnpb"),
-                  starts_with("bike_abikeways"),
-                  starts_with("bike_pbikeways"),
-                  starts_with("bike_bikeshare"),
-                  starts_with("walk_pnh"),
-                  starts_with("walk_pne"),
                   starts_with("walk_pns"),
                   starts_with("walk_pncf"),
+                  starts_with("walk_pnnhighways"),
                   starts_with("transit_pnft"),
                   starts_with("transit_pnrtall"),
                   starts_with("transit_pnrtbrt"),
                   starts_with("transit_pnrtlrt"),
                   starts_with("transit_pnrtmrt"),
+                  starts_with("transit_km"),
+                  starts_with("transit_rtr"),
                   starts_with("performance_bike"),
-                  starts_with("performance_walk"))
+                  starts_with("performance_walk")) %>%
+    mutate(across(starts_with("transit"), as.numeric))
   
   data$admin_level <- as.character(data$admin_level)
   data$admin_level_ordered <- as.character(data$admin_level_ordered)
+  
+  data <- data %>%
+    mutate(across(starts_with("transit_pnft"), as.numeric)) %>%
+    mutate(across(starts_with("city_journeygap"), as.numeric)) %>%
+    arrange(as.numeric(admin_level))
   
   # exception for recife
   if (ghsl == "01445") {
@@ -338,7 +378,7 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_july2023/atlas_city_marke
 # calculate mean for each country -----------------
 
 
-atlas_country <- st_read("data-raw/atlas_data_july_31/country_results/country_results.geojson")
+atlas_country <- st_read("data-raw/atlas_data_july_31/country_results/country_results_july_31.geojson")
 atlas_country <- rmapshaper::ms_simplify(atlas_country)
 # atlas_country1 <- fread("data-raw/atlas_data_july_31/country_results/country_results.csv")
 
@@ -361,50 +401,83 @@ ind_columns <- colnames(atlas_country)[colnames(atlas_country) %nin% c("a3", "na
 ind_columns <- gsub(pattern = "(total_pop)_(\\d{4})",
                     replacement = "city_poptotal_\\2",
                     x = ind_columns)
-ind_columns <- gsub(pattern = "(density)_(\\d{4})",
+ind_columns <- gsub(pattern = "^(density)_(\\d{4})",
                     replacement = "city_popdensity_\\2",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "(block_density)_(\\d{4})",
                     replacement = "city_blockdensity_\\2",
                     x = ind_columns)
+ind_columns <- gsub(pattern = "(journey_gap)_(\\d{4})",
+                    replacement = "city_journeygap_\\2",
+                    x = ind_columns,
+                    perl = TRUE)
+
+
 ind_columns <- gsub(pattern = "(pnab)_(\\d{4})",
-                    replacement = "bike_pnab_\\2",
+                    replacement = "bike_pnpbpnab_\\2",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "(pnpb)_(\\d{4})",
                     replacement = "bike_pnpb_\\2",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "(all_bikeways_km)_(\\d{4})",
-                    replacement = "bike_abikeways_\\2",
+                    replacement = "bike_pnpbabikewayskm_\\2",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "(protected_bikeways_km)_(\\d{4})",
-                    replacement = "bike_pbikeways_\\2",
+                    replacement = "bike_pnpbpbikewayskm_\\2",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "(bikeshare)_(\\d{4})",
                     replacement = "bike_bikeshare_\\2",
                     x = ind_columns)
-ind_columns <- gsub(pattern = "(healthcare)_(\\d{4})",
-                    replacement = "walk_pnh_\\2",
+
+
+ind_columns <- gsub(pattern = "(^healthcare)_(\\d{4})",
+                    replacement = "walk_pnspnh_\\2",
                     x = ind_columns)
-ind_columns <- gsub(pattern = "(schools)_(\\d{4})",
-                    replacement = "walk_pne_\\2",
+ind_columns <- gsub(pattern = "(^n_points_healthcare)_(\\d{4})",
+                    replacement = "walk_pnshealthpoints_\\2",
                     x = ind_columns)
-ind_columns <- gsub(pattern = "(h.s)_(\\d{4})",
+ind_columns <- gsub(pattern = "(^schools)_(\\d{4})",
+                    replacement = "walk_pnspne_\\2",
+                    x = ind_columns)
+ind_columns <- gsub(pattern = "(^n_points_schools)_(\\d{4})",
+                    replacement = "walk_pnsschoolspoints_\\2",
+                    x = ind_columns)
+ind_columns <- gsub(pattern = "(^h.s)_(\\d{4})",
                     replacement = "walk_pns_\\2",
                     x = ind_columns)
-ind_columns <- gsub(pattern = "(carfree)_(\\d{4})",
+ind_columns <- gsub(pattern = "(^carfree)_(\\d{4})",
                     replacement = "walk_pncf_\\2",
                     x = ind_columns)
+ind_columns <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
+                    replacement = "walk_pnnhighways_\\2",
+                    x = ind_columns,
+                    perl = TRUE)
+
+
+
 ind_columns <- gsub(pattern = "(pnft)_(\\d{4})",
                     replacement = "transit_pnft_\\2",
                     x = ind_columns)
+
+ind_columns <- gsub(pattern = "(n_points_transit_pnft)_(\\d{4})",
+                    replacement = "transit_pnftpoints_\\2",
+                    x = ind_columns)
+
+
 ind_columns <- gsub(pattern = "(PNrT)_([[:lower:]]{3})_(\\d{4})",
                     replacement = "transit_\\L\\1\\E\\2_\\3",
                     x = ind_columns,
                     perl = TRUE)
-ind_columns <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
-                    replacement = "city_pnnhighways_\\2",
+ind_columns <- gsub(pattern = "(km)_([[:lower:]]{3})_(\\d{4})",
+                    replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
                     x = ind_columns,
                     perl = TRUE)
+ind_columns <- gsub(pattern = "(rtr)_([[:lower:]]{3})_(\\d{4})",
+                    replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+                    x = ind_columns,
+                    perl = TRUE)
+
+
 
 
 # create new column names with new standardized id
@@ -412,18 +485,24 @@ ind_columns_new <- fcase(
   startsWith(ind_columns, "city_poptotal"), ind_columns,
   startsWith(ind_columns, "city_popdensity"), ind_columns,
   startsWith(ind_columns, "city_blockdensity"), ind_columns,
-  startsWith(ind_columns, "transit_pnrt"), ind_columns,
+  startsWith(ind_columns, "city_journeygap"), ind_columns,
+  
   startsWith(ind_columns, "bike_pnab"),                  ind_columns,
   startsWith(ind_columns, "bike_pnpb"),                  ind_columns,
-  startsWith(ind_columns, "bike_abikeways"),       ind_columns,
-  startsWith(ind_columns, "bike_pbikeways"), ind_columns,
+  startsWith(ind_columns, "bike_abikewayskm"),       ind_columns,
+  startsWith(ind_columns, "bike_pbikewayskm"), ind_columns,
   startsWith(ind_columns, "bike_bikeshare"),             ind_columns,
-  startsWith(ind_columns, "walk_pnh"),            ind_columns,
-  startsWith(ind_columns, "walk_pne"),               ind_columns,
+  
   startsWith(ind_columns, "walk_pns"),                   ind_columns,
   startsWith(ind_columns, "walk_pncf"),               ind_columns,
+  startsWith(ind_columns, "walk_pnnhighways"),                  ind_columns,
+  
   startsWith(ind_columns, "transit_pnft"),                  ind_columns,
-  startsWith(ind_columns, "city_pnnhighways"),                  ind_columns,
+  
+  startsWith(ind_columns, "transit_pnrt"), ind_columns,
+  startsWith(ind_columns, "transit_km"), ind_columns,
+  startsWith(ind_columns, "transit_rtr"), ind_columns,
+  
   
   ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2022",
   ind_columns == "performance_bike_lts2_45",               "performance_bikep45_2022",
@@ -442,16 +521,11 @@ atlas_country <- atlas_country %>%
   dplyr::select(a3, name,
                 starts_with("city_popdensity"),
                 starts_with("city_blockdensity"),
-                starts_with("city_pnnhighways"),
-                starts_with("bike_pnab"),
+                starts_with("city_journeygap"),
                 starts_with("bike_pnpb"),
-                starts_with("bike_abikeways"),
-                starts_with("bike_pbikeways"),
-                starts_with("bike_bikeshare"),
-                starts_with("walk_pnh"),
-                starts_with("walk_pne"),
                 starts_with("walk_pns"),
                 starts_with("walk_pncf"),
+                starts_with("walk_pnnhighways"),
                 starts_with("transit_pnft"),
                 starts_with("transit_pnrtall"),
                 starts_with("transit_pnrtbrt"),
@@ -524,7 +598,7 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
 
 # create list with osmid --------------------------------------------------
 
-count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ordered) %>%
+count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ordered, admin_level_name) %>%
   dplyr::select(-n) %>%
   readr::write_rds("data/data_july2023/list_osmid_name.rds")
 
@@ -533,7 +607,7 @@ count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ord
 # create indicator availability for each city -----------------------------
 
 # to long format
-colnames_compare <- colnames(indicators_all_df)[8:ncol(indicators_all_df)]
+colnames_compare <- colnames(indicators_all_df)[9:ncol(indicators_all_df)]
 # extract year
 # years_compare <- gsub(pattern = "(.*)_(.*)_(\\d{4}$)",
 #                       replacement = "\\2_\\3",
@@ -546,7 +620,7 @@ indicators_all_df <- indicators_all_df %>%
   mutate(across(city_popdensity_1975:transit_pnrtmrt_2025, as.numeric))
 
 indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
-                                              cols = 8:last_col(),
+                                              cols = 9:last_col(),
                                               names_sep = "_",
                                               names_to = c("ind_type", "ind", "year"),
                                               values_to = "value")

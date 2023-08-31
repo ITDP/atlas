@@ -304,7 +304,8 @@ prep_overlays <- function(ghsl) {
       # mutate(indicator = paste0(indicator, "_", year)) %>%
       # select(-year) %>%
       st_sf(crs = 4326)
-    overlay_lines <- st_simplify(overlay_lines, dTolerance = 0.01)
+    sf::sf_use_s2(TRUE)
+    overlay_lines <- st_simplify(overlay_lines, dTolerance = 75)
     # overlay_lines1 <- st_cast(overlay_lines, "LINESTRING")
     
   } 
@@ -437,16 +438,17 @@ prep_overlays <- function(ghsl) {
   # readr::write_rds(overlay_polygons, sprintf("data/sample3/ghsl_%s/overlays_polygons_%s.rds", ghsl, ghsl))
   # readr::write_rds(overlay_lines,    sprintf("data/sample3/ghsl_%s/overlays_lines_%s.rds", ghsl, ghsl))
   
-  return("a")
+  # return("a")
   
 }
 
 # apply to all cities
 cities_available <- unique(indicators_all$hdc)
-walk(cities_available, prep_overlays)
-lapply <- lapply(cities_available, safely(prep_overlays))
+# walk(cities_available, prep_overlays)
+library(furrr)
+plan(multisession)
+future_walk(cities_available, safely(prep_overlays))
 
-prep_overlays("01406")
 
 
 

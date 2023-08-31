@@ -66,11 +66,11 @@ output$map <- renderLeaflet({
     ) %>%
     # registerPlugin1(spinPlugin) %>% 
     # registerPlugin1(leafletspinPlugin) %>% 
-    addLayersControl(baseGroups = c("Dark", "Light", "Satellite"),
+    addLayersControl(baseGroups = c("Light", "Dark", "Satellite"),
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
                      position = "bottomright") %>%
-    setView(lng = 0, lat = 0, zoom = 3) %>%
+    setView(lng = 0, lat = 0, zoom = 2) %>%
     leaflet.extras2::addSpinner() %>%
     
     # onRender(spin_event)
@@ -99,12 +99,14 @@ observeEvent(c(indicator$mode, input$year), {
   req(indicator$mode, input$year, indicator_info$transformation)
   
   
+  
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
-  # print("pattern")
-  # print(pattern)
   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
   a <- atlas_city_markers[cols]
   colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'value', 'geom')
+  
+  # print("a")
+  # print(a)
   
   a_available <- subset(a, !is.na(value))
   a_notavailable <- subset(a, is.na(value))
@@ -121,6 +123,8 @@ observeEvent(c(indicator$mode, input$year), {
   
   # print("A CONOCN")
   # print(a_country)
+  
+  a$value <- as.numeric(a$value)
   
   pal <- colorNumeric(
     palette = "viridis",
@@ -349,6 +353,7 @@ overlay_layers <- reactiveValues(groups = NULL)
 
 
 
+
 # observer to travel between cities ---------------------------------------
 
 observeEvent(c(city$city_code), {
@@ -376,7 +381,8 @@ observeEvent(c(city$city_code), {
   
   osm_selected$oi <- data_metro$osmid
   
-  
+  fix <- indicator$mode
+  overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
   # extract geom type of this indicator
   # geom_type <- unique(data_overlays2()$geom_type)
   # print("geom_type")
@@ -425,16 +431,38 @@ observeEvent(c(city$city_code), {
     removeControl(layerId = c("legend_country")) %>%
     removeControl(layerId = c("legend_city")) %>%
     removeLayersControl() %>%
-    # clearControls() %>%
     fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
-    addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
-    addMapPane("overlay", zIndex = 420) %>% # shown above ames_lines
-    # flyToBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]],
-    #             options = list(duration = 1.5,
-    #                            animate = TRUE,
-    #                            easeLinearity = 2,
-    #                            noMoveStart = TRUE)) %>%
     
+    
+    # add map panes
+    addMapPane("basemap", zIndex = 410) %>%
+    addMapPane("Population density", zIndex = 415) %>%
+    addMapPane("Average Block Density", zIndex = 416) %>%
+    addMapPane("Journey Gap analysis grid", zIndex = 417) %>%
+    addMapPane("People Near Services",zIndex = 420) %>%
+    addMapPane("Healthcare locations", zIndex = 425) %>%
+    addMapPane("Education locations", zIndex = 425) %>%
+    addMapPane("People near healthcare", zIndex = 420) %>%
+    addMapPane("People near education", zIndex = 420) %>%
+    addMapPane("People Near Car-Free Places", zIndex = 420) %>%
+    addMapPane("Areas near highways", zIndex = 420) %>%
+    addMapPane("Grade-separated highways", zIndex = 425) %>%
+    addMapPane("People Near Protected Bikeways", zIndex = 420) %>%
+    addMapPane("People Near All Bikeways", zIndex = 420) %>%
+    addMapPane("Protected bikeways", zIndex = 425) %>%
+    addMapPane("All bikeways", zIndex = 425) %>%
+    addMapPane("People Near Rapid Transport", zIndex = 420) %>%
+    addMapPane("Metro rail (point)", zIndex = 425) %>%
+    addMapPane("Metro rail (line)", zIndex = 425) %>%
+    addMapPane("Light rail (point)", zIndex = 425) %>%
+    addMapPane("Light rail (line)",zIndex = 425) %>%
+    addMapPane("Bus rapid transport (point)", zIndex = 425) %>%
+    addMapPane("Bus rapid transport (line)", zIndex = 425) %>%
+    addMapPane("People Near Frequent Transport", zIndex = 420) %>%
+    addMapPane("Frequent transport stops", zIndex = 425) %>%
+    
+    
+    # add polygon with metro data
     addPolygons(data = data_metro,
                 fillColor = ~pal(value), fillOpacity = 0.1,
                 color = "#00AE42",  weight = 2, layerId = ~osmid,
@@ -451,47 +479,11 @@ observeEvent(c(city$city_code), {
                   )),
                 options = pathOptions(pane = "basemap"),
                 highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black"))
-  # addLegend("bottomleft", pal = pal, values = ~value) %>%
-  # addLayersControl(
-  #   overlayGroups = c("Regions"),
-  #   baseGroups = c("Dark", "Light", "Satellite"),
-  #   options = layersControlOptions(collapsed = FALSE),
-  #   position = "bottomright")
   
   
-  
-
-  # print("overlay_labels")
-  # print(overlay_labels)
   
   # add overlay
-  if(indicator$mode %in% c("popdensity", "blockdensity")) {
-    
-    # print("gooooo")
-    # print(head(data_overlays_sf()))
-    
-    pal <- colorNumeric(
-      palette = "Blues",
-      domain = overlay_geom$polygon$value)
-    
-    map <- map %>%
-      addPolygons(data = overlay_geom$polygon,
-                  group = "Overlay",
-                  options = pathOptions(clickable = FALSE, pane = "overlay"),
-                  # layerId = "overlay_layer",
-                  fillOpacity = 0.5,
-                  color =  ~pal(value),
-                  weight = 0) %>%
-      addLayersControl(overlayGroups = c("Regions", "Overlay"),
-                       baseGroups = c("Dark", "Light", "Satellite"),
-                       options = layersControlOptions(collapsed = FALSE),
-                       position = "bottomright") %>%
-      hideGroup("Regions")
-    
-    
-    
-    
-  } else if ("polygons" %in% names(data_overlays())) {
+  if ("polygons" %in% names(data_overlays())) {
     
     
     # print("pararara")
@@ -519,16 +511,18 @@ observeEvent(c(city$city_code), {
       # print("overlay_name")
       # print(overlay_name)
       
-      map <-  map %>% addGlPolygons(data = ai,
+      map <-  map %>% addPolygons(data = ai,
                                   group = overlay_name,
                                   opacity = 0.8,
-                                  options = pathOptions(clickable = FALSE, pane = "overlay"),
+                                  options = pathOptions(clickable = FALSE, pane = overlay_name),
                                   # layerId = "overlay_layer",
-                                  fillColor = if(i == "pop") ~pal(value) else "#00AE42", 
+                                  fillColor = if(i == "pop") ~pal(value) else "#00AE42",
                                   fillOpacity = 0.7,
-                                  weight = 1, 
-                                  color = "black",
-                                  pane = "overlay")
+                                  weight = if(i == "pop") 0 else 1,
+                                  color = "black"
+                                  # layerId = overlay_name,
+                                  # options = pathOptions(pane = overlay_name)
+      )
       
     }
     
@@ -550,10 +544,16 @@ observeEvent(c(city$city_code), {
       overlay_name <- unique(overlay_subset$overlay_label)
       overlay_status <- unique(overlay_subset$overlay_show)
       
-      map = map %>% addGlPolylines(data = ai,
+      map = map %>% addPolylines(data = ai,
                                  group = overlay_name,
-                                 color = "#00AE42",
-                                 pane = "overlay"
+                                 # color = "#00AE42",
+                                 color = "#000000",
+                                 weight = 1,
+                                 opacity = 0.5,
+                                 # pane = overlay_name,
+                                 # gl = TRUE,
+                                 # options = pathOptions(pane = overlay_name),
+                                 options = pathOptions(clickable = FALSE, pane = overlay_name)
                                  # layerId = "overlay_layer",
       )
     }
@@ -570,19 +570,21 @@ observeEvent(c(city$city_code), {
     # print(overlay_name)
     
     for(i in unique(data_overlays()[["points"]]$ind)){
-    # get name and default on or off
-    overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "POINT")
-    overlay_name <- unique(overlay_subset$overlay_label)
-    overlay_status <- unique(overlay_subset$overlay_show)
+      # get name and default on or off
+      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "POINT")
+      overlay_name <- unique(overlay_subset$overlay_label)
+      overlay_status <- unique(overlay_subset$overlay_show)
       
-    
-    data1 <- subset(data_overlays()[["points"]], ind == i)
-      map = map %>% addGlPoints(data = data1,
+      
+      data1 <- subset(data_overlays()[["points"]], ind == i)
+      map = map %>% addCircleMarkers(data = data1,
                                      group = overlay_name,
                                      stroke = FALSE, fillOpacity = 0.5,
                                      radius = 6,
                                      color = "black",
-                                     pane = "overlay"
+                                     # pane = overlay_name,
+                                     # gl = TRUE
+                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
                                      # fillColor = "#00AE42",
                                      # stroke = TRUE, fillOpacity = 0.9, color = "black",
                                      # opacity = 0.9
@@ -598,22 +600,22 @@ observeEvent(c(city$city_code), {
   # print("data_overlays_sf()")
   # print(data_overlays_sf())
   
-  # # identify overlays
-  # overlay_layers
   fix <- indicator$mode
   overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
   # identify groups to hide
+  overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_label
   overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_label
   
-  print("overlay_labels")
-  print(overlay_labels)
+  # # identify overlays
+  overlay_layers$groups <- overlay_labels
   
   map <- map %>%
     addLayersControl(
-      baseGroups = c("Dark", "Light", "Satellite"),
+      baseGroups = c("Light", "Dark", "Satellite"),
       overlayGroups = c("Regions", overlay_labels),
       options = layersControlOptions(collapsed = FALSE)) %>%
-    hideGroup(overlay_hide)
+    hideGroup(overlay_hide) %>%
+    showGroup(overlay_show)
   
   map %>% stopSpinner() 
   
@@ -635,11 +637,13 @@ observeEvent(c(city$city_code), {
 element <- reactiveValues(selected = NULL,
                           selected1 = NULL,
                           indicator = NULL)
+data <- reactiveValues(selected = NULL)
 
 
 # when the admin level is changed, the vector should be restarted to avoid duplciation
-observeEvent(c(input$admin_level, indicator$mode), {
+observeEvent(c(rank$admin_level, indicator$mode), {
   element$selected <- NULL
+  data$selected <- NULL
   
 })
 
@@ -654,23 +658,13 @@ observeEvent(c(input$map_shape_click), {
   #   color = "rgba(233, 235, 240, .1)")
   
   # this will only happen when we are beyond the city level
-  req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
+  req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"),
+      req(data_ind3_spatial()))
   # req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
   
   # first, we should create a vector with the selected elements
   ui <- input$map_shape_click$id
   element$selected <- c(element$selected, ui)
-  # print("element$selected")
-  # print(input$map_shape_click)
-  
-  # thigs to do here:
-  # 1) delete the selected polygon
-  # 2) create the selected polygon with the stronger stroke
-  # 3) "diselect" when another polygon is selected
-  
-  # print("QUAQUA")
-  # print(variables$indicator)
-  # print(element$selected)
   
   if(isTRUE(length(element$selected) == 1) | 
      # isTRUE(variables$indicator[length(variables$indicator)] != variables$indicator[length(variables$indicator)-1]) |
@@ -680,6 +674,7 @@ observeEvent(c(input$map_shape_click), {
     
     # filter only the selected polygon
     data <- subset(data_ind3_spatial(), osmid == ui)
+    
     # then select the previous polygon (if exists)
     if (length(element$selected) > 1) {
       
@@ -827,7 +822,7 @@ observeEvent(c(input$map_shape_click), {
 
 
 
-# update overlay only when indicator is changed --------------------------------
+# update overlay only when indicator/year is changed --------------------------------
 
 observeEvent(c(indicator$mode, input$year), {
   
@@ -848,10 +843,60 @@ observeEvent(c(indicator$mode, input$year), {
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
                       color = "white")) %>%
-    # clearMarkers() %>%
-    clearGroup(group =  "Overlay") %>%
-    addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
-    addMapPane("overlay", zIndex = 420) %>% # shown above ames_lines
+    leafgl::clearGlLayers() %>%
+    
+    
+    clearGroup("Population density") %>%
+    clearGroup("Average Block Density") %>%
+    clearGroup("Journey Gap analysis grid" ) %>%
+    clearGroup("People Near Services") %>%
+    clearGroup("Healthcare locations" ) %>%
+    clearGroup("Education locations" ) %>%
+    clearGroup("People near healthcare" ) %>%
+    clearGroup("People near education" ) %>%
+    clearGroup("People Near Car-Free Places" ) %>%
+    clearGroup("Areas near highways" ) %>%
+    clearGroup("Grade-separated highways" ) %>%
+    clearGroup("People Near Protected Bikeways" ) %>%
+    clearGroup("People Near All Bikeways" ) %>%
+    clearGroup("Protected bikeways" ) %>%
+    clearGroup("All bikeways" ) %>%
+    clearGroup("People Near Rapid Transport" ) %>%
+    clearGroup("Metro rail (point)" ) %>%
+    clearGroup("Metro rail (line)" ) %>%
+    clearGroup("Light rail (point)" ) %>%
+    clearGroup("Light rail (line)") %>%
+    clearGroup("Bus rapid transport (point)" ) %>%
+    clearGroup("Bus rapid transport (line)" ) %>%
+    clearGroup("People Near Frequent Transport" ) %>%
+    clearGroup("Frequent transport stops" ) %>%
+    
+    
+    addMapPane("basemap", zIndex = 410) %>%
+    addMapPane("Population density", zIndex = 415) %>%
+    addMapPane("Average Block Density", zIndex = 416) %>%
+    addMapPane("Journey Gap analysis grid", zIndex = 417) %>%
+    addMapPane("People Near Services",zIndex = 420) %>%
+    addMapPane("Healthcare locations", zIndex = 425) %>%
+    addMapPane("Education locations", zIndex = 425) %>%
+    addMapPane("People near healthcare", zIndex = 420) %>%
+    addMapPane("People near education", zIndex = 420) %>%
+    addMapPane("People Near Car-Free Places", zIndex = 420) %>%
+    addMapPane("Areas near highways", zIndex = 420) %>%
+    addMapPane("Grade-separated highways", zIndex = 425) %>%
+    addMapPane("People Near Protected Bikeways", zIndex = 420) %>%
+    addMapPane("People Near All Bikeways", zIndex = 420) %>%
+    addMapPane("Protected bikeways", zIndex = 425) %>%
+    addMapPane("All bikeways", zIndex = 425) %>%
+    addMapPane("People Near Rapid Transport", zIndex = 420) %>%
+    addMapPane("Metro rail (point)", zIndex = 425) %>%
+    addMapPane("Metro rail (line)", zIndex = 425) %>%
+    addMapPane("Light rail (point)", zIndex = 425) %>%
+    addMapPane("Light rail (line)",zIndex = 425) %>%
+    addMapPane("Bus rapid transport (point)", zIndex = 425) %>%
+    addMapPane("Bus rapid transport (line)", zIndex = 425) %>%
+    addMapPane("People Near Frequent Transport", zIndex = 420) %>%
+    addMapPane("Frequent transport stops", zIndex = 425) %>%
     removeLayersControl()
   
   
@@ -860,121 +905,126 @@ observeEvent(c(indicator$mode, input$year), {
   # print(geom_type)
   
   # add overlay
-  if(indicator$mode %in% c("popdensity", "blockdensity")) {
-    
-    # print("gooooo")
-    # print(head(data_overlays_sf()))
-    
-    pal <- colorNumeric(
-      palette = "Blues",
-      domain = overlay_geom$polygon$value)
-    
-    map <- map %>%
-      addPolygons(data = overlay_geom$polygon,
-                  group = "Overlay",
-                  options = pathOptions(clickable = FALSE, pane = "overlay"),
-                  # layerId = "overlay_layer",
-                  fillOpacity = 0.5,
-                  color =  ~pal(value),
-                  weight = 0) %>%
-      addLayersControl(overlayGroups = c("Regions", "Overlay"),
-                       baseGroups = c("Dark", "Light", "Satellite"),
-                       options = layersControlOptions(collapsed = FALSE)) %>%
-      hideGroup("Regions")
+  if ("polygons" %in% names(data_overlays())) {
     
     
+    # print("pararara")
+    # print(unique(data_overlays()[["polygons"]]$ind))
     
     
-  } else if ("polygons" %in% names(data_overlays())) {
-    # } else if (geom_type %in% c("MULTIPOLYGON", "POLYGON")) {
-    
-    
-    
-    
-    # map <- map %>%
-    #   addPolygons(data = data_overlays_sf(), 
-    #               group = "Overlay", opacity = 0.8,
-    #               options = pathOptions(clickable = FALSE, pane = "overlay"),
-    #               layerId = "overlay_layer",
-    #               fillColor = "#00AE42", fillOpacity = 0.6,
-    #               weight = 1, color = "black"
-    #   ) %>%
-    #   # addLegend("bottomleft", pal = pal, values = ~value) %>%
-    #   addLayersControl(overlayGroups = c("Regions","Overlay"),
-    #                    baseGroups = c("Dark", "Light", "Satellite"),
-    #                    options = layersControlOptions(collapsed = FALSE))
-    
-    for(i in 1:nrow(data_overlays()[["polygons"]])){
-      data1 <- data_overlays()[["polygons"]][i, ]
-      map <-  map %>% addPolygons(data = data1,
-                                  group = data1$ind,
-                                  opacity = 0.8,
-                                  options = pathOptions(clickable = FALSE, pane = "overlay"),
-                                  # layerId = "overlay_layer",
-                                  fillColor = "#00AE42", fillOpacity = 0.6,
-                                  weight = 1, color = "black")
+    for(i in unique(data_overlays()[["polygons"]]$ind)){
+      
+      if (i != "pop1") {
+        
+        
+        # print("aaaah")
+        # print(i)
+        
+        data1 <- subset(data_overlays()[["polygons"]], ind == i)
+        
+        if (i == "pop") ai <- data1 else ai <- sfheaders::sf_cast(data1, "POLYGON")
+        # ai <- sfheaders::sf_cast(data1, "POLYGON")
+        
+        fix <- indicator$mode
+        
+        # get name and default on or off
+        overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "MULTIPOLYGON")
+        overlay_name <- unique(overlay_subset$overlay_label)
+        overlay_status <- unique(overlay_subset$overlay_show)
+        
+        if (i == "pop") {
+          
+          pal <- colorNumeric(
+            palette = "Blues",
+            domain = ai$value)
+          
+        }
+        
+        # print("overlay_name")
+        # print(overlay_name)
+        
+        map <-  map %>% addPolygons(data = ai,
+                                    group = ifelse(i == "pop1", "pop_teste", overlay_name),
+                                    opacity = 0.8,
+                                    options = pathOptions(clickable = FALSE, pane = overlay_name),
+                                    # options = pathOptions(clickable = FALSE),
+                                    # layerId = "overlay_layer",
+                                    fillColor = if(i == "pop") ~pal(value) else "#00AE42",
+                                    fillOpacity = 0.7,
+                                    weight = if(i == "pop") 0 else 1, 
+                                    color = "black",
+                                    # pane = ifelse(i == "pop1", "pop_teste", overlay_name),
+                                    # options = pathOptions(pane = overlay_name),
+                                    stroke = FALSE
+                                    # gl = FALSE
+        )
+        
+      }
+      
       
     }
     
     
-  } else if ("lines" %in% names(data_overlays())) {
-    # } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
+  } 
+  
+  
+  if ("lines" %in% names(data_overlays())) {
     
     
-    # print("Corretoooooo1")
     
-    ai <- sfheaders::sf_cast(data_overlays(), "LINESTRING")
-    
-    # map <- map %>%
-    #   addGlPolylines(data = ai, group = "Overlay", 
-    #                  # options = pathOptions(clickable = TRUE, pane = "overlay"),
-    #                  layerId = "overlay_layer",
-    #                  color = "#00AE42"
-    #                  # pane = "overlay"
-    #   ) %>%
-    #   # addLegend("bottomleft", pal = pal, values = ~value) %>%
-    #   addLayersControl(overlayGroups = c("Regions", "Overlay"),
-    #                    baseGroups = c("Dark", "Light", "Satellite"),
-    #                    options = layersControlOptions(collapsed = FALSE))
-    
-    
-    for(i in 1:nrow(ai[["lines"]])){
-      data1 <- a[["lines"]][i, ]
-      map = map %>% addPolylines(data = data1,
-                                 group = data1$ind,
-                                 color = "#00AE42",
-                                 pane = "overlay"
-                                 # layerId = "overlay_layer"
+    for(i in unique(data_overlays()[["lines"]]$ind)){
+      
+      data1 <- subset(data_overlays()[["lines"]], ind == i)
+      ai <- sfheaders::sf_cast(data1, "LINESTRING")
+      
+      fix <- indicator$mode
+      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "MULTILINESTRING")
+      overlay_name <- unique(overlay_subset$overlay_label)
+      overlay_status <- unique(overlay_subset$overlay_show)
+      
+      map = map %>% addPolylines(data = ai,
+                                 group = overlay_name,
+                                 # color = "#00AE42",
+                                 color = "#000000",
+                                 weight = 1,
+                                 options = pathOptions(clickable = FALSE, pane = overlay_name),
+                                 opacity = 0.5
+                                 # pane = overlay_name,
+                                 # gl = TRUE
+                                 # layerId = "overlay_layer",
       )
     }
     
     
     
-  } else if ("points" %in% names(data_overlays())) {
-    # } else if (geom_type %in% c("MULTILINESTRING", "LINESTRING")) {
+  } 
+  
+  if ("points" %in% names(data_overlays())) {
     
+    # print("TUTUTUTU")
+    fix <- indicator$mode
     
-    # map <- map %>%
-    #   addGlPolylines(data = ai, group = "Overlay", 
-    #                  # options = pathOptions(clickable = TRUE, pane = "overlay"),
-    #                  layerId = "overlay_layer",
-    #                  color = "#00AE42"
-    #                  # pane = "overlay"
-    #   ) %>%
-    #   # addLegend("bottomleft", pal = pal, values = ~value) %>%
-    #   addLayersControl(overlayGroups = c("Regions", "Overlay"),
-    #                    baseGroups = c("Dark", "Light", "Satellite"),
-    #                    options = layersControlOptions(collapsed = FALSE))
+    # print(overlay_name)
     
-    
-    for(i in 1:nrow(data_overlays()[["points"]])){
-      data1 <- data_overlays()[["points"]][i, ]
+    for(i in unique(data_overlays()[["points"]]$ind)){
+      # get name and default on or off
+      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "POINT")
+      overlay_name <- unique(overlay_subset$overlay_label)
+      overlay_status <- unique(overlay_subset$overlay_show)
+      
+      
+      data1 <- subset(data_overlays()[["points"]], ind == i)
       map = map %>% addCircleMarkers(data = data1,
-                                     group = data1$ind,
-                                     radius = 8,
-                                     fillColor = "#00AE42",
-                                     stroke = TRUE, fillOpacity = 0.9, color = "black",
-                                     opacity = 0.9
+                                     group = overlay_name,
+                                     stroke = FALSE, fillOpacity = 0.5,
+                                     radius = 4,
+                                     color = "black",
+                                     # pane = overlay_name,
+                                     # gl = FALSE,
+                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
+                                     # fillColor = "#00AE42",
+                                     # stroke = TRUE, fillOpacity = 0.9, color = "black",
+                                     # opacity = 0.9
                                      # layerId = "overlay_layer"
       )
     }
@@ -983,11 +1033,32 @@ observeEvent(c(indicator$mode, input$year), {
     
   }
   
+  
+  # # identify overlays
+  # overlay_layers
+  fix <- indicator$mode
+  overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
+  # identify groups to hide
+  overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_label
+  overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_label
+  
+  # print("overlay_show")
+  # print(overlay_show)
+  # print(overlay_hide)
+  
+  
+  # # identify overlays
+  overlay_layers$groups <- overlay_labels
+  
+  
   map <- map %>%
     addLayersControl(
-      baseGroups = c("Dark", "Light", "Satellite"),
-      overlayGroups = c("Regions", data_overlays()[["polygons"]]$ind, data_overlays()[["lines"]]$ind, data_overlays()[["points"]]$ind),
-      options = layersControlOptions(collapsed = FALSE))
+      baseGroups = c("Light", "Dark", "Satellite"),
+      overlayGroups = c("Regions"
+                        , overlay_labels),
+      options = layersControlOptions(collapsed = FALSE)) %>%
+    hideGroup(overlay_hide) %>%
+    showGroup(overlay_show)
   
   
   map %>% stopSpinner()
@@ -1016,21 +1087,14 @@ observeEvent(c(city$city_code
 }, ignoreInit = TRUE)
 
 
-# update the basemap  --------------------------------
+# update the regions basemap  --------------------------------
 
 # reactive to filter data and add column with colors
 data_ind3_spatial <- reactive({
   
-  # print("aaaaaaaaaaaaa")
-  # print(data_ind3())
-  # print(input$admin_level)
-  
   req(city$city_code != "", indicator$mode,  input$regions_grid)
   # req(data_ind3(), input$admin_level, rank$admin_level)
   
-  
-  # print("pera")
-  # print(indicator$mode)
   
   rank$admin_level
   input$admin_level
@@ -1054,14 +1118,7 @@ data_ind3_spatial <- reactive({
         
         # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
         a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
-        # print("caindo aquiiii")
-        # print(rank$admin_level)
-        # print(input$admin_level)
       }
-      
-      # print("QUEEEEEEEEEEEE")
-      # print(a)
-      
       
       
     }
@@ -1083,193 +1140,184 @@ data_ind3_spatial <- reactive({
 })
 
 
-
-observeEvent(c(rank$admin_level,
-               indicator$mode,
-               input$year,
-               input$regions_grid), {
-                 
-                 
-                 # this observer will only run if whe aren't switching cities
-                 previous_city <- rv$prev_city[length(rv$prev_city)]
-                 
-                 
-                 # it will only run if the actual city is equal to the previous city
-                 req(city$city_code == previous_city,
-                     isTRUE(input$admin_level >= 1),
-                     data_ind3_spatial())
-                 
-                 
-                 # print("AHHHHHHHHH")
-                 # print(city$city_code)
-                 # print(data_ind3_spatial())
-                 
-                 
-                 
-                 waiter_show(
-                   html = tagList(spin_loaders(id = 3, color = "black")),
-                   color = "rgba(233, 235, 240, .2)")
-                 
-                 # print("previous_city")
-                 # print(previous_city)
-                 # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
-                 #             color = "rgba(233, 235, 240, .2)")
-                 
-                 # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
-                 #             color = "rgba(233, 235, 240, .4)")
-                 
-                 
-                 # print("obs - switch cities new")
-                 # print(Sys.time())
-                 
-                 # extract geom type of this indicator
-                 # geom_type <- unique(data_overlays2()$geom_type)
-                 
-                 # filter legend title and values
-                 legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-                 legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-                 # format legend value
-                 legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
-                 
-                 
-                 # print("indicator_info$transformation")
-                 # print(data_ind3_spatial())
-                 
-                 format_indicator_value <- if(indicator_info$transformation == "percent") {
-                   round(data_ind3_spatial()$value * 100) 
-                   
-                 } else if(indicator_info$transformation %in% "thousands") {
-                   
-                   ifelse(data_ind3_spatial()$value >= 1000000, 
-                          scales::comma(data_ind3_spatial()$value, accuracy = 0.1, scale = 0.000001, suffix = "M"), 
-                          scales::comma(data_ind3_spatial()$value, accuracy = 1, scale = 0.001, suffix = "k"))
-                   
-                   
-                 } else round(data_ind3_spatial()$value)
-                 
-                 
-                 # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
-                 
-                 indicator$values <- format_indicator_value
-                 indicator$unit <- indicator_info$unit
-                 
-                 # print("data_ind3_spatial()$name")
-                 # print(data_ind3_spatial()$name)
-                 # print(data_ind3_spatial()$name)
-                 
-                 # labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
-                 #                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
-                 #                  "<br/><i>Click to see more info</i>")
-                 
-                 labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
-                                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
-                                  sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9;\"> %s</span>", indicator$unit), 
-                                  "<br/><i>Click to see more info</i>")
-                 
-                 # labels <- paste0("<b>", data_ind3_spatial()$name,  "</b><br/> <i>Click to see more info</i>")
-                 
-                 # print("ahahah")
-                 # print(osm_selected$oi)
-                 
-                 
-                 
-                 
-                 map <- leafletProxy("map", session) %>%
-                   # clearMarkers() %>%
-                   startSpinner(list("lines" = 10, "length" = 10,
-                                     "width" = 5, "radius" = 5,
-                                     color = "white")) %>%
-                   # clearMarkers() %>%
-                   # removeShape(layerId =  osm_selected$oi) %>%
-                   # removeTiles(layerId =  "tile") %>%
-                   removeShape(layerId = "reach") %>%
-                   clearGroup(group = "Regions") %>%
-                   # clearShapes() %>%
-                   # removeShape(layerId = city$osmid ) %>%
-                   clearControls() %>%
-                   addMapPane("basemap", zIndex = 410) %>% # shown below ames_circles
-                   addMapPane("overlay", zIndex = 420)# shown above ames_lines
-                 
-                 
-                 # record the values in a list
-                 leaflet_params <- list(
-                   label1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) "Click to see the reach" else lapply(labels, htmltools::HTML),
-                   bring_to_front <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
-                   weigth1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
-                   weigth2 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
-                   
-                 )
-                 
-                 # opacity
-                 if (input$admin_level == 1) {
-                   
-                   color_stroke <- "#00AE42"
-                   weight_stroke <- 2
-                   opacity <- 0.1
-                   
-                 } else {
-                   color_stroke <- "black"
-                   weight_stroke <- weigth2
-                   opacity <- 0.5
-                 }
-                 # print("pegouuuu")
-                 
-                 # print("AHHHHHHHH")
-                 # print(data_ind3_spatial())
-                 
-                 map <- map %>%
-                   addPolygons(data = data_ind3_spatial(), 
-                               fillColor = data_ind3_spatial()$fill,
-                               fillOpacity = opacity,
-                               color = color_stroke,  weight = weight_stroke, 
-                               group = "Regions",
-                               label = label1,
-                               labelOptions = labelOptions(
-                                 style = list(
-                                   # "color" = "red",
-                                   # "font-family" = "serif",
-                                   # "font-style" = "italic",
-                                   # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-                                   "font-size" = "12px"
-                                   # "border-color" = "rgba(0,0,0,0.5)"
-                                 )),
-                               layerId = ~osmid,
-                               options = pathOptions(pane = "basemap", 
-                                                     clickable = TRUE),
-                               highlightOptions = highlightOptions(bringToFront = bring_to_front, opacity = 1, 
-                                                                   weight = weigth1, color = "black"
-                                                                   # fillColor = 'yellow'
-                               )
-                               # label = ~(label)
-                   )
-                 
-                 
-                 if (input$admin_level != 1)  {
-                   
-                   map <- map %>%
-                     addLegend(data = data_ind3_spatial(), "bottomright",
-                               pal = colorNumeric(
-                                 palette = "YlOrRd",
-                                 domain = NULL),
-                               values = ~value,
-                               title = legend_title,
-                               # bins = c(0, 0.25, 0.50, 0.75, 1),
-                               labFormat = legend_value,
-                               layerId = "legend_city"
-                     )
-                 } else map <- map
-                 
-                 
-                 if (!(indicator$mode %in% c("popdensity", "blockdensity"))) map <- map %>% showGroup("Regions")
-                 
-                 
-                 map %>% stopSpinner()
-                 
-                 osm_selected$oi <- data_ind3_spatial()$osmid
-                 
-                 waiter_hide()
-                 
-               })
+# update basemap when anything changes at the city level
+observeEvent(c(
+  rank$admin_level,
+  indicator$mode,
+  input$year,
+  input$regions_grid
+), {
+  
+  
+  # this observer will only run if whe aren't switching cities
+  previous_city <- rv$prev_city[length(rv$prev_city)]
+  
+  
+  # it will only run if the actual city is equal to the previous city
+  req(city$city_code == previous_city,
+      isTRUE(rank$admin_level > 1),
+      data_ind3_spatial())
+  
+  
+  
+  
+  waiter_show(
+    html = tagList(spin_loaders(id = 3, color = "black")),
+    color = "rgba(233, 235, 240, .2)")
+  
+  
+  
+  
+  # filter legend title and values
+  legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+  legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+  # format legend value
+  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
+  
+  
+  # print("indicator_info$transformation")
+  # print(data_ind3_spatial())
+  
+  format_indicator_value <- if(indicator_info$transformation == "percent") {
+    round(data_ind3_spatial()$value * 100) 
+    
+  } else if(indicator_info$transformation %in% "thousands") {
+    
+    ifelse(data_ind3_spatial()$value >= 1000000, 
+           scales::comma(data_ind3_spatial()$value, accuracy = 0.1, scale = 0.000001, suffix = "M"), 
+           scales::comma(data_ind3_spatial()$value, accuracy = 1, scale = 0.001, suffix = "k"))
+    
+    
+  } else round(data_ind3_spatial()$value)
+  
+  
+  # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
+  
+  indicator$values <- format_indicator_value
+  indicator$unit <- indicator_info$unit
+  
+  
+  labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
+                   sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
+                   sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9;\"> %s</span>", indicator$unit), 
+                   "<br/><i>Click to see more info</i>")
+  
+  
+  map <- leafletProxy("map", session) %>%
+    # clearMarkers() %>%
+    startSpinner(list("lines" = 10, "length" = 10,
+                      "width" = 5, "radius" = 5,
+                      color = "white")) %>%
+    # clearMarkers() %>%
+    # removeShape(layerId =  osm_selected$oi) %>%
+    # removeTiles(layerId =  "tile") %>%
+    removeShape(layerId = "reach") %>%
+    clearGroup(group = "Regions") %>%
+    # clearShapes() %>%
+    # removeShape(layerId = city$osmid ) %>%
+    clearControls() %>%
+    addMapPane("basemap", zIndex = 410) %>%
+    addMapPane("Population density", zIndex = 415) %>%
+    addMapPane("Average Block Density", zIndex = 416) %>%
+    addMapPane("Journey Gap analysis grid", zIndex = 417) %>%
+    addMapPane("People Near Services", zIndex = 420) %>%
+    addMapPane("Healthcare locations", zIndex = 425) %>%
+    addMapPane("Education locations", zIndex = 425) %>%
+    addMapPane("People near healthcare", zIndex = 420) %>%
+    addMapPane("People near education", zIndex = 420) %>%
+    addMapPane("People Near Car-Free Places", zIndex = 420) %>%
+    addMapPane("Areas near highways", zIndex = 420) %>%
+    addMapPane("Grade-separated highways", zIndex = 425) %>%
+    addMapPane("People Near Protected Bikeways", zIndex = 430) %>%
+    addMapPane("People Near All Bikeways", zIndex = 420) %>%
+    addMapPane("Protected bikeways", zIndex = 425) %>%
+    addMapPane("All bikeways", zIndex = 425)
+  # addMapPane("People Near Rapid Transport", zIndex = 420) %>%
+  # addMapPane("Metro rail (point)", zIndex = 425) %>%
+  # addMapPane("Metro rail (line)", zIndex = 425) %>%
+  # addMapPane("Light rail (point)", zIndex = 425) %>%
+  # addMapPane("Light rail (line)",zIndex = 425) %>%
+  # addMapPane("Bus rapid transport (point)", zIndex = 425) %>%
+  # addMapPane("Bus rapid transport (line)", zIndex = 425) %>%
+  # addMapPane("People Near Frequent Transport", zIndex = 420) %>%
+  # addMapPane("Frequent transport stops", zIndex = 425)
+  
+  
+  # record the values in a list
+  leaflet_params <- list(
+    label1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) "Click to see the reach" else lapply(labels, htmltools::HTML),
+    bring_to_front <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
+    weigth1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
+    weigth2 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
+    
+  )
+  
+  # opacity
+  if (input$admin_level == 1) {
+    
+    color_stroke <- "#00AE42"
+    weight_stroke <- 2
+    opacity <- 0.1
+    
+  } else {
+    color_stroke <- "black"
+    weight_stroke <- weigth2
+    opacity <- 0.5
+  }
+  
+  map <- map %>%
+    addPolygons(data = data_ind3_spatial(), 
+                fillColor = data_ind3_spatial()$fill,
+                fillOpacity = opacity,
+                color = color_stroke,  weight = weight_stroke, 
+                group = "Regions",
+                label = label1,
+                labelOptions = labelOptions(
+                  style = list(
+                    # "color" = "red",
+                    # "font-family" = "serif",
+                    # "font-style" = "italic",
+                    # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                    "font-size" = "12px"
+                    # "border-color" = "rgba(0,0,0,0.5)"
+                  )),
+                layerId = ~osmid,
+                options = pathOptions(pane = "basemap", 
+                                      clickable = TRUE),
+                highlightOptions = highlightOptions(bringToFront = bring_to_front, opacity = 1, 
+                                                    weight = weigth1, color = "black"
+                                                    # fillColor = 'yellow'
+                )
+                # label = ~(label)
+    )
+  
+  
+  if (input$admin_level != 1)  {
+    
+    map <- map %>%
+      addLegend(data = data_ind3_spatial(), "bottomright",
+                pal = colorNumeric(
+                  palette = "YlOrRd",
+                  domain = NULL),
+                values = ~value,
+                title = legend_title,
+                # bins = c(0, 0.25, 0.50, 0.75, 1),
+                labFormat = legend_value,
+                layerId = "legend_city"
+      )
+  } else map <- map
+  
+  
+  if (!(indicator$mode %in% c("popdensity"))) map <- map %>% showGroup("Regions")
+  
+  
+  map %>% stopSpinner()
+  
+  osm_selected$oi <- data_ind3_spatial()$osmid
+  
+  waiter_hide()
+  
+})
 
 
 

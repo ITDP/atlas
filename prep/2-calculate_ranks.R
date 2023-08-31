@@ -12,13 +12,25 @@ indicators_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/13LZoiy0R
 world <- dir("data/data_july2023", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{5}.rds")
 data_world <- lapply(world, function(x) st_set_geometry(read_rds(x), NULL)) %>% rbindlist(fill = TRUE)
 data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level)) %>%
-  mutate(across(8:last_col(), as.numeric))
+  mutate(across(9:last_col(), as.numeric)) %>%
+  # filter only the essential indicators
+  dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, admin_level_name,
+                # starts_with("city_poptotal"),
+                starts_with("city_popdensity_"),
+                starts_with("city_blockdensity_"),
+                starts_with("city_journeygap_"),
+                starts_with("bike_pnpb_"),
+                starts_with("walk_pns_"),
+                starts_with("walk_pncf_"),
+                starts_with("walk_pnnhighways_"),
+                starts_with("transit_pnft_"),
+                starts_with("transit_pnrtall_"))
   
   
   
   
   # create ranks for countries -------------------------------
-ind <- "bike_pnpb"
+# ind <- "bike_pnpb"
 ranks_countries <- function(ind ) {
   
   if(file.exists(sprintf("data/data_july2023/countries/atlas_country_%s.rds",
@@ -43,7 +55,7 @@ ranks_countries <- function(ind ) {
 }
 
 # to long format
-colnames_compare <- colnames(data_world)[8:ncol(data_world)]
+colnames_compare <- colnames(data_world)[9:ncol(data_world)]
 # extract year
 years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
                       replacement = "\\1",
@@ -64,7 +76,7 @@ rank_world <- data_world %>%
   # delete indicators that are NA
   group_by(admin_level) %>%
   # calculate size of each group
-  mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+  mutate(across(9:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
   # create totals - NEED FIX
   mutate(n = n()) %>%
   mutate(type_rank = "world") %>%
@@ -107,7 +119,7 @@ prep_data <- function(ghsl) {
     # delete indicators that are NA
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+    mutate(across(9:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
     # create totals - NEED FIX
     mutate(n = n()) %>%
     mutate(type_rank = "country") %>%
@@ -119,7 +131,7 @@ prep_data <- function(ghsl) {
     filter(admin_level != 0) %>%
     group_by(admin_level) %>%
     # calculate size of each grou
-    mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+    mutate(across(9:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
     # create totals - NEED FIX
     mutate(n = n()) %>%
     # create type of rank
@@ -231,7 +243,7 @@ prep_data <- function(ghsl) {
     
     # see indicators availabilty
     data1 <- janitor::remove_empty(data, which = "cols")
-    colnames_compare <- colnames(data1)[8:ncol(data1)]
+    colnames_compare <- colnames(data1)[9:ncol(data1)]
     # extract year
     years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
                           replacement = "\\1",
@@ -258,8 +270,8 @@ prep_data <- function(ghsl) {
 cities_available <- unique(data_world$hdc)
 purrr::walk(cities_available, 
             prep_data)
-results <- lapply(cities_available, 
-            possibly(prep_data, "error"))
+# results <- lapply(cities_available, 
+            # possibly(prep_data, "error"))
 
 # prep_data("01406")
 # prep_data("01361")

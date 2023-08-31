@@ -22,7 +22,8 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
                        admin_level = NULL,
                        rank_text_level0 = NULL,
                        country = NULL,
-                       indicator = NULL)
+                       indicator = NULL,
+                       data = NULL)
 
 # this reactive value will store the indicator name, 
 indicator_info <- reactiveValues(name = NULL,
@@ -206,6 +207,20 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   value_indicator <- subset(st_set_geometry(atlas_country(), NULL), name == ui)
   rank_indicator <- subset(rank_country(), name == ui)
   
+  # print("jskfjakfmaks")
+  # print(value_indicator)
+  
+  pattern <- sprintf("_%s", year$ok)
+  cols <- c('a3', 'name', colnames(value_indicator)[endsWith(colnames(value_indicator), pattern)])
+  value_indicator <- value_indicator[cols]
+  colnames_new <- sub(pattern = sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok), replacement = "value",  colnames(value_indicator))
+  # remove the year
+  colnames_new <- sub(pattern = sprintf("_%s$", year$ok), replacement = "",  colnames_new)
+  colnames(value_indicator) <- colnames_new
+  
+  
+  rank$indicator <- value_indicator
+  
   
   # print("rank_indicator")
   # print(rank_indicator)
@@ -213,7 +228,7 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   # rank$country <- 
   
   # rename the columns
-  colnames(value_indicator) <- c('a3', 'name', 'value')
+  # colnames(value_indicator) <- c('a3', 'name', 'value')
   colnames(rank_indicator) <- c('a3', 'name', 'rank')
   
   rank$country <- rank_indicator$rank

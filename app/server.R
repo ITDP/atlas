@@ -390,8 +390,9 @@ function(input, output, session) {
     
     # print(paste0("last", spatial_level$last))
     go <- length(unique(data_ind()$admin_level))
-    
-    
+    go1 <- unique(data_ind()$admin_level_name)
+    list_levels <- as.list(seq(1,go))
+    names(list_levels) <- go1
     
     tagList(
       conditionalPanel(
@@ -433,10 +434,10 @@ function(input, output, session) {
         conditionalPanel(
           condition = "input.regions_grid == 'Regions'",
           shinyWidgets::pickerInput(inputId = "admin_level",
-                                    choices = seq(1, go),
+                                    choices = list_levels,
                                     label = NULL,
                                     selected = 1,
-                                    width = 250,
+                                    width = 250
                                     
                                     # grid = TRUE,
                                     # dragRange = FALSE
@@ -645,7 +646,7 @@ function(input, output, session) {
     
     indicator$mode <- input$indicator
     
-    if (input$indicator %in% c(  "popdensity", "blockdensity", "pnnhighways")) {
+    if (input$indicator %in% c(  "popdensity", "blockdensity", "journeygap")) {
       
       indicator$type <- "city"
       
@@ -653,7 +654,7 @@ function(input, output, session) {
       
       indicator$type <- "bike"
       
-    } else if (input$indicator %in% c("pns", "pncf")) {
+    } else if (input$indicator %in% c("pns", "pncf", "pnnhighways")) {
       
       indicator$type <- "walk"
       

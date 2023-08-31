@@ -166,7 +166,7 @@ data_ind3 <- reactive({
     a$admin_level_ordered <- NA
     a$name <- NA
     
-    cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
+    cols <- c('country', 'osmid', 'admin_level','admin_level_ordered',  'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
     
     a <- a[cols]
     colnames(a) <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', 'value', 'geom')
@@ -174,16 +174,18 @@ data_ind3 <- reactive({
     
   } else {
     
-    
-    # print(indicator$mode)
-    pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
-    cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[startsWith(colnames(data_ind2()), pattern)], 'geom')
-    a <- data_ind1()[cols]
-    colnames(a) <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', 'value', 'geom')
-    # print(a)
-    
+    pattern <- sprintf("_%s", year$ok)
+    cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[endsWith(colnames(data_ind2()), pattern)], 'geom')
+    a <- data_ind2()[cols]
+    colnames_new <- sub(pattern = sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok), replacement = "value",  colnames(a))
+    # remove the year
+    colnames_new <- sub(pattern = sprintf("_%s$", year$ok), replacement = "",  colnames_new)
+    colnames(a) <- colnames_new
     
   }
+  
+  print("aaaaaaa")
+  print(a)
   
   return(a)
   
