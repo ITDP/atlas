@@ -42,6 +42,7 @@ ranks_countries <- function(ind ) {
     
     # calculate size of each group
     country_ranks <- atlas_country %>%
+      select(a3, name, starts_with(sprintf("%s_", ind))) %>%
       st_set_geometry(NULL) %>%
       mutate(across(3:last_col(), ~rank(-.x, ties = "first", na.last = "keep"))) %>%
       arrange(across(3)) %>%

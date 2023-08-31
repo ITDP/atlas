@@ -3,8 +3,8 @@ output$text_indicator <- renderUI({
   
   req(indicator$mode)
   
-  print("GOGAOGI")
-  print(rank$indicator)
+  # print("GOGAOGI")
+  # print(rank$indicator)
   
       format_indicator_value <- format_indicator_values(rank$indicator$value, transformation = indicator_info$transformation)
       source(sprintf("www/text/text_indicator_%s.R", indicator$mode), local = TRUE)

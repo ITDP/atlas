@@ -9,6 +9,7 @@ rank_country <- reactive({
   # open data
   a <- readRDS(sprintf("../data/data_july2023/countries/ranks/atlas_country_rank_%s.rds", pattern))
   
+  
   return(a)
   
 })  
@@ -352,6 +353,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    indicator_label <- switch(indicator$mode,
                                              "popdensity" = sprintf("%s has a weighted population density of %s people per km2", rank_indicator$name, format_indicator_value),
                                              "blockdensity" = sprintf("%s has an average of %s blocks per km2", rank_indicator$name, format_indicator_value),
+                                             "journeygap" = sprintf("In %s, the average trip takes %s times as long by walking, bicycling, or public transport as by driving.", rank_indicator$name, format_indicator_value),
                                              "pns" = sprintf("%s %% of people in %s live within 1km of both healthcare and education services.", format_indicator_value, rank_indicator$name),
                                              "pncf" = sprintf("%s %% of people in %s live within 100m of a car-free space.", format_indicator_value, rank_indicator$name),
                                              "pnh" = sprintf("%s %% of people in %s live farther than 500m from a grade-separated highway. ", format_indicator_value, rank_indicator$name),
