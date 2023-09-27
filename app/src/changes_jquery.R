@@ -74,10 +74,12 @@ observeEvent(c(indicator$mode, city$city_code), {
   delay(1, shinyjs::runjs('$( ".leaflet-control-layers > .title_left_panel" ).remove();'))
   delay(1, shinyjs::runjs('$( ".leaflet-control-layers-base > #title_base" ).remove();'))
   delay(1, shinyjs::runjs('$( ".leaflet-control-layers-overlays > #title_overlay" ).remove();'))
+  # delay(1, shinyjs::runjs('$(".leaflet-control-layers-overlays > #teste12").remove();'))
   # adicionar o titul com o botao de minimizar
   
   delay(3, shinyjs::runjs('$( ".leaflet-control-layers-base" ).prepend( "<h3 id = \'title_base\' class = \'control-label\'>BASEMAP</h3>" );'))
   delay(2, shinyjs::runjs('$( ".leaflet-control-layers-overlays" ).prepend( "<h3 id = \'title_overlay\' class = \'control-label\'>ELEMENTS</h3>" );'))
+  # delay(4, shinyjs::runjs('$(".leaflet-control-layers-overlays").append("<button class=\'btn btn-default action-button shiny-bound-input\' id=\'teste12\' type=\'button\'>Add population</button>")'))
   # delay(1, shinyjs::runjs(sprintf('$( ".leaflet-control-layers" ).prepend( "%s");', a)))
   
   

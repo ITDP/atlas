@@ -908,6 +908,16 @@ function(input, output, session) {
   
   
   
+  observeEvent(c(input$teste12), {
+    
+    print("boraaaaa")
+    
+    subset(a, x == 1)
+    
+  })
+  
+  
+  
   # open files --------------------------------------------------------------
   
   source("src/filter_indicators.R", local = TRUE)  

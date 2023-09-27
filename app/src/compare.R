@@ -95,8 +95,15 @@ output$comparison_chart <- renderHighchart({
                                         names_to = c("ind_type", "ind", "year"),
                                         values_to = "value")
       
+      # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
+      # filter
+      print("bububububu")
+      print(indicator$mode)
+      print(year$ok)
+      ano <- year$ok
+      value_city <- subset(value_city, ind == indicator$mode & year == ano)
       
-      
+
       format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
       format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
       format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
@@ -104,12 +111,14 @@ output$comparison_chart <- renderHighchart({
       # print(format_indicator_unit_value)
       # print("format_indicator_unit_value")
       
-      value_city$value <- if(format_indicator_unit_value == "percent") {
-        round(value_city$value * 100) 
-        
-      } else round(value_city$value)
+      # value_city$value <- if(format_indicator_unit_value == "percent") {
+      #   round(value_city$value * 100) 
+      #   
+      # } else round(value_city$value)
       
-      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+      value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+      
+      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                                 "pncf", "pnft")) {
         
         hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
@@ -170,13 +179,13 @@ output$comparison_chart <- renderHighchart({
       
     } else {
       
-      print("goooooooooo")
+      # print("goooooooooo")
       # print(input$map_shape_click)
       # print(rank$admin_level)
       # print(is.null(input$map_shape_click))
       
-      print("TOINNNN")
-      print(rank$admin_level)
+      # print("TOINNNN")
+      # print(rank$admin_level)
       
       ui <- if(isTRUE(input$map_shape_click$group == "Countries") | isTRUE(rank$admin_level == 1)) city$city_code else input$map_shape_click$id
       
@@ -190,12 +199,15 @@ output$comparison_chart <- renderHighchart({
       # print(format_indicator_unit_value)
       # print("format_indicator_unit_value")
       
-      value_city$value <- if(format_indicator_unit_value == "percent") {
-        round(value_city$value * 100) 
-        
-      } else round(value_city$value)
+      # value_city$value <- if(format_indicator_unit_value == "percent") {
+      #   round(value_city$value * 100) 
+      #   
+      # } else round(value_city$value)
       
-      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+      
+      value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+      
+      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                                 "pncf", "pnft")) {
         
         hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
@@ -356,15 +368,15 @@ observeEvent(c(input$city_compare1_initial), {
     
     # print(format_indicator_unit_value)
     # print("format_indicator_unit_value")
+    # 
+    # value_compare$value <- if(format_indicator_unit_value == "percent") {
+    #   round(value_compare$value * 100) 
+    #   
+    # } else round(value_compare$value)
     
-    value_compare$value <- if(format_indicator_unit_value == "percent") {
-      round(value_compare$value * 100) 
-      
-    } else round(value_compare$value)
+    value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
     
-    
-    
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                               "pncf", "pnft")) {
       
       
@@ -427,14 +439,16 @@ observeEvent(c(input$city_compare1_initial), {
     # print(format_indicator_unit_value)
     # print("format_indicator_unit_value")
     
-    value_compare$value <- if(format_indicator_unit_value == "percent") {
-      round(value_compare$value * 100) 
-      
-    } else round(value_compare$value)
+    # value_compare$value <- if(format_indicator_unit_value == "percent") {
+    #   round(value_compare$value * 100) 
+    #   
+    # } else round(value_compare$value)
     
     
+    value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
     
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+    
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                               "pncf", "pnft")) {
       
       
@@ -506,7 +520,7 @@ observeEvent(c(input$city_compare1_initial), {
 
 output$comparison_max <- renderHighchart({
   
-  print("WHAAAAT")
+  # print("WHAAAAT")
   
   ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
   
@@ -521,10 +535,12 @@ output$comparison_max <- renderHighchart({
   format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
   
   
-  value_city$value <- if(format_indicator_unit_value == "percent") {
-    round(value_city$value * 100)
-    
-  } else round(value_city$value)
+  # value_city$value <- if(format_indicator_unit_value == "percent") {
+  #   round(value_city$value * 100)
+  #   
+  # } else round(value_city$value)
+  
+  value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
   
   if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
                             "pncf", "pnft")) {
@@ -968,10 +984,14 @@ observeEvent(c(input$city_compare1), {
   # print(format_indicator_unit_value)
   # print("format_indicator_unit_value")
   
-  value_compare$value <- if(format_indicator_unit_value == "percent") {
-    round(value_compare$value * 100) 
-    
-  } else round(value_compare$value)
+  # value_compare$value <- if(format_indicator_unit_value == "percent") {
+  #   round(value_compare$value * 100) 
+  #   
+  # } else round(value_compare$value)
+  
+  value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
+  
+  
   
   # print("ind_compare()")
   # print(value_compare)

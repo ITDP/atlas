@@ -27,6 +27,22 @@ data_ind <- reactive({
 overlay_geom <- reactiveValues(polygon = NULL, line = NULL)
 
 
+# COME BACK HERE!!!!
+# data_population <- reactive({
+#   
+#   req(indicator$mode, input$year, city$city_code)
+#   
+#   file <- sprintf("../data/data_july2023/ghsl_%s/overlays/pop/overlays_pop_%s_%s.rds", 
+#                   city$city_code, city$city_code, input$year)
+#   
+#   pop <- readRDS(file)
+#   
+#   return(pop)
+#   
+#   
+# })
+
+
 data_overlays <- reactive({
   
   # req(city$city_code)

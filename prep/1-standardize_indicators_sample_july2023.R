@@ -8,9 +8,13 @@ library(purrr)
 sf::sf_use_s2(FALSE)
 
 
+# source folder -------------------------------------------------------------------------------
+
+folder <- "data-raw/big_cities_sept12"
+
 
 # duplicate the pop data for 2022 as well -----------------------------------------------------
-list_pop_2020 <- dir("data-raw/atlas_data_july_31/cities_out/", recursive = TRUE, pattern = "pop_2020.tif$", full.names = TRUE)
+list_pop_2020 <- dir(sprintf("%s/cities_out", folder), recursive = TRUE, pattern = "pop_2020.tif$", full.names = TRUE)
 # reanem to 2022
 list_pop_2022 <- stringr::str_replace(list_pop_2020, pattern = "2020(?=.tif$)", replacement = "2022")
 # copy
@@ -19,7 +23,7 @@ purrr::walk2(list_pop_2020, list_pop_2022, file.copy)
 
 
 # rename folder to 5 chars ------------------------------------------------
-list_folders <- dir("data-raw/atlas_data_july_31/cities_out", full.names = TRUE)
+list_folders <- dir(sprintf("%s/cities_out", folder), full.names = TRUE)
 # identify the code
 codes <- stringr::str_extract(list_folders, "\\d{1,}$")
 # make them 5 chars
@@ -33,7 +37,7 @@ purrr::map2(list_folders, list_folders_updated, file.rename)
 # go
 # base_dir <- sprintf("data-raw/data_sample_2022_08_19/city_results/ghsl_region_%s/", ghsl)
 # data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
-world <- dir("data-raw/atlas_data_july_31/cities_out", full.names = TRUE, recursive = TRUE)
+world <- dir(sprintf("%s/cities_out", folder), full.names = TRUE, recursive = TRUE)
 # world <- c(world, dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE))
 world <- world[grepl("ghsl_region_\\d{5}/indicator_values.gpkg$", world)]
 # fun to open all data
@@ -106,6 +110,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "00010"
   # ghsl <- "01406"
   # ghsl <- "01575"
+  # ghsl <- "00079" #pheonix
   
   # base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
   
@@ -538,7 +543,10 @@ atlas_country <- atlas_country %>%
 atlas_country <- atlas_country %>%
   dplyr::select(a3, name,
                 any_of(colnames(indicators_all))   
-  )
+  ) %>%
+  # round indicators
+  mutate(across(c(bike_pnpbabikewayskm_2022, bike_pnpbpbikewayskm_2022, walk_pnshealthpoints_2022, walk_pnsschoolspoints_2022,
+                  transit_pnftpoints_2022), round))
 
 # save by indicator
 save_countries <- function(ind) {
@@ -546,7 +554,7 @@ save_countries <- function(ind) {
   
   atlas_country_ind <- atlas_country %>% 
     dplyr::select(a3, name, 
-                  starts_with(ind))
+                  starts_with(ind)) 
   
   # # filter for no data
   # if (ind == "city_poptotal") {
@@ -638,4 +646,7 @@ a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
 # add recife manually
 
 readr::write_rds(a1, "data/data_july2023/list_availability.rds")
+
+# not available
+
 

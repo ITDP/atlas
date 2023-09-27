@@ -50,3 +50,11 @@ line-height: 15px;
 .leaflet-left > .leaflet-control-zoom {
   margin-right: 500px !important;
 }
+
+
+/*
+.leaflet-control-layers {
+  max-height: 200px;
+  overflow: auto;
+}
+*/

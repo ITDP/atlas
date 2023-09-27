@@ -1,9 +1,21 @@
+style <- function(x) {
+  
+  paste0('<strong style="font-size: 16px; color: #00AE42;">', x, '</strong>') 
+  
+}
+
 p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 '<div class = "title_indicator">Population Density</div>',
 '<div class = "text_indicator"><p>',
 '<p>Weighted population density measures the density of the neighborhood where a city’s average resident lives. </p>',
 sprintf('<p>%s has a total population of %s in %s, and the average resident lives in a neighborhood with a density of %s people per square kilometer.</p>', 
-        rank$indicator$name, format_indicator_value, input$year, format_indicator_value, rank$indicator$name, format_indicator_value, format_indicator_value),
+        style(rank$indicator$name), 
+        style(format_indicator_value), 
+        style(input$year), 
+        style(format_indicator_value), 
+        style(rank$indicator$name), 
+        style(format_indicator_value), 
+        style(format_indicator_value)),
 '<p>Compact land use is a fundamental requirement for sustainability.  Shorter distances between places make it easier to walk or bicycle, make transit more efficient because each station can serve more people, and make car trips shorter and therefore less environmentally destructive. Compact land reduces sprawl, preserving farmland and natural surroundings.</p>',
 '<p>Population density is necessary but not sufficient for sustainable transport. Compact cities also need supportive infrastructure, such as bicycle lanes and public transit, which are measured in other indicators.</p>'
 )

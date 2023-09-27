@@ -112,128 +112,13 @@ ui <- fluidPage(
   # waiter_on_busy(spin_fading_circles()),
   # Start navbar page
   fluidPage(
-    # title = "Atlas of Urban Transportation", id = "tabs", collapsible = TRUE,
-    # Map page
-    # tabPanel(
-    # Output map
-    # title = "Atlas", 
-    # value = "tab_general",
-    # Output the map
     # leafglOutput("map"),
     leafletOutput("map"),
-    # create the napel to select city
-    
-    # absolutePanel(id = "city_selection", 
-    #               # class = "panel panel-default", 
-    #               top = 20, right = 30, width = 400, height = 80,
-    #               # Output the 'UI' that was generated in the server
-    #               uiOutput('city_selection')
-    #               
-    #               
-    # ),
-    # Create the left side panel  
-    # absolutePanel(class = "left_panel", 
-    #               bottom = 45, right = 10, width = 285, height = 'auto',
-    #               style = "display: none",
-    #               # Output the 'UI' that was generated in the server
-    #               # uiOutput('left_panel')
-    #               tags$div(class = "title_left_panel", "INDICATORS", 
-    #                        actionButton("teste1", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-    #                                     class = "minimize")
-    #                        
-    #               ),
-    #               
-    #               # Create the left side panel  
-    #               absolutePanel(class = "left_panel_indicators",
-    #                             bottom = 5, left = -2, width = 270, height = 'auto',
-    #                             
-    #                             accordion_input(inputId = "indicator_city",
-    #                                             label = "City",
-    #                                             choices = c(list_city),
-    #                                             selected = character(0)),
-    #                             accordion_input(inputId = "indicator_bike",
-    #                                             label = "Bike",
-    #                                             choices = c(list_bike),
-    #                                             selected = "pnpb"),
-    #                             
-    #                             accordion_input(inputId = "indicator_walk",
-    #                                             label = "Walk",
-    #                                             choices = c(list_walk),
-    #                                             selected = character(0)),
-    #                             accordion_input(inputId = "indicator_transit",
-    #                                             label = "Transit",
-    #                                             choices = c(list_transit),
-    #                                             selected = character(0))
-    #                             # for now, this indicators will not be available
-    #                             # accordion_input(inputId = "indicator_performance",
-    #                             #                 label = "Performance",
-    #                             #                 choices = c(list_performance),
-    #                             #                 selected = character(0))
-    #                             
-    #               )
-    #               
-    #               
-    #               
-    # ),
-    # create the panel with the filters
-    # uiOutput('left_panel_filter'), # da pra trazer
-    # tagList(
-    #   # conditionalPanel(
-    #   # condition = "ind_cum.indexOf(input.indicator_performance) > -1",
-    #   # condition = "typeof input.indicator_performance != ''",
-    #   absolutePanel(
-    #     id = "year_panel",
-    #     class = "spatial_level",
-    #     # fixed = TRUE, draggable = FALSE,
-    #     bottom = 45, left = 300, height = 'auto', width = 120,
-    #     # 'typeof undefined' identifies when is null 
-    #     tags$div(class = "title_left_panel", style = "padding: 10px 0", "YEAR" ,
-    #              # actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0",
-    #              # class = "minimize")
-    #              tags$button(
-    #                id = "tooltip_year",
-    #                class="btn btn-light btn-xs",
-    #                style = "display: inline; width: 5px; background: transparent; padding: 0 1px; color: #00AE42; font-size: 14px",
-    #                icon("circle-info")
-    #                
-    #              ),
-    #     ),
-    #     div(
-    #       bsPopover(id = "tooltip_year",
-    #                 # title = sprintf("<strong>%s</strong>", "LEVEL OF DETAIL"),
-    #                 title = "",
-    #                 content = HTML(includeHTML('www/tooltips/tooltip_year.html')),
-    #                 placement = "right",
-    #                 trigger = "hover",
-    #                 options = list(container = "body")
-    #       )
-    #     ),
-    #     shinyWidgets::pickerInput(inputId = "year",
-    #                               label = NULL,
-    #                               choices = 2022,
-    #                               selected = 2022,
-    #                               options = shinyWidgets::pickerOptions(
-    #                                 size = 5
-    #                               )
-    #                               # selected = character(0)
-    #     )
-    #     
-    #   )
-    #   
-    # ),
-    
-    
 
     # create the panel with the comparison
-    # uiOutput('comparison_button'),
-
-    
-    
-    
     uiOutput('comparison_panel'),
-    # right panel
     
-    # uiOutput('right_panel'), # da pra trazer
+    # right panel
     tagList(
       
       # conditionalPanel(
@@ -431,4 +316,4 @@ ui <- fluidPage(
 )
 
 
-ui <- secure_app(ui)
+# ui <- secure_app(ui)

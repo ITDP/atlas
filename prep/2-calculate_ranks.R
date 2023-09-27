@@ -212,6 +212,7 @@ prep_data <- function(ghsl) {
         mutate(value = case_when(indicator_transformation %in% "percent" ~ as.character(round(value * 100)), 
                                  indicator_transformation %in% "thousands" & value >= 1000000 ~ scales::comma(value, accuracy = 0.1, scale = 0.000001, suffix = "M"),
                                  indicator_transformation %in% "thousands" & value < 1000000 ~ scales::comma(value, accuracy = 1, scale = 0.001, suffix = "k"),
+                                 indicator_transformation %in% "round1" ~ as.character(round(value, 1)),
                                  TRUE ~ as.character(round(value)))) %>%
         # mutate(value = paste0(value, format_indicator_unit)) %>%
         # create text

@@ -124,13 +124,14 @@ observeEvent(c(indicator$mode, input$year), {
   # print("A CONOCN")
   # print(a_country)
   
-  a$value <- as.numeric(a$value)
+  
+  a_available$value <- as.numeric(a_available$value)
   
   pal <- colorNumeric(
     palette = "viridis",
     na.color = "#808080",
     # palette = "YlGnBu",
-    domain = a$value)
+    domain = a_available$value)
   
   
   pal_countries <- colorNumeric(
@@ -146,8 +147,7 @@ observeEvent(c(indicator$mode, input$year), {
   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
   
   # create the label for the markers
-  format_indicator_value_marker <- format_indicator_values(a$value, transformation = indicator_info$transformation)
-  
+  format_indicator_value_marker <- format_indicator_values(a_available$value, transformation = indicator_info$transformation)
   
   # format_indicator_value_marker <- paste0(format_indicator_value_marker, indicator_info$unit)
   
@@ -160,6 +160,8 @@ observeEvent(c(indicator$mode, input$year), {
                             sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9\"> %s</span>", indicator_info$unit), 
                             "<br/><i>Click to go to the region</i>")
   
+  # print("format_indicator_value_marker")
+  # print(labels_markers1)
   
   # print(a)
   # labels <- paste0("<b>", a_available$name,  "</b><br/> <i>Click to go to the region</i>")
@@ -398,15 +400,16 @@ observeEvent(c(city$city_code), {
   waiter_hide()
   
   
-  format_indicator_value <- if(indicator_info$transformation == "percent") {
-    round(data_metro$value * 100) 
-    
-  } else if(indicator_info$transformation %in% "thousands") {
-    
-    if (data_metro$value >= 1000000) scales::comma(data_metro$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_metro$value, accuracy = 1, scale = 0.001, suffix = "k")
-    
-    
-  } else round(data_metro$value)
+  # format_indicator_value <- if(indicator_info$transformation == "percent") {
+  #   round(data_metro$value * 100) 
+  #   
+  # } else if(indicator_info$transformation %in% "thousands") {
+  #   
+  #   if (data_metro$value >= 1000000) scales::comma(data_metro$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_metro$value, accuracy = 1, scale = 0.001, suffix = "k")
+  #   
+  #   
+  # } else round(data_metro$value)
+  format_indicator_value <- format_indicator_values(data_metro$value, indicator_info$transformation)
   
   # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
   
@@ -425,7 +428,7 @@ observeEvent(c(city$city_code), {
     # clearMarkers() %>%
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
-                      color = "white")) %>%
+                      color = "black")) %>%
     removeMarker(layerId = data_metro$osmid) %>%
     clearShapes() %>%
     removeControl(layerId = c("legend_country")) %>%
@@ -479,6 +482,9 @@ observeEvent(c(city$city_code), {
                   )),
                 options = pathOptions(pane = "basemap"),
                 highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black"))
+    # # add POP: will be constant to all indicators
+    # leafem::addGeoRaster(x = data_population(),
+    #                      group = "pop")
   
   
   
@@ -488,6 +494,9 @@ observeEvent(c(city$city_code), {
     
     # print("pararara")
     # print(unique(data_overlays()[["polygons"]]$ind))
+    
+    # variables to be color coded
+    color_coded <- c("pop", "block_densities_latlon", "grid_pop_evaluated")
     
     for(i in unique(data_overlays()[["polygons"]]$ind)){
       data1 <- subset(data_overlays()[["polygons"]], ind == i)
@@ -500,7 +509,7 @@ observeEvent(c(city$city_code), {
       overlay_name <- unique(overlay_subset$overlay_label)
       overlay_status <- unique(overlay_subset$overlay_show)
       
-      if (i == "pop") {
+      if (i %in% c(color_coded)) {
         
         pal <- colorNumeric(
           palette = "Blues",
@@ -516,13 +525,23 @@ observeEvent(c(city$city_code), {
                                   opacity = 0.8,
                                   options = pathOptions(clickable = FALSE, pane = overlay_name),
                                   # layerId = "overlay_layer",
-                                  fillColor = if(i == "pop") ~pal(value) else "#00AE42",
+                                  fillColor = if(i %in% c(color_coded)) ~pal(value) else overlay_subset$fill,
                                   fillOpacity = 0.7,
-                                  weight = if(i == "pop") 0 else 1,
+                                  weight = if(i %in% c(color_coded)) 0 else 1,
                                   color = "black"
                                   # layerId = overlay_name,
                                   # options = pathOptions(pane = overlay_name)
       )
+      
+      if (i == "pop") {
+        
+        
+        print("aquiuiuiuiu")
+        
+        map <- map %>%
+          hideGroup("pop")
+        
+      }
       
     }
     
@@ -547,7 +566,8 @@ observeEvent(c(city$city_code), {
       map = map %>% addPolylines(data = ai,
                                  group = overlay_name,
                                  # color = "#00AE42",
-                                 color = "#000000",
+                                 # color = "#000000",
+                                 color = overlay_subset$fill,
                                  weight = 1,
                                  opacity = 0.5,
                                  # pane = overlay_name,
@@ -579,9 +599,11 @@ observeEvent(c(city$city_code), {
       data1 <- subset(data_overlays()[["points"]], ind == i)
       map = map %>% addCircleMarkers(data = data1,
                                      group = overlay_name,
-                                     stroke = FALSE, fillOpacity = 0.5,
+                                     stroke = TRUE, fillOpacity = 0.5,
                                      radius = 6,
+                                     fillColor = overlay_subset$fill,
                                      color = "black",
+                                     weight = 1,
                                      # pane = overlay_name,
                                      # gl = TRUE
                                      options = pathOptions(clickable = FALSE, pane = overlay_name)
@@ -682,15 +704,17 @@ observeEvent(c(input$map_shape_click), {
       # print("data_previous")
       # print(data_previous)
       
-      format_indicator_value <- if(indicator_info$transformation == "percent") {
-        round(data_previous$value * 100) 
-        
-      } else if(indicator_info$transformation %in% "thousands") {
-        
-        if (data_previous$value >= 1000000) scales::comma(data_previous$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_previous$value, accuracy = 1, scale = 0.001, suffix = "k")
-        
-        
-      } else round(data_previous$value)
+      # format_indicator_value <- if(indicator_info$transformation == "percent") {
+      #   round(data_previous$value * 100) 
+      #   
+      # } else if(indicator_info$transformation %in% "thousands") {
+      #   
+      #   if (data_previous$value >= 1000000) scales::comma(data_previous$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_previous$value, accuracy = 1, scale = 0.001, suffix = "k")
+      #   
+      #   
+      # } else round(data_previous$value)
+      
+      format_indicator_value <- format_indicator_values(data_previous$value, indicator_info$transformation)
       
       
       # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
@@ -706,16 +730,18 @@ observeEvent(c(input$map_shape_click), {
       
     }
     
-    format_indicator_value <- if(indicator_info$transformation == "percent") {
-      round(data$value * 100) 
-      
-    } else if(indicator_info$transformation %in% "thousands") {
-      
-      if (data$value >= 1000000) scales::comma(data$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data$value, accuracy = 1, scale = 0.001, suffix = "k")
-      
-      
-    } else round(data$value)
+    # format_indicator_value <- if(indicator_info$transformation == "percent") {
+    #   round(data$value * 100) 
+    #   
+    # } else if(indicator_info$transformation %in% "thousands") {
+    #   
+    #   if (data$value >= 1000000) scales::comma(data$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data$value, accuracy = 1, scale = 0.001, suffix = "k")
+    #   
+    #   
+    # } else round(data$value)
     
+    
+    format_indicator_value <- format_indicator_values(data$value, indicator_info$transformation)
     
     # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
     
@@ -842,7 +868,7 @@ observeEvent(c(indicator$mode, input$year), {
     # clearMarkers() %>%
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
-                      color = "white")) %>%
+                      color = "black")) %>%
     leafgl::clearGlLayers() %>%
     
     
@@ -911,6 +937,8 @@ observeEvent(c(indicator$mode, input$year), {
     # print("pararara")
     # print(unique(data_overlays()[["polygons"]]$ind))
     
+    color_coded <- c("pop", "block_densities_latlon", "grid_pop_evaluated")
+    
     
     for(i in unique(data_overlays()[["polygons"]]$ind)){
       
@@ -922,7 +950,7 @@ observeEvent(c(indicator$mode, input$year), {
         
         data1 <- subset(data_overlays()[["polygons"]], ind == i)
         
-        if (i == "pop") ai <- data1 else ai <- sfheaders::sf_cast(data1, "POLYGON")
+        if (i %in% c(color_coded)) ai <- data1 else ai <- sfheaders::sf_cast(data1, "POLYGON")
         # ai <- sfheaders::sf_cast(data1, "POLYGON")
         
         fix <- indicator$mode
@@ -932,13 +960,16 @@ observeEvent(c(indicator$mode, input$year), {
         overlay_name <- unique(overlay_subset$overlay_label)
         overlay_status <- unique(overlay_subset$overlay_show)
         
-        if (i == "pop") {
+        if (i %in% c(color_coded)) {
           
           pal <- colorNumeric(
             palette = "Blues",
             domain = ai$value)
           
         }
+        
+        # print("i")
+        # print(i)
         
         # print("overlay_name")
         # print(overlay_name)
@@ -949,15 +980,22 @@ observeEvent(c(indicator$mode, input$year), {
                                     options = pathOptions(clickable = FALSE, pane = overlay_name),
                                     # options = pathOptions(clickable = FALSE),
                                     # layerId = "overlay_layer",
-                                    fillColor = if(i == "pop") ~pal(value) else "#00AE42",
+                                    fillColor = if(i %in% c(color_coded)) ~pal(value) else overlay_subset$fill,
                                     fillOpacity = 0.7,
-                                    weight = if(i == "pop") 0 else 1, 
+                                    weight = if(i %in% c(color_coded)) 0 else 1, 
                                     color = "black",
                                     # pane = ifelse(i == "pop1", "pop_teste", overlay_name),
                                     # options = pathOptions(pane = overlay_name),
                                     stroke = FALSE
                                     # gl = FALSE
         )
+        
+        if (i == "pop") {
+          
+          map <- map %>%
+            hideGroup("pop")
+          
+        }
         
       }
       
@@ -1016,9 +1054,11 @@ observeEvent(c(indicator$mode, input$year), {
       data1 <- subset(data_overlays()[["points"]], ind == i)
       map = map %>% addCircleMarkers(data = data1,
                                      group = overlay_name,
-                                     stroke = FALSE, fillOpacity = 0.5,
+                                     stroke = TRUE, fillOpacity = 0.5,
+                                     weight = 1,
                                      radius = 4,
                                      color = "black",
+                                     fillColor = overlay_subset$fill,
                                      # pane = overlay_name,
                                      # gl = FALSE,
                                      options = pathOptions(clickable = FALSE, pane = overlay_name)
@@ -1081,7 +1121,7 @@ observeEvent(c(city$city_code
   
   rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
   
-  print(rv$prev_city)
+  # print(rv$prev_city)
   
   
 }, ignoreInit = TRUE)
@@ -1178,17 +1218,19 @@ observeEvent(c(
   # print("indicator_info$transformation")
   # print(data_ind3_spatial())
   
-  format_indicator_value <- if(indicator_info$transformation == "percent") {
-    round(data_ind3_spatial()$value * 100) 
-    
-  } else if(indicator_info$transformation %in% "thousands") {
-    
-    ifelse(data_ind3_spatial()$value >= 1000000, 
-           scales::comma(data_ind3_spatial()$value, accuracy = 0.1, scale = 0.000001, suffix = "M"), 
-           scales::comma(data_ind3_spatial()$value, accuracy = 1, scale = 0.001, suffix = "k"))
-    
-    
-  } else round(data_ind3_spatial()$value)
+  # format_indicator_value <- if(indicator_info$transformation == "percent") {
+  #   round(data_ind3_spatial()$value * 100) 
+  #   
+  # } else if(indicator_info$transformation %in% "thousands") {
+  #   
+  #   ifelse(data_ind3_spatial()$value >= 1000000, 
+  #          scales::comma(data_ind3_spatial()$value, accuracy = 0.1, scale = 0.000001, suffix = "M"), 
+  #          scales::comma(data_ind3_spatial()$value, accuracy = 1, scale = 0.001, suffix = "k"))
+  #   
+  #   
+  # } else round(data_ind3_spatial()$value)
+  
+  format_indicator_value <- format_indicator_values(data_ind3_spatial()$value, indicator_info$transformation)
   
   
   # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
@@ -1207,7 +1249,7 @@ observeEvent(c(
     # clearMarkers() %>%
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
-                      color = "white")) %>%
+                      color = "black")) %>%
     # clearMarkers() %>%
     # removeShape(layerId =  osm_selected$oi) %>%
     # removeTiles(layerId =  "tile") %>%

@@ -24,7 +24,7 @@ overlay_table <- read_sheet(ss = "https://docs.google.com/spreadsheets/d/194T-zZ
 indicators_all <- purrr::map_dfr(dir("data/data_july2023", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
-# ghsl <- "0014"
+# ghsl <- "00014"
 # ghsl <- "0088"
 # ghsl <- "0154"
 # ghsl <- "0634"
@@ -32,12 +32,15 @@ indicators_all <- purrr::map_dfr(dir("data/data_july2023", pattern = "^indicator
 # ghsl <- "00021"
 # ghsl <- "09691"
 # ghsl <- "00816"
+# ghsl <- "05134"
+# ghsl <- "00154"
 # ghsl <- unique(indicators_all$hdc)[20]
 prep_overlays <- function(ghsl) {
   
   
-  base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
-  # 
+  # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
+  base_dir <- sprintf("data-raw/big_cities_sept12/cities_out/ghsl_region_%s/", ghsl)
+
   # a1 <- dir(paste0(base_dir, "geodata"), pattern = ".geojson")
   # a1 <- a1[!(a1 %like% "population|rapid_transit")]
   # a2 <- sub(pattern = ".geojson", replacement = "", x = a1)
@@ -49,13 +52,13 @@ prep_overlays <- function(ghsl) {
   # 
   # purrr::walk2(before, after, file.copy)
   # walk(before, file.remove)
-  
+
   # # change name of folder h+s
   # folder_hs <- dir(paste0(base_dir, "geodata")
-  #                  , pattern = "h\\+slatlon"
+  #                  , pattern = "h\\+s"
   #                  ,full.names = TRUE
   # )
-  # folder_hs_new <- paste0(paste0(base_dir, "/geodata/hslatlon"))
+  # folder_hs_new <- paste0(paste0(base_dir, "geodata/hslatlon"))
   # # rename
   # walk2(folder_hs, folder_hs_new, file.rename)
   # files_hs <- dir(paste0(base_dir, "geodata/hslatlon")
@@ -72,7 +75,7 @@ prep_overlays <- function(ghsl) {
   # folder_pop_new <- paste0(paste0(base_dir, "/geodata/pop"))
   # # rename
   # walk2(folder_pop, folder_pop_new, file.rename)
-  
+
   
   
   
@@ -80,6 +83,8 @@ prep_overlays <- function(ghsl) {
   # overlay files ------------------------------------
   overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = ".geojson$", recursive = TRUE)
   overlay_pop <- dir(paste0(base_dir, "geodata/pop"), full.names = TRUE, pattern = ".tif$", recursive = TRUE)
+  overlay_journey <- c(dir(paste0(base_dir, "geodata/access"), full.names = TRUE, pattern = "grid_pop_evaluated_2022.geojson$", recursive = TRUE),
+                       dir(paste0(base_dir, "temp/access"), full.names = TRUE, pattern = "grid_pop_evaluated.geojson$", recursive = TRUE))
   
   # filter only our overlays
   # overlay_files1 <- overlay_files[overlay_files %like% c("allbike_latlon|h\\+slatlon|healthcarelatlon|pnablatlon|pnpblatlon|pnftlatlon|protectedbike|schools|block_densities_latlon|buffered_hwys_latlon|carfreelatlon")]
@@ -91,7 +96,7 @@ prep_overlays <- function(ghsl) {
   # the overlay files only have the shape geom, so we need to give them names based on the filename
   # read overlays
   open_overlay <- function(file) {
-    # file <- overlay_files1[[13]]
+    # file <- overlay_files1[[3]]
     
     a <- st_read(file)
     
@@ -123,7 +128,7 @@ prep_overlays <- function(ghsl) {
     
     # create value
     a <- a %>%
-      mutate(value = ifelse(ind == "block_densities_latlon.geojson", block_count, NA_integer_)) %>%
+      mutate(value = ifelse(ind == "block_densities_latlon", density, NA_integer_)) %>%
       # select final variables
       dplyr::select(ind, geom_type, year, value)
     
@@ -140,20 +145,57 @@ prep_overlays <- function(ghsl) {
   
   # for the population overlay - open raster, convert to sf, and save on the same format
   open_overlay_pop <- function(file) {
-    # file <- overlay_pop[[10]]
+    # file <- overlay_pop[[1]]
     
     # extract year
     year <- sub("(^.*)/(pop_)(\\d{4})(.*$)", "\\3", file)
     
     a <- stars::read_stars(file)
-    # to sf
-    a <- st_as_sf(a)
-    a <- a %>% rename(value = 1)
+    # # to sf
+    # a <- st_as_sf(a)
+    # a <- a %>% rename(value = 1)
+    # a <- a %>% mutate(ind = basename(file))
+    # # identify geom type
+    # a <- a %>% mutate(geom_type = st_geometry_type(.))
+    # a <- a %>% mutate(year = year)
+    # a <- mutate(a, ind = sub(pattern = "_\\d{4}.tif", replacement = "", x = ind))
+    # 
+    # # select final variables
+    # a <- a %>% dplyr::select(ind, geom_type, year, value)
+    # 
+    # geom_type <- st_geometry_type(a) %>% unique() %>% as.character()
+    # 
+    # if (geom_type == "POLYGON") a <- st_cast(a, "MULTIPOLYGON")
+    # if (geom_type == "MULTIPOINT") a <- st_cast(a, "POINT")
+    # a <- a %>% mutate(geom_type = st_geometry_type(.))
+    # 
+    # a <- st_transform(a, 4326)
+    
+    # save
+    readr::write_rds(a, sprintf("data/data_july2023/ghsl_%s/overlays/pop/overlays_pop_%s_%s.rds", ghsl, ghsl,  year))
+    
+  }
+  overlay_pop_open <- walk(overlay_pop, open_overlay_pop)
+  
+  
+  # # bind them
+  # overlay <- c(overlay, overlay_pop_open)
+  
+  
+  # for journey indicators
+  open_overlay_journey <- function(file) {
+    # file <- overlay_journey[[1]]
+    
+    # extract year
+    year <- 2022
+    
+    a <- sf::st_read(file)
+    a <- a %>% select(value = journey_gap_unweighted)
     a <- a %>% mutate(ind = basename(file))
     # identify geom type
     a <- a %>% mutate(geom_type = st_geometry_type(.))
     a <- a %>% mutate(year = year)
-    a <- mutate(a, ind = sub(pattern = "_\\d{4}.tif", replacement = "", x = ind))
+    a <- mutate(a, ind = sub(pattern = ".geojson", replacement = "", x = ind))
     
     # select final variables
     a <- a %>% dplyr::select(ind, geom_type, year, value)
@@ -166,50 +208,53 @@ prep_overlays <- function(ghsl) {
     
     a <- st_transform(a, 4326)
   }
-  overlay_pop_open <- lapply(overlay_pop, open_overlay_pop)
   
-  # bind
-  overlay <- c(overlay, overlay_pop_open)
+  if (length(overlay_journey) > 0) {
+    overlay_journey_open <- lapply(overlay_journey, open_overlay_journey)
+    
+    # bind
+    overlay <- c(overlay, overlay_journey_open)
+  }
   
   # open rapid_transit when available
   overlay_files_rapid <- overlay_files[overlay_files %like% c("rapid_transit")]
   # overlay_files_rapid <- overlay_files_rapid[overlay_files_rapid %like% c("isochrones")]
-
+  
   # fun
   open_overlay_rapid <- function(file) {
     # file <- overlay_files_rapid[[5]]
-
+    
     # extract year
     year <- sub("(^.*)/(rapid_transit/)(\\d{4})/(.*$)", "\\3", file)
-
+    
     a <- st_read(file)
     # if the polygon is empty, create an empty mulitpolygon
     if(st_is_empty(a)) {
-
+      
       a <- st_sf(geometry = st_sfc(st_multipolygon()), crs = 4326)
-
+      
     }
-
-
+    
+    
     a <- a %>% mutate(ind = basename(file))
     # identify geom type
     a <- a %>% mutate(geom_type = st_geometry_type(.))
     a <- a %>% mutate(year = year) %>%
       mutate(value = NA)
     a <- mutate(a, ind = sub(pattern = ".geojson", replacement = "", x = ind))
-
+    
     # select final variables
     a <- a %>% dplyr::select(ind, geom_type, year, value)
-
+    
     # a <- st_cast(a, "MULTIPOLYGON")
     geom_type <- st_geometry_type(a) %>% unique() %>% as.character()
     if (geom_type %in% c("POLYGON")) a <- st_cast(a, "MULTIPOLYGON")
     if (isTRUE(geom_type == "MULTIPOINT")) a <- st_cast(a, "POINT")
     a <- a %>% mutate(geom_type = st_geometry_type(.))
     a <- st_transform(a, 4326)
-
+    
   }
-
+  
   
   if (length(overlay_files_rapid) > 0) {
     
@@ -274,8 +319,8 @@ prep_overlays <- function(ghsl) {
   overlay_id <- overlay_table %>%
     rename(ind = overlay) %>%
     select(ind, indicator)
-    # mutate(ind = ifelse(ind == "pop_[year].tif","pop.tif", ind)) %>%
-    # mutate(ind = ifelse(ind == "pop_2020.tif","pop.tif", ind))
+  # mutate(ind = ifelse(ind == "pop_[year].tif","pop.tif", ind)) %>%
+  # mutate(ind = ifelse(ind == "pop_2020.tif","pop.tif", ind))
   
   # # which years we have for population?
   # pop_years <- overlay_polygons %>%
@@ -305,7 +350,7 @@ prep_overlays <- function(ghsl) {
       # select(-year) %>%
       st_sf(crs = 4326)
     sf::sf_use_s2(TRUE)
-    overlay_lines <- st_simplify(overlay_lines, dTolerance = 75)
+    overlay_lines <- st_simplify(overlay_lines, dTolerance = 125)
     # overlay_lines1 <- st_cast(overlay_lines, "LINESTRING")
     
   } 
@@ -350,6 +395,7 @@ prep_overlays <- function(ghsl) {
   # save by year
   
   # ind1 <- "pnpb"
+  # ind1 <- "journeygap"
   save_by_ind <- function(ind1) {
     
     dir.create(sprintf("data/data_july2023/ghsl_%s/overlays/%s", ghsl, ind1), recursive = TRUE)
