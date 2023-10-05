@@ -9,7 +9,7 @@ sf::sf_use_s2(FALSE)
 
 # save indicators by each city by each admin level - for comparison --------
 
-indicators_all <- purrr::map_dfr(dir("data/data_july2023", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+indicators_all <- purrr::map_dfr(dir("data/data_beta", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
 # remove polygon
@@ -57,11 +57,11 @@ export_by_osmid <- function(ghsl) {
                                           names_to = "year",
                                           values_to = "value")
     
-    dir.create(sprintf("data/data_july2023/ghsl_%s/indicators_compare",
+    dir.create(sprintf("data/data_beta/ghsl_%s/indicators_compare",
                        ghsl))
     
     # save
-    readr::write_rds(indicators_ind, sprintf("data/data_july2023/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+    readr::write_rds(indicators_ind, sprintf("data/data_beta/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                                              ghsl, ghsl, ind))
     
     
@@ -122,7 +122,7 @@ export_comparison1 <- function(level) {
                                           values_to = "value")
     
     # save
-    readr::write_rds(indicators_ind, sprintf("data/data_july2023/comp/indicators_compare_%s_%s.rds",
+    readr::write_rds(indicators_ind, sprintf("data/data_beta/comp/indicators_compare_%s_%s.rds",
                                              level, ind))
     
     
@@ -156,7 +156,7 @@ purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 # # save indicators by each city by each admin level - for comparison --------
 # 
 # # open data
-# indicators_all <- readRDS("data/data_july2023/atlas_country_polygons.rds")
+# indicators_all <- readRDS("data/data_beta/atlas_country_polygons.rds")
 # 
 # # remove countties without data
 # # indicators_all <- indicators_all %>% dplyr::filter(!is.na(bike_pnpb_2022))
@@ -175,7 +175,7 @@ purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 # 
 #   
 #   # save
-#   readr::write_rds(indicators_ind, sprintf("data/data_july2023/indicators_compare_country/indicators_compare_country_%s.rds",
+#   readr::write_rds(indicators_ind, sprintf("data/data_beta/indicators_compare_country/indicators_compare_country_%s.rds",
 #                                            ind))
 #   
 #   

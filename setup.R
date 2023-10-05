@@ -23,6 +23,8 @@ pb_release_delete(repo = "ITDP/atlas", "v0.0.1")
 pb_release_delete(repo = "ITDP/atlas", "alpha")
 pb_new_release(repo = "ITDP/atlas", "alpha")
 
+pb_new_release(repo = "ITDP/atlas", "beta_test")
+
 pb_upload("data/data_alpha.zip", 
           repo = "ITDP/atlas", 
           tag = "alpha")

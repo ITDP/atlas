@@ -7,7 +7,7 @@ rank_country <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/data_july2023/countries/ranks/atlas_country_rank_%s.rds", pattern))
+  a <- readRDS(sprintf("../data/data_beta/countries/ranks/atlas_country_rank_%s.rds", pattern))
   
   
   return(a)
@@ -469,7 +469,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                       ranks_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                       ranks_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
                        ranks_text1 <- subset(ranks_text, type_rank == "world" & year == que)
                        rank_text_world <- ranks_text1$text
                        rank$value <- ranks_text1$rank
@@ -479,7 +479,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        rank$value <- c(rank$value, ranks_text2$rank)
                        
                        # open the scroll text
-                       scroll_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                       scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
                        scroll_world <- HTML(subset(scroll_text, type_rank == "world" & year == que)$text)
                        scroll_country <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
                        
@@ -536,13 +536,13 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                       ranks_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                       ranks_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                        ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
                        rank$value <- ranks_text$rank
                        rank_text_country <- ranks_text$text
                        
                        # open the scroll text
-                       scroll_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                       scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                        scroll_country <- HTML(subset(scroll_text, type_rank == "metro" & year == que)$text)
                        
                        
@@ -555,7 +555,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                       ranks_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                       ranks_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                        ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui & year == que)
                        rank$value <- ranks_text1$rank
                        rank_text_world <- ranks_text1$text
@@ -565,7 +565,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        rank_text_country <- ranks_text2$text
                        
                        # open the scroll text
-                       scroll_text <- readRDS(sprintf("../data/data_july2023/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                       scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                        scroll_world <- HTML(subset(scroll_text, type_rank == "country" & year == que)$text)
                        scroll_country <- HTML(subset(scroll_text, type_rank == "metro"  & year == que)$text)
                        

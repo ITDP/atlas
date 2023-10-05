@@ -25,7 +25,7 @@ atlas_country <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/data_july2023/countries/atlas_country_%s.rds", pattern))
+  a <- readRDS(sprintf("../data/data_beta/countries/atlas_country_%s.rds", pattern))
   
   # print("aagsagas")
   # print(a)
@@ -57,7 +57,7 @@ output$map <- renderLeaflet({
     addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
-      radius = 8,
+      radius = 5,
       fillColor = "#00AE42",
       stroke = TRUE, fillOpacity = 0.9, color = "black",
       opacity = 0.9,
@@ -295,7 +295,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     addMapPane("markers_available", zIndex = 430) %>% # shown above ames_lines
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
-      radius = 8,
+      radius = 5,
       fillColor = ~world_view$pal(value),
       stroke = TRUE, fillOpacity = 0.9, color = "black",
       opacity = 0.9,
@@ -315,7 +315,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     ) %>%
     addCircleMarkers(data = world_view$a_notavailable,
                      # radius = ~ifelse(type == "ship", 6, 10),
-                     radius = 8,
+                     radius = 5,
                      # fillColor = ~pal(value), 
                      stroke = TRUE, fillOpacity = 0.9, color = "#808080",
                      opacity = 0.8,
@@ -484,143 +484,69 @@ observeEvent(c(city$city_code), {
                 highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black"))
     # # add POP: will be constant to all indicators
     # leafem::addGeoRaster(x = data_population(),
-    #                      group = "pop")
+    #                      group = "Population density")
   
   
-  
-  # add overlay
-  if ("polygons" %in% names(data_overlays())) {
+  # identify overlays to be opened
+  fix <- indicator$mode
+  overlays_to_open <- subset(overlay_table, indicator == fix)
+  print("overlays_to_open")
+  print(overlays_to_open)
     
+  for(i in overlays_to_open$overlay){
+
+    # data1 <- subset(data_overlays()[["lines"]], ind == i)
+
+    fix <- indicator$mode
+    overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
+    overlay_name <- unique(overlay_subset$overlay_label)
+    overlay_status <- unique(overlay_subset$overlay_show)
     
-    # print("pararara")
-    # print(unique(data_overlays()[["polygons"]]$ind))
-    
-    # variables to be color coded
-    color_coded <- c("pop", "block_densities_latlon", "grid_pop_evaluated")
-    
-    for(i in unique(data_overlays()[["polygons"]]$ind)){
-      data1 <- subset(data_overlays()[["polygons"]], ind == i)
-      ai <- sfheaders::sf_cast(data1, "POLYGON")
+    file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
+                               city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
+
+    if (file.exists(file)) {
       
-      fix <- indicator$mode
-      
-      # get name and default on or off
-      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "MULTIPOLYGON")
-      overlay_name <- unique(overlay_subset$overlay_label)
-      overlay_status <- unique(overlay_subset$overlay_show)
-      
-      if (i %in% c(color_coded)) {
+      if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
         
-        pal <- colorNumeric(
-          palette = "Blues",
-          domain = ai$value)
-        
-      }
-      
-      # print("overlay_name")
-      # print(overlay_name)
-      
-      map <-  map %>% addPolygons(data = ai,
-                                  group = overlay_name,
-                                  opacity = 0.8,
-                                  options = pathOptions(clickable = FALSE, pane = overlay_name),
-                                  # layerId = "overlay_layer",
-                                  fillColor = if(i %in% c(color_coded)) ~pal(value) else overlay_subset$fill,
-                                  fillOpacity = 0.7,
-                                  weight = if(i %in% c(color_coded)) 0 else 1,
-                                  color = "black"
-                                  # layerId = overlay_name,
-                                  # options = pathOptions(pane = overlay_name)
-      )
-      
-      if (i == "pop") {
-        
-        
-        print("aquiuiuiuiu")
+        data <- readRDS(file)
         
         map <- map %>%
-          hideGroup("pop")
+          leafem::addGeoRaster(x = data,
+                               opacity = 0.8,
+                               group = overlay_name,
+                               options = pathOptions(clickable = FALSE, pane = overlay_name))
+        
+      } else {
+        
+        print(file)
+        
+        map = map %>% leafem::addFgb(file = file,
+                                     group = overlay_name,
+                                     # color = "#00AE42",
+                                     # color = "#000000",
+                                     color = overlay_subset$fill,
+                                     weight = 1,
+                                     opacity = 0.5,
+                                     fillColor = overlay_subset$fill,
+                                     fill = TRUE,
+                                     fillOpacity = 0.7,
+                                     radius = 3,
+                                     # pane = overlay_name,
+                                     # gl = TRUE,
+                                     # options = pathOptions(pane = overlay_name),
+                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
+                                     # layerId = "overlay_layer",
+        )
+        
         
       }
       
+      
     }
-    
-    
-  } 
-  
-  
-  if ("lines" %in% names(data_overlays())) {
-    
-    
-    
-    for(i in unique(data_overlays()[["lines"]]$ind)){
-      
-      data1 <- subset(data_overlays()[["lines"]], ind == i)
-      ai <- sfheaders::sf_cast(data1, "LINESTRING")
-      
-      fix <- indicator$mode
-      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "MULTILINESTRING")
-      overlay_name <- unique(overlay_subset$overlay_label)
-      overlay_status <- unique(overlay_subset$overlay_show)
-      
-      map = map %>% addPolylines(data = ai,
-                                 group = overlay_name,
-                                 # color = "#00AE42",
-                                 # color = "#000000",
-                                 color = overlay_subset$fill,
-                                 weight = 1,
-                                 opacity = 0.5,
-                                 # pane = overlay_name,
-                                 # gl = TRUE,
-                                 # options = pathOptions(pane = overlay_name),
-                                 options = pathOptions(clickable = FALSE, pane = overlay_name)
-                                 # layerId = "overlay_layer",
-      )
-    }
-    
-    
-    
-  } 
-  
-  if ("points" %in% names(data_overlays())) {
-    
-    # print("TUTUTUTU")
-    fix <- indicator$mode
-    
-    # print(overlay_name)
-    
-    for(i in unique(data_overlays()[["points"]]$ind)){
-      # get name and default on or off
-      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "POINT")
-      overlay_name <- unique(overlay_subset$overlay_label)
-      overlay_status <- unique(overlay_subset$overlay_show)
-      
-      
-      data1 <- subset(data_overlays()[["points"]], ind == i)
-      map = map %>% addCircleMarkers(data = data1,
-                                     group = overlay_name,
-                                     stroke = TRUE, fillOpacity = 0.5,
-                                     radius = 6,
-                                     fillColor = overlay_subset$fill,
-                                     color = "black",
-                                     weight = 1,
-                                     # pane = overlay_name,
-                                     # gl = TRUE
-                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
-                                     # fillColor = "#00AE42",
-                                     # stroke = TRUE, fillOpacity = 0.9, color = "black",
-                                     # opacity = 0.9
-                                     # layerId = "overlay_layer"
-      )
-    }
-    
-    
-    
   }
   
   
-  # print("data_overlays_sf()")
-  # print(data_overlays_sf())
   
   fix <- indicator$mode
   overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
@@ -931,146 +857,63 @@ observeEvent(c(indicator$mode, input$year), {
   # print(geom_type)
   
   # add overlay
-  if ("polygons" %in% names(data_overlays())) {
+  # identify overlays to be opened
+  fix <- indicator$mode
+  overlays_to_open <- subset(overlay_table, indicator == fix)
+  print("overlays_to_open")
+  print(overlays_to_open)
+  
+  for(i in overlays_to_open$overlay){
     
+    # data1 <- subset(data_overlays()[["lines"]], ind == i)
     
-    # print("pararara")
-    # print(unique(data_overlays()[["polygons"]]$ind))
+    fix <- indicator$mode
+    overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
+    overlay_name <- unique(overlay_subset$overlay_label)
+    overlay_status <- unique(overlay_subset$overlay_show)
     
-    color_coded <- c("pop", "block_densities_latlon", "grid_pop_evaluated")
+    file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
+                    city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
     
-    
-    for(i in unique(data_overlays()[["polygons"]]$ind)){
+    if (file.exists(file)) {
       
-      if (i != "pop1") {
+      if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
         
+        data <- readRDS(file)
         
-        # print("aaaah")
-        # print(i)
+        map <- map %>%
+          leafem::addGeoRaster(x = data,
+                               opacity = 0.8,
+                               group = overlay_name,
+                               options = pathOptions(clickable = FALSE, pane = overlay_name))
         
-        data1 <- subset(data_overlays()[["polygons"]], ind == i)
+      } else {
         
-        if (i %in% c(color_coded)) ai <- data1 else ai <- sfheaders::sf_cast(data1, "POLYGON")
-        # ai <- sfheaders::sf_cast(data1, "POLYGON")
+        print(file)
         
-        fix <- indicator$mode
-        
-        # get name and default on or off
-        overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "MULTIPOLYGON")
-        overlay_name <- unique(overlay_subset$overlay_label)
-        overlay_status <- unique(overlay_subset$overlay_show)
-        
-        if (i %in% c(color_coded)) {
-          
-          pal <- colorNumeric(
-            palette = "Blues",
-            domain = ai$value)
-          
-        }
-        
-        # print("i")
-        # print(i)
-        
-        # print("overlay_name")
-        # print(overlay_name)
-        
-        map <-  map %>% addPolygons(data = ai,
-                                    group = ifelse(i == "pop1", "pop_teste", overlay_name),
-                                    opacity = 0.8,
-                                    options = pathOptions(clickable = FALSE, pane = overlay_name),
-                                    # options = pathOptions(clickable = FALSE),
-                                    # layerId = "overlay_layer",
-                                    fillColor = if(i %in% c(color_coded)) ~pal(value) else overlay_subset$fill,
-                                    fillOpacity = 0.7,
-                                    weight = if(i %in% c(color_coded)) 0 else 1, 
-                                    color = "black",
-                                    # pane = ifelse(i == "pop1", "pop_teste", overlay_name),
-                                    # options = pathOptions(pane = overlay_name),
-                                    stroke = FALSE
-                                    # gl = FALSE
+        map = map %>% leafem::addFgb(file = file,
+                                     group = overlay_name,
+                                     # color = "#00AE42",
+                                     # color = "#000000",
+                                     color = overlay_subset$fill,
+                                     weight = 1,
+                                     opacity = 0.5,
+                                     fillColor = overlay_subset$fill,
+                                     fill = TRUE,
+                                     fillOpacity = 0.7,
+                                     radius = 3,
+                                     # pane = overlay_name,
+                                     # gl = TRUE,
+                                     # options = pathOptions(pane = overlay_name),
+                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
+                                     # layerId = "overlay_layer",
         )
         
-        if (i == "pop") {
-          
-          map <- map %>%
-            hideGroup("pop")
-          
-        }
         
       }
       
       
     }
-    
-    
-  } 
-  
-  
-  if ("lines" %in% names(data_overlays())) {
-    
-    
-    
-    for(i in unique(data_overlays()[["lines"]]$ind)){
-      
-      data1 <- subset(data_overlays()[["lines"]], ind == i)
-      ai <- sfheaders::sf_cast(data1, "LINESTRING")
-      
-      fix <- indicator$mode
-      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "MULTILINESTRING")
-      overlay_name <- unique(overlay_subset$overlay_label)
-      overlay_status <- unique(overlay_subset$overlay_show)
-      
-      map = map %>% addPolylines(data = ai,
-                                 group = overlay_name,
-                                 # color = "#00AE42",
-                                 color = "#000000",
-                                 weight = 1,
-                                 options = pathOptions(clickable = FALSE, pane = overlay_name),
-                                 opacity = 0.5
-                                 # pane = overlay_name,
-                                 # gl = TRUE
-                                 # layerId = "overlay_layer",
-      )
-    }
-    
-    
-    
-  } 
-  
-  if ("points" %in% names(data_overlays())) {
-    
-    # print("TUTUTUTU")
-    fix <- indicator$mode
-    
-    # print(overlay_name)
-    
-    for(i in unique(data_overlays()[["points"]]$ind)){
-      # get name and default on or off
-      overlay_subset <- subset(overlay_table, indicator == fix & overlay == i & geom_type == "POINT")
-      overlay_name <- unique(overlay_subset$overlay_label)
-      overlay_status <- unique(overlay_subset$overlay_show)
-      
-      
-      data1 <- subset(data_overlays()[["points"]], ind == i)
-      map = map %>% addCircleMarkers(data = data1,
-                                     group = overlay_name,
-                                     stroke = TRUE, fillOpacity = 0.5,
-                                     weight = 1,
-                                     radius = 4,
-                                     color = "black",
-                                     fillColor = overlay_subset$fill,
-                                     # pane = overlay_name,
-                                     # gl = FALSE,
-                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
-                                     # fillColor = "#00AE42",
-                                     # stroke = TRUE, fillOpacity = 0.9, color = "black",
-                                     # opacity = 0.9
-                                     # layerId = "overlay_layer"
-      )
-    }
-    
-    
-    
   }
   
   

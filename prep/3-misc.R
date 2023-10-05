@@ -11,7 +11,7 @@ list_indicators <- read_sheet(
 
 
 # salvar
-write_rds(list_indicators, "data/data_july2023/list_indicators.rds")
+write_rds(list_indicators, "data/data_beta/list_indicators.rds")
 
 
 overlay_table <- read_sheet(ss = "https://docs.google.com/spreadsheets/d/194T-zZZRhwAAvon7lOeyjT49jzij3SKhDM-2HyBi3Hc/edit?usp=sharing") %>%
@@ -20,7 +20,7 @@ overlay_table <- read_sheet(ss = "https://docs.google.com/spreadsheets/d/194T-zZ
   mutate(overlay = sub(pattern = ".tif", replacement = "", x = overlay))
 
 # salvar
-readr::write_rds(overlay_table, "data/data_july2023/overlay_table.rds")
+readr::write_rds(overlay_table, "data/data_beta/overlay_table.rds")
 
 # # block density list
 # list_block <- read_sheet(

@@ -27,54 +27,54 @@ data_ind <- reactive({
 overlay_geom <- reactiveValues(polygon = NULL, line = NULL)
 
 
-# COME BACK HERE!!!!
+# # COME BACK HERE!!!!
 # data_population <- reactive({
-#   
+# 
 #   req(indicator$mode, input$year, city$city_code)
-#   
-#   file <- sprintf("../data/data_july2023/ghsl_%s/overlays/pop/overlays_pop_%s_%s.rds", 
+# 
+#   file <- sprintf("../data/data_july2023/ghsl_%s/overlays/pop/overlays_pop_%s_%s.rds",
 #                   city$city_code, city$city_code, input$year)
-#   
+# 
 #   pop <- readRDS(file)
-#   
+# 
 #   return(pop)
-#   
-#   
+# 
+# 
 # })
 
 
-data_overlays <- reactive({
-  
-  # req(city$city_code)
-  # 
-  #   a <- readRDS(sprintf("../data/data_july2023/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
-  #   return(a)
-  
-  req(indicator$mode, input$year, city$city_code)
-  
-  
-  # extract overlay files
-  files <- dir(sprintf("../data/data_july2023/ghsl_%s/overlays/%s", city$city_code, indicator$mode), pattern = ".rds$", full.names = TRUE)
-  file_year <- files[grepl(pattern = paste0(input$year, ".rds"), x= files)]
-  # extract overlay geom types
-  files_geometry <- sub("(.*)(lines|points|polygons)(.*)", replacement = "\\2",  x=file_year)
-  
-  
-  teste_overlays <- lapply(
-    file_year,
-    readRDS
-  )
-  
-  names(teste_overlays) <- files_geometry
-  
-  # print(teste_overlays)
-  
-  return(teste_overlays)
-  
-  
-  
-  
-})
+# data_overlays <- reactive({
+#   
+#   # req(city$city_code)
+#   # 
+#   #   a <- readRDS(sprintf("../data/data_july2023/ghsl_%s/overlays_%s.rds", city$city_code, city$city_code))
+#   #   return(a)
+#   
+#   req(indicator$mode, input$year, city$city_code)
+#   
+#   
+#   # extract overlay files
+#   files <- dir(sprintf("../data/data_july2023/ghsl_%s/overlays/%s", city$city_code, indicator$mode), pattern = ".rds$", full.names = TRUE)
+#   file_year <- files[grepl(pattern = paste0(input$year, ".rds"), x= files)]
+#   # extract overlay geom types
+#   files_geometry <- sub("(.*)(lines|points|polygons)(.*)", replacement = "\\2",  x=file_year)
+#   
+#   
+#   teste_overlays <- lapply(
+#     file_year,
+#     readRDS
+#   )
+#   
+#   names(teste_overlays) <- files_geometry
+#   
+#   # print(teste_overlays)
+#   
+#   return(teste_overlays)
+#   
+#   
+#   
+#   
+# })
 
 
 # filter the first indicator

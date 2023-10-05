@@ -10,11 +10,11 @@ sf::sf_use_s2(FALSE)
 
 # source folder -------------------------------------------------------------------------------
 
-folder <- "data-raw/big_cities_sept12"
+folder <- "data-raw/data_beta"
 
 
 # duplicate the pop data for 2022 as well -----------------------------------------------------
-list_pop_2020 <- dir(sprintf("%s/cities_out", folder), recursive = TRUE, pattern = "pop_2020.tif$", full.names = TRUE)
+list_pop_2020 <- dir(sprintf("%s/cities", folder), recursive = TRUE, pattern = "pop_2020.tif$", full.names = TRUE)
 # reanem to 2022
 list_pop_2022 <- stringr::str_replace(list_pop_2020, pattern = "2020(?=.tif$)", replacement = "2022")
 # copy
@@ -23,7 +23,7 @@ purrr::walk2(list_pop_2020, list_pop_2022, file.copy)
 
 
 # rename folder to 5 chars ------------------------------------------------
-list_folders <- dir(sprintf("%s/cities_out", folder), full.names = TRUE)
+list_folders <- dir(sprintf("%s/cities", folder), full.names = TRUE)
 # identify the code
 codes <- stringr::str_extract(list_folders, "\\d{1,}$")
 # make them 5 chars
@@ -37,7 +37,7 @@ purrr::map2(list_folders, list_folders_updated, file.rename)
 # go
 # base_dir <- sprintf("data-raw/data_sample_2022_08_19/city_results/ghsl_region_%s/", ghsl)
 # data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
-world <- dir(sprintf("%s/cities_out", folder), full.names = TRUE, recursive = TRUE)
+world <- dir(sprintf("%s/cities", folder), full.names = TRUE, recursive = TRUE)
 # world <- c(world, dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE))
 world <- world[grepl("ghsl_region_\\d{5}/indicator_values.gpkg$", world)]
 # fun to open all data
@@ -94,13 +94,6 @@ data_all <- data_all %>%
 
 
 prep_data <- function(ghsl) {
-  # ghsl <- 5134
-  # ghsl <- 1406
-  # ghsl <- 1022
-  # ghsl <- "0561"
-  # ghsl <- "0088"
-  # ghsl <- "0634"
-  # ghsl <- "0014"
   # ghsl <- "01406"
   # ghsl <- "02051" # barcelona
   # ghsl <- "01445" # rec
@@ -336,10 +329,10 @@ prep_data <- function(ghsl) {
   # to polygons
   # data <- st_cast(data, "MULTIPOLYGON")
   
-  dir.create(sprintf("data/data_july2023/ghsl_%s", ghsl), recursive = TRUE)
+  dir.create(sprintf("data/data_beta/ghsl_%s", ghsl), recursive = TRUE)
   
   # save
-  readr::write_rds(data, sprintf("data/data_july2023/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
+  readr::write_rds(data, sprintf("data/data_beta/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
   
 }
 
@@ -359,7 +352,7 @@ walk(cities_available, prep_data)
 
 
 # calculate boundaries for the world view ---------------------
-indicators_all <- purrr::map_dfr(dir("data/data_july2023", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+indicators_all <- purrr::map_dfr(dir("data/data_beta", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
 # # remove polygon and save the data
@@ -374,7 +367,7 @@ indicators_ghsl <- indicators_all %>% filter(admin_level == 0) %>% st_sf(crs = 4
 # centroids
 indicators_ghsl_centroids <- st_centroid(indicators_ghsl)
 # save
-readr::write_rds(indicators_ghsl_centroids, "data/data_july2023/atlas_city_markers.rds")
+readr::write_rds(indicators_ghsl_centroids, "data/data_beta/atlas_city_markers.rds")
 
 
 
@@ -383,7 +376,7 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_july2023/atlas_city_marke
 # calculate mean for each country -----------------
 
 
-atlas_country <- st_read("data-raw/atlas_data_july_31/country_results/country_results_july_31.geojson")
+atlas_country <- st_read("data-raw/data_beta/countries/country_results.geojson")
 atlas_country <- rmapshaper::ms_simplify(atlas_country)
 # atlas_country1 <- fread("data-raw/atlas_data_july_31/country_results/country_results.csv")
 
@@ -569,7 +562,7 @@ save_countries <- function(ind) {
   # save
   if (nrow(atlas_country_ind) > 0) {
     
-    readr::write_rds(atlas_country_ind, sprintf("data/data_july2023/countries/atlas_country_%s.rds",
+    readr::write_rds(atlas_country_ind, sprintf("data/data_beta/countries/atlas_country_%s.rds",
                                                 ind))
     
   }
@@ -595,7 +588,7 @@ purrr::walk(ind_list, save_countries)
 
 # list all osmid and names availables -------------------------------------
 
-indicators_all <- purrr::map_dfr(dir("data/data_july2023", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+indicators_all <- purrr::map_dfr(dir("data/data_beta", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
 # remove polygon
@@ -608,7 +601,7 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
 
 count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ordered, admin_level_name) %>%
   dplyr::select(-n) %>%
-  readr::write_rds("data/data_july2023/list_osmid_name.rds")
+  readr::write_rds("data/data_beta/list_osmid_name.rds")
 
 
 
@@ -645,7 +638,7 @@ a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
 
 # add recife manually
 
-readr::write_rds(a1, "data/data_july2023/list_availability.rds")
+readr::write_rds(a1, "data/data_beta/list_availability.rds")
 
 # not available
 

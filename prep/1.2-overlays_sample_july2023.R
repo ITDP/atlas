@@ -38,8 +38,8 @@ indicators_all <- purrr::map_dfr(dir("data/data_july2023", pattern = "^indicator
 prep_overlays <- function(ghsl) {
   
   
-  # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
-  base_dir <- sprintf("data-raw/big_cities_sept12/cities_out/ghsl_region_%s/", ghsl)
+  base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
+  # base_dir <- sprintf("data-raw/big_cities_sept12/cities_out/ghsl_region_%s/", ghsl)
 
   # a1 <- dir(paste0(base_dir, "geodata"), pattern = ".geojson")
   # a1 <- a1[!(a1 %like% "population|rapid_transit")]
@@ -82,7 +82,11 @@ prep_overlays <- function(ghsl) {
   
   # overlay files ------------------------------------
   overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = ".geojson$", recursive = TRUE)
+  
+  # subset by type
+  
   overlay_pop <- dir(paste0(base_dir, "geodata/pop"), full.names = TRUE, pattern = ".tif$", recursive = TRUE)
+  overlay_block_density <- overlay_files[overlay_files %like% "blockslatlon"]
   overlay_journey <- c(dir(paste0(base_dir, "geodata/access"), full.names = TRUE, pattern = "grid_pop_evaluated_2022.geojson$", recursive = TRUE),
                        dir(paste0(base_dir, "temp/access"), full.names = TRUE, pattern = "grid_pop_evaluated.geojson$", recursive = TRUE))
   
