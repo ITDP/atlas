@@ -860,8 +860,8 @@ observeEvent(c(indicator$mode, input$year), {
   # identify overlays to be opened
   fix <- indicator$mode
   overlays_to_open <- subset(overlay_table, indicator == fix)
-  print("overlays_to_open")
-  print(overlays_to_open)
+  # print("overlays_to_open")
+  # print(overlays_to_open)
   
   for(i in overlays_to_open$overlay){
     
@@ -959,15 +959,20 @@ observeEvent(c(indicator$mode, input$year), {
 
 rv <- reactiveValues(prev_city = 1)  
 
-observeEvent(c(city$city_code
-), {
+observeEvent(c(city$city_code, rank$admin_level), {
   
-  rv$prev_city <- c(rv$prev_city, rep(city$city_code, 1))
+  # print("pus")
+  # print(rank$admin_level)
   
-  # print(rv$prev_city)
+  req(rank$admin_level > 1)
+  
+  rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
+  
+  print("pus")
+  print(rv$prev_city)
   
   
-}, ignoreInit = TRUE)
+}, ignoreInit = TRUE, priority = 2)
 
 
 # update the regions basemap  --------------------------------
@@ -1033,15 +1038,18 @@ observeEvent(c(
   
   
   # this observer will only run if whe aren't switching cities
-  previous_city <- rv$prev_city[length(rv$prev_city)]
+  previous_city <- rv$prev_city[length(rv$prev_city)-1]
   
   
+  print("gogogogo")
+  print(city$city_code)
+  print(rv$prev_city)
   # it will only run if the actual city is equal to the previous city
   req(city$city_code == previous_city,
-      isTRUE(rank$admin_level > 1),
+      isTRUE(rank$admin_level >= 1),
       data_ind3_spatial())
   
-  
+  print("teste")
   
   
   waiter_show(
@@ -1202,7 +1210,7 @@ observeEvent(c(
   
   waiter_hide()
   
-})
+}, priority = 1)
 
 
 

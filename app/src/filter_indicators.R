@@ -200,8 +200,8 @@ data_ind3 <- reactive({
     
   }
   
-  print("aaaaaaa")
-  print(a)
+  # print("aaaaaaa")
+  # print(a)
   
   return(a)
   
