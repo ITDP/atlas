@@ -61,6 +61,7 @@ output$map <- renderLeaflet({
       fillColor = "#00AE42",
       stroke = TRUE, fillOpacity = 0.9, color = "black",
       opacity = 0.9,
+      weight = 2,
       # weight = 1,
       options = pathOptions(clickable = FALSE)
     ) %>%
@@ -299,6 +300,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
       fillColor = ~world_view$pal(value),
       stroke = TRUE, fillOpacity = 0.9, color = "black",
       opacity = 0.9,
+      weight = 2,
       # weight = 1,
       layerId = ~hdc,
       label = lapply(world_view$labels_markers1, htmltools::HTML),
@@ -327,7 +329,8 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     ) %>%
     addPolygons(data = world_view$a_country,
                 layerId = ~name,
-                fillColor = ~world_view$pal_countries(value), color = "black",  weight = 0, # erro nao eh aqui
+                fillColor = ~world_view$pal_countries(value), color = "black",  
+                weight = 1, # erro nao eh aqui
                 fillOpacity = 0.7,
                 options = pathOptions(clickable = TRUE, pane = "countries"),
                 group = "Countries",
@@ -515,11 +518,18 @@ observeEvent(c(city$city_code), {
           leafem::addGeoRaster(x = data,
                                opacity = 0.8,
                                group = overlay_name,
-                               options = pathOptions(clickable = FALSE, pane = overlay_name))
+                               options = pathOptions(clickable = FALSE, pane = overlay_name),
+                               autozoom = FALSE)
         
       } else {
         
-        print(file)
+        # print(file)
+        
+        should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
+          
+          FALSE
+          
+        } else {TRUE}
         
         map = map %>% leafem::addFgb(file = file,
                                      group = overlay_name,
@@ -529,7 +539,7 @@ observeEvent(c(city$city_code), {
                                      weight = 1,
                                      opacity = 0.5,
                                      fillColor = overlay_subset$fill,
-                                     fill = TRUE,
+                                     fill = should_fill,
                                      fillOpacity = 0.7,
                                      radius = 3,
                                      # pane = overlay_name,
@@ -885,11 +895,18 @@ observeEvent(c(indicator$mode, input$year), {
           leafem::addGeoRaster(x = data,
                                opacity = 0.8,
                                group = overlay_name,
-                               options = pathOptions(clickable = FALSE, pane = overlay_name))
+                               options = pathOptions(clickable = FALSE, pane = overlay_name),
+                               autozoom = FALSE)
         
       } else {
         
-        print(file)
+        # print(file)
+        
+        should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
+          
+          FALSE
+          
+        } else {TRUE}
         
         map = map %>% leafem::addFgb(file = file,
                                      group = overlay_name,
@@ -899,7 +916,7 @@ observeEvent(c(indicator$mode, input$year), {
                                      weight = 1,
                                      opacity = 0.5,
                                      fillColor = overlay_subset$fill,
-                                     fill = TRUE,
+                                     fill = should_fill,
                                      fillOpacity = 0.7,
                                      radius = 3,
                                      # pane = overlay_name,

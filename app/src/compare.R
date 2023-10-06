@@ -10,7 +10,7 @@ ind_city <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/data_july2023/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+  a <- readRDS(sprintf("../data/data_beta/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                        city$city_code, city$city_code, pattern))
   
   # print("foi")
@@ -41,7 +41,7 @@ ind_compare <- reactive({
   # print(pattern)
   
   # open data
-  a <- readRDS(sprintf("../data/data_july2023/comp/indicators_compare_%s_%s.rds",
+  a <- readRDS(sprintf("../data/data_beta/comp/indicators_compare_%s_%s.rds",
                        level, pattern))
   
   return(a)

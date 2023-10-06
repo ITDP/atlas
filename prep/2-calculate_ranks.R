@@ -99,6 +99,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "01105"
   # ghsl <- "01361"
   # ghsl <- "00010"
+  # ghsl <- cities_available[994]
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
@@ -263,6 +264,8 @@ prep_data <- function(ghsl) {
   # apply to every indicator
   purrr::walk(levels, filter_by_level)
   
+  return("ok")
+  
   # uiui <- lapply(levels, possibly(filter_by_level, otherwise = "error"))
   
   
@@ -270,8 +273,8 @@ prep_data <- function(ghsl) {
 
 # apply to every city
 cities_available <- unique(data_world$hdc)
-purrr::walk(cities_available[238:281], 
-            prep_data)
+a <- purrr::map(cities_available[950:995], 
+                 purrr::possibly(prep_data, "error"))
 # results <- lapply(cities_available, 
             # possibly(prep_data, "error"))
 
