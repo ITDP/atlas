@@ -1,6 +1,6 @@
 library(shiny)
 library(leaflet)
-library(leafem)
+library(stars)
 library(shinyWidgets)
 library(sf)
 library(sfheaders)
