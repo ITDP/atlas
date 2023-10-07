@@ -485,9 +485,6 @@ observeEvent(c(city$city_code), {
                   )),
                 options = pathOptions(pane = "basemap"),
                 highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black"))
-    # # add POP: will be constant to all indicators
-    # leafem::addGeoRaster(x = data_population(),
-    #                      group = "Population density")
   
   
   # identify overlays to be opened

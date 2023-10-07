@@ -152,7 +152,7 @@ prep_data <- function(ghsl) {
     rank_complete_level <- rank_complete %>% filter(admin_level == level)
     
     # ind <- "bike_pnpb"
-    # ind <- "city_poptotal"
+    # ind <- "city_popdensity"
     # ind <- "transit_pnrtmrt"
     # ind <- "walk_pns"
     # ind <- "bike_abikeways"
