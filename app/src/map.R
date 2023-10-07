@@ -95,7 +95,7 @@ counter <- reactiveValues(obs1 = NULL,
                           obs2 = NULL)
 
 # update world values when indicator is changed -------
-observeEvent(c(indicator$mode, input$year), {
+observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   
   req(indicator$mode, input$year, indicator_info$transformation)
   
