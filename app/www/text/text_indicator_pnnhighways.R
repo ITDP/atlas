@@ -5,17 +5,11 @@ style <- function(x) {
 }
 
 p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
-'<div class = "title_indicator">People Near Protected Bikeways</div>',
+'<div class = "title_indicator">Safety From Highways</div>',
 '<div class = "text_indicator"><p>',
-'<p>People Near Protected Bikeways measures the percentage of the population which lives within 300 meters, walking distance, of a physically-protected bikeway. Citywide networks of physically-protected bicycle lanes are the most important factor in encouraging people to use cycling as their preferred mode of transportation. </p>',
-sprintf('<p>In %s, %s %% of residents live within a 300m walk of any bikeway, protected or unprotected. Of those, %s %% live within a 300m walk of a physically-protected bikeway. In %s, there are %s kilometers of bikeways, of which %s are physically-protected.</p>', 
-        style(rank$indicator$name), 
-        style(format_indicator_value), 
-        style(format_indicator_value), 
-        style(rank$indicator$name), 
-        style(format_indicator_value), 
-        style(format_indicator_value)),
-'<p>The majority of people are interested in bicycling more but choose not to because they lack the safe infrastructure to do so. In cities that provide extensive, well-connected networks of physically-connected bikeways, more people cycle to get around. Increased cycling saves individuals time and money and <a href="https://ehp.niehs.nih.gov/doi/full/10.1289/ehp.0901747">improves their health</a>. It also reduces air and noise pollution, carbon emissions, and <a href="https://www.heatwalkingcycling.org/">healthcare costs</a>. Protected Bikeways <a href="https://www.rff.org/publications/journal-articles/bicycle-infrastructure-and-traffic-congestion-evidence-from-dcs-capital-bikeshare/">reduce congestion</a>, promote <a href="https://www.fastcompany.com/3021074/making-the-economic-case-for-cycling-friendly-cities-with-bikeonomics">local economic development</a>, and make streets safer and more pleasant, not only for cyclists, but also for <a href="https://www.sciencedaily.com/releases/2019/05/190529113036.htm">motorists and pedestrians</a>.</p>'
+'<p>Safety From Highways measures the percentage of an area’s population not living nearby (within 500m of) a grade-separated highway. Living near highways exposes people to many forms of harm. It makes walking more dangerous and incentivizes driving. Grade-separated highways, also known as freeways or expressways, are especially bad because they hold the highest volumes of cars, moving at the greatest speeds, with the fewest opportunities for pedestrians to cross. </p>',
+'<p>High volumes of vehicle traffic on highways contribute to large pollution emissions, and areas within <a href="https://www.lung.org/clean-air/outdoors/who-is-at-risk/highways">500m</a> of a highway suffer the most harm. Highway traffic also exposes people to high levels of <a href="https://hms.harvard.edu/magazine/viral-world/effects-noise-health">noise pollution</a>, the second-most harmful type of environmental pollution for human health. Highways also form barriers between neighborhoods, increasing risk when moving between them.</p>',
+'<p>Although electric cars will lessen some of these problems, they still contribute to noise and <a href="https://www.greencarcongress.com/2020/03/20200308-emissionsanalytics.html">air pollution</a> ––and are no less dangerous on the road.</p>'
 )
 
         
@@ -23,7 +17,7 @@ sprintf('<p>In %s, %s %% of residents live within a 300m walk of any bikeway, pr
         
 p2 <- c('<div class = "title_indicator_label2">HOW IT\'S CALCULATED</div>',
 '<div class = "text_indicator2"><p>',
-'<p>We use <a href="http://openstreetmap.org/">OpenStreetMap</a> data to identify physically-protected bicycle facilities (those tagged as <em>highway=cycleway</em> or <em>cycleway=track</em>) and count the people living within a 300m walk of these facilities.</p>',
+'<p>To identify grade-separated highways, we first identify all roads labeled in <a href="http://openstreetmap.org/">OpenStreetMap</a> as <em>primary</em>,<em> motorway</em>, or <em>trunk</em>. Then we find all parts of those highways with at least 1500m between four-way intersections, where traffic can flow freely without being stopped by signals or crossings. After identifying these grade-separated roads, we count the number of people living at least 500m from the nearest one. </p>',
 '</div>')       
         
 
@@ -31,10 +25,8 @@ p3 <- c(
 '<div class = "title_indicator_label2">Policy Recommendations</div>',
 '<div class = "text_indicator2">',
 '<ul>',
-'<li><strong>Install protected bicycle lanes</strong> and/or add protection to existing lanes. Follow international <a href="https://globaldesigningcities.org/publication/global-street-design-guide/">quality standards</a>.',
-'<li><strong>Set up “<a href="https://s3-us-west-2.amazonaws.com/static.peopleforbikes.org/images/glp/PeopleForBikes-Quick-Builds-for-Better-Streets-Report.pdf">quick build</a>” or temporary cycle lanes</strong>, with the ability to transition them to permanent design.',
-'<li><strong>Form a city network</strong> by connecting protected bikeways to greenways, low-speed low-volume streets, and cycle highways.',
-'<li><strong>Ensure lanes are well-lit, well-maintained</strong>, and reflect city conditions.',
-'<li><strong>Redesign streets and intersections </strong>to be safe, <a href="https://www.itdp.in/resource/complete-streets-framework-toolkit/">complete streets</a> that prioritize <a href="https://www.itdp.org/publication/africa-streets-walking-cycling/">safe cycling and walking</a>. ',
+'<li><strong>Immediately stop allocating money to highway construction</strong>. Once a highway is built, it is immediately harmful and difficult to remove.',
+'<li><strong>Replace highways with public transit, boulevards, and parks. </strong>This process has been successful in <a href="https://www.cnu.org/publicsquare/2022/05/31/eight-completed-highway-removals-tell-story-movement">cities around the world</a> and has recently become a <a href="https://www.route-fifty.com/infrastructure/2021/11/highway-removal-funding-infrastructure-bill/186714/">national policy</a> priority in the United States.',
+'<li><strong>Establish city-level or national-level transportation plans </strong>to remove, and no longer build, urban highways.',
 '</div>'
 )
