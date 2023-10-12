@@ -196,7 +196,7 @@ observeEvent(c(indicator$mode), {
   indicator_info$unit <- format_indicator_unit
   indicator_info$transformation <- format_indicator_unit_value
   
-})
+}, priority = 10)
 
 
 
@@ -303,71 +303,81 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  req(data_ind3(), data_ind3_spatial())
                  
                  
-                 message("Rank: rank when select cities")
-                 
-                 # get the region that was clicked
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
                  
-                 element$selected1 <- c(element$selected1, ui)
+                 # we have a problem that the overlay is being clickable, regardless of what we set
+                 # so we need to make this overlay un-reactable from here
+                 ui_ok <- grepl("^\\d{3,}", ui)
                  
                  
-                 variables$indicator <- variables$indicator[variables$indicator != ""]
-                 
-                 # conditions that this should run:
-                 # when 
-                 run <- if (isTRUE(length(element$selected1) == 1)) {
-                   
-                   TRUE
-                   
-                   # if the selected element is different to the previous one
-                 }  else if (isTRUE(element$selected1[length(element$selected1)] != element$selected1[length(element$selected1)-1])) {
-                   
-                   TRUE
-                   
-                 } else {FALSE}
-                 
-                 
-                 # print("RUNNNNN")
-                 # print(run)
-                 
-                 
-                 if(run) {
+                 if (ui_ok) {
                    
                    
                    
+                   message("Rank: rank when select cities")
                    
                    
                    
-                   w$show()
-                   
-                   # print("rank$admin_level")
-                   # print(rank$admin_level)
+                   element$selected1 <- c(element$selected1, ui)
                    
                    
+                   variables$indicator <- variables$indicator[variables$indicator != ""]
                    
-                   
-                   # extract the admin_level
-                   admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
-                   
-                   rank_indicator <- subset(data_ind3(), osmid == ui)[1,]
-                   rank$indicator <- rank_indicator
-                   
-                   # print("rank$indicator")
-                   # print(rank$indicator)
-                   
-                   que <- year$ok
-                   
-                   # print(format_indicator_unit_value)
-                   # print("format_indicator_unit_value")
-                   
-                   format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
-                   
-                   # set style for the text
-                   style_number <- function(x) {
+                   # conditions that this should run:
+                   # when 
+                   run <- if (isTRUE(length(element$selected1) == 1)) {
                      
-                     paste0('<strong style="font-size: 25px; color: #00AE42;">', x, '</strong>') 
+                     TRUE
                      
-                   }
+                     # if the selected element is different to the previous one
+                   }  else if (isTRUE(element$selected1[length(element$selected1)] != element$selected1[length(element$selected1)-1])) {
+                     
+                     TRUE
+                     
+                   } else {FALSE}
+                   
+                   
+                   # print("RUNNNNN")
+                   # print(run)
+                   
+                   
+                   if(run) {
+                     
+                     
+                     
+                     
+                     
+                     
+                     w$show()
+                     
+                     # print("rank$admin_level")
+                     # print(rank$admin_level)
+                     
+                     
+                     
+                     
+                     # extract the admin_level
+                     admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
+                     
+                     rank_indicator <- subset(data_ind3(), osmid == ui)[1,]
+                     rank$indicator <- rank_indicator
+                     
+                     # print("rank$indicator")
+                     # print(rank$indicator)
+                     
+                     que <- year$ok
+                     
+                     # print(format_indicator_unit_value)
+                     # print("format_indicator_unit_value")
+                     
+                     format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
+                     
+                     # set style for the text
+                     style_number <- function(x) {
+                       
+                       paste0('<strong style="font-size: 25px; color: #00AE42;">', x, '</strong>') 
+                       
+                     }
                      
                      style_text <- function(x) {
                        
@@ -586,6 +596,9 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      }
                      
                    }
+                   
+                 }
+                 
                    
                    
                    

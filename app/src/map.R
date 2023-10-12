@@ -619,14 +619,23 @@ observeEvent(c(input$map_shape_click), {
   #                # style = "right: 150px; top: 200px"
   #                )),
   #   color = "rgba(233, 235, 240, .1)")
+  ui <- input$map_shape_click$id
+  
+  # we have a problem that the overlay is being clickable, regardless of what we set
+  # so we need to make this overlay un-reactable from here
+  ui_ok <- grepl("^\\d{3,}", ui)
+  
+  # print("ui")
+  # print(ui)
+  # print(ui_ok)
   
   # this will only happen when we are beyond the city level
   req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"),
-      req(data_ind3_spatial()))
+      req(data_ind3_spatial()),
+      req(ui_ok))
   # req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
   
   # first, we should create a vector with the selected elements
-  ui <- input$map_shape_click$id
   element$selected <- c(element$selected, ui)
   
   if(isTRUE(length(element$selected) == 1) | 
@@ -811,9 +820,6 @@ observeEvent(c(indicator$mode, input$year), {
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
                       color = "black")) %>%
-    leafgl::clearGlLayers() %>%
-    
-    
     clearGroup("Population density") %>%
     clearGroup("Average Block Density") %>%
     clearGroup("Journey Gap analysis grid" ) %>%
@@ -991,8 +997,24 @@ observeEvent(c(city$city_code, rank$admin_level), {
   
   rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
   
+  print("comeh")
+  print(rv$prev_city)
+  
   
 }, ignoreInit = TRUE, priority = 2)
+
+observeEvent(c(indicator$mode), {
+  
+  # print("pus")
+  # print(rank$admin_level)
+  
+  req(rank$admin_level >= 1)
+  
+  rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
+  
+  
+}, ignoreInit = TRUE, priority = 2)
+
 
 
 # update the regions basemap  --------------------------------
@@ -1061,17 +1083,19 @@ observeEvent(c(
   previous_city <- rv$prev_city[length(rv$prev_city)-1]
   
   
+  # print(city$city_code)
+  # print(rv$prev_city)
+  
   # it will only run if the actual city is equal to the previous city
   req(city$city_code == previous_city,
       isTRUE(rank$admin_level >= 1),
       data_ind3_spatial())
   
-  shinyjs::logjs("hello")  
+  shinyjs::logjs("hello")
   
   waiter_show(
     html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
-  
   
   
   
@@ -1082,29 +1106,16 @@ observeEvent(c(
   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
   
   
-  # print("indicator_info$transformation")
-  # print(data_ind3_spatial())
-  
-  # format_indicator_value <- if(indicator_info$transformation == "percent") {
-  #   round(data_ind3_spatial()$value * 100) 
-  #   
-  # } else if(indicator_info$transformation %in% "thousands") {
-  #   
-  #   ifelse(data_ind3_spatial()$value >= 1000000, 
-  #          scales::comma(data_ind3_spatial()$value, accuracy = 0.1, scale = 0.000001, suffix = "M"), 
-  #          scales::comma(data_ind3_spatial()$value, accuracy = 1, scale = 0.001, suffix = "k"))
-  #   
-  #   
-  # } else round(data_ind3_spatial()$value)
-  
   format_indicator_value <- format_indicator_values(data_ind3_spatial()$value, indicator_info$transformation)
-  
   
   # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
   
   indicator$values <- format_indicator_value
   indicator$unit <- indicator_info$unit
-  
+
+  print(indicator$values)
+  print(indicator$unit)
+    
   
   labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
                    sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
@@ -1154,12 +1165,13 @@ observeEvent(c(
   
   # record the values in a list
   leaflet_params <- list(
-    label1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) "Click to see the reach" else lapply(labels, htmltools::HTML),
-    bring_to_front <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
-    weigth1 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
-    weigth2 <- if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
+    label1 = if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) "Click to see the reach" else lapply(labels, htmltools::HTML),
+    bring_to_front = if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) TRUE else FALSE,
+    weigth1 = if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 2 else 6,
+    weigth2 = if (isTRUE(indicator$type == "performance") & isTRUE(input$regions_grid == "Grid")) 0.01 else 2
     
   )
+  
   
   # opacity
   if (input$admin_level == 1) {
@@ -1170,9 +1182,10 @@ observeEvent(c(
     
   } else {
     color_stroke <- "black"
-    weight_stroke <- weigth2
+    weight_stroke <- leaflet_params$weigth2
     opacity <- 0.5
   }
+
   
   map <- map %>%
     addPolygons(data = data_ind3_spatial(), 
@@ -1180,7 +1193,7 @@ observeEvent(c(
                 fillOpacity = opacity,
                 color = color_stroke,  weight = weight_stroke, 
                 group = "Regions",
-                label = label1,
+                label = leaflet_params$label1,
                 labelOptions = labelOptions(
                   style = list(
                     # "color" = "red",
@@ -1193,8 +1206,8 @@ observeEvent(c(
                 layerId = ~osmid,
                 options = pathOptions(pane = "basemap", 
                                       clickable = TRUE),
-                highlightOptions = highlightOptions(bringToFront = bring_to_front, opacity = 1, 
-                                                    weight = weigth1, color = "black"
+                highlightOptions = highlightOptions(bringToFront = leaflet_params$bring_to_front, opacity = 1, 
+                                                    weight = leaflet_params$weigth1, color = "black"
                                                     # fillColor = 'yellow'
                 )
                 # label = ~(label)
