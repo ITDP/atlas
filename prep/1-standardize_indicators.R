@@ -624,7 +624,9 @@ indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
                                               cols = 9:last_col(),
                                               names_sep = "_",
                                               names_to = c("ind_type", "ind", "year"),
-                                              values_to = "value")
+                                              values_to = "value") %>%
+  # remove year 2025 for now
+  filter(year != 2025)
 
 a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
   filter(!is.na(value)) %>%
