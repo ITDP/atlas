@@ -20,6 +20,8 @@ atlas_country <- reactive({
   
   req(indicator$mode, indicator$type)
   
+  
+  
   # print("oiiiiiiiiiiiiii")
   
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
@@ -46,6 +48,8 @@ tl <- reactiveValues(transition = NULL)
 output$map <- renderLeaflet({
   
   # input$print
+  
+  shinyjs::logjs("Map: observer to default map")
   
   # https://stackoverflow.com/questions/43194575/leaflet-plugin-and-leafletproxy
   # https://stackoverflow.com/questions/48054756/overlay-an-image-in-a-shiny-leaflet-observe-event
@@ -98,6 +102,8 @@ counter <- reactiveValues(obs1 = NULL,
 observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   
   req(indicator$mode, input$year, indicator_info$transformation)
+  
+  shinyjs::logjs("Map: update world data when indicator is changed")
   
   
   
@@ -199,6 +205,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   
   req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
   
+  shinyjs::logjs("Map: update world map when indicator is changed")
   
   # print("obs1")
   
@@ -359,11 +366,14 @@ overlay_layers <- reactiveValues(groups = NULL)
 
 
 
-# observer to travel between cities ---------------------------------------
+# observer to travel between cities (for the first time) ---------------------------------------
 
 observeEvent(c(city$city_code), {
   
   req(city$city_code != "")
+  
+  
+  shinyjs::logjs("Map: go to city view when coming from world view")
   
   waiter_show(
     html = tagList(spin_loaders(id = 3, color = "black")),
@@ -400,7 +410,6 @@ observeEvent(c(city$city_code), {
     palette = "YlOrRd",
     domain = data_metro$value)
   
-  waiter_hide()
   
   
   # format_indicator_value <- if(indicator_info$transformation == "percent") {
@@ -426,6 +435,7 @@ observeEvent(c(city$city_code), {
                    "<br/><i>Click to see more info</i>")
   
   
+  waiter_hide()
   
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
@@ -490,8 +500,6 @@ observeEvent(c(city$city_code), {
   # identify overlays to be opened
   fix <- indicator$mode
   overlays_to_open <- subset(overlay_table, indicator == fix)
-  print("overlays_to_open")
-  print(overlays_to_open)
     
   for(i in overlays_to_open$overlay){
 
@@ -789,6 +797,7 @@ observeEvent(c(indicator$mode, input$year), {
   req(!is.null(input$admin_level))
   # if (isTRUE(admin_level_previous$a >= 1)) {
   # if (isTRUE(input$admin_level >= 1)) {
+  shinyjs::logjs("Map: update overlay only when indicator/year is changed")
   
   # print("obs3----")
   # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
@@ -982,9 +991,6 @@ observeEvent(c(city$city_code, rank$admin_level), {
   
   rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
   
-  print("pus")
-  print(rv$prev_city)
-  
   
 }, ignoreInit = TRUE, priority = 2)
 
@@ -1055,16 +1061,12 @@ observeEvent(c(
   previous_city <- rv$prev_city[length(rv$prev_city)-1]
   
   
-  print("gogogogo")
-  print(city$city_code)
-  print(rv$prev_city)
   # it will only run if the actual city is equal to the previous city
   req(city$city_code == previous_city,
       isTRUE(rank$admin_level >= 1),
       data_ind3_spatial())
   
-  print("teste")
-  
+  shinyjs::logjs("hello")  
   
   waiter_show(
     html = tagList(spin_loaders(id = 3, color = "black")),

@@ -26,6 +26,18 @@ credentials <- data.frame(
 
 function(input, output, session) {
   
+  
+  debug_msg <- function(...) {
+    is_local <- Sys.getenv('SHINY_PORT') == ""
+    in_shiny <- !is.null(shiny::getDefaultReactiveDomain())
+    txt <- toString(list(...))
+    # if (is_local) message(txt)
+    # if (in_shiny) shinyjs::runjs(sprintf("console.debug(\"%s\")", txt))
+    message(txt)
+    shinyjs::runjs(sprintf("console.debug(\"%s\")", txt))
+  }
+  
+  
   # password protection related
   res_auth <- secure_server(
     check_credentials = check_credentials(credentials)

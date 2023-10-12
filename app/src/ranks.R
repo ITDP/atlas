@@ -41,7 +41,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
   req(year$ok)
   # req(indicator$type)
   
-  
+  message("Rank: initial ranks")
   
   # print(rank$admin_level)
   
@@ -205,6 +205,9 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   
   req(is.null(rank$admin_level), !is.null(input$map_shape_click$id))
   
+  
+  message("Rank: countries rank")
+  
   # get the click country
   ui <- input$map_shape_click$id
   
@@ -299,14 +302,14 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  
                  req(data_ind3(), data_ind3_spatial())
                  
+                 
+                 message("Rank: rank when select cities")
+                 
                  # get the region that was clicked
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
                  
                  element$selected1 <- c(element$selected1, ui)
                  
-                 # print("GOGOGOGO")
-                 # print(element$selected1)
-                 # print(variables$indicator)
                  
                  variables$indicator <- variables$indicator[variables$indicator != ""]
                  
