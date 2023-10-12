@@ -148,7 +148,8 @@ output$comparison_chart <- renderHighchart({
           ) %>%
           hc_legend(verticalAlign = "top") %>%
           hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 15)),
-                   labels = list(style = list(fontSize = 14))) %>%
+                   labels = list(style = list(fontSize = 14)),
+                   maxPadding = 0.001) %>%
           hc_xAxis(title = list(text = "", style = list(fontSize = 15)),
                    labels = list(enabled = FALSE, style = list(fontSize = 14))) %>%
           hc_add_theme(hc_theme_darkunica(
@@ -171,7 +172,8 @@ output$comparison_chart <- renderHighchart({
           # align = "left", x = 10
           # ) %>%
           hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
-                   labels = list(style = list(fontSize = 15))) %>%
+                   labels = list(style = list(fontSize = 15)),
+                   maxPadding = 0.001) %>%
           hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
                    labels = list(style = list(fontSize = 15))) %>%
           hc_add_theme(hc_theme_darkunica(
@@ -234,7 +236,8 @@ output$comparison_chart <- renderHighchart({
           ) %>%
           hc_legend(verticalAlign = "top") %>%
           hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 15)),
-                   labels = list(style = list(fontSize = 14))) %>%
+                   labels = list(style = list(fontSize = 14)),
+                   maxPadding = 0.001) %>%
           hc_xAxis(title = list(text = "", style = list(fontSize = 15)),
                    labels = list(enabled = FALSE, style = list(fontSize = 14))) %>%
           hc_add_theme(hc_theme_darkunica(
@@ -261,7 +264,8 @@ output$comparison_chart <- renderHighchart({
           # align = "left", x = 10
           # ) %>%
           hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
-                   labels = list(style = list(fontSize = 15))) %>%
+                   labels = list(style = list(fontSize = 15)),
+                   maxPadding = 0.001) %>%
           hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
                    labels = list(style = list(fontSize = 15))) %>%
           hc_add_theme(hc_theme_darkunica(
@@ -374,13 +378,13 @@ observeEvent(c(input$city_compare1_initial), {
                                          names_sep = "_",
                                          names_to = c("ind_type", "ind", "year"),
                                          values_to = "value")
+    value_compare <- subset(value_compare, ind == indicator$mode)
     
     format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
     format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     
-    # print(format_indicator_unit_value)
-    # print("format_indicator_unit_value")
+    
     # 
     # value_compare$value <- if(format_indicator_unit_value == "percent") {
     #   round(value_compare$value * 100) 
@@ -391,6 +395,9 @@ observeEvent(c(input$city_compare1_initial), {
       value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
     }
     
+    
+    print(value_compare$value)
+    print("value_compare$value")
     
     if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                               "pncf", "pnft")) {
@@ -427,16 +434,6 @@ observeEvent(c(input$city_compare1_initial), {
                          size = 5,
                          tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
                                         valueDecimals = 0)
-                         # marker = list(radius = 5, symbol = "circle"),
-                         # dataLabels = list(enabled = TRUE,
-                         #                   align = "center",
-                         #                   y = -20,
-                         #                   # format = "City: {point.y}",
-                         #                   format = "{point.y}",
-                         #                   style = list(fontSize = 12,
-                         #                                color = "white",
-                         #                                textOutline = "0.3px black",
-                         #                                fontWeight = "bold"))
         )
       
     }
@@ -588,7 +585,8 @@ output$comparison_max <- renderHighchart({
                align = "left", x = 10
       ) %>%
       hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
-               labels = list(style = list(fontSize = 15))) %>%
+               labels = list(style = list(fontSize = 15)),
+               maxPadding = 0.001) %>%
       hc_xAxis(title = list(text = "", style = list(fontSize = 16)),
                labels = list(style = list(fontSize = 15))) %>%
       hc_add_theme(hc_theme_darkunica(
@@ -621,7 +619,8 @@ output$comparison_max <- renderHighchart({
                align = "left", x = 10
       ) %>%
       hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
-               labels = list(style = list(fontSize = 15))) %>%
+               labels = list(style = list(fontSize = 15)),
+               maxPadding = 0.001) %>%
       hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
                labels = list(style = list(fontSize = 15))) %>%
       hc_add_theme(hc_theme_darkunica(
