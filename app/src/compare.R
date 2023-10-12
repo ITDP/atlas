@@ -74,6 +74,7 @@ output$comparison_chart <- renderHighchart({
   input$map_marker_click
   rank$admin_level
   city$city_code
+  indicator$mode
   
   isolate({
     
@@ -95,15 +96,25 @@ output$comparison_chart <- renderHighchart({
                                         names_to = c("ind_type", "ind", "year"),
                                         values_to = "value")
       
+      # print("value_city")
+      # print(value_city)
+      
       # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
       # filter
-      print("bububububu")
-      print(indicator$mode)
-      print(year$ok)
-      ano <- year$ok
-      value_city <- subset(value_city, ind == indicator$mode & year == ano)
+      # print("bububububu")
+      # print(indicator$mode)
+      # print(year$ok)
       
-
+      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
+                                "pncf", "pnft")) {
+        
+        ano <- year$ok
+        value_city <- subset(value_city, ind == indicator$mode & year == ano)
+        
+        
+      }
+      
+      
       format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
       format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
       format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
@@ -116,7 +127,12 @@ output$comparison_chart <- renderHighchart({
       #   
       # } else round(value_city$value)
       
-      value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+      if (indicator$mode != "popdensity") {
+        
+        value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+        
+        
+      }
       
       if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                                 "pncf", "pnft")) {
@@ -144,10 +160,6 @@ output$comparison_chart <- renderHighchart({
           ))
         
       } else {
-        
-        
-        # print("value_city")
-        # print(value_city)
         
         hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
                name = unique(value_city$name),
@@ -204,8 +216,9 @@ output$comparison_chart <- renderHighchart({
       #   
       # } else round(value_city$value)
       
-      
-      value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+      if (indicator$mode != "popdensity") {
+        value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+      }
       
       if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                                 "pncf", "pnft")) {
@@ -357,10 +370,10 @@ observeEvent(c(input$city_compare1_initial), {
     value_compare <- st_sf(value_compare)
     value_compare <- st_set_geometry(value_compare, NULL)
     value_compare <- tidyr::pivot_longer(value_compare,
-                                      cols = 3:last_col(),
-                                      names_sep = "_",
-                                      names_to = c("ind_type", "ind", "year"),
-                                      values_to = "value")
+                                         cols = 3:last_col(),
+                                         names_sep = "_",
+                                         names_to = c("ind_type", "ind", "year"),
+                                         values_to = "value")
     
     format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
@@ -374,7 +387,10 @@ observeEvent(c(input$city_compare1_initial), {
     #   
     # } else round(value_compare$value)
     
-    value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
+    if (indicator$mode != "popdensity") {
+      value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
+    }
+    
     
     if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                               "pncf", "pnft")) {
@@ -398,7 +414,6 @@ observeEvent(c(input$city_compare1_initial), {
         )
       
     } else {
-      
       
       
       # add total
@@ -444,9 +459,9 @@ observeEvent(c(input$city_compare1_initial), {
     #   
     # } else round(value_compare$value)
     
-    
-    value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
-    
+    if (indicator$mode != "popdensity") {
+      value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
+    }
     
     if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                               "pncf", "pnft")) {
@@ -539,8 +554,9 @@ output$comparison_max <- renderHighchart({
   #   round(value_city$value * 100)
   #   
   # } else round(value_city$value)
-  
+  if (indicator$mode != "popdensity") {
   value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+  }
   
   if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
                             "pncf", "pnft")) {
@@ -633,14 +649,14 @@ output$comparison_max <- renderHighchart({
 
 observeEvent(c(input$maximize_comparison), {
   
+  
+  
   req(input$maximize_comparison >= 1)
   
+  print("bummmm")
   
   # get the admin level original
   al <- unique(data_ind3_spatial()$admin_level)
-  
-  # print("al")
-  # print(al)
   
   # first, select only the ones that are available for the indicator in question
   hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
@@ -679,8 +695,6 @@ observeEvent(c(input$maximize_comparison), {
   choices_comparison_values <- choices_comparison$osmid
   choices_comparison_names <- choices_comparison$name
   names(choices_comparison_values) <- choices_comparison_names
-  
-  
   
   
   showModal(modalDialog(
@@ -989,8 +1003,9 @@ observeEvent(c(input$city_compare1), {
   #   
   # } else round(value_compare$value)
   
+  if (indicator$mode != "popdensity") {
   value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
-  
+  }
   
   
   # print("ind_compare()")
