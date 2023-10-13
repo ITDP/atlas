@@ -273,7 +273,25 @@ prep_data <- function(ghsl) {
 
 # apply to every city
 cities_available <- unique(data_world$hdc)
-a <- purrr::map(cities_available[950:995], 
+a <- purrr::map(cities_available[1:100], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[101:200], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[201:300], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[301:400], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[401:500], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[501:600], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[601:700], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[701:800], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[801:900], 
+                 purrr::possibly(prep_data, "error"))
+a <- purrr::map(cities_available[901:length(cities_available)], 
                  purrr::possibly(prep_data, "error"))
 # results <- lapply(cities_available, 
             # possibly(prep_data, "error"))

@@ -119,7 +119,7 @@ prep_data <- function(ghsl) {
   data <- data %>% mutate(level_name = ifelse(is.na(level_name), level_name_eng, level_name))
   # identify the ghsl level as 0
   data <- data %>% mutate(admin_level = ifelse(level_name == "Agglomeration", 0, 
-                                                ifelse(level_name =="Brazilian Metro Areas", 1, admin_level)))
+                                               ifelse(level_name =="Brazilian Metro Areas", 1, admin_level)))
   data <- data %>% filter(level_name != "Brazilian Metro Areas")
   
   
@@ -130,7 +130,7 @@ prep_data <- function(ghsl) {
   
   # por enquanto, apagar o que esta com o nome NA
   data <- data %>% filter(!is.na(name))
-
+  
   # it may be necessary to scale the admin_level - from 0 to max
   ordered_admin <- sort(as.numeric(unique(data$admin_level)))
   admin_level_oder <- data.frame(admin_level = as.character(ordered_admin), admin_level_ordered = seq(from = 1, to = length(ordered_admin)))
@@ -157,7 +157,7 @@ prep_data <- function(ghsl) {
   ind_columns <- gsub(pattern = "(block_density)_(\\d{4})",
                       replacement = "city_blockdensity_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(time_journeygap)_(\\d{4})",
+  ind_columns <- gsub(pattern = "(journey_gap)_(\\d{4})",
                       replacement = "city_journeygap_\\2",
                       x = ind_columns,
                       perl = TRUE)
@@ -180,7 +180,7 @@ prep_data <- function(ghsl) {
                       x = ind_columns)
   
   
-   ind_columns <- gsub(pattern = "(^healthcare)_(\\d{4})",
+  ind_columns <- gsub(pattern = "(^healthcare)_(\\d{4})",
                       replacement = "walk_pnspnh_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(^n_points_healthcare)_(\\d{4})",
@@ -227,7 +227,7 @@ prep_data <- function(ghsl) {
                       x = ind_columns,
                       perl = TRUE)
   
-
+  
   
   
   # create new column names with new standardized id
@@ -272,7 +272,7 @@ prep_data <- function(ghsl) {
   # select columns
   data <- data %>%
     dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, admin_level_name, everything())
-    
+  
   
   # rename indicators
   colnames(data) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name", ind_columns_new,"geom")

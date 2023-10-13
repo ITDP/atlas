@@ -80,3 +80,11 @@ line-height: 16px;
     outline: 0;
             background: #00AE42;
 }
+
+
+#city_selection > div > div > div > div > div {
+  
+ /*  max-width: 250px; */
+}
+  
+}

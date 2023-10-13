@@ -129,17 +129,17 @@ ui <- fluidPage(
         # class = "w3-container w3-animate-opacity", 
         # class = "panel panel-default",
         # fixed = TRUE, draggable = FALSE,
-        top = 0, left = 0, width = 310, height = "calc(100vh - 15px)",
+        top = 0, left = 0, width = 400, height = "calc(100vh - 15px)",
         tabsetPanel(id = "right_tabs", type = "hidden",
                     tabPanelBody(value = "tab_overview",         
                              absolutePanel(
                                class = "right_panel_textbox",
                                id = "right_panel_textbox_id",
-                               top = 25, right = 5, width = 285,
+                               top = 25, right = 5, width = 375,
                                # indicator selection
                                shinyWidgets::pickerInput(inputId = "indicator",
                                                          label = "INDICATOR",
-                                                         width = "250px",
+                                                         width = "330px",
                                                          choices = list("City" = list_city, "Bike" = list_bike, "Walk" = list_walk, "Transit" = list_transit),
                                                          options = shinyWidgets::pickerOptions(size = 15,
                                                                                                iconBase = "fa",
@@ -160,7 +160,7 @@ ui <- fluidPage(
                                  # class = "panel panel-default",
                                  # fixed = TRUE, draggable = FALSE,
                                  # bottom = 45, left = 10, 
-                                 height = 50, width = 270,
+                                 height = 50, width = 360,
                                  actionButton(inputId = "comparison_button", 
                                               label = "COMPARE",
                                               icon = icon("chart-simple"),
@@ -217,7 +217,7 @@ ui <- fluidPage(
     absolutePanel(class = "about_button", 
                   id = "download_button_id",
                   style = "background: #00AE42",
-                  top = 40, left = 750, height = 40, width = 130,
+                  top = 40, left = 840, height = 40, width = 130,
                   dropdown(
                     tagList(
                       downloadButton("downloadData1", "Download indicator for this region", icon = NULL),
@@ -251,7 +251,7 @@ ui <- fluidPage(
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      top = 40, left = 470, width = 130, height = 40,
+      top = 40, left = 560, width = 130, height = 40,
       actionButton(inputId = "back_to_world",
                    icon = icon("rotate-left"),
                    label = HTML("&nbsp;&nbsp;Reset map")
@@ -282,7 +282,7 @@ ui <- fluidPage(
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      top = 40, width = 130, height = 40, left = 330,
+      top = 40, width = 130, height = 40, left = 420,
       # style = "border: 0px; background: transparent",
       actionButton(inputId = "about",
                    label = "About"
@@ -296,7 +296,7 @@ ui <- fluidPage(
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      top = 40, width = 130, height = 40, left = 610,
+      top = 40, width = 130, height = 40, left = 700,
       bookmarkButton(
         label = HTML("&nbsp;&nbsp;Share"),
         icon = icon("share"),

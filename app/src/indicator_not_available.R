@@ -125,6 +125,7 @@ observeEvent(c(city$city_code, indicator$mode), {
   
   
   disable_indicator_list(city$city_code)
+  add_popover_city(1)
 #   
 #   
 #   # print("OOOOOOOOOOOOIII")

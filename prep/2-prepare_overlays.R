@@ -26,6 +26,7 @@ prep_overlays <- function(ghsl) {
   
   # ghsl <- "01406"
   # ghsl <- "01165"
+  # ghsl <- "00010"
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
@@ -58,6 +59,7 @@ prep_overlays <- function(ghsl) {
     # file <- overlay_files[[103]]
     # file <- overlay_files[overlay_files %like% "block"]
     # file <- overlay_files[overlay_files %like% "population"]
+    # file <- overlay_files[overlay_files %like% "grid_pop_evaluated"]
     
     # open file
     if (file %like% ".tif$") {
@@ -83,10 +85,18 @@ prep_overlays <- function(ghsl) {
       
       readr::write_rds(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.rds", ghsl, ind,  ind, ghsl, year1))
       
-    } else if (file %like% "block_densities") {
+    } else if (file %like% "block_densities|grid_pop_evaluated") {
       
       # convert to raster
+      if (file %like% "block_densities") {
+        
       a <- stars::st_rasterize(a %>% select(density))
+        
+      } else if (file %like% "grid_pop_evaluated") {
+        
+      a <- stars::st_rasterize(a %>% select(journey_gap_unweighted))
+        
+      }
       
       readr::write_rds(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.rds", ghsl, ind,  ind, ghsl, year1))
      
@@ -111,7 +121,7 @@ prep_overlays <- function(ghsl) {
   
   
   message("done for ", ghsl)
-  overlay_files <- overlay_files[overlay_files %like% "population"]
+  overlay_files <- overlay_files[overlay_files %like% "grid_pop_evaluated"]
   walk(overlay_files, save_overlay)
   message("time", round(Sys.time() - start), 2)
 }
@@ -123,12 +133,12 @@ plan(multisession)
 future_walk(cities_available, prep_overlays)
 walk(cities_available, prep_overlays)
 
-# evaluate which cities are left
-left <- dir("data/data_beta", recursive = TRUE, full.names = TRUE)
-left <- left[left %like% "overlays"]
-left <- stringr::str_extract(left, "\\d{5}") %>% unique()
-left <- setdiff(cities_available, left)
-
-library(furrr)
-plan(multisession)
-future_walk(left, prep_overlays)
+# # evaluate which cities are left
+# left <- dir("data/data_beta", recursive = TRUE, full.names = TRUE)
+# left <- left[left %like% "overlays"]
+# left <- stringr::str_extract(left, "\\d{5}") %>% unique()
+# left <- setdiff(cities_available, left)
+# 
+# library(furrr)
+# plan(multisession)
+# future_walk(left, prep_overlays)

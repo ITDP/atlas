@@ -115,14 +115,13 @@ function(input, output, session) {
         div(style = "display: inline-block;",
             shinyWidgets::pickerInput(inputId = "city",
                                       label = "IN",
-                                      width = "250px",
+                                      width = "330px",
                                       choices = list_selection,
                                       options = shinyWidgets::pickerOptions(size = 15,
                                                                             iconBase = "fa",
                                                                             tickIcon = "fa-check",
                                                                             title = "Go to a region ...",
-                                                                            liveSearch = TRUE,
-                                                                            width = 'fit')
+                                                                            liveSearch = TRUE)
             )
         )
       )
@@ -142,7 +141,7 @@ function(input, output, session) {
                                 label = NULL,
                                 choices = 2022,
                                 selected = 2022,
-                                width = "250px",
+                                width = "330px",
                                 options = shinyWidgets::pickerOptions(
                                   size = 5
                                 )
@@ -449,7 +448,7 @@ function(input, output, session) {
                                     choices = list_levels,
                                     label = NULL,
                                     selected = 1,
-                                    width = 250
+                                    width = 330
                                     
                                     # grid = TRUE,
                                     # dragRange = FALSE
@@ -620,7 +619,7 @@ function(input, output, session) {
       # class = "w3-container w3-animate-opacity", 
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
-      top = 20, right = 700, height = 40, width = 130,
+      top = 20, right = 790, height = 40, width = 130,
       # tags$div(class = "title_left_panel", 
       #          # "COMPARE", 
       #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
