@@ -824,16 +824,21 @@ function(input, output, session) {
       indicator$type <- "bike"
       indicator$mode <- "pnpb"
       
-      if (indicator$type == "bike") {
-        
-        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = indicator$mode)
-        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
-        shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-        
-        
-      }
+      shinyjs::alert("Indicator not available for this city. Going to the indicator People Near Protected Bikelanes")
+      
+      updateSelectInput(inputId = "indicator",
+                        selected = "pnpb")
+      
+      # if (indicator$type == "bike") {
+      #   
+      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = indicator$mode)
+      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
+      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
+      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
+      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
+      #   
+      #   
+      # }
       
     }
     

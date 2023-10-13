@@ -15,6 +15,17 @@ disable_indicators <- function(indicators) {
   pnft <-        if("pnft"           %in% indicators)   c("true", "default", "#B1B5B9") else  c("false", "not-allowed", "#36454F")
   pnrtall <-     if("pnrtall"        %in% indicators)   c("true", "default", "#B1B5B9") else  c("false", "not-allowed", "#36454F")
   
+  
+  poptotal_tooltip <-    if("popdensity"      %in% indicators)  "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  density_tooltip <-     if("blockdensity"  %in% indicators)    "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  journeygap_tooltip <-  if("journeygap"     %in% indicators)   "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  pnpb_tooltip <-        if("pnpb"           %in% indicators)   "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  pns_tooltip <-         if("pns"            %in% indicators)   "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  pncf_tooltip <-        if("pncf"           %in% indicators)   "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  pnnhighways_tooltip <- if("pnnhighways"    %in% indicators)   "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  pnft_tooltip <-        if("pnft"           %in% indicators)   "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  pnrtall_tooltip <-     if("pnrtall"        %in% indicators)   "\"disable\"" else  "{\"trigger\": \"hover\", \"animation\": true, delay: {show: 1,hide: 10}, placement: \"auto\"}"
+  
 
   #   popup <-  '$("#bs-select-1-2").append("<div id="pop-up"><p>Not available</p></div>")'
   #   popup_css <- '$("#bs-select-1-2").css{"display": "none", "position": "absolute", "width": "280px", "padding": "5px", "background": "#eeeeee", "color": "#000000", "border": "1px solid #1a1a1a", "font-size": "90%"}'
@@ -47,11 +58,27 @@ disable_indicators <- function(indicators) {
   delay(1, runjs(sprintf('$("#bs-select-1-2").css("cursor","%s");', density[2])))
   delay(1, runjs(sprintf('$("#bs-select-1-2 > span").css("color", "%s");', density[3])))
   
-  delay(1, runjs(sprintf('$("#bs-select-1-3").attr("disabled", "%s");' , journeygap[1])))
+  # delay(1, runjs(sprintf('$("#bs-select-1-3").attr("disabled", "%s");' , journeygap[1])))
   delay(1, runjs(sprintf('$("#bs-select-1-3").css("cursor","%s");', journeygap[2])))
   delay(1, runjs(sprintf('$("#bs-select-1-3").css("color","%s");', journeygap[3])))
-  delay(1, runjs('$("#bs-select-1-3").attr({"title":"Indicator not available for this city",  "data-toggle":"tooltip"})'))
-  delay(1, runjs('$("#bs-select-1-3").tooltip({"trigger": "hover", "animation": true, delay: {show: 1,hide: 10}, placement: "auto"})'))
+  # if (!("journeygap"  %in% indicators)) {
+  #   
+  #   delay(1, runjs('$("#bs-select-1-3").attr({"title":"Indicator not available for this city",  "data-toggle":"tooltip"})'))  
+  #   delay(2, runjs('$("#bs-select-1-3").tooltip({"trigger": "hover", "animation": true, delay: {show: 1,hide: 10}, placement: "auto"})'))  
+  #   delay(5, runjs('$("#bs-select-1-3").tooltip("enable")'))  
+  #   
+  #   print("enable")
+  #   
+  # } else {
+  #   
+  # delay(20, runjs('$("#bs-select-1-3").tooltip("disable")'))
+  # # delay(10, runjs('$("#bs-select-1-3").removeAttr("title")'))
+  # # delay(10, runjs('$("#bs-select-1-3").removeAttr("data-toggle")'))
+  #   print("disable")
+  #   
+  # }
+  
+  
   # delay(1, runjs('$("[data-toggle=\"popover\"]").popover({trigger: "hover", html: true})'))
   # delay(1, runjs(popup))
   # delay(1, runjs(popup_css))
@@ -125,7 +152,7 @@ observeEvent(c(city$city_code, indicator$mode), {
   
   
   disable_indicator_list(city$city_code)
-  add_popover_city(1)
+  # add_popover_city(1)
 #   
 #   
 #   # print("OOOOOOOOOOOOIII")
