@@ -13,16 +13,7 @@ overlay_table <- readRDS("../data/data_beta/overlay_table.rds")
 # list_block <- readRDS("../data/data_alpha/list_block_density.rds")
 
 # define some credentials
-credentials <- data.frame(
-  user = c("taylor", "kaue"), # mandatory
-  password = c("taylor_atlas", "kaue_atlas"), # mandatory
-  start = c("2019-04-15"), # optinal (all others)
-  expire = c(NA, "2023-12-31"),
-  admin = c(FALSE, TRUE),
-  comment = "Simple and secure authentification mechanism 
-  for single ‘Shiny’ applications.",
-  stringsAsFactors = FALSE
-)
+credentials <- readRDS("../data/credentials.rds")
 
 function(input, output, session) {
   
