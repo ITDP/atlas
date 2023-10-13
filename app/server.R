@@ -91,6 +91,7 @@ function(input, output, session) {
       
     }
     list_selection <- lapply(oi, pera)
+    print(length(list_selection))
     
     conditionalPanel(
       condition = "input.indicator != ''",
@@ -108,6 +109,7 @@ function(input, output, session) {
                                       label = "IN",
                                       width = "330px",
                                       choices = list_selection,
+                                      # choicesOpt = list(style = sprintf('background: %s'),
                                       options = shinyWidgets::pickerOptions(size = 15,
                                                                             iconBase = "fa",
                                                                             tickIcon = "fa-check",
