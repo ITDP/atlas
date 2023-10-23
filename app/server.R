@@ -11,9 +11,46 @@ list_osmid_name <- readRDS("../data/data_beta/list_osmid_name.rds")
 list_availability <- readRDS("../data/data_beta/list_availability.rds")
 overlay_table <- readRDS("../data/data_beta/overlay_table.rds")
 # list_block <- readRDS("../data/data_alpha/list_block_density.rds")
+list_availability_cities <- readRDS("../data/data_beta/list_availability_cities.rds")
 
 # define some credentials
 credentials <- readRDS("../data/credentials.rds")
+
+
+
+list_bike <- structure(c("pnpb" 
+), 
+.Names = c("People Near Protected Bikelanes"
+))
+
+list_walk <- structure(c(
+  "pns",
+  "pncf",
+  "pnnhighways"
+), 
+.Names = c(
+  "People Near Services",
+  "People Near Car-Free Places",
+  "People Not Near Highways"
+))
+
+list_transit <- structure(c("pnft", "pnrtall"
+), 
+.Names = c(
+  "People Near Frequent Transit", 
+  "People Near Rapid Transport"
+))
+
+list_city <- structure(c(
+  "popdensity",
+  "blockdensity",
+  "journeygap"
+), 
+.Names = c(
+  "Population Density",
+  "Block Density",
+  "Journey Gap"
+))
 
 function(input, output, session) {
   
@@ -91,7 +128,8 @@ function(input, output, session) {
       
     }
     list_selection <- lapply(oi, pera)
-    print(length(list_selection))
+    
+    # print(length(list_selection))
     
     conditionalPanel(
       condition = "input.indicator != ''",
@@ -109,12 +147,13 @@ function(input, output, session) {
                                       label = "IN",
                                       width = "330px",
                                       choices = list_selection,
-                                      # choicesOpt = list(style = sprintf('background: %s'),
                                       options = shinyWidgets::pickerOptions(size = 15,
                                                                             iconBase = "fa",
                                                                             tickIcon = "fa-check",
                                                                             title = "Go to a region ...",
-                                                                            liveSearch = TRUE)
+                                                                            liveSearch = TRUE,
+                                                                            showContent = FALSE,
+                                                                            sanitize = FALSE)
             )
         )
       )
@@ -137,6 +176,7 @@ function(input, output, session) {
                                 width = "330px",
                                 options = shinyWidgets::pickerOptions(
                                   size = 5
+                                  
                                 )
                                 # selected = character(0)
       )
@@ -796,59 +836,139 @@ function(input, output, session) {
   # })
   
   
-  # if the user change cities on the top menu, will check if the same indicators is available
-  # if not, it's gonna select other available
-  observeEvent(c(input$city), {
+
+# set city availability in dropdown depending on the indicator --------------------------------
+  observeEvent(c(indicator$mode), {
     
-    # print("a")
-    # print(input$city)
     
-    req(indicator$mode, input$city != "")
+    req(indicator$mode)
     
-    ind <- subset(list_availability, hdc == input$city)
-    ind_type <- ind$ind_type
-    ind_mode <- ind$ind
-    # print("ind_mode")
-    # print(ind_mode)
+    runjs("$(function () {$('[data-toggle=\"tooltip\"]').tooltip()})")
+    # filter the indicator in the list
+    list_availability_cities1 <- subset(list_availability_cities, ind == indicator$mode)
     
-    # check if it's available
-    available <- indicator$mode %in% ind_mode
-    # print("available")
-    # print(available)
-    
-    if (!available) {
+    # make list
+    oi <- split(list_availability, list_availability$country)
+    pera <- function(variables) {
       
-      # get first available
-      ind_type1 <- ind_type[1]
-      ind_mode1 <- ind_mode[1]
+      name <- unique(variables$name)
+      code <- unique(variables$hdc)
       
-      # update values
-      indicator$type <- "bike"
-      indicator$mode <- "pnpb"
+      names(code) <- name
       
-      shinyjs::alert("Indicator not available for this city. Going to the indicator People Near Protected Bikelanes")
+      return(code)
       
-      updateSelectInput(inputId = "indicator",
-                        selected = "pnpb")
-      
-      # if (indicator$type == "bike") {
-      #   
-      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_bike", selected = indicator$mode)
-      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_walk", selected = character(0))
-      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_transit", selected = character(0))
-      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_performance", selected = character(0))
-      #   shinyWidgets::updateRadioGroupButtons(inputId = "indicator_city", selected = character(0))
-      #   
-      #   
-      # }
       
     }
+    list_selection <- lapply(oi, pera)
+    names <- unlist(lapply(names(list_selection), function(n) names(list_selection[[n]])))
+    
+    # delay(10, runjs('$("#bs-select-3-1").attr({"title":"Indicator not available for this city",  "data-toggle":"tooltip"})'))
+    
+    # update list of cities accordindly
+    updatePickerInput(
+      session = session,
+      inputId = "city",
+      choices = list_selection,
+      selected = city$city_code,
+      choicesOpt = list(
+        # content = ifelse(list_availability_cities1$available, names,
+        #                  sprintf( '<div class="tooltip1">%s<span class="tooltiptext1">Indicator not avaiable for this region
+        #                           </span></div><i style="float: right; color: red" class="fa-solid fa-triangle-exclamation"></i>'
+        #                           , names)),
+        content = ifelse(list_availability_cities1$available, names,
+                         sprintf('<span style="width: 200px; display: inline-block">%s</span><div class="tooltip1"><i style="float: right; color: red" class="fa-solid fa-triangle-exclamation"></i><span class="tooltiptext1">Indicator not avaiable<br> for this region
+                                 </span></div>', names)),
+          
+         
+        disabled = !(list_availability_cities1$available)
+        # subtext = ifelse(list_availability_cities1$available, "", "Indicator not available for this city")
+        # style =  ifelse(list_availability_cities1$available, "", "color: #606d75")
+
+        )
+      )
     
     
+  }, ignoreInit = TRUE)
+  
+# set indicator availability in dropdown depending on the city --------------------------------
+  
+  observeEvent(c(indicator$mode, city$city_code), {
     
+    req(city$city_code != "")
+    
+    
+    list_availability_cities1 <- subset(list_availability_cities, hdc == city$city_code)
+    
+    
+    list_indicators <- list("City" = list_city, "Bike" = list_bike, "Walk" = list_walk, "Transit" = list_transit)
+    names <- unlist(lapply(names(list_indicators), function(n) names(list_indicators[[n]])))
+    
+    updatePickerInput(
+      session = session,
+      inputId = "indicator",
+      choices = list_indicators,
+      selected = indicator$mode,
+      choicesOpt = list(
+        #   paste("Badge", c("info", "success", "danger", "primary", "warning"))
+        # )
+        # content = htmltools::HTML('<span "data-toggle" = "tooltip" title = "Test">Brinks</span>')
+        # content = ifelse(list_availability_cities1$available, names,
+        #                  sprintf( '<div class="tooltip1">%s<span class="tooltiptext1">Indicator not avaiable for this region
+        #                           </span></div>', names)),
+        disabled = !(list_availability_cities1$available)
+        # subtext = ifelse(list_availability_cities1$available, "", "Indicator not available"),
+        # style =  ifelse(list_availability_cities1$available, "", "color: #606d75")
+        
+      )
+    )
     
     
   })
+  
+  
+  # # if the user change cities on the top menu, will check if the same indicators is available
+  # # if not, it's gonna select other available
+  # observeEvent(c(input$city), {
+  #   
+  #   # print("a")
+  #   # print(input$city)
+  #   
+  #   req(indicator$mode, input$city != "")
+  #   
+  #   ind <- subset(list_availability, hdc == input$city)
+  #   ind_type <- ind$ind_type
+  #   ind_mode <- ind$ind
+  #   # print("ind_mode")
+  #   # print(ind_mode)
+  #   
+  #   # check if it's available
+  #   available <- indicator$mode %in% ind_mode
+  #   # print("available")
+  #   # print(available)
+  #   
+  #   if (!available) {
+  #     
+  #     # get first available
+  #     ind_type1 <- ind_type[1]
+  #     ind_mode1 <- ind_mode[1]
+  #     
+  #     # update values
+  #     indicator$type <- "bike"
+  #     indicator$mode <- "pnpb"
+  #     
+  #     shinyjs::alert("Indicator not available for this city. \nGoing to the indicator People Near Protected Bikelanes")
+  #     
+  #     updateSelectInput(inputId = "indicator",
+  #                       selected = "pnpb")
+  #     
+  #   }
+  #   
+  #   
+  #   
+  #   
+  #   
+  # })
   
   
   # setBookmarkExclude(c("shinyjs-delay"))

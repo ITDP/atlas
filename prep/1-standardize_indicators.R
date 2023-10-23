@@ -632,7 +632,9 @@ a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
   filter(!is.na(value)) %>%
   group_by(country, name, hdc, ind_type, ind) %>%
   summarise(availability = paste0(year, collapse = "|")) %>%
-  ungroup()
+  ungroup() %>%
+  arrange(country, name)
+  # create id
 # ungroup() %>%
 # group_by(hdc) %>%
 # summarise(ind = first(ind))
@@ -643,5 +645,20 @@ a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
 readr::write_rds(a1, "data/data_beta/list_availability.rds")
 
 # not available
+indicators_all_df_long1 <- indicators_all_df_long %>%
+  filter(admin_level == 0) %>%
+  filter(year == 2022) %>%
+  # filter(ind  %in% c("journeygap", "pnft", "pnrtall")) %>%
+  mutate(available = ifelse(is.na(value), FALSE, TRUE)) %>%
+  select(country, name, hdc, ind, available) %>%
+  arrange(country, name) %>%
+  mutate(id = rleid(hdc)) %>%
+  select(hdc, ind, available) %>%
+  filter(ind %in% c("popdensity", "blockdensity", "journeygap", "pnpb", "pns",
+                    "pncf", "pnnhighways", "pnft", "pnrtall"))
 
 
+  
+
+
+readr::write_rds(indicators_all_df_long1, "data/data_beta/list_availability_cities.rds")

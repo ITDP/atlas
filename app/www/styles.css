@@ -177,3 +177,42 @@ h1 {
 .btn.disabled, .btn[disabled] {
   opacity: 0.2;
 }
+
+
+
+
+/* Tooltip container */
+.tooltip1 {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+  /* padding-right: 60px;*/
+  width: 50px;
+}
+
+
+/* Tooltip text */
+.tooltip1 .tooltiptext1 {
+  visibility: hidden;
+  /*width: 250px;*/
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+  border-color: white;
+  
+  top: 100%;
+  left: 50%;
+  margin-left: -125px; /* Use half of the width (120/2 = 60), to center the tooltip */
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 999999999999;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip1:hover .tooltiptext1 {
+  visibility: visible;
+}
+

@@ -11,6 +11,9 @@ observeEvent(c(city$city_code), {
     
   } else enable("back_to_world")
   
+  
+  disable("bookmark")
+  
 })
 
 

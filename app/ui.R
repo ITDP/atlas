@@ -51,6 +51,14 @@ list_city <- structure(c(
   "Journey Gap"
 ))
 
+js <- "
+var mytips = ['HELLO I AM TOOLTIP 1', 'HI I AM TOOLTIP 2'];
+$('#city').on('shown.bs.select', function() {
+  var $lis = $($(this).data('selectpicker').selectpicker.current.elements);
+  $lis.each(function(i) {
+    $(this).attr('title', mytips[i]);
+  });
+});"
 
 ui <- fluidPage(
   # this script will add elements to the right side of the topbar (links etc) ok
@@ -70,6 +78,7 @@ ui <- fluidPage(
   tags$head(includeCSS("www/modal.css")),
   tags$head(includeCSS("www/compare.css")),
   tags$head(includeCSS("www/download.css")),
+  tags$script(HTML(js)),
   
   # tags$head(includeScript("www/jquery.js")),
   # tags$head(
@@ -145,7 +154,8 @@ ui <- fluidPage(
                                                                                                iconBase = "fa",
                                                                                                tickIcon = "fa-check",
                                                                                                title = "Search for a indicator",
-                                                                                               liveSearch = TRUE)
+                                                                                               liveSearch = TRUE,
+                                                                                               showContent = FALSE)
                                ),
                                uiOutput('year'),
                                uiOutput('city_selection'),

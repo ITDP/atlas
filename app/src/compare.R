@@ -9,6 +9,7 @@ ind_city <- reactive({
   
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
+  message("Compare #1")
   # open data
   a <- readRDS(sprintf("../data/data_beta/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                        city$city_code, city$city_code, pattern))
@@ -29,7 +30,7 @@ ind_compare <- reactive({
   
   req(city$city_code != "", data_ind3_spatial())
   # req(city$city_code, data_ind3_spatial(), input$comparison_button == 1)
-  
+  message("Compare #2")
   
   level <- unique(data_ind3_spatial()$admin_level)
   
