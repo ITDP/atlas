@@ -12,6 +12,7 @@ list_availability <- readRDS("../data/data_beta/list_availability.rds")
 overlay_table <- readRDS("../data/data_beta/overlay_table.rds")
 # list_block <- readRDS("../data/data_alpha/list_block_density.rds")
 list_availability_cities <- readRDS("../data/data_beta/list_availability_cities.rds")
+brazil_cities <- readRDS("../data/data_beta/brazil_cities.rds")
 
 # define some credentials
 credentials <- readRDS("../data/credentials.rds")
@@ -1068,6 +1069,7 @@ function(input, output, session) {
   source("src/indicator_not_available_countries.R", local = TRUE)  
   source("src/variables.R", local = TRUE)  
   source("src/beta_checkpoint/beta_checkpoint.R", local = TRUE)  
+  source("src/modal_brazilian_cities/modal_brazilian_cities.R", local = TRUE)  
   
   
   
