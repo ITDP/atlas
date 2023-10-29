@@ -4,6 +4,8 @@ library(googlesheets4)
 library(readr)
 library(data.table)
 library(dplyr)
+
+
 list_indicators <- read_sheet(
   ss = "https://docs.google.com/spreadsheets/d/13LZoiy0RcQ_ivc8SOoiU9ctHq5GQY48dpNbCpU9GzKk/edit#gid=0",
   sheet = "Indicators"
@@ -31,3 +33,20 @@ readr::write_rds(overlay_table, "data/data_beta/overlay_table.rds")
 # 
 # # salvar
 # write_rds(list_block, "data/sample5/list_block_density.rds")
+
+
+
+
+# identify and save brazilian cities - those would have a popup for the indicator peop --------
+
+
+indicators_all <- purrr::map_dfr(dir("data/data_beta", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+                                 readr::read_rds)
+
+brazil_cities <- indicators_all %>%
+  st_set_geometry(NULL) %>%
+  filter(country == "Brazil") %>%
+  distinct(country, hdc)
+
+# save
+readr::write_rds(brazil_cities, "data/data_beta/brazil_cities.rds")

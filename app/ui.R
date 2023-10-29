@@ -79,6 +79,7 @@ ui <- fluidPage(
   tags$head(includeCSS("www/compare.css")),
   tags$head(includeCSS("www/download.css")),
   tags$head(includeCSS("src/beta_checkpoint/beta_checkpoint.css")),
+  tags$head(includeCSS("src/modal_brazilian_cities/modal_brazil.css")),
   tags$script(HTML(js)),
   
   # tags$head(includeScript("www/jquery.js")),

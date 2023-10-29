@@ -75,12 +75,12 @@ width: 315px;
 
 .modal-title {
   
-font-family: 'Franklin Gothic Demi';
+font-family: 'Fira Sans', sans-serif;
 font-style: normal;
 font-weight: 400;
-font-size: 16px;
+font-size: 19px;
 line-height: 18px;
-letter-spacing: 0.25em;
+letter-spacing: 0.05em;
 
 /* Gray/500 */
 
@@ -89,7 +89,7 @@ color: #B1B5B9;
 }
 
 .modal-body {
-  font-family: 'Franklin Gothic Book';
+  font-family: 'Fira Sans', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 14px;
