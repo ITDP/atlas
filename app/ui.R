@@ -78,6 +78,7 @@ ui <- fluidPage(
   tags$head(includeCSS("www/modal.css")),
   tags$head(includeCSS("www/compare.css")),
   tags$head(includeCSS("www/download.css")),
+  tags$head(includeCSS("src/beta_checkpoint/beta_checkpoint.css")),
   tags$script(HTML(js)),
   
   # tags$head(includeScript("www/jquery.js")),

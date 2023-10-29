@@ -89,7 +89,11 @@ function(input, output, session) {
   )
   
   # Show the model on start up ...
-  delay(200, showModal(query_modal))
+  observeEvent(input$modal_beta_close, {
+    
+    delay(200, showModal(query_modal))
+    
+  })
   
   observe({
     
@@ -836,8 +840,8 @@ function(input, output, session) {
   # })
   
   
-
-# set city availability in dropdown depending on the indicator --------------------------------
+  
+  # set city availability in dropdown depending on the indicator --------------------------------
   observeEvent(c(indicator$mode), {
     
     
@@ -879,19 +883,19 @@ function(input, output, session) {
         content = ifelse(list_availability_cities1$available, names,
                          sprintf('<span style="width: 200px; display: inline-block">%s</span><div class="tooltip1"><i style="float: right; color: red" class="fa-solid fa-triangle-exclamation"></i><span class="tooltiptext1">Indicator not avaiable<br> for this region
                                  </span></div>', names)),
-          
-         
+        
+        
         disabled = !(list_availability_cities1$available)
         # subtext = ifelse(list_availability_cities1$available, "", "Indicator not available for this city")
         # style =  ifelse(list_availability_cities1$available, "", "color: #606d75")
-
-        )
+        
       )
+    )
     
     
   }, ignoreInit = TRUE)
   
-# set indicator availability in dropdown depending on the city --------------------------------
+  # set indicator availability in dropdown depending on the city --------------------------------
   
   observeEvent(c(indicator$mode, city$city_code), {
     
@@ -1063,6 +1067,7 @@ function(input, output, session) {
   source("src/indicator_not_available.R", local = TRUE)  
   source("src/indicator_not_available_countries.R", local = TRUE)  
   source("src/variables.R", local = TRUE)  
+  source("src/beta_checkpoint/beta_checkpoint.R", local = TRUE)  
   
   
   
