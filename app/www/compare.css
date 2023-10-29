@@ -5,7 +5,7 @@
     padding: 10px;
 font-family: 'Fira Sans', sans-serif;
 font-style: normal;
-font-weight: 400;
+font-weight: 600;
 font-size: 14px;
 line-height: 16px;
 /* identical to box height */
@@ -14,7 +14,7 @@ letter-spacing: 0.2em;
 
 /* Gray / 200 */
 
-color: #E9ECEF;
+color: white;
 
 background: transparent;
     border: transparent;
