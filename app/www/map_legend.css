@@ -52,6 +52,10 @@ line-height: 15px;
 }
 
 
+.leaflet .legend svg text {
+    fill: #F8F9FA;
+}
+
 /*
 .leaflet-control-layers {
   max-height: 200px;
