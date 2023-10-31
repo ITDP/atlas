@@ -362,8 +362,8 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      rank_indicator <- subset(data_ind3(), osmid == ui)[1,]
                      rank$indicator <- rank_indicator
                      
-                     # print("rank$indicator")
-                     # print(rank$indicator)
+                     print("rank$indicator")
+                     print(rank$indicator)
                      
                      que <- year$ok
                      

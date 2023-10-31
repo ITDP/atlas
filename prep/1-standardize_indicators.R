@@ -149,7 +149,7 @@ prep_data <- function(ghsl) {
   
   # first, rename indicators that are divided by year
   ind_columns <- gsub(pattern = "(total_pop)_(\\d{4})",
-                      replacement = "city_poptotal_\\2",
+                      replacement = "city_popdensitytotal_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "^(density)_(\\d{4})",
                       replacement = "city_popdensity_\\2",
@@ -232,7 +232,7 @@ prep_data <- function(ghsl) {
   
   # create new column names with new standardized id
   ind_columns_new <- fcase(
-    startsWith(ind_columns, "city_poptotal"), ind_columns,
+    # startsWith(ind_columns, "city_poptotal"), ind_columns,
     startsWith(ind_columns, "city_popdensity"), ind_columns,
     startsWith(ind_columns, "city_blockdensity"), ind_columns,
     startsWith(ind_columns, "city_journeygap"), ind_columns,

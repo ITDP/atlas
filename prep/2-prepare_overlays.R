@@ -133,6 +133,12 @@ plan(multisession)
 future_walk(cities_available, prep_overlays)
 walk(cities_available, prep_overlays)
 
+prep_overlays("00456")
+prep_overlays("00574")
+prep_overlays("04608")
+prep_overlays("10076")
+prep_overlays("13039")
+
 # # evaluate which cities are left
 # left <- dir("data/data_beta", recursive = TRUE, full.names = TRUE)
 # left <- left[left %like% "overlays"]
