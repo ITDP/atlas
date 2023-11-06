@@ -76,7 +76,7 @@ output$map <- renderLeaflet({
                      options = layersControlOptions(collapsed = FALSE),
                      position = "bottomright") %>%
     setView(lng = 0, lat = 0, zoom = 2) %>%
-    leaflet.extras2::addSpinner() %>%
+    addSpinner() %>%
     
     # onRender(spin_event)
     
@@ -289,7 +289,8 @@ observeEvent(c(city$city_code), {
   req(city$city_code != "")
   
   
-  shinyjs::logjs("Map: go to city view when coming from world view")
+  # shinyjs::logjs("Map: go to city view when coming from world view")
+  
   
   waiter_show(
     html = tagList(spin_loaders(id = 3, color = "black")),
@@ -298,7 +299,7 @@ observeEvent(c(city$city_code), {
   # print("obs - switch cities initial")
   
   # req(input$city)
-  bbox <- sf::st_bbox(data_ind())
+  bbox <- st_bbox(data_ind())
   
   # subset for the metro region polygons
   # data_metro <- subset(data_ind3_spatial())
