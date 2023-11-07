@@ -98,7 +98,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "00021"
   # ghsl <- "01105"
   # ghsl <- "01361"
-  # ghsl <- "00010"
+  # ghsl <- "13023"
   # ghsl <- cities_available[994]
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
@@ -143,8 +143,9 @@ prep_data <- function(ghsl) {
   rank_complete <- rbind(rank_hdc_world, rank_hdc_country, rank_hdc_metro)
   
   # level <- "Agglomeration"
-  # level <- 8
+  # level <- 10
   # level <- 6
+  # level <- 0
   
   # save by osm level
   filter_by_level <- function(level) {
@@ -153,7 +154,7 @@ prep_data <- function(ghsl) {
     
     # ind <- "bike_pnpb"
     # ind <- "city_popdensity"
-    # ind <- "transit_pnrtmrt"
+    # ind <- "transit_pnrtall"
     # ind <- "walk_pns"
     # ind <- "bike_abikeways"
     # ind <- "walk_pnh"
@@ -164,9 +165,13 @@ prep_data <- function(ghsl) {
     filter_by_ind <- function(ind) {
       
       
+      filter_compare <- if(level == 0) c("world", "country") else if (level <= 10) c("country", "metro") else c("metro") 
+      
+      
+      rank_complete_level1 <- rank_complete_level %>% filter(type_rank %in% filter_compare)
       
       # create the rankins for the hdc only / filter the indicator
-      rank_complete_level_ind <- rank_complete_level %>%
+      rank_complete_level_ind <- rank_complete_level1 %>%
         filter(hdc == ghsl) %>%
         dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
         # rename the indicators ranks/values to account for the years
@@ -181,9 +186,11 @@ prep_data <- function(ghsl) {
         tidyr::pivot_wider(names_from = "type1",
                            values_from = "count",
                            names_glue = "{type1}") %>%
-        # create text
-        mutate(text = sprintf('<div class="text_compare" style="font-size: 14px";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the %s</div>',
-                              rank, n, type_rank))
+        select(rank, n, type_rank, year, osmid)
+        
+        # # create text
+        # mutate(text = sprintf('<div class="text_compare" style="font-size: 14px; display: inline";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the %s</div>',
+        #                       rank, n, type_rank))
       
       # get the indicators transformations
       indicators_sheet <- indicators_sheet %>% mutate(ind1 = paste0(tolower(indicator_type), "_", indicator_code ))
@@ -193,7 +200,7 @@ prep_data <- function(ghsl) {
       
       
       # create the full list of rankings
-      rank_complete_level_ind_full <- rank_complete_level %>%
+      rank_complete_level_ind_full <- rank_complete_level1 %>%
         dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
         # rename the indicators ranks/values to account for the years
         rename_with(~stringr::str_replace(.x, paste0(ind, "_"), ""), starts_with("rank")) %>%
@@ -216,24 +223,13 @@ prep_data <- function(ghsl) {
                                  indicator_transformation %in% "round1" ~ as.character(round(value, 1)),
                                  TRUE ~ as.character(round(value)))) %>%
         # mutate(value = paste0(value, format_indicator_unit)) %>%
-        # create text
+        # create rank value
         group_by(type_rank, year) %>%
-        mutate(text = sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>", 
-                              1:n(), name, format_indicator_unit, value)) %>%
+        mutate(n = 1:n()) %>%
         ungroup() %>%
-        group_by(admin_level, type_rank, year) %>%
-        summarise(text = paste(
-          text,
-          collapse = "\n"
-        )) %>%
-        ungroup() %>%
-        mutate(text = paste("<div id=\"\" style=\"overflow-y:scroll; height:150px;\">",
-                            text,
-                            "</div>",
-                            sep = "\n"
-        ))
-      
-      rank_complete_level_ind_full <- rank_complete_level_ind_full %>% mutate(text = purrr::map_chr(text, htmltools::HTML))
+        mutate(format_indicator_unit = format_indicator_unit) %>%
+        select(n, name, format_indicator_unit, value, year, type_rank, osmid)
+        
       
       
       # save

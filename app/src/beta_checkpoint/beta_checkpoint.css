@@ -25,3 +25,16 @@ width: 700px;
   
   
 }
+
+
+#modal_ranking_world {
+  
+    position: absolute;
+left: 50%;
+top: 50%;
+transform: translate(-50%, -50%) !important;
+width: 400px;
+    height: 500px;
+
+  
+}
