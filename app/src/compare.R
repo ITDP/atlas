@@ -540,7 +540,7 @@ output$comparison_max <- renderHighchart({
   # print(ui)
   # print(ordered_colnames())
   
-  print(ordered_colnames())
+  # print(ordered_colnames())
   value_city <- subset(ind_city(), osmid %in% c(ui, ordered_colnames()))
   
   format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name

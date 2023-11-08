@@ -1,46 +1,10 @@
-# output$download_button_maps <- renderUI({
-#   
-#   tagList(
-#     
-#     absolutePanel(class = "about_button", 
-#                   style = "background: #00AE42",
-#                   top = 40, right = 450, height = 40, width = 130,
-#                   dropdown(
-#                     tagList(
-#                       downloadButton("downloadData1", "Download indicator for this region", icon = NULL),
-#                       downloadButton("downloadData2", "Download all indicators for this region", icon = NULL)
-#                     ),
-#                     hr(),
-#                     tagList(
-#                       downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
-#                     ),
-#                     hr(),
-#                     actionButton("downloadDic", "Download Data Dictionary", 
-#                                  onclick = "location.href='https://www.ipea.gov.br/acessooportunidades/dados';"),
-#                     circle = FALSE, 
-#                     # status = "danger",
-#                     label = HTML("&nbsp;&nbsp;Download"),
-#                     icon = icon("download"),
-#                     right = TRUE,
-#                     up = FALSE,
-#                     # icon = icon("download"), 
-#                     width = "350px",
-#                     # tooltip = tooltipOptions(title = "Click to see inputs !"),
-#                     inputId = "download_dropdown_maps"
-#                     
-#                   )
-#     )
-#   )
-#   
-# })  
 
 
 
-
-
+# download data for the whole world for the indicator  ----------------------------------------------
 
 # data
-output$downloadData1 <- downloadHandler(
+output$downloadData1_gpkg <- downloadHandler(
   
   # generate button with data
   filename = function() {
@@ -56,8 +20,27 @@ output$downloadData1 <- downloadHandler(
   }
   
 )
+output$downloadData1_csv <- downloadHandler(
+  
+  # generate button with data
+  filename = function() {
+    
+    
+    sprintf("atlas_indicators_%s_%s.csv", city$city_code, indicator$mode)
+    
+  },
+  content = function(file) {
+    
+    write.csv(sf::st_set_geometry(data_ind2(), NULL), file, row.names = FALSE, sep = ",")
+    
+  }
+  
+)
 
-output$downloadData2 <- downloadHandler(
+
+# download data for the selected region  for the indicator ---------------------
+
+output$downloadData2_gpkg <- downloadHandler(
   
   
   
@@ -71,6 +54,24 @@ output$downloadData2 <- downloadHandler(
   content = function(file) {
     
     sf::st_write(data_ind(), file)
+    
+  }
+  
+)
+output$downloadData2_csv <- downloadHandler(
+  
+  
+  
+  # generate button with data
+  filename = function() {
+    
+    
+    sprintf("atlas_indicators_%s.csv", city$city_code)
+    
+  },
+  content = function(file) {
+    
+    write.csv(sf::st_set_geometry(data_ind2(), NULL), file, row.names = FALSE)
     
   }
   

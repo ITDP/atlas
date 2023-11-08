@@ -27,6 +27,7 @@ prep_overlays <- function(ghsl) {
   # ghsl <- "01406"
   # ghsl <- "01165"
   # ghsl <- "00010"
+  # ghsl <- "00456"
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
@@ -57,6 +58,7 @@ prep_overlays <- function(ghsl) {
   
   save_overlay <- function(file) {
     # file <- overlay_files[[103]]
+    # file <- overlay_files[[10]]
     # file <- overlay_files[overlay_files %like% "block"]
     # file <- overlay_files[overlay_files %like% "population"]
     # file <- overlay_files[overlay_files %like% "grid_pop_evaluated"]
@@ -121,7 +123,7 @@ prep_overlays <- function(ghsl) {
   
   
   message("done for ", ghsl)
-  overlay_files <- overlay_files[overlay_files %like% "grid_pop_evaluated"]
+  # overlay_files <- overlay_files[overlay_files %like% "grid_pop_evaluated"]
   walk(overlay_files, save_overlay)
   message("time", round(Sys.time() - start), 2)
 }

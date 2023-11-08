@@ -1,21 +1,40 @@
-# disable the reset map when in the world view
+# disable the reset map and download button when in the world view
 observeEvent(c(city$city_code), {
   
   # print("city$city_code")
   # print(city$city_code)
+  # show("download_button_id")
   
   if (city$city_code == "") {
     
     
     disable("back_to_world")
+    hide("download_city")
+    # hide("download_overlay_panel")
     
-  } else enable("back_to_world")
-  
+  } else {
+    
+    show("download_city")
+    # show("download_overlay_panel")
+    enable("back_to_world")
+  }
   
   disable("bookmark")
   
 })
 
+
+# 
+observeEvent(c(indicator$mode), {
+  
+  
+  if (indicator$mode != "") {
+    
+    show("download_button_id")
+    
+    
+  }
+})
 
 
 

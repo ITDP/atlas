@@ -22,18 +22,18 @@ list_walk <- structure(c(
   "People Near Services",
   "People Near Car-Free Places",
   "People Not Near Highways"
-  ))
+))
 
 list_transit <- structure(c("pnft", "pnrtall"
                             # "pnrtlrt", "pnrtmrt", "pnrtbrt"
-                            ), 
-                          .Names = c(
-                            "People Near Frequent Transit", 
-                            "People Near Rapid Transport"
-                            # "People Near Rapid Transport - LRT",
-                            # "People Near Rapid Transport - MRT",
-                            # "People Near Rapid Transport - BRT"
-                            ))
+), 
+.Names = c(
+  "People Near Frequent Transit", 
+  "People Near Rapid Transport"
+  # "People Near Rapid Transport - LRT",
+  # "People Near Rapid Transport - MRT",
+  # "People Near Rapid Transport - BRT"
+))
 
 list_performance <- structure(c("bikep45", "walkp45"), 
                               .Names = c("Bicycle", "Walk"))
@@ -125,7 +125,7 @@ ui <- fluidPage(
   fluidPage(
     # leafglOutput("map"),
     leafletOutput("map"),
-
+    
     # create the panel with the comparison
     uiOutput('comparison_panel'),
     
@@ -143,74 +143,74 @@ ui <- fluidPage(
         top = 0, left = 0, width = 400, height = "calc(100vh - 15px)",
         tabsetPanel(id = "right_tabs", type = "hidden",
                     tabPanelBody(value = "tab_overview",         
-                             absolutePanel(
-                               class = "right_panel_textbox",
-                               id = "right_panel_textbox_id",
-                               top = 25, right = 5, width = 375,
-                               # indicator selection
-                               shinyWidgets::pickerInput(inputId = "indicator",
-                                                         label = "INDICATOR",
-                                                         width = "330px",
-                                                         choices = list("City" = list_city, "Bike" = list_bike, "Walk" = list_walk, "Transit" = list_transit),
-                                                         options = shinyWidgets::pickerOptions(size = 15,
-                                                                                               iconBase = "fa",
-                                                                                               tickIcon = "fa-check",
-                                                                                               title = "Search for a indicator",
-                                                                                               liveSearch = TRUE,
-                                                                                               showContent = FALSE)
-                               ),
-                               uiOutput('year'),
-                               uiOutput('city_selection'),
-                               # create the panel with the spatial scale
-                               uiOutput('spatial_level'),
-                               uiOutput("rank_final"),
-                               absolutePanel(
-                                 id = "compare_panel",
-                                 class = "spatial_level",
-                                 style = "background: #00AE42; display: none; text-align: center;",
-                                 # class = "w3-container w3-animate-opacity", 
-                                 # class = "panel panel-default",
-                                 # fixed = TRUE, draggable = FALSE,
-                                 # bottom = 45, left = 10, 
-                                 height = 50, width = 360,
-                                 actionButton(inputId = "comparison_button", 
-                                              label = "COMPARE",
-                                              icon = icon("chart-simple"),
-                                              style = "display: inline; padding-right: 2px; padding-left: 2px;"),
-                                 tags$button(
-                                   id = "tooltip_compare",
-                                   class="btn btn-light btn-xs",
-                                   style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
-                                   icon("circle-info")
+                                 absolutePanel(
+                                   class = "right_panel_textbox",
+                                   id = "right_panel_textbox_id",
+                                   top = 25, right = 5, width = 375,
+                                   # indicator selection
+                                   shinyWidgets::pickerInput(inputId = "indicator",
+                                                             label = "INDICATOR",
+                                                             width = "330px",
+                                                             choices = list("City" = list_city, "Bike" = list_bike, "Walk" = list_walk, "Transit" = list_transit),
+                                                             options = shinyWidgets::pickerOptions(size = 15,
+                                                                                                   iconBase = "fa",
+                                                                                                   tickIcon = "fa-check",
+                                                                                                   title = "Search for a indicator",
+                                                                                                   liveSearch = TRUE,
+                                                                                                   showContent = FALSE)
+                                   ),
+                                   uiOutput('year'),
+                                   uiOutput('city_selection'),
+                                   # create the panel with the spatial scale
+                                   uiOutput('spatial_level'),
+                                   uiOutput("rank_final"),
+                                   absolutePanel(
+                                     id = "compare_panel",
+                                     class = "spatial_level",
+                                     style = "background: #00AE42; display: none; text-align: center;",
+                                     # class = "w3-container w3-animate-opacity", 
+                                     # class = "panel panel-default",
+                                     # fixed = TRUE, draggable = FALSE,
+                                     # bottom = 45, left = 10, 
+                                     height = 50, width = 360,
+                                     actionButton(inputId = "comparison_button", 
+                                                  label = "COMPARE",
+                                                  icon = icon("chart-simple"),
+                                                  style = "display: inline; padding-right: 2px; padding-left: 2px;"),
+                                     tags$button(
+                                       id = "tooltip_compare",
+                                       class="btn btn-light btn-xs",
+                                       style = "display: inline; width: 5px; background: transparent; padding-left: 0; color: #1C1C1C; font-size: 14px",
+                                       icon("circle-info")
+                                       
+                                     ),
+                                     div(
+                                       bsPopover(id = "tooltip_compare",
+                                                 title = "",
+                                                 content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
+                                                 placement = "top",
+                                                 trigger = "hover",
+                                                 options = list(container = "body"))
+                                     )
+                                   ),
+                                   htmlOutput("text_indicator")
+                                   # uiOutput("rank_value"),
+                                   # uiOutput("rank_text")
                                    
-                                 ),
-                                 div(
-                                   bsPopover(id = "tooltip_compare",
-                                             title = "",
-                                             content = HTML(includeHTML('www/tooltips/tooltip_comparison.html')),
-                                             placement = "top",
-                                             trigger = "hover",
-                                             options = list(container = "body"))
                                  )
-                               ),
-                               htmlOutput("text_indicator")
-                               # uiOutput("rank_value"),
-                               # uiOutput("rank_text")
-                               
-                             )
-                             
-                             
-                             
+                                 
+                                 
+                                 
                     ),
                     tabPanelBody(value = "tab_viewmore",                                
-                             absolutePanel(
-                               class = "right_panel_textbox",
-                               id = "right_panel_textbox_id_more",
-                               top = 25, right = 5, width = 285,
-                               
-                               htmlOutput("text_indicator2")
-                               
-                             )
+                                 absolutePanel(
+                                   class = "right_panel_textbox",
+                                   id = "right_panel_textbox_id_more",
+                                   top = 25, right = 5, width = 285,
+                                   
+                                   htmlOutput("text_indicator2")
+                                   
+                                 )
                     )
                     
                     
@@ -226,35 +226,49 @@ ui <- fluidPage(
     # back to world button
     # uiOutput('download_button'),
     # uiOutput('download_button_maps'), # da pra trazer
-    absolutePanel(class = "about_button", 
-                  id = "download_button_id",
-                  style = "background: #00AE42",
-                  top = 40, left = 840, height = 40, width = 130,
-                  dropdown(
-                    tagList(
-                      downloadButton("downloadData1", "Download indicator for this region", icon = NULL),
-                      downloadButton("downloadData2", "Download all indicators for this region", icon = NULL)
-                    ),
-                    hr(),
-                    tagList(
-                      downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
-                    ),
-                    # hr(),
-                    # actionButton("downloadDic", "Download Data Dictionary", 
-                    #              onclick = "window.open('https://www.ipea.gov.br/acessooportunidades/dados');"),
-                    circle = FALSE, 
-                    # status = "danger",
-                    label = HTML("&nbsp;&nbsp;Download"),
-                    icon = icon("download"),
-                    right = FALSE,
-                    up = FALSE,
-                    # icon = icon("download"), 
-                    width = "350px",
-                    # tooltip = tooltipOptions(title = "Click to see inputs !"),
-                    inputId = "download_dropdown_maps"
-                    
-                  )
-    ),
+    hidden(
+      absolutePanel(class = "about_button", 
+                    id = "download_button_id",
+                    style = "background: #00AE42",
+                    top = 40, left = 840, height = 40, width = 130,
+                    dropdown(
+                      tagList(
+                        hidden(
+                          div(id = "download_city",
+                              div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download indicator for this region"),
+                              downloadButton("downloadData1_csv", ".csv", icon = NULL),
+                              downloadButton("downloadData1_gpkg", ".gpkg", icon = NULL),
+                              hr()
+                          )
+                        ),
+                        div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download indicator for all regions"),
+                        downloadButton("downloadData2_csv", ".csv", icon = NULL),
+                        downloadButton("downloadData2_gpkg", ".gpkg", icon = NULL),
+                      ),
+                      # tagList(
+                      #   hidden(
+                      #     div(id = "download_overlay_panel",
+                      #         hr(),
+                      #         downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
+                      #     )
+                      #   )
+                      # ),
+                      # hr(),
+                      # actionButton("downloadDic", "Download Data Dictionary", 
+                      #              onclick = "window.open('https://www.ipea.gov.br/acessooportunidades/dados');"),
+                      circle = FALSE, 
+                      # status = "danger",
+                      label = HTML("&nbsp;&nbsp;Download"),
+                      icon = icon("download"),
+                      right = FALSE,
+                      up = FALSE,
+                      # icon = icon("download"), 
+                      width = "350px",
+                      # tooltip = tooltipOptions(title = "Click to see inputs !"),
+                      inputId = "download_dropdown_maps"
+                      
+                    )
+      )),
     
     # uiOutput('back_to_world_panel'),
     absolutePanel(
@@ -328,4 +342,4 @@ ui <- fluidPage(
 )
 
 
-ui <- secure_app(ui)
+# ui <- secure_app(ui)

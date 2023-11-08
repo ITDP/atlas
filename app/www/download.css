@@ -49,7 +49,7 @@ margin-top: 50px;
     box-sizing: border-box !important;
 
 /* Gray / 700 */
-padding: 0 !important;
+padding: 0 0 15px 0 !important;
 background: #1C1C1C !important;
 opacity: 0.9 !important;
 font-size: 15px !important;
@@ -58,11 +58,11 @@ font-size: 15px !important;
 }
 
 
-/*
-#downloadData1, #downloadData2 {
+
+#downloadData1_gpkg, #downloadData1_csv, #downloadData2_csv, #downloadData2_gpkg {
   
-font-family: 'Franklin Gothic Demi' !important;
-color: #F8F9FA !important;
+  display: inline;
+    background-color: #00AE42;
+    border-radius: 5px;
   
 }
-*/
