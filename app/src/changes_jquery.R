@@ -15,7 +15,7 @@ observeEvent(c(city$city_code), {
   } else {
     
     show("download_city")
-    # show("download_overlay_panel")
+    show("download_button_id")
     enable("back_to_world")
   }
   
@@ -25,15 +25,13 @@ observeEvent(c(city$city_code), {
 
 
 # 
-observeEvent(c(indicator$mode), {
-  
-  
-  if (indicator$mode != "") {
-    
-    show("download_button_id")
-    
-    
-  }
+observeEvent(c(input$back_to_world), {
+
+
+
+    hide("download_button_id")
+
+
 })
 
 

@@ -1,7 +1,7 @@
 
 
+# download data for the selected region  for the indicator ---------------------
 
-# download data for the whole world for the indicator  ----------------------------------------------
 
 # data
 output$downloadData1_gpkg <- downloadHandler(
@@ -38,7 +38,7 @@ output$downloadData1_csv <- downloadHandler(
 )
 
 
-# download data for the selected region  for the indicator ---------------------
+# download data for the whole world for the indicator  ----------------------------------------------
 
 output$downloadData2_gpkg <- downloadHandler(
   
@@ -71,7 +71,7 @@ output$downloadData2_csv <- downloadHandler(
   },
   content = function(file) {
     
-    write.csv(sf::st_set_geometry(data_ind2(), NULL), file, row.names = FALSE)
+    write.csv(sf::st_set_geometry(data_ind(), NULL), file, row.names = FALSE)
     
   }
   

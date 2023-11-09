@@ -241,7 +241,7 @@ ui <- fluidPage(
                               hr()
                           )
                         ),
-                        div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download indicator for all regions"),
+                        div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download all indicators for this region"),
                         downloadButton("downloadData2_csv", ".csv", icon = NULL),
                         downloadButton("downloadData2_gpkg", ".gpkg", icon = NULL),
                       ),
