@@ -567,6 +567,10 @@ observeEvent(c(input$rank_more_1_country), {
   
   req(input$rank_more_1_country >= 1)
   
+  waiter_show(
+    html = tagList(spin_loaders(id = 3, color = "black")),
+    color = "rgba(233, 235, 240, .2)")
+  
   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   que <- year$ok
   admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
@@ -592,8 +596,8 @@ observeEvent(c(input$rank_more_1_country), {
                   sep = "\n"
   )
   
-  print("position")
-  print(rank$value[1])
+  # print("position")
+  # print(rank$value[1])
   
   position <- if (admin_level_osm == 0) rank$value[2] else rank$value[1]
   
@@ -615,12 +619,19 @@ observeEvent(c(input$rank_more_1_country), {
     
     
   ))
+
+  
+  waiter_hide()  
   
 })
 
 observeEvent(c(input$rank_more_1_world), {
   
   req(input$rank_more_1_world >= 1)
+  
+  waiter_show(
+    html = tagList(spin_loaders(id = 3, color = "black")),
+    color = "rgba(233, 235, 240, .2)")
   
   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   que <- year$ok
@@ -666,12 +677,20 @@ observeEvent(c(input$rank_more_1_world), {
     
   ))
   
+
+  waiter_hide()
+    
 })
 
 
 observeEvent(c(input$rank_more_1_metro), {
   
   req(input$rank_more_1_metro >= 1)
+  
+  waiter_show(
+    html = tagList(spin_loaders(id = 3, color = "black")),
+    color = "rgba(233, 235, 240, .2)")
+  
   
   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   que <- year$ok
@@ -715,7 +734,10 @@ observeEvent(c(input$rank_more_1_metro), {
     
     
   ))
-  
+
+
+  waiter_hide()
+    
 })
 
 
@@ -790,7 +812,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
   if (isTRUE(rank$admin_level == 1)) {
     
     
-    print("RUNNNNN")
+    # print("RUNNNNN")
     
     format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
     
