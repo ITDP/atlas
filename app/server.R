@@ -66,6 +66,13 @@ function(input, output, session) {
     shinyjs::runjs(sprintf("console.debug(\"%s\")", txt))
   }
   
+  #Keep App alive
+  # https://stackoverflow.com/questions/63739812/why-does-a-shiny-app-get-disconnected-when-not-used-for-a-while
+  keep_alive <- shiny::reactiveTimer(intervalMs = 10000, 
+                                     session = shiny::getDefaultReactiveDomain())
+  
+  shiny::observe({keep_alive()})
+  
   
   # password protection related
   res_auth <- secure_server(
