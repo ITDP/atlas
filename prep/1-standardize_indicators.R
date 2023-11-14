@@ -377,7 +377,7 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_beta/atlas_city_markers.r
 
 
 atlas_country <- st_read("data-raw/data_beta/countries/country_results.geojson")
-atlas_country <- rmapshaper::ms_simplify(atlas_country)
+atlas_country <- rmapshaper::ms_simplify(atlas_country, keep = 0.1)
 # atlas_country1 <- fread("data-raw/atlas_data_july_31/country_results/country_results.csv")
 
 # bring the names
@@ -397,7 +397,7 @@ ind_columns <- colnames(atlas_country)[colnames(atlas_country) %nin% c("a3", "na
 
 # first, rename indicators that are divided by year
 ind_columns <- gsub(pattern = "(total_pop)_(\\d{4})",
-                    replacement = "city_poptotal_\\2",
+                    replacement = "city_popdensitytotal_\\2",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "^(density)_(\\d{4})",
                     replacement = "city_popdensity_\\2",

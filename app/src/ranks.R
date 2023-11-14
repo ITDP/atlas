@@ -117,7 +117,8 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
       # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
       '<div class="title_indicator" style="font-size: 20px;">', 
       "THE WORLD", '</div>',
-      div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), " ", 
+      div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), 
+      ifelse(format_indicator_unit == "%", "", " "), 
       p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
     )
     
@@ -275,7 +276,8 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
     # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
     '<div class="title_indicator" style="font-size: 20px;">', 
     rank_indicator$name, '</div>',
-    div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), " ", 
+    div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), 
+    ifelse(format_indicator_unit == "%", "", " "),
     p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
   )
   
@@ -385,23 +387,29 @@ observeEvent(c(input$map_shape_click, city$city_code,
                                                "journeygap" = sprintf("In %s, the average trip takes %s times as long by walking, bicycling, or public transport as by driving.", 
                                                                       style_text(rank_indicator$name), 
                                                                       style_number(format_indicator_value)),
-                                               "pns" = sprintf("%s %% of people in %s live within 1km of both healthcare and education services.", 
+                                               "pns" = sprintf("%s%s of people in %s live within 1km of both healthcare and education services.", 
                                                                style_number(format_indicator_value), 
+                                                               style_number("%"), 
                                                                style_text(rank_indicator$name)),
-                                               "pncf" = sprintf("%s %% of people in %s live within 100m of a car-free space.", 
+                                               "pncf" = sprintf("%s%s of people in %s live within 100m of a car-free space.", 
                                                                 style_number(format_indicator_value), 
+                                                                style_number("%"), 
                                                                 style_text(rank_indicator$name)),
-                                               "pnh" = sprintf("%s %% of people in %s live farther than 500m from a grade-separated highway. ", 
+                                               "pnh" = sprintf("%s%s of people in %s live farther than 500m from a grade-separated highway. ", 
                                                                style_number(format_indicator_value), 
+                                                               style_number("%"), 
                                                                style_text(rank_indicator$name)),
-                                               "pnpb" = sprintf('%s %% of people in %s live within a 300m walk of a protected bikeway. ', 
+                                               "pnpb" = sprintf('%s%s of people in %s live within a 300m walk of a protected bikeway. ', 
                                                                 style_number(format_indicator_value), 
+                                                                style_number("%"), 
                                                                 style_text(rank_indicator$name)),
-                                               "pnrtall" = sprintf("%s %% of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
+                                               "pnrtall" = sprintf("%s%s of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
                                                                    style_number(format_indicator_value), 
+                                                                   style_number("%"), 
                                                                    style_text(rank_indicator$name)),
-                                               "pnft" = sprintf("%s %% of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
+                                               "pnft" = sprintf("%s%s of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
                                                                 style_number(format_indicator_value), 
+                                                                style_number("%"), 
                                                                 style_text(rank_indicator$name))
                                                
                      )
@@ -619,7 +627,7 @@ observeEvent(c(input$rank_more_1_country), {
     
     
   ))
-
+  
   
   waiter_hide()  
   
@@ -677,9 +685,9 @@ observeEvent(c(input$rank_more_1_world), {
     
   ))
   
-
+  
   waiter_hide()
-    
+  
 })
 
 
@@ -734,10 +742,10 @@ observeEvent(c(input$rank_more_1_metro), {
     
     
   ))
-
-
+  
+  
   waiter_hide()
-    
+  
 })
 
 
@@ -840,23 +848,29 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
                               "journeygap" = sprintf("In %s, the average trip takes %s times as long by walking, bicycling, or public transport as by driving.", 
                                                      style_text(rank_indicator$name), 
                                                      style_number(format_indicator_value)),
-                              "pns" = sprintf("%s %% of people in %s live within 1km of both healthcare and education services.", 
+                              "pns" = sprintf("%s%s of people in %s live within 1km of both healthcare and education services.", 
                                               style_number(format_indicator_value), 
+                                              style_number("%"), 
                                               style_text(rank_indicator$name)),
-                              "pncf" = sprintf("%s %% of people in %s live within 100m of a car-free space.", 
+                              "pncf" = sprintf("%s%s of people in %s live within 100m of a car-free space.", 
                                                style_number(format_indicator_value), 
+                                               style_number("%"), 
                                                style_text(rank_indicator$name)),
-                              "pnh" = sprintf("%s %% of people in %s live farther than 500m from a grade-separated highway. ", 
+                              "pnh" = sprintf("%s%s of people in %s live farther than 500m from a grade-separated highway. ", 
                                               style_number(format_indicator_value), 
+                                              style_number("%"), 
                                               style_text(rank_indicator$name)),
-                              "pnpb" = sprintf('%s %% of people in %s live within a 300m walk of a protected bikeway. ', 
+                              "pnpb" = sprintf('%s%s of people in %s live within a 300m walk of a protected bikeway. ', 
                                                style_number(format_indicator_value), 
+                                               style_number("%"), 
                                                style_text(rank_indicator$name)),
-                              "pnrtall" = sprintf("%s %% of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
+                              "pnrtall" = sprintf("%s%s of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
                                                   style_number(format_indicator_value), 
+                                                  style_number("%"), 
                                                   style_text(rank_indicator$name)),
-                              "pnft" = sprintf("%s %% of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
+                              "pnft" = sprintf("%s%s of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
                                                style_number(format_indicator_value), 
+                                               style_number("%"), 
                                                style_text(rank_indicator$name))
                               
     )
