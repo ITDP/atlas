@@ -101,7 +101,7 @@ counter <- reactiveValues(obs1 = NULL,
 # update world values when indicator is changed -------
 observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   
-  req(indicator$mode, input$year, indicator_info$transformation)
+  req(indicator$mode, input$year, indicator_info$transformation, is.null(rank$admin_level))
   
   shinyjs::logjs("Map: update world data when indicator is changed")
   
@@ -905,7 +905,7 @@ observeEvent(c(indicator$mode, input$year), {
 
 rv <- reactiveValues(prev_city = 1)  
 
-observeEvent(c(city$city_code, rank$admin_level), {
+observeEvent(c(city$city_code, rank$admin_level, input$year), {
   
   # print("pus")
   # print(rank$admin_level)
@@ -914,13 +914,13 @@ observeEvent(c(city$city_code, rank$admin_level), {
   
   rv$prev_city <- c(rv$prev_city, rep(city$city_code, 2))
   
-  print("comeh")
-  print(rv$prev_city)
+  # print("comeh")
+  # print(rv$prev_city)
   
   
 }, ignoreInit = TRUE, priority = 2)
 
-observeEvent(c(indicator$mode), {
+observeEvent(c(indicator$mode, input$year), {
   
   # print("pus")
   # print(rank$admin_level)
@@ -945,6 +945,7 @@ data_ind3_spatial <- reactive({
   
   rank$admin_level
   input$admin_level
+  year$ok
   
   isolate({
     
@@ -964,12 +965,17 @@ data_ind3_spatial <- reactive({
       } else {
         
         # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
+        # print("AQUIIIII")
+        # print(data_ind3())
         a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
       }
       
       
     }
     
+    
+    # print("pera1")
+    # print(a)
     
     # create the color palette
     pal <- colorNumeric(
@@ -999,10 +1005,6 @@ observeEvent(c(
   # this observer will only run if whe aren't switching cities
   previous_city <- rv$prev_city[length(rv$prev_city)-1]
   
-  
-  # print(city$city_code)
-  # print(rv$prev_city)
-  
   # it will only run if the actual city is equal to the previous city
   req(city$city_code == previous_city,
       isTRUE(rank$admin_level >= 1),
@@ -1023,6 +1025,10 @@ observeEvent(c(
   legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
   
   
+  # print("pera2")
+  # print(data_ind3_spatial())
+  
+  
   format_indicator_value <- format_indicator_values(data_ind3_spatial()$value, indicator_info$transformation)
   
   # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
@@ -1030,8 +1036,8 @@ observeEvent(c(
   indicator$values <- format_indicator_value
   indicator$unit <- indicator_info$unit
 
-  print(indicator$values)
-  print(indicator$unit)
+  # print(indicator$values)
+  # print(indicator$unit)
     
   
   labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
@@ -1156,7 +1162,7 @@ observeEvent(c(
   
   waiter_hide()
   
-}, priority = 1)
+}, priority = -1)
 
 
 

@@ -295,6 +295,8 @@ observeEvent(c(indicator$mode), {
   
 })
 
+observeEventTrigger <-  reactiveVal()
+
 # display rank when region or map is clicked
 observeEvent(c(input$map_shape_click, city$city_code,
                year$ok,
@@ -302,7 +304,10 @@ observeEvent(c(input$map_shape_click, city$city_code,
                input$regions_grid), label = "rank", {
                  
                  
-                 req(data_ind3(), data_ind3_spatial())
+                 # observeEventTrigger(req(input$changed))
+                 # cat("My execution was triggered by input:", observeEventTrigger(), "\n")
+                 
+                 req(data_ind3_spatial())
                  
                  
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
@@ -327,7 +332,10 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                    # conditions that this should run:
                    # when 
-                   run <- if (isTRUE(length(element$selected1) == 1)) {
+                   # print("when")
+                   # print(element$selected1)
+                   
+                   run <- if (isTRUE(length(element$selected1) >= 1)) {
                      
                      TRUE
                      
@@ -338,7 +346,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      
                    } else {FALSE}
                    
-                   
+                   # print(run)
                    
                    if(run) {
                      
@@ -377,6 +385,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      }
                      
                      # create the indicator label for each indicator
+                     # print(rank_indicator$name)
                      indicator_label <- switch(indicator$mode,
                                                "popdensity" = sprintf("%s has a weighted population density of %s people per km2", 
                                                                       style_text(rank_indicator$name), 
@@ -469,6 +478,9 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        ranks_text2 <- subset(ranks_text, type_rank == "country" & year == que)
                        ranks_text2_display <- sprintf('<div class="text_compare" style="font-size: 14px; display: inline";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the %s</div>',
                                                       ranks_text2$rank, ranks_text2$n, ranks_text2$type_rank)
+                       
+                       # print("ANO AQUI")
+                       # print(ranks_text2_display)
                        
                        rank_text_country <- ranks_text2_display
                        rank$value <- c(rank$value, ranks_text2$rank)
@@ -798,7 +810,7 @@ observeEvent(c(indicator$mode), {
 # THIS IR RUNNING DUPLICATE WHEN ADMIN LEVEL == 1 ----------------------------------------------
 # THIS OBSERVER WOULD WORK TO COME BACK TO ADMIN LEVEL 1
 
-observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$regions_grid), {
+observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$regions_grid, year$ok), {
   
   # waiter_show()
   # print(paste0("rank admin level"))
@@ -810,7 +822,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
       city$city_code == previous_city,
       rank$admin_level >= 1)
   
-  
+  # print("gooooo")
   
   rank_indicator <- subset(data_ind3(), osmid == city$city_code)[1,]
   # it will run only when we are at the city level
@@ -906,7 +918,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
 output$rank_final <- renderUI({
   
   # req(input$indicator)
-  print(input$indicator)
+  # print(input$indicator)
   
   if (input$indicator == "") {
     

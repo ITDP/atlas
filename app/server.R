@@ -109,6 +109,11 @@ function(input, output, session) {
     
   })
   
+  observeEvent(input$year, {
+   
+    year$ok <- input$year
+  })
+  
   w <- Waiter$new(id = c("rank_final"),
                   html = tagList(
                     spin_loaders(id = 3, color = "#00AE42"
@@ -1051,7 +1056,7 @@ function(input, output, session) {
   
   observeEvent(c(input$teste12), {
     
-    print("boraaaaa")
+    # print("boraaaaa")
     
     subset(a, x == 1)
     

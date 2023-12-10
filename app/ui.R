@@ -95,6 +95,14 @@ ui <- fluidPage(
       Shiny.onInputChange(variableName, null);
     });
   "),
+  # tags$head(
+  # tags$script(
+  #   "$(document).on('shiny:inputchanged', function(event) {
+  #         if (event.name != 'changed') {
+  #           Shiny.setInputValue('changed', event.name);
+  #         }
+  #       });"
+  # )),
   # tags$script("
   #   $( document ).on('click', '#comparison_panel', function() {
   #   $('#comparison_panel').toggle('show');

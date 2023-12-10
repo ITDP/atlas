@@ -44,6 +44,8 @@ data_ind2 <- reactive({
   
   req(indicator$mode, data_ind1())
   message("Filter indicator #2")  
+  # print("year$ok")
+  # print(year$ok)
   # print(indicator$mode)
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'geom')
@@ -61,11 +63,11 @@ data_ind2 <- reactive({
 # filter year when available
 data_ind3 <- reactive({
   
-  req(indicator$mode, year$ok, data_ind2())
+  req(data_ind2())
   
+  # print("pq")
   # take dependcy on year and the previous dataset
-  year$ok
-  data_ind2()
+  input$year
   
   isolate ({
     
@@ -91,7 +93,6 @@ data_ind3 <- reactive({
     
   } else {
     
-    
     pattern <- sprintf("_%s", year$ok)
     cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind2())[endsWith(colnames(data_ind2()), pattern)], 'geom')
     a <- data_ind2()[cols]
@@ -101,6 +102,9 @@ data_ind3 <- reactive({
     colnames(a) <- colnames_new
     
   }
+  
+  # print("aqui origial")
+  # print(a)
   return(a)
     
   })
