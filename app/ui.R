@@ -232,51 +232,13 @@ ui <- fluidPage(
     
     
     # back to world button
-    # uiOutput('download_button'),
-    # uiOutput('download_button_maps'), # da pra trazer
-    hidden(
-      absolutePanel(class = "about_button", 
-                    id = "download_button_id",
-                    style = "background: #00AE42",
-                    top = 40, left = 840, height = 40, width = 130,
-                    dropdown(
-                      tagList(
-                        hidden(
-                          div(id = "download_city",
-                              div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download indicator for this region"),
-                              downloadButton("downloadData1_csv", ".csv", icon = NULL),
-                              downloadButton("downloadData1_gpkg", ".gpkg", icon = NULL),
-                              hr()
-                          )
-                        ),
-                        div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download all indicators for this region"),
-                        downloadButton("downloadData2_csv", ".csv", icon = NULL),
-                        downloadButton("downloadData2_gpkg", ".gpkg", icon = NULL),
-                      ),
-                      # tagList(
-                      #   hidden(
-                      #     div(id = "download_overlay_panel",
-                      #         hr(),
-                      #         downloadButton("download_overlay", "Download overlay for this indicator", icon = NULL)
-                      #     )
-                      #   )
-                      # ),
-                      # hr(),
-                      # actionButton("downloadDic", "Download Data Dictionary", 
-                      #              onclick = "window.open('https://www.ipea.gov.br/acessooportunidades/dados');"),
-                      circle = FALSE, 
-                      # status = "danger",
-                      label = HTML("&nbsp;&nbsp;Download"),
-                      icon = icon("download"),
-                      right = FALSE,
-                      up = FALSE,
-                      # icon = icon("download"), 
-                      width = "350px",
-                      # tooltip = tooltipOptions(title = "Click to see inputs !"),
-                      inputId = "download_dropdown_maps"
-                      
-                    )
-      )),
+    absolutePanel(class = "about_button", 
+                  id = "download_button_id",
+                  style = "background: #00AE42; ",
+                  top = 40, left = 840, height = 40, width = 130,
+                  uiOutput('download_button')
+    ),
+    
     
     # uiOutput('back_to_world_panel'),
     absolutePanel(

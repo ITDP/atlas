@@ -7,7 +7,6 @@ observeEvent(c(city$city_code), {
   
   if (city$city_code == "") {
     
-    
     disable("back_to_world")
     hide("download_city")
     # hide("download_overlay_panel")
@@ -15,7 +14,7 @@ observeEvent(c(city$city_code), {
   } else {
     
     show("download_city")
-    show("download_button_id")
+    # show("download_button_id")
     enable("back_to_world")
   }
   
@@ -23,15 +22,28 @@ observeEvent(c(city$city_code), {
   
 })
 
+observeEvent(c(indicator$mode), {
+  
+  enable("download_dropdown_maps")
+  enable("downloadData_countries_csv")
+  enable("downloadData_countries_gpkg")
+  enable("downloadData_cities_csv")
+  enable("downloadData_cities_gpkg")
+  enable("downloadData1_csv")
+  enable("downloadData1_gpkg")
+  enable("downloadData2_csv")
+  enable("downloadData2_gpkg")
+  
+})
 
 # 
 observeEvent(c(input$back_to_world), {
-
-
-
-    hide("download_button_id")
-
-
+  
+  
+  
+  # hide("download_button_id")
+  
+  
 })
 
 

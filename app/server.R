@@ -110,7 +110,7 @@ function(input, output, session) {
   })
   
   observeEvent(input$year, {
-   
+    
     year$ok <- input$year
   })
   
@@ -661,27 +661,49 @@ function(input, output, session) {
   
   output$download_button <- renderUI({
     
-    absolutePanel(
-      
-      
-      class = "about_button",
-      style = "background: #00AE42",
-      # class = "w3-container w3-animate-opacity", 
-      # class = "panel panel-default",
-      # fixed = TRUE, draggable = FALSE,
-      top = 20, right = 790, height = 40, width = 130,
-      # tags$div(class = "title_left_panel", 
-      #          # "COMPARE", 
-      #          actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
-      #                       class = "minimize"),
-      #          actionButton("teste4", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px;",
-      #                       class = "minimize")
-      # ),
-      actionButton(inputId = "download_button", 
-                   icon = icon("download"),
-                   label =  HTML("&nbsp;Download"))
-      
+    disabled(
+      dropdown(
+        # download for the "world" level
+        conditionalPanel("!output.city",
+                         tagList(
+                           div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download country data for the selected indicator"),
+                           downloadButton("downloadData_countries_csv", ".csv", icon = NULL),
+                           downloadButton("downloadData_countries_gpkg", ".gpkg", icon = NULL),
+                           hr(),
+                           div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download cities data for the selected indicator"),
+                           downloadButton("downloadData_cities_csv", ".csv", icon = NULL),
+                           downloadButton("downloadData_cities_gpkg", ".gpkg", icon = NULL),
+                         )
+        ),
+        # download for the city level
+        conditionalPanel("output.city",
+                         tagList(
+                           div(id = "download_city",
+                               div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download indicator for this region"),
+                               downloadButton("downloadData1_csv", ".csv", icon = NULL),
+                               downloadButton("downloadData1_gpkg", ".gpkg", icon = NULL),
+                               hr()
+                           ),
+                           div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download all indicators for this region"),
+                           downloadButton("downloadData2_csv", ".csv", icon = NULL),
+                           downloadButton("downloadData2_gpkg", ".gpkg", icon = NULL),
+                         )
+        ),
+        circle = FALSE, 
+        # status = "danger",
+        label = HTML("&nbsp;&nbsp;Download"),
+        icon = icon("download"),
+        right = FALSE,
+        up = FALSE,
+        # icon = icon("download"), 
+        width = "350px",
+        # tooltip = tooltipOptions(title = "Click to see inputs !"),
+        inputId = "download_dropdown_maps"
+        
+      )
     )
+    
+    
     
   })
   

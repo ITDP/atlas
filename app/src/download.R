@@ -1,5 +1,82 @@
 
 
+
+# download data in the world view -------------------------------------------------------------
+
+
+# data
+output$downloadData_countries_gpkg <- downloadHandler(
+  
+  # generate button with data
+  filename = function() {
+    
+    
+    sprintf("atlas_countries_%s.gpkg", indicator$mode)
+    
+  },
+  content = function(file) {
+    
+    pattern <-  sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+    
+    sf::st_write(world_view$a_country, file)
+    
+  }
+  
+)
+output$downloadData_countries_csv <- downloadHandler(
+  
+  # generate button with data
+  filename = function() {
+    
+    
+    sprintf("atlas_countries_%s.csv", indicator$mode)
+    
+  },
+  content = function(file) {
+    
+    write.csv(sf::st_set_geometry(world_view$a_country, NULL), file, row.names = FALSE, sep = ",")
+    
+  }
+  
+)
+output$downloadData_cities_gpkg <- downloadHandler(
+  
+  # generate button with data
+  filename = function() {
+    
+    
+    sprintf("atlas_cities_%s.gpkg", indicator$mode)
+    
+  },
+  content = function(file) {
+    
+    sf::st_write(world_view$a_available[, c("name", "hdc", "value")], file)
+    
+  }
+  
+)
+output$downloadData_cities_csv <- downloadHandler(
+  
+  # generate button with data
+  filename = function() {
+    
+    
+    sprintf("atlas_cities_%s.csv", indicator$mode)
+    
+  },
+  content = function(file) {
+    
+    write.csv(sf::st_set_geometry(world_view$a_available[, c("name", "hdc", "value")], NULL), file, row.names = FALSE, sep = ",")
+    
+  }
+  
+)
+
+
+
+
+
+
 # download data for the selected region  for the indicator ---------------------
 
 
