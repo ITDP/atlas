@@ -84,7 +84,11 @@ observeEvent(c(input$back_to_world), {
               title = world_view$legend_title,
               # bins = 7,
               labFormat = world_view$legend_value,
-              layerId = "legend_country")
+              layerId = "legend_country") %>%
+    addLayersControl(baseGroups = c("Light", "Dark", "Satellite"),
+                     # overlayGroups = c("Overlay"),
+                     options = layersControlOptions(collapsed = FALSE),
+                     position = "bottomright")
   
   
   
