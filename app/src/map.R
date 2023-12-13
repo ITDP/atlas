@@ -627,7 +627,7 @@ observeEvent(c(input$map_shape_click), {
       removeShape(layerId = ui) %>%
       # 2) create the selected polygon with the stronger stroke
       addPolygons(data = data,
-                  fillColor = data$fill, fillOpacity = 1,
+                  fillColor = data$fill, fillOpacity = 0.5,
                   # fillColor = ~pal(value),
                   # fillOpacity = 0.5,
                   color = "black",  weight = 8, layerId = ~osmid, opacity = 1,
