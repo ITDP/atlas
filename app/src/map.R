@@ -361,6 +361,7 @@ observeEvent(c(city$city_code), {
                       color = "black")) %>%
     removeMarker(layerId = data_metro$osmid) %>%
     clearShapes() %>%
+    clearControls() %>%
     removeControl(layerId = c("legend_country")) %>%
     removeControl(layerId = c("legend_city")) %>%
     removeLayersControl() %>%
