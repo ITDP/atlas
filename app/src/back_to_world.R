@@ -102,10 +102,26 @@ observeEvent(c(input$back_to_world), {
   rank$rank_value <- rank$rank_value_world  
   
   
-
+  
   # remove the compare button (not available at the world view) ---------------------------------
   # delay(2, runjs("$('#compare_panel').css('display', 'none');"))
-
+  
+  
+  
+  # reset list of indicators --------------------------------------------------------------------
+  
+  list_indicators <- list("City" = list_city, "Bike" = list_bike, "Walk" = list_walk, "Transit" = list_transit)
+  names <- unlist(lapply(names(list_indicators), function(n) names(list_indicators[[n]])))
+  
+  updatePickerInput(
+    session = session,
+    inputId = "indicator",
+    choices = list_indicators,
+    selected = indicator$mode
+    # choicesOpt = list(
+    #   disabled = !(list_availability_cities1$available)
+    # )
+  )  
   
   
 }) 
