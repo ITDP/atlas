@@ -78,9 +78,9 @@ data_all <- data_all %>% mutate(hdc = stringr::str_pad(hdc, width = 5, side = "l
 
 # remove indicators that we wont use
 data_all <- data_all %>%
-  dplyr::select(-starts_with("rtr_")) %>%
+  # dplyr::select(-starts_with("rtr_")) %>%
   dplyr::select(-starts_with("stns_")) %>%
-  dplyr::select(-starts_with("km_")) %>%
+  # dplyr::select(-starts_with("km_")) %>%
   dplyr::select(-starts_with("n_points_special")) %>%
   dplyr::select(-starts_with("performance")) %>%
   # select(-performance_walk_30, -performance_walk_60, -performance_bike_lts1_30, -performance_bike_lts1_45,
@@ -157,10 +157,10 @@ prep_data <- function(ghsl) {
   ind_columns <- gsub(pattern = "(block_density)_(\\d{4})",
                       replacement = "city_blockdensity_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(journey_gap)_(\\d{4})",
-                      replacement = "city_journeygap_\\2",
-                      x = ind_columns,
-                      perl = TRUE)
+  # ind_columns <- gsub(pattern = "(journey_gap)_(\\d{4})",
+  #                     replacement = "city_journeygap_\\2",
+  #                     x = ind_columns,
+  #                     perl = TRUE)
   
   
   ind_columns <- gsub(pattern = "(pnab)_(\\d{4})",
@@ -214,6 +214,10 @@ prep_data <- function(ghsl) {
                       x = ind_columns)
   
   
+  ind_columns <- gsub(pattern = "(PNrT)_(all)_(\\d{4})",
+                      replacement = "transit_\\L\\1_\\3",
+                      x = ind_columns,
+                      perl = TRUE)
   ind_columns <- gsub(pattern = "(PNrT)_([[:lower:]]{3})_(\\d{4})",
                       replacement = "transit_\\L\\1\\E\\2_\\3",
                       x = ind_columns,
@@ -250,8 +254,6 @@ prep_data <- function(ghsl) {
     startsWith(ind_columns, "transit_pnft"),                  ind_columns,
     
     startsWith(ind_columns, "transit_pnrt"), ind_columns,
-    startsWith(ind_columns, "transit_km"), ind_columns,
-    startsWith(ind_columns, "transit_rtr"), ind_columns,
     
     
     ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2022",
@@ -290,14 +292,7 @@ prep_data <- function(ghsl) {
                   starts_with("walk_pncf"),
                   starts_with("walk_pnnhighways"),
                   starts_with("transit_pnft"),
-                  starts_with("transit_pnrtall"),
-                  starts_with("transit_pnrtbrt"),
-                  starts_with("transit_pnrtlrt"),
-                  starts_with("transit_pnrtmrt"),
-                  starts_with("transit_km"),
-                  starts_with("transit_rtr"),
-                  starts_with("performance_bike"),
-                  starts_with("performance_walk")) %>%
+                  starts_with("transit_pnrt")) %>%
     mutate(across(starts_with("transit"), as.numeric))
   
   data$admin_level <- as.character(data$admin_level)
@@ -462,6 +457,10 @@ ind_columns <- gsub(pattern = "(n_points_transit_pnft)_(\\d{4})",
                     x = ind_columns)
 
 
+ind_columns <- gsub(pattern = "(PNrT)_(all)_(\\d{4})",
+                    replacement = "transit_\\L\\1_\\3",
+                    x = ind_columns,
+                    perl = TRUE)
 ind_columns <- gsub(pattern = "(PNrT)_([[:lower:]]{3})_(\\d{4})",
                     replacement = "transit_\\L\\1\\E\\2_\\3",
                     x = ind_columns,
@@ -498,8 +497,6 @@ ind_columns_new <- fcase(
   startsWith(ind_columns, "transit_pnft"),                  ind_columns,
   
   startsWith(ind_columns, "transit_pnrt"), ind_columns,
-  startsWith(ind_columns, "transit_km"), ind_columns,
-  startsWith(ind_columns, "transit_rtr"), ind_columns,
   
   
   ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2022",
@@ -525,10 +522,7 @@ atlas_country <- atlas_country %>%
                 starts_with("walk_pncf"),
                 starts_with("walk_pnnhighways"),
                 starts_with("transit_pnft"),
-                starts_with("transit_pnrtall"),
-                starts_with("transit_pnrtbrt"),
-                starts_with("transit_pnrtlrt"),
-                starts_with("transit_pnrtmrt"),
+                starts_with("transit_pnrt"),
                 starts_with("performance_bike"),
                 starts_with("performance_walk"))
 
@@ -655,7 +649,7 @@ indicators_all_df_long1 <- indicators_all_df_long %>%
   mutate(id = rleid(hdc)) %>%
   select(hdc, ind, available) %>%
   filter(ind %in% c("popdensity", "blockdensity", "journeygap", "pnpb", "pns",
-                    "pncf", "pnnhighways", "pnft", "pnrtall"))
+                    "pncf", "pnnhighways", "pnft", "pnrt"))
 
 
   

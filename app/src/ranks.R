@@ -230,8 +230,8 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   rank$indicator <- value_indicator
   
   
-  # print("rank_indicator")
-  # print(rank_indicator)
+  print("rank_indicator")
+  print(rank_indicator)
   
   # rank$country <- 
   
@@ -412,7 +412,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                                                                 style_number(format_indicator_value), 
                                                                 style_number("%"), 
                                                                 style_text(rank_indicator$name)),
-                                               "pnrtall" = sprintf("%s%s of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
+                                               "pnrt" = sprintf("%s%s of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
                                                                    style_number(format_indicator_value), 
                                                                    style_number("%"), 
                                                                    style_text(rank_indicator$name)),
@@ -876,7 +876,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
                                                style_number(format_indicator_value), 
                                                style_number("%"), 
                                                style_text(rank_indicator$name)),
-                              "pnrtall" = sprintf("%s%s of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
+                              "pnrt" = sprintf("%s%s of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
                                                   style_number(format_indicator_value), 
                                                   style_number("%"), 
                                                   style_text(rank_indicator$name)),

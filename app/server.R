@@ -35,7 +35,7 @@ list_walk <- structure(c(
   "People Not Near Highways"
 ))
 
-list_transit <- structure(c("pnft", "pnrtall"
+list_transit <- structure(c("pnft", "pnrt"
 ), 
 .Names = c(
   "People Near Frequent Transit", 
@@ -44,13 +44,13 @@ list_transit <- structure(c("pnft", "pnrtall"
 
 list_city <- structure(c(
   "popdensity",
-  "blockdensity",
-  "journeygap"
+  "blockdensity"
+  # "journeygap"
 ), 
 .Names = c(
   "Population Density",
-  "Block Density",
-  "Journey Gap"
+  "Block Density"
+  # "Journey Gap"
 ))
 
 function(input, output, session) {
@@ -741,7 +741,7 @@ function(input, output, session) {
       
       indicator$type <- "walk"
       
-    } else if (input$indicator %in% c("pnft", "pnrtall", "pnrtlrt", "pnrtmrt", "pnrtbrt")) {
+    } else if (input$indicator %in% c("pnft", "pnrt", "pnrtlrt", "pnrtmrt", "pnrtbrt")) {
       
       indicator$type <- "transit"
       
@@ -942,6 +942,10 @@ function(input, output, session) {
     
     list_indicators <- list("City" = list_city, "Bike" = list_bike, "Walk" = list_walk, "Transit" = list_transit)
     names <- unlist(lapply(names(list_indicators), function(n) names(list_indicators[[n]])))
+    
+    # print(list_availability_cities1)
+    # print(list_indicators)
+    # print(names)
     
     updatePickerInput(
       session = session,

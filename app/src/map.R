@@ -106,7 +106,6 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   shinyjs::logjs("Map: update world data when indicator is changed")
   
   
-  
   pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
   a <- atlas_city_markers[cols]
@@ -123,7 +122,9 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
     
   }
   
-  # print(class(atlas_country))
+  # print("atlas_country()")
+  # print(atlas_country())
+  
   cols_country <- c('a3', 'name', colnames(atlas_country())[startsWith(colnames(atlas_country()), pattern)], 'geometry')
   a_country <- atlas_country()[cols_country]
   colnames(a_country) <- c('a3', 'name', 'value', 'geometry')
@@ -207,7 +208,8 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   
   shinyjs::logjs("Map: update world map when indicator is changed")
   
-  
+  # print(world_view$a_available)
+  # print(world_view$a_country)
   
   map <- leafletProxy("map", data = world_view$a_available) %>%
     clearMarkers() %>%

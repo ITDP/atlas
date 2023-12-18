@@ -24,7 +24,7 @@ data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level)) %>%
                 starts_with("walk_pncf_"),
                 starts_with("walk_pnnhighways_"),
                 starts_with("transit_pnft_"),
-                starts_with("transit_pnrtall_"))
+                starts_with("transit_pnrt_"))
   
   
   

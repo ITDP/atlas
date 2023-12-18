@@ -24,7 +24,7 @@ list_walk <- structure(c(
   "People Not Near Highways"
 ))
 
-list_transit <- structure(c("pnft", "pnrtall"
+list_transit <- structure(c("pnft", "pnrt"
                             # "pnrtlrt", "pnrtmrt", "pnrtbrt"
 ), 
 .Names = c(

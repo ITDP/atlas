@@ -150,3 +150,9 @@ prep_overlays("13039")
 # library(furrr)
 # plan(multisession)
 # future_walk(left, prep_overlays)
+
+
+old <- dir("data/data_beta", pattern = "pnrtall", recursive = TRUE, full.names = TRUE)
+new <- stringr::str_replace(old, pattern = "pnrtall", replacement = "pnrt")
+
+purrr::walk2(old, new, file.rename)
