@@ -3,25 +3,41 @@ about <- reactiveValues(input = NULL)
 # identify from which input you came
 observeEvent(c(input$about), {
   
+  req(isTRUE(input$about >= 1))
+  
+  print("input$about")
+  print(input$about)
+  
   about$input <- "buttom"
   
 }, priority = 10)
 
 observeEvent(c(input$link1), {
   
+  req(isTRUE(input$link1 >= 1))
+  
+  print("input$link1")
+  print(input$link1)
+  
   about$input <- "link"
   
 }, priority = 10)
 
 
-observeEvent(c(input$about, input$link1), {
+observeEvent(c(about$input), {
   
-  req(input$about >= 1 | input$link1 >= 1)
   
-  print(about$input)
+  # print(input$about)
+  # print(input$link1)
+  # req(isTRUE(input$about >= 1) | isTRUE(input$link1 >= 1))
+  # req(isTRUE(input$about >= 1) | isTRUE(input$link1 >= 1))
+  
+  # print(about$input)
   
   # identify which tab to show by default
   tab_default <- ifelse(about$input == "buttom", "about_atlas", "about_data")
+  
+  about$input <- NULL
   
   showModal(modalDialog1(
     title = "ABOUT",
