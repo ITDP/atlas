@@ -1,8 +1,27 @@
+about <- reactiveValues(input = NULL)
 
-
+# identify from which input you came
 observeEvent(c(input$about), {
   
-  req(input$about >= 1)
+  about$input <- "buttom"
+  
+}, priority = 10)
+
+observeEvent(c(input$link1), {
+  
+  about$input <- "link"
+  
+}, priority = 10)
+
+
+observeEvent(c(input$about, input$link1), {
+  
+  req(input$about >= 1 | input$link1 >= 1)
+  
+  print(about$input)
+  
+  # identify which tab to show by default
+  tab_default <- ifelse(about$input == "buttom", "about_atlas", "about_data")
   
   showModal(modalDialog1(
     title = "ABOUT",
@@ -10,7 +29,7 @@ observeEvent(c(input$about), {
     easyClose = TRUE,
     footer = NULL,
     id1 = "modal_about",
-    tabsetPanel(type = "tabs", id = "about_tabs",
+    tabsetPanel(type = "tabs", id = "about_tabs", selected = tab_default,
                 tabPanel("THE ATLAS PROJECT",  value = "about_atlas",                                
                          absolutePanel(
                            class = "about_modal",
@@ -66,4 +85,4 @@ observeEvent(c(input$about), {
     )
   ))
   
-})
+}, priority = 2)

@@ -6,15 +6,15 @@ output$text_indicator <- renderUI({
   # print("GOGAOGI")
   # print(rank$indicator)
   
-      format_indicator_value <- format_indicator_values(rank$indicator$value, transformation = indicator_info$transformation)
-      source(sprintf("www/text/text_indicator_%s.R", indicator$mode), local = TRUE)
+  format_indicator_value <- format_indicator_values(rank$indicator$value, transformation = indicator_info$transformation)
+  source(sprintf("www/text/text_indicator_%s.R", indicator$mode), local = TRUE)
   
   tagList(
-      
-      
-      
-      HTML(c(p1, p2, p3))
-      
+    
+    
+    
+    HTML(c(p1, p2, p3))
+    
   )
   
 })

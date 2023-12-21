@@ -22,9 +22,10 @@ p2 <- c('<div class = "title_indicator_label2">HOW IT\'S CALCULATED</div>',
 '<div class = "text_indicator2"><p>',
 '<p>GTFS, or <a target="_blank" href="https://mobilitydata.org/data-standards/#what-is-gtfs">General Transit Feed Specification</a>, is the digital data format that represents transit maps and timetables. GTFS is usually published by transit agencies, although in some cases it is collected by advocates, researchers, or private firms.</p>',
 '<p>The organization Mobility Data maintains a <a target="_blank" href="http://database.mobilitydata.org/">database</a> of over 1800 GTFS files from around the world. We reference that database, downloading GTFS files from it, and use them to identify transit stops where vehicles come every 10 minutes or better, 5 a.m. to 9 p.m. </p>',
-'<p>If (part of) your city’s transport is not included here, you can help us add it by following the instructions in the <a target="_blank" href="#data-&-algorithms">data & algorithms section</a>.</p>',
+sprintf('<p>If (part of) your city’s transport is not included here, you can help us add it by following the instructions in the %s section</p>', as.character(actionLink(inputId = "link1", label = "data & algorithms"))),
 '</div>')       
         
+
 
 p3 <- c(
 '<div class = "title_indicator_label2">Policy Recommendations</div>',
