@@ -5,6 +5,7 @@ library(leaflet)
 library(data.table)
 library(Hmisc)
 library(purrr)
+library(stars)
 sf::sf_use_s2(FALSE)
 
 
@@ -26,7 +27,7 @@ prep_overlays <- function(ghsl) {
   
   # ghsl <- "01406"
   # ghsl <- "01165"
-  # ghsl <- "00010"
+  # ghsl <- "00014"
   # ghsl <- "00456"
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
@@ -35,6 +36,7 @@ prep_overlays <- function(ghsl) {
   start <- Sys.time()
   
   base_dir <- sprintf("data-raw/data_beta/cities/ghsl_region_%s/", ghsl)
+  dir.create(sprintf("data/data_beta/ghsl_%s/overlays/temp", ghsl))
   # # change name of folder h+s
   # folder_hs <- dir(paste0(base_dir, "geodata")
   #                  , pattern = "h\\+s"
@@ -86,35 +88,41 @@ prep_overlays <- function(ghsl) {
     if (file %like% "population") {
       
       readr::write_rds(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.rds", ghsl, ind,  ind, ghsl, year1))
+      write_stars(a, sprintf("data/data_beta/ghsl_%s/overlays/temp/%s_%s_%s.tif", ghsl, ind, ghsl, year1))
       
     } else if (file %like% "block_densities|grid_pop_evaluated") {
       
       # convert to raster
       if (file %like% "block_densities") {
         
-      a <- stars::st_rasterize(a %>% select(density))
+        a <- stars::st_rasterize(a %>% select(density))
         
       } else if (file %like% "grid_pop_evaluated") {
         
-      a <- stars::st_rasterize(a %>% select(journey_gap_unweighted))
+        a <- stars::st_rasterize(a %>% select(journey_gap_unweighted))
         
       }
       
       readr::write_rds(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.rds", ghsl, ind,  ind, ghsl, year1))
-     
+      write_stars(a, sprintf("data/data_beta/ghsl_%s/overlays/temp/%s_%s_%s.tif", ghsl, ind, ghsl, year1))
       
-      } else {
+      
+    } else {
       
       out <- sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)
+      out1 <- sprintf("data/data_beta/ghsl_%s/overlays/%s/temp/%s_%s_%s.gpkg", ghsl, ind,  ind, ghsl, year1)
       if (file.exists(out)) {
         
         file.remove(out)
+        file.remove(out1)
         
       }
       
       a <- a %>% mutate(a = "teste")  
       
       st_write(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
+      st_write(a, sprintf("data/data_beta/ghsl_%s/overlays/temp/%s_%s_%s.gpkg", ghsl, ind, ghsl, year1),
+               append = FALSE)
       
     }
     
@@ -135,11 +143,7 @@ plan(multisession)
 future_walk(cities_available, prep_overlays)
 walk(cities_available, prep_overlays)
 
-prep_overlays("00456")
-prep_overlays("00574")
-prep_overlays("04608")
-prep_overlays("10076")
-prep_overlays("13039")
+walk(cities_available[892:1000], prep_overlays)
 
 # # evaluate which cities are left
 # left <- dir("data/data_beta", recursive = TRUE, full.names = TRUE)
@@ -152,7 +156,42 @@ prep_overlays("13039")
 # future_walk(left, prep_overlays)
 
 
-old <- dir("data/data_beta", pattern = "pnrtall", recursive = TRUE, full.names = TRUE)
-new <- stringr::str_replace(old, pattern = "pnrtall", replacement = "pnrt")
+# old <- dir("data/data_beta", pattern = "pnrtall", recursive = TRUE, full.names = TRUE)
+# new <- stringr::str_replace(old, pattern = "pnrtall", replacement = "pnrt")
+# 
+# purrr::walk2(old, new, file.rename)
 
-purrr::walk2(old, new, file.rename)
+
+
+# zip overlays files to share (download) ------------------------------------------------------
+
+overlay_table <- readRDS("data/data_beta/overlay_table.rds")
+indicators_all <- unique(overlay_table$indicator)
+
+# ghsl <- "00014"
+# over <- "pns"
+
+process_overlay <- function(over, ghsl) {
+  
+  dir1 <- function(pattern, ...) {
+    
+    dir(pattern = pattern, ...)
+  }
+  
+  overlay_subset <- subset(overlay_table, indicator == over)
+  file <- lapply(sprintf("%s_%s", overlay_subset$overlay, ghsl), 
+                 dir1, 
+                 path = sprintf("data/data_beta/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
+  file <- do.call(c, file)
+  
+  # zip those files
+  zip::zip(zipfile = sprintf("data/data_beta/ghsl_%s/overlays/%s_%s.zip", ghsl, over, ghsl), files = file,
+           mode = "cherry-pick")
+  
+  
+}
+
+# create combinations of ghsl and overlay
+combinations <- expand.grid(cities_available, indicators_all)
+
+walk2(combinations$Var2, combinations$Var1, process_overlay)

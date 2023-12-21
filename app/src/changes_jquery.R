@@ -33,6 +33,7 @@ observeEvent(c(indicator$mode), {
   enable("downloadData1_gpkg")
   enable("downloadData2_csv")
   enable("downloadData2_gpkg")
+  enable("download_overlay")
   
 })
 

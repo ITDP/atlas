@@ -160,13 +160,13 @@ output$download_overlay <- downloadHandler(
   filename = function() {
     
     
-    sprintf("atlas_overlay_%s_%s.gpkg", city$city_code, indicator$mode)
+    sprintf("atlas_overlays_%s_%s.zip", city$city_code, indicator$mode)
     
   },
   content = function(file) {
     
-    sf::st_write(data_overlays_sf(), file)
-    
-  }
+    file.copy(sprintf("../data/data_beta/ghsl_%s/overlays/%s_%s.zip", city$city_code, indicator$mode, city$city_code), file)    
+  },
+  contentType = "application/zip"
   
 )

@@ -60,10 +60,12 @@ font-size: 15px !important;
 
 
 #downloadData1_gpkg, #downloadData1_csv, #downloadData2_csv, #downloadData2_gpkg,
-#downloadData_countries_csv, #downloadData_countries_gpkg, #downloadData_cities_csv, #downloadData_cities_gpkg {
+#downloadData_countries_csv, #downloadData_countries_gpkg, #downloadData_cities_csv, #downloadData_cities_gpkg,
+#download_overlay {
   
   display: inline;
     background-color: #00AE42;
     border-radius: 5px;
+    font-size: 12px;
   
 }

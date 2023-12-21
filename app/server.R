@@ -71,7 +71,10 @@ function(input, output, session) {
   keep_alive <- shiny::reactiveTimer(intervalMs = 10000, 
                                      session = shiny::getDefaultReactiveDomain())
   
-  shiny::observe({keep_alive()})
+  shiny::observe(
+    {keep_alive()
+    cat(".")
+    })
   
   
   # password protection related
@@ -669,7 +672,7 @@ function(input, output, session) {
                            div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download country data for the selected indicator"),
                            downloadButton("downloadData_countries_csv", ".csv", icon = NULL),
                            downloadButton("downloadData_countries_gpkg", ".gpkg", icon = NULL),
-                           hr(),
+                           hr(style = "margin-bottom: 0"),
                            div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download cities data for the selected indicator"),
                            downloadButton("downloadData_cities_csv", ".csv", icon = NULL),
                            downloadButton("downloadData_cities_gpkg", ".gpkg", icon = NULL),
@@ -679,12 +682,14 @@ function(input, output, session) {
         conditionalPanel("output.city",
                          tagList(
                            div(id = "download_city",
-                               div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download indicator for this region"),
+                               div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", "Download indicator for this region"),
                                downloadButton("downloadData1_csv", ".csv", icon = NULL),
                                downloadButton("downloadData1_gpkg", ".gpkg", icon = NULL),
-                               hr()
+                               div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", "Download overlays for this region/indicator"),
+                               downloadButton("download_overlay", ".zip", icon = NULL),
+                               hr(style = "margin-bottom: 0")
                            ),
-                           div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download all indicators for this region"),
+                           div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", "Download all indicators for this region"),
                            downloadButton("downloadData2_csv", ".csv", icon = NULL),
                            downloadButton("downloadData2_gpkg", ".gpkg", icon = NULL),
                          )
