@@ -30,9 +30,10 @@ data_ind1 <- reactive({
   message("Filter indicator #1")
   # print("ui")
   pattern <- sprintf("^%s", indicator$type)
+  # add population
+  pattern <- paste0(pattern, "|city_popdensitytotal")
   cols <- c('country', 'osmid', 'admin_level', 'admin_level_ordered', 'name', grep(pattern, colnames(data_ind()), ignore.case = TRUE, value = TRUE), 'geom')
   a <- data_ind()[cols]
-  # print(head(a))
   return(a)
   
 })
@@ -48,11 +49,11 @@ data_ind2 <- reactive({
   # print(year$ok)
   # print(indicator$mode)
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-  cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', colnames(data_ind1())[startsWith(colnames(data_ind1()), pattern)], 'geom')
+  # add population
+  pattern <- paste0(pattern, "|city_popdensitytotal")
+  cols <- c('country', 'osmid', 'admin_level','admin_level_ordered', 'name', grep(pattern, colnames(data_ind1()), value = TRUE), 'geom')
   a <- data_ind1()[cols]
   # indicator$mode <-indicator$mode
-  
-  # print(a)
   
   return(a)
   
@@ -100,6 +101,7 @@ data_ind3 <- reactive({
     # remove the year
     colnames_new <- sub(pattern = sprintf("_%s$", year$ok), replacement = "",  colnames_new)
     colnames(a) <- colnames_new
+
     
   }
   

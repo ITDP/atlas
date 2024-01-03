@@ -350,8 +350,8 @@ observeEvent(c(city$city_code), {
   
   labels <- paste0("<b>", data_metro$name, "</b><br/>", 
                    span(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px", indicator$values), 
-                   span(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 16px; padding-bottom: 0px; color: #B1B5B9;", indicator$unit), 
-                   "<br/><i>Click to see more info</i>")
+                   span(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 16px; padding-bottom: 0px; color: #B1B5B9;", indicator$unit)) 
+                   # "<br/><i>Click to see more info</i>")
   
   
   waiter_hide()
@@ -405,6 +405,7 @@ observeEvent(c(city$city_code), {
                 group = "Regions",
                 label = lapply(labels, htmltools::HTML),
                 labelOptions = labelOptions(
+                  interactive = TRUE, clickable = TRUE, permanent = FALSE,
                   style = list(
                     # "color" = "red",
                     # "font-family" = "serif",
@@ -413,8 +414,8 @@ observeEvent(c(city$city_code), {
                     "font-size" = "12px"
                     # "border-color" = "rgba(0,0,0,0.5)"
                   )),
-                options = pathOptions(pane = "basemap"),
-                highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "black"))
+                options = pathOptions(interactive = TRUE, pane = "basemap", clickable = TRUE),
+                highlightOptions = highlightOptions(bringToFront = FALSE, opacity = 1, weight = 6, color = "grey"))
   
   
   # identify overlays to be opened
@@ -632,7 +633,7 @@ observeEvent(c(input$map_shape_click), {
                   fillColor = data$fill, fillOpacity = 0.5,
                   # fillColor = ~pal(value),
                   # fillOpacity = 0.5,
-                  color = "black",  weight = 8, layerId = ~osmid, opacity = 1,
+                  color = "grey",  weight = 8, layerId = ~osmid, opacity = 1,
                   group = "Regions",
                   label = lapply(labels, htmltools::HTML),
                   labelOptions = labelOptions(
@@ -1133,7 +1134,7 @@ observeEvent(c(
                 options = pathOptions(pane = "basemap", 
                                       clickable = TRUE),
                 highlightOptions = highlightOptions(bringToFront = leaflet_params$bring_to_front, opacity = 1, 
-                                                    weight = leaflet_params$weigth1, color = "black"
+                                                    weight = leaflet_params$weigth1, color = "grey"
                                                     # fillColor = 'yellow'
                 )
                 # label = ~(label)

@@ -230,8 +230,8 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   rank$indicator <- value_indicator
   
   
-  print("rank_indicator")
-  print(rank_indicator)
+  print("rank$indicator")
+  print(rank$indicator)
   
   # rank$country <- 
   
@@ -297,6 +297,16 @@ observeEvent(c(indicator$mode), {
 
 observeEventTrigger <-  reactiveVal()
 
+# como saber se mudou de cidade?
+city <- reactiveValues(change = NULL)
+
+observeEvent(c(city$city_code), {
+  
+  city$change <- "yes"
+  
+})
+                       
+
 # display rank when region or map is clicked
 observeEvent(c(input$map_shape_click, city$city_code,
                year$ok,
@@ -306,6 +316,9 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  
                  # observeEventTrigger(req(input$changed))
                  # cat("My execution was triggered by input:", observeEventTrigger(), "\n")
+                 
+                 print("city$change")
+                 print(city$change)
                  
                  req(data_ind3_spatial())
                  
@@ -348,7 +361,14 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                    # print(run)
                    
-                   if(run) {
+                   
+                   run2 <- if (rank$admin_level == 1 & is.null(city$change)) {
+                     
+                     FALSE
+                     
+                   }  else {TRUE}
+                   
+                   if(run & run2) {
                      
                      
                      
@@ -525,7 +545,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        
                        # will run for all situation from city to neighborhood
-                     } else {
+                     } else if(rank$admin_level > 1) {
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
@@ -557,7 +577,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    
                  }
                  
-                 
+                 city$change <- NULL
                  
                  
                })
