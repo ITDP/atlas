@@ -369,6 +369,31 @@ observeEvent(c(city$city_code), {
     removeLayersControl() %>%
     fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
     
+    clearGroup("Population density") %>%
+    clearGroup("Average Block Density") %>%
+    clearGroup("Journey Gap analysis grid" ) %>%
+    clearGroup("People Near Services") %>%
+    clearGroup("Healthcare locations" ) %>%
+    clearGroup("Education locations" ) %>%
+    clearGroup("People near healthcare" ) %>%
+    clearGroup("People near education" ) %>%
+    clearGroup("People Near Car-Free Places" ) %>%
+    clearGroup("Areas near highways" ) %>%
+    clearGroup("Grade-separated highways" ) %>%
+    clearGroup("People Near Protected Bikeways" ) %>%
+    clearGroup("People Near All Bikeways" ) %>%
+    clearGroup("Protected bikeways" ) %>%
+    clearGroup("All bikeways" ) %>%
+    clearGroup("People Near Rapid Transport" ) %>%
+    clearGroup("Metro rail (point)" ) %>%
+    clearGroup("Metro rail (line)" ) %>%
+    clearGroup("Light rail (point)" ) %>%
+    clearGroup("Light rail (line)") %>%
+    clearGroup("Bus rapid transport (point)" ) %>%
+    clearGroup("Bus rapid transport (line)" ) %>%
+    clearGroup("People Near Frequent Transport" ) %>%
+    clearGroup("Frequent transport stops" ) %>%
+    
     
     # add map panes
     addMapPane("basemap", zIndex = 410) %>%
