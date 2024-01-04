@@ -77,7 +77,7 @@ output$map <- renderLeaflet({
                      position = "bottomright") %>%
     setView(lng = 0, lat = 0, zoom = 2) %>%
     addSpinner() %>%
-    
+    addScaleBar(position = "bottomleft") %>%
     # onRender(spin_event)
     
     htmlwidgets::onRender(

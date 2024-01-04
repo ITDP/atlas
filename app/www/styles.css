@@ -130,7 +130,7 @@ h1 {
 /* Modificar o tamanho do mapa! */
 #map {
   height: calc(100vh - 20px) !important;
-  width: calc(100% - 310px) !important;
+  width: calc(100% - 400px) !important;
   right: 0;
   position: absolute;
 } 
