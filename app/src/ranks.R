@@ -287,11 +287,14 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
 
 
 # if I change the indicator, I need to reset the element selected
+indicator <- reactiveValues(changed = NULL)
 
 observeEvent(c(indicator$mode), {
   
   
   element$selected1 <- NULL
+  
+  indicator$changed <- "yes"
   
 })
 
@@ -316,9 +319,6 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  
                  # observeEventTrigger(req(input$changed))
                  # cat("My execution was triggered by input:", observeEventTrigger(), "\n")
-                 
-                 print("city$change")
-                 print(city$change)
                  
                  req(data_ind3_spatial())
                  
@@ -362,11 +362,15 @@ observeEvent(c(input$map_shape_click, city$city_code,
                    # print(run)
                    
                    
-                   run2 <- if (rank$admin_level == 1 & is.null(city$change)) {
+                   run2 <- if (rank$admin_level == 1 & is.null(city$change) & is.null(indicator$changed)) {
                      
                      FALSE
                      
                    }  else {TRUE}
+                   
+                   
+                   indicator$changed <- NULL
+                   
                    
                    if(run & run2) {
                      

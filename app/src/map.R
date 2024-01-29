@@ -36,7 +36,7 @@ atlas_country <- reactive({
 })
 
 
-osm_selected <- reactiveValues(oi = NULL)
+osm_selected <- reactiveValues(oi = NULL, before = NULL)
 
 admin_level_previous <- reactiveValues(a = NULL)
 
@@ -455,6 +455,7 @@ observeEvent(c(city$city_code), {
     overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
     overlay_name <- unique(overlay_subset$overlay_label)
     overlay_status <- unique(overlay_subset$overlay_show)
+    overlay_mapboxid <- unique(overlay_subset$mapbox_id)
     
     file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
                                city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
@@ -472,7 +473,20 @@ observeEvent(c(city$city_code), {
                                options = list(clickable = FALSE, pane = overlay_name),
                                autozoom = FALSE)
         
-      } else {
+      } else if (i %in% c("protectedbike_latlon", "hs_latlon")) {
+        
+        
+        # print(i)
+        # print("iiiii")
+        
+        map <- map %>%
+          mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+                                    style_id = overlay_mapboxid,
+                                    username = "kauebraga",
+                                    group = overlay_name,
+                                    options = tileOptions(pane = overlay_name))
+      
+        } else {
         
         # print(file)
         
