@@ -154,7 +154,8 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
   legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   # format legend value
-  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
+  # legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
+  legend_value <- if(legend_value == "%") labelFormat(suffix = "%", transform = function (x) x * 100) else labelFormat(suffix = " ", transform = function(x) as.integer(x))
   
   # create the label for the markers
   format_indicator_value_marker <- format_indicator_values(a_available$value, transformation = indicator_info$transformation)
