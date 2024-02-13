@@ -135,15 +135,17 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   
   a_available$value <- as.numeric(a_available$value)
   
-  pal <- colorNumeric(
+  pal <- colorBin(
     palette = "viridis",
     na.color = "#808080",
+    bins = 5,
     # palette = "YlGnBu",
     domain = a_available$value)
   
   
-  pal_countries <- colorNumeric(
+  pal_countries <- colorBin(
     palette = "viridis",
+    bins = 5,
     # palette = "YlGnBu",
     domain = a_country$value)
   
@@ -265,7 +267,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
     addLegend("bottomright", pal = world_view$pal_countries, values = ~world_view$a_country$value,
               title = world_view$legend_title,
-              # bins = 7,
+              bins = 5,
               labFormat = world_view$legend_value,
               layerId = "legend_country")
   
@@ -325,8 +327,9 @@ observeEvent(c(city$city_code), {
   # print(data_metro$osmid)
   # print("obs2")
   
-  pal <- colorNumeric(
+  pal <- colorBin(
     palette = "YlOrRd",
+    bins = 5,
     domain = data_metro$value)
   
   
@@ -1059,8 +1062,9 @@ data_ind3_spatial <- reactive({
     # print(a)
     
     # create the color palette
-    pal <- colorNumeric(
+    pal <- colorBin(
       palette = "YlOrRd",
+      bins = 5,
       domain = a$value)
     
     # create a column with the colors
@@ -1103,7 +1107,7 @@ observeEvent(c(
   legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
   legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   # format legend value
-  legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = " ", transform = function(x) as.integer(x))
+  legend_value <- if(legend_value == "%") labelFormat(suffix = "%", transform = function (x) x * 100) else labelFormat(suffix = " ", transform = function(x) as.integer(x))
   
   
   # print("pera2")
@@ -1220,14 +1224,16 @@ observeEvent(c(
   
   if (input$admin_level != 1)  {
     
+    pal <- colorBin(palette = "YlOrRd", 
+                    domain = c(min(data_ind3_spatial()$value), max(data_ind3_spatial()$value)),  
+                    bins = 5,
+                    pretty = TRUE)
+    
     map <- map %>%
       addLegend(data = data_ind3_spatial(), "bottomright",
-                pal = colorNumeric(
-                  palette = "YlOrRd",
-                  domain = NULL),
+                pal = pal,
                 values = ~value,
                 title = legend_title,
-                # bins = c(0, 0.25, 0.50, 0.75, 1),
                 labFormat = legend_value,
                 layerId = "legend_city"
       )
