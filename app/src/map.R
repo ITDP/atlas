@@ -134,20 +134,34 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   
   
   a_available$value <- as.numeric(a_available$value)
+  # we should truncate popdensity to 20000
+  if (indicator$mode == "popdensity") {
+
+  a_available$value_legend <- ifelse(a_available$value > 20000, 20000, a_available$value)
+  a_country$value_legend <- ifelse(a_country$value > 20000, 20000, a_country$value)
+
+  } else {
+    
+    a_available$value_legend <- a_available$value
+    a_country$value_legend <- a_country$value
+  }
+    
   
   pal <- colorBin(
     palette = "viridis",
     na.color = "#808080",
-    bins = 5,
+    bins = 7,
     # palette = "YlGnBu",
-    domain = a_available$value)
+    domain = a_available$value_legend
+    
+    )
   
   
   pal_countries <- colorBin(
     palette = "viridis",
-    bins = 5,
+    bins = 7,
     # palette = "YlGnBu",
-    domain = a_country$value)
+    domain = a_country$value_legend)
   
   
   
@@ -155,7 +169,39 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   # format legend value
   # legend_value <- if(legend_value == "%") scales::percent else labelFormat(suffix = "", transform = function(x) as.integer(x))
-  legend_value <- if(legend_value == "%") labelFormat(suffix = "%", transform = function (x) x * 100) else labelFormat(suffix = " ", transform = function(x) as.integer(x))
+  # legend_value <- if(legend_value == "%") labelFormat(suffix = "%", transform = function (x) x * 100) else labelFormat(suffix = " ", transform = function(x) as.integer(x))
+  legend_value <- if(legend_value == "%") {
+    
+    # labelFormat(suffix = "%", transform = function (x) x * 100)
+    function(type, cuts, p) {
+      n = length(cuts)
+      p = paste0(round(cuts * 100), '%')
+      paste(p[-n], p[-1], sep = ' - ')
+    }
+    
+  } else {
+    
+    #we should cap pop density to 20k 
+    function(type, cuts, p) {
+      n = length(cuts)
+      p = round(cuts)
+      
+      p <- ifelse(p >= 1000, scales::comma(p, accuracy = 0.1, scale = 0.001, suffix = "k"), p)
+      
+      if (indicator$mode == "popdensity") {
+        p = ifelse(p == "20.0k", "20.0k+", p)
+        
+      }
+      
+      
+      paste(p[-n], p[-1], sep = ' - ')
+    }
+    
+    # labelFormat(suffix = " ", 
+    #             transform = function(x) as.integer(x)
+    # )
+    
+  }
   
   # create the label for the markers
   format_indicator_value_marker <- format_indicator_values(a_available$value, transformation = indicator_info$transformation)
@@ -214,6 +260,9 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   # print(world_view$a_available)
   # print(world_view$a_country)
   
+  # value only for the legend
+  
+  
   map <- leafletProxy("map", data = world_view$a_available) %>%
     clearMarkers() %>%
     clearControls() %>%
@@ -257,7 +306,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     ) %>%
     addPolygons(data = world_view$a_country,
                 layerId = ~name,
-                fillColor = ~world_view$pal_countries(value), color = "black",  
+                fillColor = ~world_view$pal_countries(value_legend), color = "black",  
                 weight = 1, # erro nao eh aqui
                 fillOpacity = 0.7,
                 options = pathOptions(clickable = TRUE, pane = "countries"),
@@ -266,9 +315,9 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     ) %>%
     # add polygons with the country color
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
-    addLegend("bottomright", pal = world_view$pal_countries, values = ~world_view$a_country$value,
+    addLegend("bottomright", pal = world_view$pal_countries, values = ~world_view$a_country$value_legend,
               title = world_view$legend_title,
-              bins = 5,
+              bins = 7,
               labFormat = world_view$legend_value,
               layerId = "legend_country")
   
@@ -330,7 +379,7 @@ observeEvent(c(city$city_code), {
   
   pal <- colorBin(
     palette = "YlOrRd",
-    bins = 5,
+    bins = 7,
     domain = data_metro$value)
   
   
@@ -1059,17 +1108,24 @@ data_ind3_spatial <- reactive({
     }
     
     
+    # we should truncate popdensity to 20000
+    if (indicator$mode == "popdensity") {
+      
+      a$value_legend <- ifelse(a$value > 20000, 20000, a$value)
+      
+    } else a$value_legend <- a$value
+    
     # print("pera1")
     # print(a)
     
     # create the color palette
     pal <- colorBin(
       palette = "YlOrRd",
-      bins = 5,
-      domain = a$value)
+      bins = 7,
+      domain = a$value_legend)
     
     # create a column with the colors
-    a$fill <- pal(a$value)
+    a$fill <- pal(a$value_legend)
     
     # print(a)
     return(a)
@@ -1108,7 +1164,37 @@ observeEvent(c(
   legend_title <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
   legend_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
   # format legend value
-  legend_value <- if(legend_value == "%") labelFormat(suffix = "%", transform = function (x) x * 100) else labelFormat(suffix = " ", transform = function(x) as.integer(x))
+  legend_value <- if(legend_value == "%") {
+    
+    # labelFormat(suffix = "%", transform = function (x) x * 100)
+    function(type, cuts, p) {
+      n = length(cuts)
+      p = paste0(round(cuts * 100), '%')
+      paste(p[-n], p[-1], sep = ' - ')
+    }
+    
+  } else {
+    
+    #we should cap pop density to 20k 
+    function(type, cuts, p) {
+      n = length(cuts)
+      p = round(cuts)
+      
+      p <- ifelse(p >= 1000, scales::comma(p, accuracy = 0.1, scale = 0.001, suffix = "k"), p)
+      
+      if (indicator$mode == "popdensity") {
+        p = ifelse(p == "20.0k", "20.0k+", p)
+        
+      }
+      
+      paste(p[-n], p[-1], sep = ' - ')
+    }
+    
+    # labelFormat(suffix = " ", 
+    #             transform = function(x) as.integer(x)
+    # )
+    
+  }
   
   
   # print("pera2")
@@ -1225,15 +1311,19 @@ observeEvent(c(
   
   if (input$admin_level != 1)  {
     
-    pal <- colorBin(palette = "YlOrRd", 
-                    domain = c(min(data_ind3_spatial()$value), max(data_ind3_spatial()$value)),  
-                    bins = 5,
+    pal <- colorBin(palette = "YlOrRd",
+                    domain = data_ind3_spatial()$value_legend,
+                    # domain = c(min(data_ind3_spatial()$value_legend), max(data_ind3_spatial()$value_legend)),
+                    bins = 7,
                     pretty = TRUE)
+    
+    # print(pal)
+    # print(data_ind3_spatial()$value_legend)
     
     map <- map %>%
       addLegend(data = data_ind3_spatial(), "bottomright",
                 pal = pal,
-                values = ~value,
+                values = ~value_legend,
                 title = legend_title,
                 labFormat = legend_value,
                 layerId = "legend_city"
