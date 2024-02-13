@@ -698,7 +698,7 @@ observeEvent(c(input$maximize_comparison), {
   
   
   showModal(modalDialog(
-    title = "COMPARE",
+    title = div(style = "display: flex; justify-content: space-between;", "COMPARE", modalButton(icon("close"))),
     size = c("l"),
     easyClose = TRUE,
     footer = NULL,

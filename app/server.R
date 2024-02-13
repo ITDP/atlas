@@ -73,7 +73,7 @@ function(input, output, session) {
   
   shiny::observe(
     {keep_alive()
-    cat(".")
+      cat(".")
     })
   
   
@@ -384,12 +384,18 @@ function(input, output, session) {
       # class = "panel panel-default",
       # fixed = TRUE, draggable = FALSE,
       bottom = 115, left = 330, height = 'auto', width = 500,
-      tags$div(class = "title_left_panel", HTML("COMPARE<br>"), 
-               # tags$i("Click on the map to update the chart", style = "font-size: 12px"), 
-               actionButton("maximize_comparison", label = "", icon = icon("plus"), style= "float: right; padding: 0",
-                            class = "minimize"),
-               actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px",
-                            class = "minimize")
+      tags$div(
+        # class = "title_left_panel",
+        style = "display: flex; justify-content: space-between;",
+        span(class = "title_left_panel", "COMPARE"), 
+        
+        # tags$i("Click on the map to update the chart", style = "font-size: 12px"), 
+        div(style = "padding-top: 10px; padding-right: 10px;",
+          actionButton("maximize_comparison", label = "", icon = icon("glyphicon glyphicon-resize-full", lib = "glyphicon"), style= "float: right; padding: 0",
+                       class = "minimize"),
+          actionButton("teste5", label = "", icon = icon("minus"), style= "float: right; padding: 0; padding-right: 10px",
+                       class = "minimize")
+        )
       ),
       
       conditionalPanel("output.city", style = "display:inline-block",
