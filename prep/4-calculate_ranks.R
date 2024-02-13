@@ -145,12 +145,19 @@ prep_data <- function(ghsl) {
   # level <- "Agglomeration"
   # level <- 10
   # level <- 6
-  # level <- 0
+  # level <- 8
   
   # save by osm level
   filter_by_level <- function(level) {
     
-    rank_complete_level <- rank_complete %>% filter(admin_level == level)
+    
+    # extract the agglomeration name
+    rank_complete1 <- rank_complete %>% 
+      group_by(hdc) %>%
+      mutate(agglomeration = unique(name[admin_level == 0])) %>%
+      ungroup()
+    
+    rank_complete_level <- rank_complete1 %>% filter(admin_level == level)
     
     # ind <- "bike_pnpb"
     # ind <- "city_popdensity"
@@ -169,6 +176,7 @@ prep_data <- function(ghsl) {
       
       
       rank_complete_level1 <- rank_complete_level %>% filter(type_rank %in% filter_compare)
+
       
       # create the rankins for the hdc only / filter the indicator
       rank_complete_level_ind <- rank_complete_level1 %>%
@@ -201,12 +209,12 @@ prep_data <- function(ghsl) {
       
       # create the full list of rankings
       rank_complete_level_ind_full <- rank_complete_level1 %>%
-        dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
+        dplyr::select(hdc, country, a3, osmid, name, agglomeration, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
         # rename the indicators ranks/values to account for the years
         rename_with(~stringr::str_replace(.x, paste0(ind, "_"), ""), starts_with("rank")) %>%
         rename_with(~stringr::str_replace(.x, paste0(ind, "_"), "value_"), starts_with(ind)) %>%
         # to long format
-        tidyr::pivot_longer(cols = 10:last_col(),
+        tidyr::pivot_longer(cols = 11:last_col(),
                             # cols = starts_with("rank_"),
                             names_sep = "_",
                             names_to = c("type1", "year"),
@@ -228,7 +236,7 @@ prep_data <- function(ghsl) {
         mutate(n = 1:n()) %>%
         ungroup() %>%
         mutate(format_indicator_unit = format_indicator_unit) %>%
-        select(n, name, format_indicator_unit, value, year, type_rank, osmid)
+        select(n, name, agglomeration, format_indicator_unit, value, year, type_rank, osmid)
         
       
       

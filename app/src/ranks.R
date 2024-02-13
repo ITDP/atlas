@@ -629,8 +629,8 @@ observeEvent(c(input$rank_more_1_country), {
   # filter
   scroll_world <- subset(scroll_text, type_rank == "country" & year == que)
   
-  output <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>", 
-                    scroll_world$n, scroll_world$name, scroll_world$format_indicator_unit, scroll_world$value)
+  output <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp<span style=\"font-weight: 700;\">%s</span> <span style=\"font-size: 12px; color: #B1B5B9\">(%s)</span> <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>", 
+                    scroll_world$n, scroll_world$name, scroll_world$agglomeration, scroll_world$format_indicator_unit, scroll_world$value)
   output <- paste(output,
                   collapse = "\n"
   )
@@ -679,6 +679,8 @@ observeEvent(c(input$rank_more_1_world), {
   
   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   que <- year$ok
+  
+  
   # open data
   scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
   

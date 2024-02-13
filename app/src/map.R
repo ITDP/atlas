@@ -361,13 +361,14 @@ observeEvent(c(city$city_code), {
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
                       color = "black")) %>%
-    removeMarker(layerId = data_metro$osmid) %>%
+    # removeMarker(layerId = data_metro$osmid) %>%
+    clearMarkers() %>%
     clearShapes() %>%
     clearControls() %>%
     removeControl(layerId = c("legend_country")) %>%
     removeControl(layerId = c("legend_city")) %>%
     removeLayersControl() %>%
-    fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
+    flyToBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
     
     clearGroup("Population density") %>%
     clearGroup("Average Block Density") %>%
@@ -421,6 +422,43 @@ observeEvent(c(city$city_code), {
     addMapPane("Bus rapid transport (line)", zIndex = 425) %>%
     addMapPane("People Near Frequent Transport", zIndex = 420) %>%
     addMapPane("Frequent transport stops", zIndex = 425) %>%
+    
+    # add the city markers without the one selected
+    addCircleMarkers(
+      data = world_view$a_available,
+      # radius = ~ifelse(type == "ship", 6, 10),
+      radius = 5,
+      fillColor = ~world_view$pal(value),
+      stroke = TRUE, fillOpacity = 0.9, color = "black",
+      opacity = 0.9,
+      weight = 2,
+      # weight = 1,
+      layerId = ~hdc,
+      label = lapply(world_view$labels_markers1, htmltools::HTML),
+      options = pathOptions(clickable = TRUE, pane = "markers_available"),
+      labelOptions = labelOptions(
+        style = list(
+          # "color" = "red",
+          "font-family" = "'Fira Sans', sans-serif",
+          # "font-style" = "italic",
+          # "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+          "font-size" = "12px"
+          # "border-color" = "rgba(0,0,0,0.5)"
+        ))
+    ) %>%
+    addCircleMarkers(data = world_view$a_notavailable,
+                     # radius = ~ifelse(type == "ship", 6, 10),
+                     radius = 5,
+                     # fillColor = ~pal(value), 
+                     stroke = TRUE, fillOpacity = 0.9, color = "#808080",
+                     opacity = 0.8,
+                     weight = 1,
+                     layerId = ~hdc,
+                     label = lapply(world_view$labels2, htmltools::HTML),
+                     # label = ~htmltools::htmlEscape(name),
+                     options = pathOptions(clickable = FALSE, pane = "markers_navailable")
+    ) %>%
+    removeMarker(layerId = data_metro$osmid) %>%
     
     
     # add polygon with metro data
