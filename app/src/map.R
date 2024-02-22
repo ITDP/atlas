@@ -421,7 +421,7 @@ observeEvent(c(city$city_code), {
     removeControl(layerId = c("legend_country")) %>%
     removeControl(layerId = c("legend_city")) %>%
     removeLayersControl() %>%
-    flyToBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
+    fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
     
     clearGroup("Population density") %>%
     clearGroup("Average Block Density") %>%
@@ -548,6 +548,8 @@ observeEvent(c(city$city_code), {
     overlay_status <- unique(overlay_subset$overlay_show)
     overlay_mapboxid <- unique(overlay_subset$mapbox_id)
     
+    # overlay_name <- paste0(overlay_name, '<svg height="20" width="20" xmlns="http://www.w3.org/2000/svg"><circle r="10" cx="10" cy="10" stroke="green" stroke-width="1" fill="red" /></svg>')
+    
     file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
                                city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
 
@@ -575,6 +577,7 @@ observeEvent(c(city$city_code), {
                                     style_id = overlay_mapboxid,
                                     username = "kauebraga",
                                     group = overlay_name,
+                                    # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
                                     options = tileOptions(pane = overlay_name))
       
         } else {
@@ -616,6 +619,10 @@ observeEvent(c(city$city_code), {
   
   fix <- indicator$mode
   overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
+  # overlay_labels <- paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_labels)
+  # overlay_labels <- as.list(overlay_labels)
+  # names(overlay_labels) <- subset(overlay_table, indicator == fix)$overlay_label
+  # print(overlay_labels)
   # identify groups to hide
   overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_label
   overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_label

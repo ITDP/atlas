@@ -24,6 +24,7 @@ observeEvent(c(city$city_code), {
 
 observeEvent(c(indicator$mode), {
   
+  enable("download_button")
   enable("download_dropdown_maps")
   enable("downloadData_countries_csv")
   enable("downloadData_countries_gpkg")

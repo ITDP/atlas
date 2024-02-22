@@ -21,6 +21,7 @@
 
 /* hide the radio button */
 
+/*
 .leaflet-control-layers input[type=radio] {
   
 
@@ -31,6 +32,7 @@ position: absolute;
   
   
 }
+*/
 
 
 
@@ -54,3 +56,24 @@ position: absolute;
     margin-right: 10px;
 }
 */
+
+
+/*
+#map > div.leaflet-control-container > div.leaflet-top.leaflet-right > div.leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control > form > div.leaflet-control-layers-overlays > label:nth-child(2) > div > span::before {
+    content: url('icons/circle-heat-svgrepo-com.svg');
+  width: 20px;
+  height: 20px;
+}
+*/
+
+/*
+#map > div.leaflet-control-container > div.leaflet-top.leaflet-right > div.leaflet-control-layers.leaflet-control-layers-expanded.leaflet-control > form > div.leaflet-control-layers-overlays > label:nth-child(2) > div > span:before {
+  display: block;
+  content: ' ';
+  background-image: url('icons/circle-heat-svgrepo-com.svg');
+  background-size: 10px 10px;
+  height: 10px;
+  width: 10px;
+}
+*/
+

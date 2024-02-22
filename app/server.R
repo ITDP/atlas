@@ -670,34 +670,62 @@ function(input, output, session) {
   
   output$download_button <- renderUI({
     
-    disabled(
+    # req(indicator$mode)
+    
+    
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    
+    if (!is.null(city$city_code)) {
+      
+      city_name <- unique(subset(list_availability, hdc == city$city_code)$name)
+      
+    }
+    
+    # disabled(
       dropdown(
         # download for the "world" level
         conditionalPanel("!output.city",
                          tagList(
-                           div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download country data for the selected indicator"),
-                           downloadButton("downloadData_countries_csv", ".csv", icon = NULL),
-                           downloadButton("downloadData_countries_gpkg", ".gpkg", icon = NULL),
+                           div(class = "text_indicator", style = "letter-spacing: 0.02em", 
+                               # "Download country data for the selected indicator"),
+                               sprintf("Download measurements of %s for all countries", format_indicator_name)
+                               # "ai"
+                               ),
+                           downloadButton("downloadData_countries_csv", "data table (.csv)", icon = NULL),
+                           downloadButton("downloadData_countries_gpkg", "geospatial (.gpkg)", icon = NULL),
                            hr(style = "margin-bottom: 0"),
-                           div(class = "text_indicator", style = "letter-spacing: 0.02em", "Download cities data for the selected indicator"),
-                           downloadButton("downloadData_cities_csv", ".csv", icon = NULL),
-                           downloadButton("downloadData_cities_gpkg", ".gpkg", icon = NULL),
+                           div(class = "text_indicator", style = "letter-spacing: 0.02em", 
+                               # "Download country data for the selected indicator"),
+                               sprintf("Download measurements of %s for all cities", format_indicator_name)
+                               # "ai"
+                               ),
+                           downloadButton("downloadData_cities_csv", "data table (.csv)", icon = NULL),
+                           downloadButton("downloadData_cities_gpkg", "geospatial (.gpkg)", icon = NULL),
                          )
         ),
         # download for the city level
         conditionalPanel("output.city",
                          tagList(
                            div(id = "download_city",
-                               div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", "Download indicator for this region"),
-                               downloadButton("downloadData1_csv", ".csv", icon = NULL),
-                               downloadButton("downloadData1_gpkg", ".gpkg", icon = NULL),
-                               div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", "Download overlays for this region/indicator"),
-                               downloadButton("download_overlay", ".zip", icon = NULL),
+                               div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", 
+                                   # "Download indicator for this region"
+                                   sprintf("Download measurements of %s for all analysis areas in %s", format_indicator_name, city_name)
+                                   ),
+                               downloadButton("downloadData1_csv", "data table (.csv)", icon = NULL),
+                               downloadButton("downloadData1_gpkg", "geospatial (.gpkg)", icon = NULL),
+                               div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", 
+                                   # "Download overlays for this region/indicator"
+                                   sprintf("Download geospatial overlays for %s in %s", format_indicator_name, city_name)
+                                   ),
+                               downloadButton("download_overlay", "geospatial (.zip)", icon = NULL),
                                hr(style = "margin-bottom: 0")
                            ),
-                           div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", "Download all indicators for this region"),
-                           downloadButton("downloadData2_csv", ".csv", icon = NULL),
-                           downloadButton("downloadData2_gpkg", ".gpkg", icon = NULL),
+                           div(class = "text_indicator", style = "letter-spacing: 0.02em; font-size: 15px;", 
+                               # "Download all indicators for this region"
+                               sprintf("Download measurements of all indicators for all analysis areas in %s", city_name)
+                               ),
+                           downloadButton("downloadData2_csv", "data table (.csv)", icon = NULL),
+                           downloadButton("downloadData2_gpkg", "geospatial (.gpkg)", icon = NULL),
                          )
         ),
         circle = FALSE, 
@@ -712,7 +740,7 @@ function(input, output, session) {
         inputId = "download_dropdown_maps"
         
       )
-    )
+    # )
     
     
     

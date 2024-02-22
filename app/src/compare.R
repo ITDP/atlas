@@ -553,7 +553,7 @@ output$comparison_max <- renderHighchart({
   #   
   # } else round(value_city$value)
   if (indicator$mode != "popdensity") {
-  value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+    value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
   }
   
   if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
@@ -564,6 +564,12 @@ output$comparison_max <- renderHighchart({
            name = unique(value_city$name),
            tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
                           valueDecimals = 0)) %>%
+      hc_chart(marginBottom = 100,
+               events = list(
+                 load = 'function () alert("triggered");'
+                 # load = "function () { if(this.options.chart.forExport) { this.renderer.image('https://go.itdp.org/download/attachments/46271199/ITDP_BugPMS355C.png', 80, 40, 143, 57) .add()) } }"
+               )
+      ) %>%
       hc_plotOptions(column = list(
         pointWidth = 30,
         # dataLabels = list(enabled = TRUE,
@@ -582,8 +588,9 @@ output$comparison_max <- renderHighchart({
       )
       ) %>%
       hc_legend(verticalAlign = "top") %>%
+      hc_subtitle(text = input$year, align = "center", y = 220) %>%
       hc_title(text = format_indicator_name,
-               align = "left", x = 10
+               align = "left", x = 10, y = 250
       ) %>%
       hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
                labels = list(style = list(fontSize = 15)),
@@ -617,7 +624,7 @@ output$comparison_max <- renderHighchart({
       hc_plotOptions(column = list(pointWidth = 10)) %>%
       hc_legend(verticalAlign = "top") %>%
       hc_title(text = format_indicator_name,
-               align = "left", x = 10
+               align = "left", x = 10, y = 340,
       ) %>%
       hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
                labels = list(style = list(fontSize = 15)),
@@ -653,7 +660,7 @@ observeEvent(c(input$maximize_comparison), {
   
   req(input$maximize_comparison >= 1)
   
-  print("bummmm")
+  # print("bummmm")
   
   # get the admin level original
   al <- unique(data_ind3_spatial()$admin_level)
@@ -1004,7 +1011,7 @@ observeEvent(c(input$city_compare1), {
   # } else round(value_compare$value)
   
   if (indicator$mode != "popdensity") {
-  value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
+    value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
   }
   
   
