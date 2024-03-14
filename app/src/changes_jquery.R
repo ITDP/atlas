@@ -1,3 +1,26 @@
+
+# change the legend Region to reflect the selected admin level --------------------------------
+
+observeEvent(c(input$admin_level), {
+  
+  req(city$city_code != "", indicator$mode, input$admin_level > 1)
+  
+  rank$admin_level_name <- unique(subset(data_ind(), admin_level_ordered == rank$admin_level)$admin_level_name)
+  
+  label <- sprintf("<img src='icons/icon_MULTIPOLYGON_.png' height='30' width = '30'>%s</img>", rank$admin_level_name)
+  
+  a <- sprintf('$(teste_map).html("%s")', label)
+  
+  # print(a)
+  
+  runjs(a)
+  
+  
+  })
+
+
+
+
 # disable the reset map and download button when in the world view
 observeEvent(c(city$city_code), {
   

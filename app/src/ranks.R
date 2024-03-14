@@ -21,6 +21,7 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
                        rank_value_initial = NULL, rank_text_initial = NULL,
                        rank_value_world = NULL, rank_text_world = NULL,
                        admin_level = NULL,
+                       admin_level_name = NULL,
                        vel0 = NULL,
                        country = NULL,
                        indicator = NULL,
@@ -156,10 +157,13 @@ observeEvent(c(input$admin_level), {
   # print(rank$admin_level)
   
   rank$admin_level <- input$admin_level
-  # print("ARROCHA 1")
-  # print(rank$admin_level)
+  # print(head(data_ind()))
   
-})
+  # print("go")
+  # print(rank$admin_level_name)
+  
+  
+}, priority = 100000)
 
 observeEvent(c(city$city_code), {
   

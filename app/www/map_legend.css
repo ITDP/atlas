@@ -62,3 +62,10 @@ line-height: 15px;
   overflow: auto;
 }
 */
+
+.control_legend {
+      display: inline-block;
+    min-width: 30px;
+    min-height: 30px;
+    text-align: center;
+}

@@ -338,7 +338,11 @@ overlay_layers <- reactiveValues(groups = NULL)
 
 # observer to travel between cities (for the first time) ---------------------------------------
 
+# map_start <- reactive({
 observeEvent(c(city$city_code), {
+  
+  # print("boiiii")
+  # print(rank$admin_level_name)
   
   req(city$city_code != "")
   
@@ -349,6 +353,9 @@ observeEvent(c(city$city_code), {
   waiter_show(
     html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
+  
+  
+  rank$admin_level_name <- unique(subset(data_ind(), admin_level_ordered == rank$admin_level)$admin_level_name)
   
   # print("obs - switch cities initial")
   
@@ -409,6 +416,7 @@ observeEvent(c(city$city_code), {
   
   waiter_hide()
   
+  
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
     startSpinner(list("lines" = 10, "length" = 10,
@@ -421,33 +429,7 @@ observeEvent(c(city$city_code), {
     removeControl(layerId = c("legend_country")) %>%
     removeControl(layerId = c("legend_city")) %>%
     removeLayersControl() %>%
-    fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>%
-    
-    clearGroup("Population density") %>%
-    clearGroup("Average Block Density") %>%
-    clearGroup("Journey Gap analysis grid" ) %>%
-    clearGroup("People Near Services") %>%
-    clearGroup("Healthcare locations" ) %>%
-    clearGroup("Education locations" ) %>%
-    clearGroup("People near healthcare" ) %>%
-    clearGroup("People near education" ) %>%
-    clearGroup("People Near Car-Free Places" ) %>%
-    clearGroup("Areas near highways" ) %>%
-    clearGroup("Grade-separated highways" ) %>%
-    clearGroup("People Near Protected Bikeways" ) %>%
-    clearGroup("People Near All Bikeways" ) %>%
-    clearGroup("Protected bikeways" ) %>%
-    clearGroup("All bikeways" ) %>%
-    clearGroup("People Near Rapid Transport" ) %>%
-    clearGroup("Metro rail (point)" ) %>%
-    clearGroup("Metro rail (line)" ) %>%
-    clearGroup("Light rail (point)" ) %>%
-    clearGroup("Light rail (line)") %>%
-    clearGroup("Bus rapid transport (point)" ) %>%
-    clearGroup("Bus rapid transport (line)" ) %>%
-    clearGroup("People Near Frequent Transport" ) %>%
-    clearGroup("Frequent transport stops" ) %>%
-    
+    fitBounds(bbox[[1]], bbox[[2]], bbox[[3]], bbox[[4]]) %>% 
     
     # add map panes
     addMapPane("basemap", zIndex = 410) %>%
@@ -474,8 +456,14 @@ observeEvent(c(city$city_code), {
     addMapPane("Bus rapid transport (point)", zIndex = 425) %>%
     addMapPane("Bus rapid transport (line)", zIndex = 425) %>%
     addMapPane("People Near Frequent Transport", zIndex = 420) %>%
-    addMapPane("Frequent transport stops", zIndex = 425) %>%
-    
+    addMapPane("Frequent transport stops", zIndex = 425)
+  
+  # remove groups
+  for(i in 1:length(overlay_table$overlay_group)){
+    map = map %>% clearGroup(overlay_table$overlay_group)
+  }
+  
+  map <- map %>%
     # add the city markers without the one selected
     addCircleMarkers(
       data = world_view$a_available,
@@ -518,7 +506,7 @@ observeEvent(c(city$city_code), {
     addPolygons(data = data_metro,
                 fillColor = ~pal(value), fillOpacity = 0.1,
                 color = "#00AE42",  weight = 2, layerId = ~osmid,
-                group = "Regions",
+                group = sprintf("<span id = \"teste_map\"><img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Agglomeration</img></span>"),
                 label = lapply(labels, htmltools::HTML),
                 labelOptions = labelOptions(
                   interactive = TRUE, clickable = TRUE, permanent = FALSE,
@@ -547,8 +535,8 @@ observeEvent(c(city$city_code), {
     overlay_name <- unique(overlay_subset$overlay_label)
     overlay_status <- unique(overlay_subset$overlay_show)
     overlay_mapboxid <- unique(overlay_subset$mapbox_id)
+    overlay_group <- unique(overlay_subset$overlay_group)
     
-    # overlay_name <- paste0(overlay_name, '<svg height="20" width="20" xmlns="http://www.w3.org/2000/svg"><circle r="10" cx="10" cy="10" stroke="green" stroke-width="1" fill="red" /></svg>')
     
     file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
                                city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
@@ -562,7 +550,7 @@ observeEvent(c(city$city_code), {
         map <- map %>%
           leafem::addGeoRaster(x = data,
                                opacity = 0.8,
-                               group = overlay_name,
+                               group = overlay_group,
                                options = list(clickable = FALSE, pane = overlay_name),
                                autozoom = FALSE)
         
@@ -576,7 +564,7 @@ observeEvent(c(city$city_code), {
           mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
                                     style_id = overlay_mapboxid,
                                     username = "kauebraga",
-                                    group = overlay_name,
+                                    group = overlay_group,
                                     # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
                                     options = tileOptions(pane = overlay_name))
       
@@ -591,7 +579,7 @@ observeEvent(c(city$city_code), {
         } else {TRUE}
         
         map = map %>% leafem::addFgb(file = file,
-                                     group = overlay_name,
+                                     group = overlay_group,
                                      # color = "#00AE42",
                                      # color = "#000000",
                                      color = overlay_subset$fill,
@@ -618,22 +606,23 @@ observeEvent(c(city$city_code), {
   
   
   fix <- indicator$mode
-  overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
+  overlay_labels <- subset(overlay_table, indicator == fix)$overlay_group
   # overlay_labels <- paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_labels)
   # overlay_labels <- as.list(overlay_labels)
   # names(overlay_labels) <- subset(overlay_table, indicator == fix)$overlay_label
   # print(overlay_labels)
   # identify groups to hide
-  overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_label
-  overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_label
+  overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_group
+  overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_group
   
   # # identify overlays
-  overlay_layers$groups <- overlay_labels
+  overlay_layers$groups <- overlay_group
   
   map <- map %>%
     addLayersControl(
       baseGroups = c("Light", "Dark", "Satellite"),
-      overlayGroups = c("Regions", overlay_labels),
+      overlayGroups = c(sprintf("<span id = \"teste_map\"><img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Agglomeration</img></span>"),
+                        overlay_labels),
       options = layersControlOptions(collapsed = FALSE)) %>%
     hideGroup(overlay_hide) %>%
     showGroup(overlay_show)
@@ -650,6 +639,43 @@ observeEvent(c(city$city_code), {
   
 })
 
+# observeEvent(c(input$admin_level),{
+#   
+#   req(city$city_code != "", indicator$mode, input$admin_level > 1)
+#   
+#   
+#   # print("RUN")
+#   
+#   rank$admin_level_name <- unique(subset(data_ind(), admin_level_ordered == rank$admin_level)$admin_level_name)
+#   
+#   fix <- indicator$mode
+#   # overlays_to_open <- subset(overlay_table, indicator == fix)
+#   # overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
+#   # overlay_group <- unique(overlay_subset$overlay_group)
+#   
+#   overlay_labels <- subset(overlay_table, indicator == fix)$overlay_group
+#   # overlay_labels <- paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_labels)
+#   # overlay_labels <- as.list(overlay_labels)
+#   # names(overlay_labels) <- subset(overlay_table, indicator == fix)$overlay_label
+#   # print(overlay_labels)
+#   # identify groups to hide
+#   overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_group
+#   overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_group
+#   
+#   # # identify overlays
+#   # overlay_layers$groups <- overlay_group
+#   
+#   map <- leafletProxy("map", session) %>%
+#     clearControls() %>%
+#     addLayersControl(
+#       baseGroups = c("Light", "Dark", "Satellite"),
+#       overlayGroups = c(sprintf("<img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">%s</img>", rank$admin_level_name),
+#                         overlay_labels),
+#       options = layersControlOptions(collapsed = FALSE)) %>%
+#     hideGroup(overlay_hide) %>%
+#     showGroup(overlay_show)
+#   
+# })
 
 
 # observer to keep selected element highlited -----------------------------
@@ -771,7 +797,7 @@ observeEvent(c(input$map_shape_click), {
                   # fillColor = ~pal(value),
                   # fillOpacity = 0.5,
                   color = "grey",  weight = 8, layerId = ~osmid, opacity = 1,
-                  group = "Regions",
+                  group = sprintf("<span id = \"teste_map\"><img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Agglomeration</img></span>"),
                   label = lapply(labels, htmltools::HTML),
                   labelOptions = labelOptions(
                     style = list(
@@ -788,7 +814,7 @@ observeEvent(c(input$map_shape_click), {
     if (length(element$selected) > 1) {
       map <- map %>%
         addPolygons(data = data_previous,
-                    group = "Regions",
+                    group = sprintf("<span id = \"teste_map\"><img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Agglomeration</img></span>"),
                     # fis theses colors
                     fillColor = data_previous$fill, fillOpacity = 0.5,
                     label = lapply(labels1, htmltools::HTML),
@@ -878,32 +904,6 @@ observeEvent(c(indicator$mode, input$year), {
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
                       color = "black")) %>%
-    clearGroup("Population density") %>%
-    clearGroup("Average Block Density") %>%
-    clearGroup("Journey Gap analysis grid" ) %>%
-    clearGroup("People Near Services") %>%
-    clearGroup("Healthcare locations" ) %>%
-    clearGroup("Education locations" ) %>%
-    clearGroup("People near healthcare" ) %>%
-    clearGroup("People near education" ) %>%
-    clearGroup("People Near Car-Free Places" ) %>%
-    clearGroup("Areas near highways" ) %>%
-    clearGroup("Grade-separated highways" ) %>%
-    clearGroup("People Near Protected Bikeways" ) %>%
-    clearGroup("People Near All Bikeways" ) %>%
-    clearGroup("Protected bikeways" ) %>%
-    clearGroup("All bikeways" ) %>%
-    clearGroup("People Near Rapid Transport" ) %>%
-    clearGroup("Metro rail (point)" ) %>%
-    clearGroup("Metro rail (line)" ) %>%
-    clearGroup("Light rail (point)" ) %>%
-    clearGroup("Light rail (line)") %>%
-    clearGroup("Bus rapid transport (point)" ) %>%
-    clearGroup("Bus rapid transport (line)" ) %>%
-    clearGroup("People Near Frequent Transport" ) %>%
-    clearGroup("Frequent transport stops" ) %>%
-    
-    
     addMapPane("basemap", zIndex = 410) %>%
     addMapPane("Population density", zIndex = 415) %>%
     addMapPane("Average Block Density", zIndex = 416) %>%
@@ -931,6 +931,11 @@ observeEvent(c(indicator$mode, input$year), {
     addMapPane("Frequent transport stops", zIndex = 425) %>%
     removeLayersControl()
   
+  # remove groups
+  for(i in 1:length(overlay_table$overlay_group)){
+    map = map %>% clearGroup(overlay_table$overlay_group)
+  }
+  
   
   
   # print("geom_type")
@@ -951,6 +956,8 @@ observeEvent(c(indicator$mode, input$year), {
     overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
     overlay_name <- unique(overlay_subset$overlay_label)
     overlay_status <- unique(overlay_subset$overlay_show)
+    overlay_mapboxid <- unique(overlay_subset$mapbox_id)
+    overlay_group <- unique(overlay_subset$overlay_group)
     
     file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
                     city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
@@ -964,9 +971,24 @@ observeEvent(c(indicator$mode, input$year), {
         map <- map %>%
           leafem::addGeoRaster(x = data,
                                opacity = 0.8,
-                               group = overlay_name,
+                               group = overlay_group,
                                options = pathOptions(clickable = FALSE, pane = overlay_name),
                                autozoom = FALSE)
+        
+        
+      } else if (i %in% c("protectedbike_latlon", "hs_latlon")) {
+        
+        
+        # print(i)
+        # print("iiiii")
+        
+        map <- map %>%
+          mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+                                    style_id = overlay_mapboxid,
+                                    username = "kauebraga",
+                                    group = overlay_group,
+                                    # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
+                                    options = tileOptions(pane = overlay_name))
         
       } else {
         
@@ -979,7 +1001,7 @@ observeEvent(c(indicator$mode, input$year), {
         } else {TRUE}
         
         map = map %>% leafem::addFgb(file = file,
-                                     group = overlay_name,
+                                     group = overlay_group,
                                      # color = "#00AE42",
                                      # color = "#000000",
                                      color = overlay_subset$fill,
@@ -1007,10 +1029,10 @@ observeEvent(c(indicator$mode, input$year), {
   # # identify overlays
   # overlay_layers
   fix <- indicator$mode
-  overlay_labels <- subset(overlay_table, indicator == fix)$overlay_label
+  overlay_labels <- subset(overlay_table, indicator == fix)$overlay_group
   # identify groups to hide
-  overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_label
-  overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_label
+  overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_group
+  overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_group
   
   # print("overlay_show")
   # print(overlay_show)
@@ -1024,7 +1046,7 @@ observeEvent(c(indicator$mode, input$year), {
   map <- map %>%
     addLayersControl(
       baseGroups = c("Light", "Dark", "Satellite"),
-      overlayGroups = c("Regions"
+      overlayGroups = c(sprintf("<span id = \"teste_map\"><img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Agglomeration</img></span>")
                         , overlay_labels),
       options = layersControlOptions(collapsed = FALSE)) %>%
     hideGroup(overlay_hide) %>%
@@ -1234,7 +1256,7 @@ observeEvent(c(
     # removeShape(layerId =  osm_selected$oi) %>%
     # removeTiles(layerId =  "tile") %>%
     removeShape(layerId = "reach") %>%
-    clearGroup(group = "Regions") %>%
+    clearGroup(group = sprintf("<span id = \"teste_map\"><img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Agglomeration</img></span>")) %>%
     # clearShapes() %>%
     # removeShape(layerId = city$osmid ) %>%
     clearControls() %>%
@@ -1294,7 +1316,7 @@ observeEvent(c(
                 fillColor = data_ind3_spatial()$fill,
                 fillOpacity = opacity,
                 color = color_stroke,  weight = weight_stroke, 
-                group = "Regions",
+                group = sprintf("<span id = \"teste_map\"><img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Agglomeration</img></span>"),
                 label = leaflet_params$label1,
                 labelOptions = labelOptions(
                   style = list(
@@ -1338,7 +1360,7 @@ observeEvent(c(
   } else map <- map
   
   
-  if (!(indicator$mode %in% c("popdensity"))) map <- map %>% showGroup("Regions")
+  if (!(indicator$mode %in% c("popdensity"))) map <- map %>% showGroup("<img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">Regions</img>")
   
   
   map %>% stopSpinner()
