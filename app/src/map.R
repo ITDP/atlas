@@ -150,18 +150,21 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   pal <- colorBin(
     palette = "viridis",
     na.color = "#808080",
-    bins = 7,
+    bins = 4,
     # palette = "YlGnBu",
-    domain = a_available$value_legend
+    domain = a_available$value_legend,
+    pretty = TRUE
     
     )
   
   
   pal_countries <- colorBin(
     palette = "viridis",
-    bins = 7,
+    bins = 4,
     # palette = "YlGnBu",
-    domain = a_country$value_legend)
+    domain = a_country$value_legend,
+    pretty = TRUE
+    )
   
   
   
@@ -317,7 +320,7 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     # addPolygons(fillColor = ~pal(pnpb), color = "black", layerId = ~code_metro) %>%
     addLegend("bottomright", pal = world_view$pal_countries, values = ~world_view$a_country$value_legend,
               title = world_view$legend_title,
-              bins = 7,
+              bins = 4,
               labFormat = world_view$legend_value,
               layerId = "legend_country")
   
@@ -385,7 +388,7 @@ observeEvent(c(city$city_code), {
   # print("obs2")
   
   pal <- colorBin(
-    palette = "YlOrRd",
+    palette = "YlGnBu",
     bins = 7,
     domain = data_metro$value)
   
@@ -1148,10 +1151,14 @@ data_ind3_spatial <- reactive({
     # print(a)
     
     # create the color palette
+    # the number of bins will depend on the number of units on the map
+    total_units <- nrow(a)
+    bins_map <- ifelse(total_units == 1, 2, ifelse(total_units <= 4, total_units, 4))
     pal <- colorBin(
-      palette = "YlOrRd",
-      bins = 7,
-      domain = a$value_legend)
+      palette = "YlGnBu",
+      bins = bins_map,
+      domain = a$value_legend,
+      pretty = TRUE)
     
     # create a column with the colors
     a$fill <- pal(a$value_legend)
@@ -1340,11 +1347,13 @@ observeEvent(c(
   
   if (input$admin_level != 1)  {
     
-    pal <- colorBin(palette = "YlOrRd",
-                    domain = data_ind3_spatial()$value_legend,
-                    # domain = c(min(data_ind3_spatial()$value_legend), max(data_ind3_spatial()$value_legend)),
-                    bins = 7,
-                    pretty = TRUE)
+    total_units <- nrow(data_ind3_spatial())
+    bins_map <- ifelse(total_units == 1, 2, ifelse(total_units <= 4, total_units, 4))
+    pal <- colorBin(
+      palette = "YlGnBu",
+      bins = bins_map,
+      domain = data_ind3_spatial()$value_legend,
+      pretty = TRUE)
     
     # print(pal)
     # print(data_ind3_spatial()$value_legend)

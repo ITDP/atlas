@@ -312,4 +312,4 @@ ui <- fluidPage(
 )
 
 
-# ui <- secure_app(ui)
+ui <- secure_app(ui)
