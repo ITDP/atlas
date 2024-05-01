@@ -1,4 +1,30 @@
 
+observeEvent(c(indicator$mode), {
+  
+  req(city$city_code == "")
+  
+  disable("compare_panel")
+  
+  # runjs("$('#compare_panel').attr('title', 'This is the hover-over text');")
+  
+  delay(1, runjs('$("#compare_panel").attr({"title":"Select a country to enable comparison",  "data-toggle":"tooltip"})'))
+  delay(2, runjs('$("#compare_panel").tooltip({"trigger": "hover", "animation": true, delay: {show: 1,hide: 10}, placement: "auto"})'))
+  delay(5, runjs('$("#compare_panel").tooltip("enable")'))
+  
+  # disable tool
+  runjs('$("#tooltip_compare").tooltip("disable");')
+  
+  # tooltip <- ('<div class="tooltip1"><i style="float: right; color: red" class="fa-solid fa-triangle-exclamation"></i><span class="tooltiptext1">Indicator not avaiable<br> for this region</div>')
+  
+})
+
+# disable compare button when no country is selected
+observeEvent(c(input$map_shape_click, input$map_marker_click), {
+
+  enable("compare_panel")
+
+})
+
 
 # get the values from other cities
 
@@ -55,12 +81,12 @@ observeEvent(c(input$city_compare_level_analysis), {
   a <- readRDS(ui)
   
   ind_compare$ind_compare <- a  
+  
+})  
 
-  })  
-  
-  
-  
-  
+
+
+
 
 ind_country <- reactive({
   
@@ -106,6 +132,9 @@ output$comparison_chart <- renderHighchart({
                                         names_sep = "_",
                                         names_to = c("ind_type", "ind", "year"),
                                         values_to = "value")
+      
+      # make sure we are filtering the right indicator
+      value_city <- subset(value_city, ind == indicator$mode)
       
       # print("value_city")
       # print(value_city)
@@ -172,6 +201,9 @@ output$comparison_chart <- renderHighchart({
           ))
         
       } else {
+        
+        print("value_city")
+        print(value_city)
         
         hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
                name = unique(value_city$name),
@@ -407,9 +439,6 @@ observeEvent(c(input$city_compare1_initial), {
     }
     
     
-    print(value_compare$value)
-    print("value_compare$value")
-    
     if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
                               "pncf", "pnft")) {
       
@@ -543,122 +572,302 @@ observeEvent(c(input$city_compare1_initial), {
 
 output$comparison_max <- renderHighchart({
   
-  # print("WHAAAAT")
-  
-  ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
-  
-  # print(ui)
-  # print(ordered_colnames())
-  
-  # print(ordered_colnames())
-  value_city <- subset(ind_city(), osmid %in% c(ui, ordered_colnames()))
-  
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-  format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-  format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
   
   
-  # value_city$value <- if(format_indicator_unit_value == "percent") {
-  #   round(value_city$value * 100)
-  #   
-  # } else round(value_city$value)
-  if (indicator$mode != "popdensity") {
-    value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
-  }
-  
-  if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
-                            "pncf", "pnft")) {
+  if (city$city_code == "") {
     
     
-    hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
-           name = unique(value_city$name),
-           tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
-                          valueDecimals = 0)) %>%
-      hc_chart(
-        # marginBottom = 100,
-               events = list(
-                 load = 'function () alert("triggered");'
-                 # load = "function () { if(this.options.chart.forExport) { this.renderer.image('https://go.itdp.org/download/attachments/46271199/ITDP_BugPMS355C.png', 80, 40, 143, 57) .add()) } }"
-               )
-      ) %>%
-      hc_plotOptions(column = list(
-        pointWidth = 30,
-        # dataLabels = list(enabled = TRUE,
-        #                   align = "center",
-        #                   y = -20,
-        #                   # format = "City: {point.y}",
-        #                   format = "{series.name}",
-        #                   style = list(fontSize = 12,
-        #                                color = "white",
-        #                                textOutline = "0.3px black",
-        #                                fontWeight = "bold")),
-        grouping = FALSE
-        # dataSorting = list(enabled = TRUE,
-        #                    matchByName = TRUE)
-        # pointPadding = 0.01
-      )
-      ) %>%
-      hc_legend(verticalAlign = "bottom") %>%
-      # hc_subtitle(text = input$year, align = "center", y = 220) %>%
-      hc_title(text = sprintf("%s - %s", format_indicator_name, input$year)
-               # align = "left", x = 10, y = 250
-      ) %>%
-      hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
-               labels = list(style = list(fontSize = 15)),
-               maxPadding = 0.001) %>%
-      hc_xAxis(title = list(text = "", style = list(fontSize = 16)),
-               labels = list(enabled = FALSE)
-               ) %>%
-      hc_add_theme(hc_theme_darkunica(
-        chart = list(backgroundColor = "#1C1C1C",
-                     style = list(fontFamily = "Franklin Gothic Book"))
-        ,
-        title = list(style = list(fontFamily = "Franklin Gothic Demi",
-                                  textTransform = "none"))
-        
-      )) %>%
-      hc_exporting(
-        enabled = TRUE, # always enabled
-        filename = sprintf("compare_%s", indicator$mode),
-        buttons = list(contextButton = list( enabled = FALSE),
-                       exportButton = list(text = "DOWNLOAD",
-                                           menuItems = list('downloadPNG', 'downloadSVG', 'separator', 'downloadCSV'),
-                                           x = -20))
-      )
+    print("aqui")
+    
+    ui <- input$map_shape_click$id
+    value_city <- subset(atlas_country(), name == ui)
+    value_city <- st_sf(value_city)
+    value_city <- st_set_geometry(value_city, NULL)
+    value_city <- tidyr::pivot_longer(value_city,
+                                      cols = 3:last_col(),
+                                      names_sep = "_",
+                                      names_to = c("ind_type", "ind", "year"),
+                                      values_to = "value")
+    
+    # make sure we are filtering the right indicator
+    value_city <- subset(value_city, ind == indicator$mode)
+    
+    # print("value_city")
+    # print(value_city)
+    
+    # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
+    # filter
+    # print("bububububu")
+    # print(indicator$mode)
+    # print(year$ok)
+    
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
+                              "pncf", "pnft")) {
+      
+      ano <- year$ok
+      value_city <- subset(value_city, ind == indicator$mode & year == ano)
+      
+      
+    }
+    
+    
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+    
+    # print(format_indicator_unit_value)
+    # print("format_indicator_unit_value")
+    
+    # value_city$value <- if(format_indicator_unit_value == "percent") {
+    #   round(value_city$value * 100) 
+    #   
+    # } else round(value_city$value)
+    
+    if (indicator$mode != "popdensity") {
+      
+      value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+      
+      
+    }
+    
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
+                              "pncf", "pnft")) {
+      
+      hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
+             name = unique(value_city$name),
+             tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
+                            valueDecimals = 0)) %>%
+        hc_chart(
+          # marginBottom = 100,
+          events = list(
+            click = "function() alert();"
+            # load = "function () { if(this.options.chart.forExport) { this.renderer.image('https://go.itdp.org/download/attachments/46271199/ITDP_BugPMS355C.png', 80, 40, 143, 57) .add()) } }"
+          )
+        ) %>%
+        hc_plotOptions(series = list(
+          pointWidth = 30,
+          # dataLabels = list(enabled = TRUE,
+          #                   align = "center",
+          #                   y = -20,
+          #                   # format = "City: {point.y}",
+          #                   format = "{series.name}",
+          #                   style = list(fontSize = 12,
+          #                                color = "white",
+          #                                textOutline = "0.3px black",
+          #                                fontWeight = "bold")),
+          grouping = FALSE,
+          events = list(
+            click = "function() alert();")
+        )
+        ) %>%
+        hc_legend(verticalAlign = "bottom") %>%
+        # hc_subtitle(text = input$year, align = "center", y = 220) %>%
+        hc_title(text = sprintf("%s - %s", format_indicator_name, input$year)
+                 # align = "left", x = 10, y = 250
+        ) %>%
+        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15)),
+                 maxPadding = 0.001) %>%
+        hc_xAxis(title = list(text = "", style = list(fontSize = 16)),
+                 labels = list(enabled = FALSE)
+        ) %>%
+        hc_add_theme(hc_theme_darkunica(
+          chart = list(backgroundColor = "#1C1C1C",
+                       style = list(fontFamily = "Franklin Gothic Book"))
+          ,
+          title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                    textTransform = "none"))
+          
+        )) %>%
+        hc_exporting(
+          enabled = TRUE, # always enabled
+          filename = sprintf("compare_%s", indicator$mode),
+          buttons = list(contextButton = list( enabled = FALSE),
+                         exportButton = list(text = "DOWNLOAD",
+                                             menuItems = list('downloadPNG', 'downloadSVG', 'separator', 'downloadCSV'),
+                                             x = -20)),
+          plotOptions = list(
+            events = list(
+              load = 'function () {
+          this.renderer
+                .image("https://images.adsttc.com/adbr001cdn.archdaily.net/wp-content/uploads/2012/06/1339769975_270468_186978104690637_2440712_n.jpg", 80, 40, 143, 57)
+                .add();
+          }
+          '
+            ))
+          
+        )
+      
+    } else {
+      
+      
+      hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
+             name = unique(value_city$name),
+             tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                            valueDecimals = 0)) %>%
+        hc_plotOptions(column = list(pointWidth = 10)) %>%
+        hc_legend(verticalAlign = "bottom") %>%
+        hc_title(text = format_indicator_name
+                 # align = "left", x = 10, y = 340,
+        ) %>%
+        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15)),
+                 maxPadding = 0.001) %>%
+        hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15))) %>%
+        hc_add_theme(hc_theme_darkunica(
+          chart = list(backgroundColor = "#1C1C1C",
+                       style = list(fontFamily = "Franklin Gothic Book"))
+          ,
+          title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                    textTransform = "none"))
+          
+        )) %>%
+        hc_exporting(
+          enabled = TRUE, # always enabled
+          filename = sprintf("compare_%s", indicator$mode),
+          buttons = list(contextButton = list( enabled = FALSE),
+                         exportButton = list(text = "DOWNLOAD",
+                                             menuItems = list('downloadPNG', 'downloadSVG', 'separator', 'downloadCSV'),
+                                             x = -20))
+        )
+      
+      
+      
+    }
+    
+    
     
   } else {
     
+    ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
     
-    hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
-           name = unique(value_city$name),
-           tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
-                          valueDecimals = 0)) %>%
-      hc_plotOptions(column = list(pointWidth = 10)) %>%
-      hc_legend(verticalAlign = "bottom") %>%
-      hc_title(text = format_indicator_name
-               # align = "left", x = 10, y = 340,
-      ) %>%
-      hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
-               labels = list(style = list(fontSize = 15)),
-               maxPadding = 0.001) %>%
-      hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
-               labels = list(style = list(fontSize = 15))) %>%
-      hc_add_theme(hc_theme_darkunica(
-        chart = list(backgroundColor = "#1C1C1C",
-                     style = list(fontFamily = "Franklin Gothic Book"))
-        ,
-        title = list(style = list(fontFamily = "Franklin Gothic Demi",
-                                  textTransform = "none"))
-        
-      )) %>%
-      hc_exporting(
-        enabled = TRUE, # always enabled
-        filename = sprintf("compare_%s", indicator$mode),
-        buttons = list(contextButton = list( enabled = FALSE),
-                       exportButton = list(text = "DOWNLOAD",
-                                           menuItems = list('downloadPNG', 'downloadSVG', 'separator', 'downloadCSV'),
-                                           x = -20))
-      )
+    # print(ui)
+    # print(ordered_colnames())
+    
+    # print(ordered_colnames())
+    value_city <- subset(ind_city(), osmid %in% c(ui, ordered_colnames()))
+    
+    
+    # make sure we are filtering the right indicator
+    # value_city <- subset(value_city, ind == indicator$mode)
+    
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+    
+    
+    # value_city$value <- if(format_indicator_unit_value == "percent") {
+    #   round(value_city$value * 100)
+    #   
+    # } else round(value_city$value)
+    if (indicator$mode != "popdensity") {
+      value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
+    }
+    
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                              "pncf", "pnft")) {
+      
+      hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
+             name = unique(value_city$name),
+             tooltip = list(pointFormat = sprintf("{point.y} %s", format_indicator_unit),
+                            valueDecimals = 0)) %>%
+        hc_chart(
+          # marginBottom = 100,
+          events = list(
+            click = "function() alert();"
+            # load = "function () { if(this.options.chart.forExport) { this.renderer.image('https://go.itdp.org/download/attachments/46271199/ITDP_BugPMS355C.png', 80, 40, 143, 57) .add()) } }"
+          )
+        ) %>%
+        hc_plotOptions(series = list(
+          pointWidth = 30,
+          # dataLabels = list(enabled = TRUE,
+          #                   align = "center",
+          #                   y = -20,
+          #                   # format = "City: {point.y}",
+          #                   format = "{series.name}",
+          #                   style = list(fontSize = 12,
+          #                                color = "white",
+          #                                textOutline = "0.3px black",
+          #                                fontWeight = "bold")),
+          grouping = FALSE,
+          events = list(
+            click = "function() alert();")
+        )
+        ) %>%
+        hc_legend(verticalAlign = "bottom") %>%
+        # hc_subtitle(text = input$year, align = "center", y = 220) %>%
+        hc_title(text = sprintf("%s - %s", format_indicator_name, input$year)
+                 # align = "left", x = 10, y = 250
+        ) %>%
+        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15)),
+                 maxPadding = 0.001) %>%
+        hc_xAxis(title = list(text = "", style = list(fontSize = 16)),
+                 labels = list(enabled = FALSE)
+        ) %>%
+        hc_add_theme(hc_theme_darkunica(
+          chart = list(backgroundColor = "#1C1C1C",
+                       style = list(fontFamily = "Franklin Gothic Book"))
+          ,
+          title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                    textTransform = "none"))
+          
+        )) %>%
+        hc_exporting(
+          enabled = TRUE, # always enabled
+          filename = sprintf("compare_%s", indicator$mode),
+          buttons = list(contextButton = list( enabled = FALSE),
+                         exportButton = list(text = "DOWNLOAD",
+                                             menuItems = list('downloadPNG', 'downloadSVG', 'separator', 'downloadCSV'),
+                                             x = -20)),
+          plotOptions = list(
+            events = list(
+              load = 'function () {
+          this.renderer
+                .image("https://images.adsttc.com/adbr001cdn.archdaily.net/wp-content/uploads/2012/06/1339769975_270468_186978104690637_2440712_n.jpg", 80, 40, 143, 57)
+                .add();
+          }
+          '
+            ))
+          
+        )
+      
+    } else {
+      
+      
+      hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
+             name = unique(value_city$name),
+             tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                            valueDecimals = 0)) %>%
+        hc_plotOptions(column = list(pointWidth = 10)) %>%
+        hc_legend(verticalAlign = "bottom") %>%
+        hc_title(text = format_indicator_name
+                 # align = "left", x = 10, y = 340,
+        ) %>%
+        hc_yAxis(title = list(text = format_indicator_unit, style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15)),
+                 maxPadding = 0.001) %>%
+        hc_xAxis(title = list(text = "Year", style = list(fontSize = 16)),
+                 labels = list(style = list(fontSize = 15))) %>%
+        hc_add_theme(hc_theme_darkunica(
+          chart = list(backgroundColor = "#1C1C1C",
+                       style = list(fontFamily = "Franklin Gothic Book"))
+          ,
+          title = list(style = list(fontFamily = "Franklin Gothic Demi",
+                                    textTransform = "none"))
+          
+        )) %>%
+        hc_exporting(
+          enabled = TRUE, # always enabled
+          filename = sprintf("compare_%s", indicator$mode),
+          buttons = list(contextButton = list( enabled = FALSE),
+                         exportButton = list(text = "DOWNLOAD",
+                                             menuItems = list('downloadPNG', 'downloadSVG', 'separator', 'downloadCSV'),
+                                             x = -20))
+        )
+      
+    }
     
   }
   
@@ -672,200 +881,188 @@ observeEvent(c(input$maximize_comparison), {
   
   req(input$maximize_comparison >= 1)
   
-  # print("bummmm")
-  
-  
-  # get the levels
-  # go <- length(unique(data_ind()$admin_level))
-  # go1 <- unique(data_ind()$admin_level_name)
-  # list_levels <- as.list(seq(1,go))
-  # names(list_levels) <- go1
-  
-  country_current <- unique(data_ind3_spatial()$country)
-  print(country_current)
-  print("country_current")
-  
-  # identify the current admin level
-  al <- unique(data_ind3_spatial()$admin_level)
-  print(al)
-  print("al")
-  
-  # 1) select only the ones that are available for the indicator in question
-  hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
-  countries_available <- unique(hdc_available1$country)
-
-  
-  # # 2) filter the hdc available for the selected country
-  urban_area_available <- subset(list_osmid_name, country == country_current & admin_level == 0)
-  urban_area_available_id <- unique(urban_area_available$hdc)
-  urban_area_available_name <- unique(urban_area_available$name)
-  names(urban_area_available_id) <- urban_area_available_name
-  print("urban_area_available_id")
-  print(urban_area_available_id)
-  
-  
-  # 3) filter the level of analysis availables
-  level_analysis_available <- subset(list_osmid_name, hdc == city$city_code)
-  level_analysis_available <- level_analysis_available[!duplicated(level_analysis_available[,c('admin_level_name','admin_level')]),]
-  level_analysis_available <- level_analysis_available[order(level_analysis_available$admin_level_ordered),]
-  level_analysis_available_id <- level_analysis_available$admin_level
-  level_analysis_available_name <- level_analysis_available$admin_level_name 
-  names(level_analysis_available_id) <- level_analysis_available_name
-  print("level_analysis_available_id")
-  print(level_analysis_available_id)
-  
-  # 4) filter the level of analysis for that urban area
-  analysis_area_available <- subset(list_osmid_name, admin_level == al & hdc == city$city_code)
-  analysis_area_available_id <- analysis_area_available$osmid
-  analysis_area_available_name <- analysis_area_available$name
-  names(analysis_area_available_id) <- analysis_area_available_name
+  if (city$city_code == "") {
     
-  
-  # # fisr, filter the level
-  # al <- unique(data_ind3_spatial()$admin_level)
-  # choices_comparison <- subset(list_osmid_name, admin_level == al)
-  # # get current country
-  # country_current <- unique(data_ind3_spatial()$country)
-  # 
-  # 
-  # # filter hdc with the indicators available
-  # choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
-  # # get countries
-  # countries <- unique(choices_comparison$country)
-  # # get hdc from that country
-  # hdc_comparison <- subset(list_osmid_name, country == country_current & hdc %in% hdc_available)
-  # 
-  # go <- hdc_comparison[!duplicated(hdc_comparison[,c('admin_level_name','admin_level')]),]
-  # list_levels <- as.list(go$admin_level)
-  # names(list_levels) <- go$admin_level_name
-  # 
-  # hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == al & hdc %in% hdc_available)
-  # # get options to show in the comparison - final
-  # choices_comparison <- subset(choices_comparison, hdc == city$city_code)
-  # # print(choices_comparison)
-  # # remove the osmid that is already being shown
-  # # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
-  # 
-  # 
-  # # extract values
-  # 
-  # # for the hdc available
-  # hdc_comparison_values <- hdc_comparison$osmid
-  # hdc_comparison_names <- hdc_comparison$name
-  # names(hdc_comparison_values) <- hdc_comparison_names
-  # # for the final selection
-  # choices_comparison_values <- choices_comparison$osmid
-  # choices_comparison_names <- choices_comparison$name
-  # names(choices_comparison_values) <- choices_comparison_names
-  
-  
-  # print(countries)
-  # print(country_current)
-  
-  
-  showModal(modalDialog(
-    title = div(style = "display: flex; justify-content: space-between;", "COMPARE", modalButton(icon("close"))),
-    size = c("l"),
-    easyClose = TRUE,
-    footer = NULL,
-    absolutePanel(
-      class = "about_modal",
-      div(style="display:inline-block",
-          shinyWidgets::pickerInput(inputId = "city_compare_country",
-                                    label = NULL,
-                                    choices = countries_available,
-                                    selected = country_current,
-                                    multiple = FALSE,
-                                    width = "200px",
-                                    options = shinyWidgets::pickerOptions(size = 15,
-                                                                          title = "Country",
-                                                                          liveSearch = TRUE,
-                                                                          liveSearchPlaceholder = "Search...")
-          )),
-      div(style="display:inline-block",
-          shinyWidgets::pickerInput(inputId = "city_compare_urban_area",
-                                    choices = urban_area_available_id,
-                                    label = NULL,
-                                    selected = al,
-                                    multiple = FALSE,
-                                    width = "150px",
-                                    options = shinyWidgets::pickerOptions(size = 15,
-                                                                          title = "Urban area",
-                                                                          liveSearch = TRUE,
-                                                                          liveSearchPlaceholder = "Search...")
-          )),
-      div(style="display:inline-block",
-          shinyWidgets::pickerInput(inputId = "city_compare_level_analysis",
-                                    label = NULL,
-                                    choices = level_analysis_available_id,
-                                    selected = city$city_code,
-                                    width = "200px",
-                                    multiple = FALSE,
-                                    options = shinyWidgets::pickerOptions(size = 15,
-                                                                          title = "Level of analysis",
-                                                                          liveSearch = TRUE,
-                                                                          liveSearchPlaceholder = "Search...")
-          )),
-      div(style="display:inline-block",
-          shinyWidgets::pickerInput(inputId = "city_compare_analysis_area",
-                                    label = NULL,
-                                    choices = analysis_area_available_id,
-                                    selected = NULL,
-                                    width = "200px",
-                                    multiple = TRUE,
-                                    options = shinyWidgets::pickerOptions(size = 15,
-                                                                          title = "Analysis area",
-                                                                          liveSearch = TRUE,
-                                                                          liveSearchPlaceholder = "Search...")
-          )),
-      # div(style="display:inline-block",
-      #     shinyWidgets::pickerInput(inputId = "city_compare1",
-      #                               label = NULL,
-      #                               choices = choices_comparison_values,
-      #                               width = "200px",
-      #                               multiple = TRUE,
-      #                               options = shinyWidgets::pickerOptions(size = 15,
-      #                                                                     # iconBase = "fa",
-      #                                                                     # tickIcon = "fa-check",
-      #                                                                     title = "Add a region...",
-      #                                                                     liveSearch = TRUE,
-      #                                                                     liveSearchPlaceholder = "Search...",
-      #                                                                     selectedTextFormat = "static"
-      #                               )
-      #     )),
-      div(style="display:inline-block",
-          actionButton("reset_graph", "Clear Selection")),
-      # absolutePanel(class = "spatial_level", 
-      #               fixed = TRUE, draggable = FALSE,
-      #               style = "background: #00AE42;",
-      #               top = 20, right = 20, height = 'auto', width = 140,
-      #               dropdown(
-      #                 tagList(
-      #                   downloadButton("download_graph1", "Download graph", icon = NULL),
-      #                   downloadButton("download_graph2", "Download graph2", icon = NULL)
-      #                 ),
-      #                 hr(),
-      #                 actionButton("downloadDic", "Download Data Dictionary", 
-      #                              onclick = "location.href='https://www.ipea.gov.br/acessooportunidades/dados';"),
-      #                 circle = FALSE, 
-      #                 # status = "danger",
-      #                 label = "DOWNLOAD",
-      #                 right = TRUE,
-      #                 up = FALSE,
-      #                 # icon = icon("download"), 
-      #                 width = "320px",
-      #                 # tooltip = tooltipOptions(title = "Click to see inputs !"),
-      #                 inputId = "download_dropdown_graphs"
-      #                 
-      #               )
-      # ),
-      highchartOutput("comparison_max", height = "280px")
-      # highchartProxy("comparison")
-      
+    
+    # 1) select only the ones that are available for the indicator in question
+    hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
+    countries_available <- unique(hdc_available1$country)
+    
+    
+    showModal(modalDialog(
+      title = div(style = "display: flex; justify-content: space-between;", "COMPARE", modalButton(icon("close"))),
+      size = c("l"),
+      easyClose = TRUE,
+      footer = NULL,
+      absolutePanel(
+        class = "about_modal",
+        div(style="display:inline-block",
+            shinyWidgets::pickerInput(inputId = "city_compare_analysis_area",
+                                      label = NULL,
+                                      choices = countries_available,
+                                      selected = NULL,
+                                      width = "200px",
+                                      multiple = TRUE,
+                                      options = shinyWidgets::pickerOptions(size = 15,
+                                                                            title = "Country",
+                                                                            liveSearch = TRUE,
+                                                                            liveSearchPlaceholder = "Search...")
+            )),
+        div(style="display:inline-block",
+            actionButton("reset_graph", "Clear Selection")),
+        highchartOutput("comparison_max", height = "280px")
+      )))
+    
+    
+    
+  } else {
+    
+    
+    # get the levels
+    # go <- length(unique(data_ind()$admin_level))
+    # go1 <- unique(data_ind()$admin_level_name)
+    # list_levels <- as.list(seq(1,go))
+    # names(list_levels) <- go1
+    
+    country_current <- unique(data_ind3_spatial()$country)
+    
+    # identify the current admin level
+    al <- unique(data_ind3_spatial()$admin_level)
+    
+    # 1) select only the ones that are available for the indicator in question
+    hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
+    countries_available <- unique(hdc_available1$country)
+    
+    
+    # # 2) filter the hdc available for the selected country
+    urban_area_available <- subset(list_osmid_name, country == country_current & admin_level == 0)
+    urban_area_available_id <- unique(urban_area_available$hdc)
+    urban_area_available_name <- unique(urban_area_available$name)
+    names(urban_area_available_id) <- urban_area_available_name
+    
+    
+    # 3) filter the level of analysis availables
+    level_analysis_available <- subset(list_osmid_name, hdc == city$city_code)
+    level_analysis_available <- level_analysis_available[!duplicated(level_analysis_available[,c('admin_level_name','admin_level')]),]
+    level_analysis_available <- level_analysis_available[order(level_analysis_available$admin_level_ordered),]
+    level_analysis_available_id <- level_analysis_available$admin_level
+    level_analysis_available_name <- level_analysis_available$admin_level_name 
+    names(level_analysis_available_id) <- level_analysis_available_name
+    
+    # 4) filter the level of analysis for that urban area
+    analysis_area_available <- subset(list_osmid_name, admin_level == al & hdc == city$city_code)
+    analysis_area_available_id <- analysis_area_available$osmid
+    analysis_area_available_name <- analysis_area_available$name
+    names(analysis_area_available_id) <- analysis_area_available_name
+    
+    
+    # # fisr, filter the level
+    # al <- unique(data_ind3_spatial()$admin_level)
+    # choices_comparison <- subset(list_osmid_name, admin_level == al)
+    # # get current country
+    # country_current <- unique(data_ind3_spatial()$country)
+    # 
+    # 
+    # # filter hdc with the indicators available
+    # choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
+    # # get countries
+    # countries <- unique(choices_comparison$country)
+    # # get hdc from that country
+    # hdc_comparison <- subset(list_osmid_name, country == country_current & hdc %in% hdc_available)
+    # 
+    # go <- hdc_comparison[!duplicated(hdc_comparison[,c('admin_level_name','admin_level')]),]
+    # list_levels <- as.list(go$admin_level)
+    # names(list_levels) <- go$admin_level_name
+    # 
+    # hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == al & hdc %in% hdc_available)
+    # # get options to show in the comparison - final
+    # choices_comparison <- subset(choices_comparison, hdc == city$city_code)
+    # # print(choices_comparison)
+    # # remove the osmid that is already being shown
+    # # choices_comparison <- subset(choices_comparison, osmid %nin% data_ind3_spatial()$osmid)
+    # 
+    # 
+    # # extract values
+    # 
+    # # for the hdc available
+    # hdc_comparison_values <- hdc_comparison$osmid
+    # hdc_comparison_names <- hdc_comparison$name
+    # names(hdc_comparison_values) <- hdc_comparison_names
+    # # for the final selection
+    # choices_comparison_values <- choices_comparison$osmid
+    # choices_comparison_names <- choices_comparison$name
+    # names(choices_comparison_values) <- choices_comparison_names
+    
+    
+    # print(countries)
+    # print(country_current)
+    
+    
+    showModal(modalDialog(
+      title = div(style = "display: flex; justify-content: space-between;", "COMPARE", modalButton(icon("close"))),
+      size = c("l"),
+      easyClose = TRUE,
+      footer = NULL,
+      absolutePanel(
+        class = "about_modal",
+        div(style="display:inline-block",
+            shinyWidgets::pickerInput(inputId = "city_compare_country",
+                                      label = NULL,
+                                      choices = countries_available,
+                                      selected = country_current,
+                                      multiple = FALSE,
+                                      width = "200px",
+                                      options = shinyWidgets::pickerOptions(size = 15,
+                                                                            title = "Country",
+                                                                            liveSearch = TRUE,
+                                                                            liveSearchPlaceholder = "Search...")
+            )),
+        div(style="display:inline-block",
+            shinyWidgets::pickerInput(inputId = "city_compare_urban_area",
+                                      choices = urban_area_available_id,
+                                      label = NULL,
+                                      selected = al,
+                                      multiple = FALSE,
+                                      width = "150px",
+                                      options = shinyWidgets::pickerOptions(size = 15,
+                                                                            title = "Urban area",
+                                                                            liveSearch = TRUE,
+                                                                            liveSearchPlaceholder = "Search...")
+            )),
+        div(style="display:inline-block",
+            shinyWidgets::pickerInput(inputId = "city_compare_level_analysis",
+                                      label = NULL,
+                                      choices = level_analysis_available_id,
+                                      selected = city$city_code,
+                                      width = "200px",
+                                      multiple = FALSE,
+                                      options = shinyWidgets::pickerOptions(size = 15,
+                                                                            title = "Level of analysis",
+                                                                            liveSearch = TRUE,
+                                                                            liveSearchPlaceholder = "Search...")
+            )),
+        div(style="display:inline-block",
+            shinyWidgets::pickerInput(inputId = "city_compare_analysis_area",
+                                      label = NULL,
+                                      choices = analysis_area_available_id,
+                                      selected = NULL,
+                                      width = "200px",
+                                      multiple = TRUE,
+                                      options = shinyWidgets::pickerOptions(size = 15,
+                                                                            title = "Analysis area",
+                                                                            liveSearch = TRUE,
+                                                                            liveSearchPlaceholder = "Search...")
+            )),
+        div(style="display:inline-block",
+            actionButton("reset_graph", "Clear Selection")),
+        highchartOutput("comparison_max", height = "280px")
+        
+      )
     )
-  )
-  
-  )
+    
+    )
+    
+  }
   
 })
 
@@ -879,7 +1076,7 @@ observeEvent(c(input$city_compare_country_initial), {
   # get the admin level original
   al <- unique(data_ind3_spatial()$admin_level)
   
-
+  
   
   # print("al")
   # print(al)
@@ -1042,7 +1239,7 @@ observeEvent(c(input$city_compare_level_analysis), {
       session = session,
       inputId = "city_compare_analysis_area",
       choices = analysis_area_available_id
-      )
+    )
     
     shinyjs::disable("city_compare_analysis_area")
     
@@ -1058,7 +1255,7 @@ observeEvent(c(input$city_compare_level_analysis), {
       inputId = "city_compare_analysis_area",
       choices = analysis_area_available_id
       
-      )
+    )
     
     shinyjs::enable("city_compare_analysis_area")
     
@@ -1094,6 +1291,88 @@ observeEvent(c(input$city_compare_analysis_area), {
   # print(ordered_colnames1())
   
   
+  if (city$city_code == "") {
+    
+    
+    
+    value_compare <- subset(atlas_country(), name == tail(ordered_colnames1(), 1))
+    value_compare <- st_sf(value_compare)
+    value_compare <- st_set_geometry(value_compare, NULL)
+    value_compare <- tidyr::pivot_longer(value_compare,
+                                         cols = 3:last_col(),
+                                         names_sep = "_",
+                                         names_to = c("ind_type", "ind", "year"),
+                                         values_to = "value")
+    value_compare <- subset(value_compare, ind == indicator$mode)
+    
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+    
+    
+    # 
+    # value_compare$value <- if(format_indicator_unit_value == "percent") {
+    #   round(value_compare$value * 100) 
+    #   
+    # } else round(value_compare$value)
+    
+    if (indicator$mode != "popdensity") {
+      value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
+    }
+    
+    
+    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
+                              "pncf", "pnft")) {
+      
+      
+      # add total
+      highchartProxy("comparison_max") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
+                         id = "que",
+                         type = "column",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         # size = 5,
+                         tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0),
+                         pointWidth = 30
+                         # pointPadding = "on"
+                         
+        )
+      
+    } else {
+      
+      
+      
+      # add total
+      highchartProxy("comparison_max") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
+                         id = "que",
+                         type = "line",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         size = 5,
+                         tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0)
+                         # marker = list(radius = 5, symbol = "circle"),
+                         # dataLabels = list(enabled = TRUE,
+                         #                   align = "center",
+                         #                   y = -20,
+                         #                   # format = "City: {point.y}",
+                         #                   format = "{point.y}",
+                         #                   style = list(fontSize = 12,
+                         #                                color = "white",
+                         #                                textOutline = "0.3px black",
+                         #                                fontWeight = "bold"))
+        )
+      
+    }
+    
+    
+  } else {
+  
   value_compare <- subset(ind_compare$ind_compare, osmid == tail(ordered_colnames1(), 1))
   
   format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
@@ -1122,8 +1401,6 @@ observeEvent(c(input$city_compare_analysis_area), {
   if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
                             "pncf", "pnft")) {
     
-    print("value_compare")
-    print(value_compare)
     
     # add total
     highchartProxy("comparison_max") %>%
@@ -1170,7 +1447,7 @@ observeEvent(c(input$city_compare_analysis_area), {
     
   }
   
-  
+    }
   
 })
 

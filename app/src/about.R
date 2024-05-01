@@ -5,8 +5,8 @@ observeEvent(c(input$about), {
   
   req(isTRUE(input$about >= 1))
   
-  print("input$about")
-  print(input$about)
+  # print("input$about")
+  # print(input$about)
   
   about$input <- "buttom"
   
@@ -16,8 +16,8 @@ observeEvent(c(input$link1), {
   
   req(isTRUE(input$link1 >= 1))
   
-  print("input$link1")
-  print(input$link1)
+  # print("input$link1")
+  # print(input$link1)
   
   about$input <- "link"
   
@@ -40,7 +40,7 @@ observeEvent(c(about$input), {
   about$input <- NULL
   
   showModal(modalDialog1(
-    title = "ABOUT",
+    title = tagList(span(style="text-align:left;", "ABOUT"), img(style="float:right;", src = "img/atlas-logos-05_short.png", width = "100")),
     # size = c("l"),
     easyClose = TRUE,
     footer = NULL,

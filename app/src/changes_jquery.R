@@ -157,3 +157,25 @@ observeEvent(c(indicator$mode, city$city_code), {
   
 })
 
+
+
+
+# change the icon based on tha basemap (light, dark etc) --------------------------------------
+
+
+observeEvent(input$my_map_tile, {
+  # Do something...
+  
+  if (input$my_map_tile == "Dark") {
+    
+    
+    runjs('$("#logo_map").attr("src", "img/atlas-logos-05_short.png")')
+    
+  } else {
+    
+    runjs('$("#logo_map").attr("src", "img/atlas-logos-04_short.png")')
+    
+  }
+  
+  
+})

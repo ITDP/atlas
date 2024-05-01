@@ -83,6 +83,12 @@ output$map <- renderLeaflet({
     htmlwidgets::onRender(
       "function(el, x) {
       L.control.zoom({position:'topright'}).addTo(this);
+      var myMap = this;
+      myMap.on('baselayerchange',
+      function (e) {
+      Shiny.onInputChange('my_map_tile', e.layer.groupname)
+        })
+      
     }")
   
   
@@ -93,6 +99,7 @@ output$map <- renderLeaflet({
   # shinyjs::runjs('$( ".leaflet-control-layers" ).prepend( "<label class = \'control-label\'>Test</label>" );')  
   
 })
+
 
 # create counter
 counter <- reactiveValues(obs1 = NULL,

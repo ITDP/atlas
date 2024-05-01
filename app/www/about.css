@@ -97,7 +97,7 @@ border: 1px solid #495057;
 
 
 @media (max-width: 1300px) {
-  #back_to_world_button_id {
+  #about_button_id {
     left: 420px !important;
     top: 90px !important;
     
@@ -105,7 +105,7 @@ border: 1px solid #495057;
 }
 
 @media (max-width: 1300px) {
-  #share_button_id {
+  #back_to_world_button_id {
     left: 420px !important;
     top: 140px !important;
     
@@ -113,9 +113,17 @@ border: 1px solid #495057;
 }
 
 @media (max-width: 1300px) {
-  #download_button_id {
+  #share_button_id {
     left: 420px !important;
     top: 190px !important;
+    
+  }
+}
+
+@media (max-width: 1300px) {
+  #download_button_id {
+    left: 420px !important;
+    top: 240px !important;
   }
 }
 

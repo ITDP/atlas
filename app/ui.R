@@ -41,14 +41,14 @@ list_performance <- structure(c("bikep45", "walkp45"),
 list_city <- structure(c(
   # "poptotal", 
   "popdensity",
-  "blockdensity",
-  "journeygap"
+  "blockdensity"
+  # "journeygap"
 ), 
 .Names = c(
   # "Block Density", 
   "Population Density",
-  "Block Density",
-  "Journey Gap"
+  "Block Density"
+  # "Journey Gap"
 ))
 
 js <- "
@@ -123,7 +123,8 @@ ui <- fluidPage(
   # autoWaiter(    html = tagList(spin_loaders(id = 2, color = "black")),
   #                color = "rgba(233, 235, 240, .0)"),
   waiter_preloader(html = tagList(
-    tags$img(src = "img/itdp_logo.png", style ="padding-bottom: 30px", width="150"), br(),
+    tags$img(src = "img/atlas-logos-04.png", style ="padding-bottom: 30px; padding-right: 50px", width="200"),
+    tags$img(src = "img/itdp_logo.png", style ="padding-bottom: 50px", width="130"), br(),
     spin_loaders(id = 2, color = "black")),
     color = "rgba(233, 235, 240, 1)"),
   # waiter_on_busy(html = tagList(spin_loaders(id = 2, color = "black")),
@@ -231,23 +232,35 @@ ui <- fluidPage(
     
     
     
-    # back to world button
-    absolutePanel(class = "about_button", 
-                  id = "download_button_id",
-                  style = "background: #00AE42; ",
-                  top = 40, left = 840, height = 40, width = 130,
-                  uiOutput('download_button')
+    absolutePanel(
+      # class = "about_button",
+      # id = "about_button_id",
+      top = 40, height = 40, left = 420,
+      tags$img(src = "img/atlas-logos-04_short.png", width="100", id = "logo_map"),
+      style = "text-align: center; background: transparent",
     ),
+    
+    
+    absolutePanel(
+      class = "about_button",
+      id = "about_button_id",
+      style = "background: #00AE42",
+      top = 40, width = 130, height = 40, left = 540,
+      # style = "border: 0px; background: transparent",
+      actionButton(inputId = "about",
+                   label = "About"
+                   # class = "about_button"
+                   # selected = character(0)
+      )
+    ),
+
     
     
     # uiOutput('back_to_world_panel'),
     absolutePanel(
       class = "about_button",
       id = "back_to_world_button_id",
-      # class = "w3-container w3-animate-opacity", 
-      # class = "panel panel-default",
-      # fixed = TRUE, draggable = FALSE,
-      top = 40, left = 560, width = 130, height = 40,
+      top = 40, left = 680, width = 130, height = 40,
       actionButton(inputId = "back_to_world",
                    icon = icon("rotate-left"),
                    label = HTML("&nbsp;&nbsp;Reset map")
@@ -256,48 +269,24 @@ ui <- fluidPage(
       
       
     ),
-    # absolutePanel(
-    #   class = "about_button",
-    #   # class = "w3-container w3-animate-opacity", 
-    #   # class = "panel panel-default",
-    #   # fixed = TRUE, draggable = FALSE,
-    #   top = 40, right = 870, width = 120, height = 40,
-    #   actionButton(inputId = "print",
-    #                icon = icon("download"),
-    #                label = HTML("&nbsp;&nbsp;Export map")
-    #                # selected = character(0)
-    #   )
-    #   
-    #   
-    # ),
-    # about
-    absolutePanel(
-      class = "about_button",
-      id = "about_button_id",
-      style = "background: #00AE42",
-      # class = "w3-container w3-animate-opacity", 
-      # class = "panel panel-default",
-      # fixed = TRUE, draggable = FALSE,
-      top = 40, width = 130, height = 40, left = 420,
-      # style = "border: 0px; background: transparent",
-      actionButton(inputId = "about",
-                   label = "About"
-                   # class = "about_button"
-                   # selected = character(0)
-      )
-    ),
+
     absolutePanel(
       class = "about_button",
       id = "share_button_id",
-      # class = "w3-container w3-animate-opacity", 
-      # class = "panel panel-default",
-      # fixed = TRUE, draggable = FALSE,
-      top = 40, width = 130, height = 40, left = 700,
+      top = 40, width = 130, height = 40, left = 820,
       bookmarkButton(
         label = HTML("&nbsp;&nbsp;Share"),
         icon = icon("share"),
         id = "bookmark"
       )
+    ),
+    
+    # back to world button
+    absolutePanel(class = "about_button", 
+                  id = "download_button_id",
+                  style = "background: #00AE42; ",
+                  top = 40, left = 960, height = 40, width = 130,
+                  uiOutput('download_button')
     ),
     verbatimTextOutput("auth_output")
     
@@ -312,4 +301,4 @@ ui <- fluidPage(
 )
 
 
-ui <- secure_app(ui)
+# ui <- secure_app(ui)
