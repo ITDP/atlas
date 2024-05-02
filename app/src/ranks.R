@@ -447,6 +447,9 @@ observeEvent(c(input$map_shape_click, city$city_code,
                                                "pnft" = sprintf("%s%s of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
                                                                 style_number(format_indicator_value), 
                                                                 style_number("%"), 
+                                                                style_text(rank_indicator$name)),
+                                               "pnst" = sprintf("%s%% of people in %s live within walkable distance of both protected cycleways and frequent/rapid public transport.", 
+                                                                style_number(format_indicator_value), 
                                                                 style_text(rank_indicator$name))
                                                
                      )
@@ -913,6 +916,9 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
                               "pnft" = sprintf("%s%s of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
                                                style_number(format_indicator_value), 
                                                style_number("%"), 
+                                               style_text(rank_indicator$name)),
+                              "pnst" = sprintf("%s%% of people in %s live within walkable distance of both protected cycleways and frequent/rapid public transport.", 
+                                               style_number(format_indicator_value), 
                                                style_text(rank_indicator$name))
                               
     )

@@ -35,11 +35,12 @@ list_walk <- structure(c(
   "People Safe From Highways"
 ))
 
-list_transit <- structure(c("pnft", "pnrt"
+list_transit <- structure(c("pnft", "pnrt", "pnst"
 ), 
 .Names = c(
   "People Near Frequent Transit", 
-  "People Near Rapid Transport"
+  "People Near Rapid Transport",
+  "People Near Bikeways + Public Transport"
 ))
 
 list_city <- structure(c(
