@@ -225,7 +225,7 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   labels_markers1 <- paste0("<b>", a_available$name, "</b><br/>", 
                             sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", format_indicator_value_marker), 
                             sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9\"> %s</span>", indicator_info$unit), 
-                            "<br/><i>Click to go to the region</i>")
+                            "<br/><i>Click for detail</i>")
   
   # print("format_indicator_value_marker")
   # print(labels_markers1)
@@ -768,7 +768,7 @@ observeEvent(c(input$map_shape_click), {
       labels1 <- paste0("<b>", data_previous$name, "</b><br/>", 
                         sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", format_indicator_value), 
                         sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9\"> %s</span>", indicator_info$unit), 
-                        "<br/><i>Click to see more info</i>")    
+                        "<br/><i>Click to select</i>")    
       
       
       
@@ -793,7 +793,7 @@ observeEvent(c(input$map_shape_click), {
     labels <- paste0("<b>", data$name, "</b><br/>", 
                      sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", format_indicator_value), 
                      sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9\"> %s</span>", indicator_info$unit), 
-                     "<br/><i>Click to see more info</i>")
+                     "<br/><i>Click to select</i>")
     
     
     
@@ -1258,7 +1258,7 @@ observeEvent(c(
   labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
                    sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
                    sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 12px; padding-bottom: 0px; color: #B1B5B9;\"> %s</span>", indicator$unit), 
-                   "<br/><i>Click to see more info</i>")
+                   "<br/><i>Click to select</i>")
   
   
   map <- leafletProxy("map", session) %>%

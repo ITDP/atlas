@@ -1,5 +1,7 @@
 
-observeEvent(c(indicator$mode), {
+
+# tooltip when the compare is disabled
+observeEvent(c(indicator$mode, input$back_to_world), {
   
   req(city$city_code == "")
   
@@ -22,6 +24,7 @@ observeEvent(c(indicator$mode), {
 observeEvent(c(input$map_shape_click, input$map_marker_click), {
 
   enable("compare_panel")
+  runjs('$("#compare_panel").tooltip("disable");')
 
 })
 

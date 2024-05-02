@@ -35,12 +35,13 @@ list_walk <- structure(c(
   "People Safe From Highways"
 ))
 
-list_transit <- structure(c("pnft", "pnrt", "pnst"
+list_transit <- structure(c("pnft", "pnrt"
+                            # "pnst"
 ), 
 .Names = c(
   "People Near Frequent Transit", 
-  "People Near Rapid Transport",
-  "People Near Bikeways + Public Transport"
+  "People Near Rapid Transport"
+  # "People Near Bikeways + Public Transport"
 ))
 
 list_city <- structure(c(
@@ -171,7 +172,7 @@ function(input, output, session) {
                                       options = shinyWidgets::pickerOptions(size = 15,
                                                                             iconBase = "fa",
                                                                             tickIcon = "fa-check",
-                                                                            title = "Go to a region ...",
+                                                                            title = "Select an urban area",
                                                                             liveSearch = TRUE,
                                                                             showContent = FALSE,
                                                                             sanitize = FALSE)

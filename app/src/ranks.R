@@ -544,8 +544,10 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
                        ranks_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                        ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
+                       # change
+                       textt <- ifelse(ranks_text$type_rank == "metro", "urban area", ranks_text$type_rank)
                        ranks_text_display <- sprintf('<div class="text_compare" style="font-size: 14px; display: inline";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the %s</div>',
-                                                     ranks_text$rank, ranks_text$n, ranks_text$type_rank)
+                                                     ranks_text$rank, ranks_text$n, textt)
                        
                        
                        rank$value <- ranks_text$rank
@@ -571,8 +573,9 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        
                        ranks_text2 <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
+                       textt <- ifelse(ranks_text2$type_rank == "metro", "urban area", ranks_text2$type_rank)
                        ranks_text2_display <- sprintf('<div class="text_compare" style="font-size: 14px; display: inline";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the %s</div>',
-                                                      ranks_text2$rank, ranks_text2$n, ranks_text2$type_rank)
+                                                      ranks_text2$rank, ranks_text2$n, textt)
                        rank$value <- c(rank$value, ranks_text2$rank)
                        rank_text_metro <- ranks_text2_display
                        
@@ -656,7 +659,8 @@ observeEvent(c(input$rank_more_1_country), {
   delay(1000, runjs(sprintf("$('#modal_ranking_world1 > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", position)))
   
   showModal(modalDialog1(
-    title = "Ranking",
+    title = sprintf("%s in %s by %s",
+                    rank$admin_level_name, "country", indicator$mode),
     easyClose = TRUE,
     size = "l",
     # footer = NULL,
@@ -715,7 +719,8 @@ observeEvent(c(input$rank_more_1_world), {
   
   
   showModal(modalDialog1(
-    title = "Ranking",
+    title = sprintf("%s in %s by %s",
+                    rank$admin_level_name, "the world", subset(list_indicators, indicator_code == indicator$mode)$indicator_name),
     easyClose = TRUE,
     size = "l",
     # footer = NULL,
@@ -746,9 +751,12 @@ observeEvent(c(input$rank_more_1_metro), {
   
   
   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+  # indicator_pattern <- sprintf("%s_%s", indicator$type, subset(list_indicators, indicator_code == indicator$mode)$indicator_name)
   que <- year$ok
   admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
   
+  print("indicator_pattern")
+  print(indicator_pattern)
   # open data
   scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", 
                                  city$city_code, city$city_code, admin_level_osm, indicator_pattern))
@@ -773,7 +781,8 @@ observeEvent(c(input$rank_more_1_metro), {
   delay(1000, runjs(sprintf("$('#modal_beta_checkpoint1 > div > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", position)))
   
   showModal(modalDialog1(
-    title = "Ranking",
+    title = sprintf("%s in %s by %s",
+                    rank$admin_level_name, "urban area", subset(list_indicators, indicator_code == indicator$mode)$indicator_name),
     easyClose = TRUE,
     size = "l",
     # footer = NULL,
@@ -828,7 +837,7 @@ observeEvent(c(indicator$mode), {
     # print("QUAQUA")
     
     delay(50, 
-          rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>')
+          rank$rank_value <- '<div class="text_compare"><i> Click on the map to select an analysis area</i> </div>')
     
     delay(50, 
           rank$rank_text <- "")
@@ -940,7 +949,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
     
     # if (isTRUE(rank$admin_level != 1)) {
     
-    rank$rank_value <- '<div class="text_compare"><i> Click on the map to see more info</i> </div>'
+    rank$rank_value <- '<div class="text_compare"><i> Click on the map to select an analysis area</i> </div>'
     rank$rank_text <- ""
     
   }
