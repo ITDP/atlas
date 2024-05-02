@@ -32,7 +32,7 @@ list_walk <- structure(c(
 .Names = c(
   "People Near Services",
   "People Near Car-Free Places",
-  "People Not Near Highways"
+  "People Safe From Highways"
 ))
 
 list_transit <- structure(c("pnft", "pnrt"
@@ -100,11 +100,11 @@ function(input, output, session) {
   )
   
   # Show the model on start up ...
-  observeEvent(input$modal_beta_close, {
+  # observeEvent(input$modal_beta_close, {
     
     delay(200, showModal(query_modal))
     
-  })
+  # })
   
   observe({
     

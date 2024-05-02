@@ -19,7 +19,7 @@ query_modal_beta <- modalDialog1(
 )
 
 # Show the model on start up ...
-delay(50, showModal(query_modal_beta))
+# delay(50, showModal(query_modal_beta))
 
 
 observeEvent(input$modal_beta_close, {
