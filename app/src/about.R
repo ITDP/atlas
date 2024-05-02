@@ -46,7 +46,7 @@ observeEvent(c(about$input), {
     footer = NULL,
     id1 = "modal_about",
     tabsetPanel(type = "tabs", id = "about_tabs", selected = tab_default,
-                tabPanel("THE ATLAS PROJECT",  value = "about_atlas",                                
+                tabPanel("THE ATLAS",  value = "about_atlas",                                
                          absolutePanel(
                            class = "about_modal",
                            includeHTML("www/about/about_atlas.html"),
@@ -66,16 +66,26 @@ observeEvent(c(about$input), {
                            
                          )
                 ),
-                tabPanel("FAQ",  value = "about_data",                                
+                tabPanel("ANALYSIS AREAS",  value = "about_data",                                
                          absolutePanel(
                            class = "about_modal",
-                           includeHTML("www/about/about_faq.html"),
+                           includeHTML("www/about/about_analysis_areas.html"),
                            height = 300
                            # top = 80, right = 0, width = 280,
                            # htmlOutput("text_indicator2")
                            
                          )
                 ),
+                # tabPanel("FAQ",  value = "about_data",                                
+                #          absolutePanel(
+                #            class = "about_modal",
+                #            includeHTML("www/about/about_faq.html"),
+                #            height = 300
+                #            # top = 80, right = 0, width = 280,
+                #            # htmlOutput("text_indicator2")
+                #            
+                #          )
+                # ),
                 tabPanel("ABOUT ITDP", value = "about_itdp",         
                          absolutePanel(
                            class = "about_modal",
@@ -86,7 +96,7 @@ observeEvent(c(about$input), {
                          
                          
                 ),
-                tabPanel("THE AUTHORS", value = "about_itdp",         
+                tabPanel("ACKNOWLEDGMENTS", value = "about_itdp",         
                          absolutePanel(
                            class = "about_modal",
                            includeHTML("www/about/about_authors.html"),
