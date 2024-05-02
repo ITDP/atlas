@@ -16,7 +16,14 @@ overflow-y: scroll;
 
 .tab-content {
 overflow-y: scroll !important;  
+margin: 20px;  
 }
+
+.tab-content h4 {
+  color: white;
+  font-weight: 700;
+}
+
 
 .about_button {
   /*

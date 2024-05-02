@@ -1,42 +1,197 @@
-<p>
-ITDP is dedicated to open-source data and algorithms. All of the code for the Atlas, <a href="https://github.com/ITDP/pedestriansfirst">backend</a> and <a href="https://github.com/ITDP/atlas">frontend</a>, is available on Github under the MIT open source license. All of the data that powers the calculations is available for at least free viewing, and most is also available under an open license.
-</p>
-<p>
-The Atlas relies on four key sources of data:
-</p>
+<p>ITDP is committed to open-source data and algorithms. All of the code for the Atlas,
+  <a target="_blank" href="https://github.com/ITDP/pedestriansfirst">
+    <span style="color:rgb(17, 85, 204);">backend</span>
+  </a>
+  and
+  <a target="_blank" href="https://github.com/ITDP/atlas">
+    <span style="color:rgb(17, 85, 204);">frontend</span>
+  </a>, is available on GitHub under the
+  <a target="_blank" href="https://opensource.org/blog/license/mit">
+    <span style="color:rgb(17, 85, 204);">MIT open source</span>
+  </a>
+  license (given in the
+  <em>License and Citation</em>
+  tab, above). All of the data that powers the calculations is available for at least free viewing and most is also available under an open license. The data in the Atlas is made available under the Open Database License:
+  <a target="_blank" href="http://opendatacommons.org/licenses/odbl/1.0/">
+    <span style="color:rgb(17, 85, 204);">http://opendatacommons.org/licenses/odbl/1.0/</span>
+  </a>. Any rights in individual contents of the database are licensed under the Database Contents License:
+  <a target="_blank" href="http://opendatacommons.org/licenses/dbcl/1.0/">
+    <span style="color:rgb(17, 85, 204);">http://opendatacommons.org/licenses/dbcl/1.0/</span>
+  </a>. Data can be downloaded from individual city/indicator views. For larger data extracts, contact
+  <a target="_blank" href="mailto:data@itdp.org">
+    <span style="color:rgb(17, 85, 204);">data@itdp.org</span>
+  </a>.</p>
+
+<p>The Atlas relies on four key sources of data:</p>
 <ol>
-
-<li>We use the European Commission’s <em><a href="http://ghsl.jrc.ec.europa.eu/">Global Human Settlement Layer</a> (GHSL)</em> for the distribution of population and the boundaries of urban agglomerations. 
-<ul>
- 
-<li>Specifically, for population distribution (<em>GHS-POP</em>), we use the 2022 release. For urban agglomerations (the <em>Urban Centre Database, GHS-UCDB</em>), we use the 2019 release. We intend to upgrade as soon as a newer version is available.
- 
-<li>The GHSL is available as <a href="https://ghsl.jrc.ec.europa.eu/faq.php">free and open</a> data under the <em><a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons CC BY 4.0</a></em> license. 
-</li> 
-</ul>
-
-<li>We use <em><a href="openstreetmap.org/">OpenStreetMap</a> (OSM)</em> for the locations of streets, roads, pedestrian ways, bicycle ways, social services (healthcare and education), and the boundaries and names of legal jurisdictions. 
-<ul>
- 
-<li>OSM data is available under the <em><a href="https://wiki.osmfoundation.org/wiki/Licence">Open Database License</a></em>.
-</li> 
-</ul>
-
-<li>We use Mobility Data’s <em><a href="https://database.mobilitydata.org/">Mobility Database</a></em> for data on the operations of transit systems. This data is encoded in the <em><a href="https://mobilitydata.org/data-standards/#what-is-gtfs">General Transit Feed Specification</a> (GTFS)</em> format, used by over 10,000 transit operators worldwide. 
-<ul>
- 
-<li>The licenses of different GTFS files in the Mobility Database vary by operator.
-</li> 
-</ul>
-
-<li>We use the <em><a href="https://www.thetransportpolitic.com/transitexplorer/#5/30.012/-46.538">Transit Explorer</a> </em>database, maintained by Yonah Freemark and Steven Vance, for the locations and classifications of bus rapid transit, light rail, and metro lines and stations.  
-<ul>
- 
-<li>Transit Explorer data can be viewed for free online, or purchased for download and noncommercial use (USD $60 for the full dataset).
-</li> 
-</ul>
-</li> 
+  <li>We use the European Commission’s
+    <a target="_blank" href="http://ghsl.jrc.ec.europa.eu/">
+      <span style="color:rgb(17, 85, 204);">Global Human Settlement Layer</span>
+    </a>
+    <em></em>(GHSL) for the distribution of population and the boundaries of urban agglomerations.</li>
+  <ul>
+    <li>Specifically, for population distribution (GHS-POP), we use the 2022 release. For urban agglomerations (the Urban Centre Database, GHS-UCDB), we use the 2019 release. We intend to upgrade as soon as a newer version is available.</li>
+    <li>The GHSL is available as
+      <a target="_blank" href="https://ghsl.jrc.ec.europa.eu/faq.php">
+        <span style="color:rgb(17, 85, 204);">free and open</span>
+      </a>
+      data under the
+      <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+        <span style="color:rgb(17, 85, 204);">Creative Commons CC BY 4.0</span>
+      </a>
+      license.&nbsp;</li>
+  </ul>
+  <li>We use
+    <a target="_blank" href="http://openstreetmap.org/">
+      <span style="color:rgb(17, 85, 204);">OpenStreetMap</span>
+    </a>
+    (OSM) for the locations of streets, roads, pedestrian ways, bicycle ways, social services (healthcare and education), and the boundaries and names of legal jurisdictions.</li>
+  <ul>
+    <li>OSM data is available under the
+      <a target="_blank" href="https://wiki.osmfoundation.org/wiki/Licence">
+        <span style="color:rgb(17, 85, 204);">Open Database License</span>
+      </a>.</li>
+  </ul>
+  <li>We use Mobility Data’s
+    <a target="_blank" href="https://database.mobilitydata.org/">
+      <span style="color:rgb(17, 85, 204);">Mobility Database</span>
+    </a>
+    for data on the operations of transit systems. This data is encoded in the
+    <a target="_blank" href="https://mobilitydata.org/data-standards/#what-is-gtfs">
+      <span style="color:rgb(17, 85, 204);">General Transit Feed Specification</span>
+    </a>
+    (GTFS) format, which is used by more than 10,000 transit operators worldwide.</li>
+  <ul>
+    <li>The licenses of different GTFS files in the Mobility Database vary by operator.</li>
+    <li>GTFS is usually published by transit agencies, although in some cases it is collected by advocates, researchers, or private firms.</li>
+  </ul>
+  <li>We use the
+    <a target="_blank" href="https://www.thetransportpolitic.com/transitexplorer/#5/30.012/-46.538">
+      <span style="color:rgb(17, 85, 204);">Transit Explorer</span>
+    </a>
+    database, maintained by Yonah Freemark and Steven Vance (with contributions from ITDP and other organizations and volunteers), for the locations and classifications of bus rapid transit, light rail, and metro lines and stations.&nbsp;</li>
+  <ul>
+    <li>Transit Explorer data can be viewed for free online or purchased for download.</li>
+  </ul>
 </ol>
+
+<p>A great advantage of OpenStreetMap, the Mobility Database, and Transit Explorer is that anyone—from a government official to a concerned citizen—can contribute to improving them and correct inaccuracies.&nbsp;</p>
+<br>
+
+<h4>Improving data</h4>
+
 <p>
-A great advantage of OSM, the Mobility Database, and the Transit Explorer is that anyone - from a government official to a concerned citizen - can edit them and correct inaccuracies. 
+If you notice any data that is missing or incomplete, contact
+<a target="_blank" href="mailto:data@itdp.org">
+  <span style="color:rgb(17, 85, 204);">data@itdp.org</span>
+</a>
+or follow the steps below to add it yourself. Once you make changes to OpenStreetMap, the Mobility Database, or Transit Explorer, please contact us at
+<a target="_blank" href="mailto:data@Itdp.org">
+  <span style="color:rgb(17, 85, 204);">data@itdp.org</span>
+</a>
+to inform us—the Atlas will not update automatically. We plan to update the data in the Atlas on an annual basis, but we may be able to update it more frequently for certain cities where change is rapid.</p>
+<br>
+
+<h4>OpenStreetMap</h4>
+
+<p>Indicators: People Near Services, People Near Car-Free Places, Safety From Highways, People Near Bikeways</p>
+<ol>
+  <li>
+    <a target="_blank" href="https://www.openstreetmap.org/user/new">
+      <span style="color:rgb(17, 85, 204);">Create</span>
+    </a>
+    or log into an existing OSM account.&nbsp;</li>
+  <li>Create, edit, or delete features as necessary to best reflect the actual conditions of the area. For detailed instructions on editing in OSM, use the walk-through available on the OSM help page or see the
+    <a target="_blank" href="https://wiki.openstreetmap.org/wiki/Main_Page">
+      <span style="color:rgb(17, 85, 204);">OpenStreetMap Wiki</span>
+    </a>
+    page.</li>
+  <ol>
+    <li>Examples of edits may include: locations of healthcare or education services, newly created pedestrian areas or paths, bikeways that are now physically protected</li>
+  </ol>
+  <li>Please note: Paths that cross each other (where it is possible to walk from one to the other) should have a
+    <a target="_blank" href="https://wiki.openstreetmap.org/wiki/Node#Nodes_on_Ways">
+      <span style="color:rgb(17, 85, 204);">shared node</span>
+    </a>. OSM assumes it is not possible to walk between paths that cross each other without a shared node. This affects measurements requiring walking path distance.</li>
+  <li>Bicycle tagging information:</li>
+  <ol>
+    <li>Ideally, physically protected bikeways are tagged as their own way (a unique feature), using
+      <em>highway=cycleway</em>
+      and
+      <em>cycleway=track</em>
+      rather than attributes of a way or feature representing a road or a street.&nbsp;</li>
+    <ol>
+      <li>Physically protected bikeways that are labeled as
+        <em>cycleway=track</em>
+        (but not a separate way) will still be included in the People Near Bikeways indicator.
+      </li>
+    </ol>
+    <li>Bikeways that are
+      <strong>not</strong>
+      physically protected (such as painted lanes on roads) should be labeled as
+      <em>highway=primary/secondary/etc
+      </em>and
+      <em>cycleway=lane</em>. Unprotected bikeways are not included in the People Near Bikeways indicator but are included in a measurement of all bikeways.&nbsp;</li>
+  </ol>
+</ol>
+<p>Further clarification on the distinction between lanes, tracks, and cycleways can be found
+<a target="_blank" href="https://wiki.openstreetmap.org/wiki/Tag:cycleway%3Dlane">
+  <span style="color:rgb(17, 85, 204);">here</span>
+</a>.</p>
+<br>
+
+<h4>Mobility Database (
+<a target="_blank" href="https://mobilitydata.org/data-standards/#what-is-gtfs">General Transit Feed Specification</span></a>)
+</h4>
+
+<p>Indicators: People Near Frequent Transport</p>
+<ol>
+  <li>If you already have GTFS data, you will have to
+    <a target="_blank" href="https://database.mobilitydata.org/update-a-data-source">
+      <span style="color:rgb(17, 85, 204);">add it to Mobility Data’s database</span>
+    </a>.</li>
+  <li>If you do not have GTFS data, you (or your city’s agency) will have to collect it, publish it, and add it to Mobility Data’s database.</li>
+  <ol>
+    <li>For more formal transport systems, which are documented and administered by a public agency, the data may already exist. You can use software like IBI Arcadis’s
+      <a target="_blank" href="https://www.ibigroup.com/ibi-products/transit-data-tools/">
+        <span style="color:rgb(17, 85, 204);">TRANSIT-data-tools</span>
+      </a>
+      to convert it to GTFS and publish it before
+      <a target="_blank" href="https://database.mobilitydata.org/update-a-data-source">
+        <span style="color:rgb(17, 85, 204);">adding it to Mobility Data’s database</span>
+      </a>. TRANSIT-data-tools is free for use by cities in low- and middle-income countries.</li>
+  </ol>
+</ol>
+<p>For less formal transport systems, which are more often owner-operated or less regulated, you may have to lead an effort—or work with your local government—to collect the data in your city. You can develop your own approach, you can use open-source tools such as those provided by
+<a target="_blank" href="https://www.trufi-association.org/projects/trufi-in-your-city/">
+  <span style="color:rgb(17, 85, 204);">Trufi</span>
+</a>, or you can hire a specialized consultant like
+<a target="_blank" href="https://www.trufi-association.org/#services">
+  <span style="color:rgb(17, 85, 204);">Trufi</span>
+</a>
+or
+<a target="_blank" href="https://transportforcairo.com/">
+  <span style="color:rgb(17, 85, 204);">TransportForCairo</span>
+</a>. If you hire a consultant,
+<span style="text-decoration:underline;">
+  <strong>be sure to include in your contract that the data will be public and open, or you will not be able to add it to the Mobility Database or include it in the Atlas indicators</strong>
+</span>.
 </p>
+<br>
+
+<h4>Transit Explorer</h4>
+
+<p>Indicators: People Near Rapid Transport, People Near Frequent Transport</p>
+<p><a target="_blank" href="https://www.thetransportpolitic.com/transitexplorer/">
+  <span style="color:rgb(17, 85, 204);">Transit Explorer</span>
+</a>
+provides information on fixed-guideway transit projects globally. Errors should be directly reported to yfreemark@thetransportpolitic.com or by using the form on the website and clicking “Find an error?”</p>
+<br>
+
+<h4>For all data sources</h4>
+After editing the source, let us know at
+<a target="_blank" href="mailto:data@itdp.org">
+  <span style="color:rgb(17, 85, 204);">data@itdp.org</span>
+</a>
+so that we can update the Atlas indicators for your city.</h4>
+
