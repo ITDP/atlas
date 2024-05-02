@@ -415,7 +415,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      # create the indicator label for each indicator
                      # print(rank_indicator$name)
                      indicator_label <- switch(indicator$mode,
-                                               "popdensity" = sprintf("%s has a weighted population density of %s people per km2", 
+                                               "popdensity" = sprintf("On average, people in %s live in a neighborhood of %s people per km2", 
                                                                       style_text(rank_indicator$name), 
                                                                       style_number(format_indicator_value)),
                                                "blockdensity" = sprintf("%s has an average of %s blocks per km2", 
@@ -881,7 +881,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
     
     # create the indicator label for each indicator
     indicator_label <- switch(indicator$mode,
-                              "popdensity" = sprintf("%s has a weighted population density of %s people per km2", 
+                              "popdensity" = sprintf("On average, people in %s live in a neighborhood of %s people per km2", 
                                                      style_text(rank_indicator$name), 
                                                      style_number(format_indicator_value)),
                               "blockdensity" = sprintf("%s has an average of %s blocks per km2", 
