@@ -143,16 +143,16 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   a_available$value <- as.numeric(a_available$value)
   # we should truncate popdensity to 20000
   if (indicator$mode == "popdensity") {
-
-  a_available$value_legend <- ifelse(a_available$value > 20000, 20000, a_available$value)
-  a_country$value_legend <- ifelse(a_country$value > 20000, 20000, a_country$value)
-
+    
+    a_available$value_legend <- ifelse(a_available$value > 20000, 20000, a_available$value)
+    a_country$value_legend <- ifelse(a_country$value > 20000, 20000, a_country$value)
+    
   } else {
     
     a_available$value_legend <- a_available$value
     a_country$value_legend <- a_country$value
   }
-    
+  
   
   pal <- colorBin(
     palette = "viridis",
@@ -162,7 +162,7 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
     domain = a_available$value_legend,
     pretty = TRUE
     
-    )
+  )
   
   
   pal_countries <- colorBin(
@@ -171,7 +171,7 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
     # palette = "YlGnBu",
     domain = a_country$value_legend,
     pretty = TRUE
-    )
+  )
   
   
   
@@ -421,7 +421,7 @@ observeEvent(c(city$city_code), {
   labels <- paste0("<b>", data_metro$name, "</b><br/>", 
                    span(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px", indicator$values), 
                    span(style="font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 16px; padding-bottom: 0px; color: #B1B5B9;", indicator$unit)) 
-                   # "<br/><i>Click to see more info</i>")
+  # "<br/><i>Click to see more info</i>")
   
   
   waiter_hide()
@@ -535,11 +535,11 @@ observeEvent(c(city$city_code), {
   # identify overlays to be opened
   fix <- indicator$mode
   overlays_to_open <- subset(overlay_table, indicator == fix)
-    
+  
   for(i in overlays_to_open$overlay){
-
+    
     # data1 <- subset(data_overlays()[["lines"]], ind == i)
-
+    
     fix <- indicator$mode
     overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
     overlay_name <- unique(overlay_subset$overlay_label)
@@ -549,8 +549,8 @@ observeEvent(c(city$city_code), {
     
     
     file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
-                               city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
-
+                    city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
+    
     if (file.exists(file)) {
       
       if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
@@ -577,8 +577,8 @@ observeEvent(c(city$city_code), {
                                     group = overlay_group,
                                     # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
                                     options = tileOptions(pane = overlay_name))
-      
-        } else {
+        
+      } else {
         
         # print(file)
         
@@ -1112,39 +1112,38 @@ observeEvent(c(indicator$mode, input$year), {
 # reactive to filter data and add column with colors
 data_ind3_spatial <- reactive({
   
-  req(city$city_code != "", indicator$mode,  input$regions_grid)
+  # req(city$city_code != "", indicator$mode,  input$regions_grid)
   # req(data_ind3(), input$admin_level, rank$admin_level)
   
   
   rank$admin_level
-  input$admin_level
+  indicator$mode
+  # input$admin_level
   year$ok
   
   isolate({
     
-    if (indicator$type == "performance"  & input$regions_grid == "Grid") {
+    # print("pera0")
+    # print(data_ind3())
+    print("pererere")
+    print(length(unique(data_ind3()$admin_level)))
+    
+    
+    if (length(unique(data_ind3()$admin_level)) == 1) {
       
       
-      a <- data_ind3() 
+      
+      a <- subset(data_ind3(), admin_level_ordered == 1)
       
     } else {
       
-      
-      if (length(data_ind3()$admin_level) == 1) {
-        
-        
-        a <- subset(data_ind3(), admin_level_ordered == 1)
-        
-      } else {
-        
-        # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
-        # print("AQUIIIII")
-        # print(data_ind3())
-        a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
-      }
-      
-      
+      # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
+      print("AQUIIIII")
+      print(rank$admin_level)
+      a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
     }
+    
+    
     
     
     # we should truncate popdensity to 20000
@@ -1154,8 +1153,8 @@ data_ind3_spatial <- reactive({
       
     } else a$value_legend <- a$value
     
-    # print("pera1")
-    # print(a)
+    print("pera1")
+    print(a)
     
     # create the color palette
     # the number of bins will depend on the number of units on the map
@@ -1168,6 +1167,10 @@ data_ind3_spatial <- reactive({
       pretty = TRUE)
     
     # create a column with the colors
+    # it brakes if the value is zero
+    a$value_legend <- ifelse(a$value_legend == 0, 0.00001, a$value_legend)
+    print("a$value_legend")
+    print(a$value_legend)
     a$fill <- pal(a$value_legend)
     
     # print(a)
@@ -1250,10 +1253,10 @@ observeEvent(c(
   
   indicator$values <- format_indicator_value
   indicator$unit <- indicator_info$unit
-
+  
   # print(indicator$values)
   # print(indicator$unit)
-    
+  
   
   labels <- paste0("<b>", data_ind3_spatial()$name, "</b><br/>", 
                    sprintf("<span style=\"font-family: 'Fira Sans', sans-serif;font-style: normal;font-weight: 600; font-size: 22px; padding-bottom: 0px\"> %s</span>", indicator$values), 
@@ -1323,7 +1326,7 @@ observeEvent(c(
     weight_stroke <- leaflet_params$weigth2
     opacity <- 0.5
   }
-
+  
   
   map <- map %>%
     addPolygons(data = data_ind3_spatial(), 

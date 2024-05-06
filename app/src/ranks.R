@@ -163,7 +163,7 @@ observeEvent(c(input$admin_level), {
   # print(rank$admin_level_name)
   
   
-}, priority = 100000)
+}, priority = 1000000000)
 
 observeEvent(c(city$city_code), {
   

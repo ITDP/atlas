@@ -44,6 +44,9 @@ data_ind1 <- reactive({
 data_ind2 <- reactive({
   
   req(indicator$mode, data_ind1())
+  
+  print("data_ind2")
+  
   message("Filter indicator #2")  
   # print("year$ok")
   # print(year$ok)
@@ -66,7 +69,7 @@ data_ind3 <- reactive({
   
   req(data_ind2())
   
-  # print("pq")
+  print("data_ind3")
   # take dependcy on year and the previous dataset
   input$year
   
