@@ -72,6 +72,9 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     country_values <- country_values[order(-country_values$value),]
     country_ranks <- country_ranks[order(-country_ranks$rank),]
     
+    print("country_ranks")
+    print(country_ranks)
+    
     
     
     # mean for the world
@@ -219,9 +222,6 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   value_indicator <- subset(st_set_geometry(atlas_country(), NULL), name == ui)
   rank_indicator <- subset(rank_country(), name == ui)
   
-  # print("jskfjakfmaks")
-  # print(value_indicator)
-  
   pattern <- sprintf("_%s", year$ok)
   cols <- c('a3', 'name', colnames(value_indicator)[endsWith(colnames(value_indicator), pattern)])
   value_indicator <- value_indicator[cols]
@@ -230,12 +230,16 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   colnames_new <- sub(pattern = sprintf("_%s$", year$ok), replacement = "",  colnames_new)
   colnames(value_indicator) <- colnames_new
   
+  # filter the ranking of the selected country
+  cols <- c('a3', 'name', sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok))
+  rank_indicator <- rank_indicator[cols]
+  
   
   rank$indicator <- value_indicator
   
   
-  print("rank$indicator")
-  print(rank$indicator)
+  # print("rank$indicator")
+  # print(rank$indicator)
   
   # rank$country <- 
   
@@ -601,10 +605,13 @@ observeEvent(c(input$map_shape_click, city$city_code,
 # change color of selected region in carrousel ----------------------------
 
 # observeEvent(c(input$map_shape_click), {
-observeEvent(c(input$map_shape_click), {
+observeEvent(c(input$map_shape_click, year$ok), {
   
   
   req(is.null(rank$admin_level))  
+  
+  print("rank$country")
+  print(rank$country)
   
   delay(1000, runjs(sprintf("$('#accordion_world1 > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$country)))
   

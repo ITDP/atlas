@@ -2,6 +2,7 @@ library(sf)
 library(dplyr)
 library(data.table)
 library(readr)
+library(tidyr)
 library(googlesheets4)
 
 # indicators
@@ -30,7 +31,7 @@ data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level)) %>%
   
   
   # create ranks for countries -------------------------------
-# ind <- "bike_pnpb"
+# ind <- "transit_pnrt"
 ranks_countries <- function(ind ) {
   
   if(file.exists(sprintf("data/data_beta/countries/atlas_country_%s.rds",
@@ -43,11 +44,22 @@ ranks_countries <- function(ind ) {
     # calculate size of each group
     country_ranks <- atlas_country %>%
       select(a3, name, starts_with(sprintf("%s_", ind))) %>%
+      # need to put the year in long format
+      tidyr::pivot_longer(starts_with(sprintf("%s_", ind)),
+                          names_to = c(".value", "year"),
+                          names_pattern = "(.*)_(\\d{4}$)") %>%
       st_set_geometry(NULL) %>%
+      group_by(year) %>%  
       mutate(across(3:last_col(), ~rank(-.x, ties = "first", na.last = "keep"))) %>%
-      arrange(across(3)) %>%
+      arrange(across(c(year,4))) %>%
+      ungroup() %>%
+      # back to the wide format
+      tidyr::pivot_wider(names_from = year,
+                         names_glue = "{.value}_{year}",
+                         values_from = starts_with(sprintf("%s", ind))) %>%
       # create totals - NEED FIX
-      mutate(n = n()) 
+      mutate(n = n()) %>%
+      ungroup()
     
     readr::write_rds(country_ranks, sprintf("data/data_beta/countries/ranks/atlas_country_rank_%s.rds", ind))
     
