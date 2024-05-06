@@ -580,8 +580,6 @@ output$comparison_max <- renderHighchart({
   if (city$city_code == "") {
     
     
-    print("aqui")
-    
     ui <- input$map_shape_click$id
     value_city <- subset(atlas_country(), name == ui)
     value_city <- st_sf(value_city)
@@ -892,13 +890,15 @@ observeEvent(c(input$maximize_comparison), {
     countries_available <- unique(hdc_available1$country)
     
     
-    showModal(modalDialog(
+    showModal(modalDialog1(
       title = div(style = "display: flex; justify-content: space-between;", "COMPARE", modalButton(icon("close"))),
+      id1 = "compare_max_modal",
       size = c("l"),
       easyClose = TRUE,
       footer = NULL,
       absolutePanel(
         class = "about_modal",
+        # id = "compare_max_modal",
         div(style="display:inline-block",
             shinyWidgets::pickerInput(inputId = "city_compare_analysis_area",
                                       label = NULL,
@@ -913,7 +913,7 @@ observeEvent(c(input$maximize_comparison), {
             )),
         div(style="display:inline-block",
             actionButton("reset_graph", "Clear Selection")),
-        highchartOutput("comparison_max", height = "280px")
+        highchartOutput("comparison_max", height = "100%")
       )))
     
     

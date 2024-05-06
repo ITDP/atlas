@@ -1,3 +1,10 @@
+#compare_max_modal {
+  width: 80%;
+    height: 70%;
+  
+}
+
+
 #comparison_button, #comparison_button:hover, #comparison_button:active, #download_button, #download_button:hover, #download_button:active {
   background: transparent;
   
