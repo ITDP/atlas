@@ -164,6 +164,10 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
     
   )
   
+  # print("buuumm")
+  # print(a_available$value_legend)
+  # print(a_available$value)
+  
   
   pal_countries <- colorBin(
     palette = "viridis",
@@ -281,10 +285,11 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     addMapPane("countries", zIndex = 410) %>% # shown below ames_circles
     addMapPane("markers_navailable", zIndex = 420) %>% # shown above ames_lines
     addMapPane("markers_available", zIndex = 430) %>% # shown above ames_lines
+    # markers available
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
       radius = 5,
-      fillColor = ~world_view$pal(value),
+      fillColor = ~world_view$pal(value_legend),
       stroke = TRUE, fillOpacity = 0.9, color = "black",
       opacity = 0.9,
       weight = 2,
