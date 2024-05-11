@@ -7,7 +7,7 @@ data_ind <- reactive({
   
   message("Open city data")
   
-  a <- readRDS(sprintf("../data/data_beta/ghsl_%s/indicators_%s.rds", city$city_code, city$city_code))
+  a <- readRDS(sprintf("../data/data_final/ghsl_%s/indicators_%s.rds", city$city_code, city$city_code))
   # readRDS(sprintf("data/atlas_%s_indicators.rds", city$city_code))
   # print(head(a))
   spatial_level_value$last <- length(unique(a$admin_level))
@@ -83,7 +83,7 @@ data_ind3 <- reactive({
   
   if (indicator$type == "performance" & isTRUE(input$regions_grid == "Grid")) {
     
-    a <- readRDS(sprintf("../data/data_beta/ghsl_%s/grid_%s.rds", city$city_code, city$city_code))
+    a <- readRDS(sprintf("../data/data_final/ghsl_%s/grid_%s.rds", city$city_code, city$city_code))
     a$country <- NA
     a$admin_level <- NA
     a$admin_level_ordered <- NA

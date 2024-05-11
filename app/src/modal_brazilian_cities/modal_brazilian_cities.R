@@ -19,7 +19,7 @@ observeEvent(c(city$city_code, indicator$mode), {
 
   req(
     city$city_code,
-    city$city_code %in% brazil_cities$hdc & indicator$mode == "pnrtall")
+    city$city_code %in% brazil_cities$hdc)
  
   
   # Show the model on start up ...

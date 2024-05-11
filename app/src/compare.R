@@ -40,7 +40,7 @@ ind_city <- reactive({
   
   message("Compare #1")
   # open data
-  a <- readRDS(sprintf("../data/data_beta/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
+  a <- readRDS(sprintf("../data/data_final/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                        city$city_code, city$city_code, pattern))
   
   # print("foi")
@@ -76,7 +76,7 @@ observeEvent(c(input$city_compare_level_analysis), {
   
   
   # open data
-  ui <- sprintf("../data/data_beta/comp/indicators_compare_%s_%s.rds",
+  ui <- sprintf("../data/data_final/comp/indicators_compare_%s_%s.rds",
                 level, pattern)
   
   print("ui")

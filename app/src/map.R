@@ -27,7 +27,7 @@ atlas_country <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/data_beta/countries/atlas_country_%s.rds", pattern))
+  a <- readRDS(sprintf("../data/data_final/countries/atlas_country_%s.rds", pattern))
   
   # print("aagsagas")
   # print(a)
@@ -471,6 +471,7 @@ observeEvent(c(city$city_code), {
     addMapPane("Bus rapid transport (point)", zIndex = 425) %>%
     addMapPane("Bus rapid transport (line)", zIndex = 425) %>%
     addMapPane("People Near Frequent Transport", zIndex = 420) %>%
+    addMapPane("People Near Bikeways + Public Transport", zIndex = 420) %>%
     addMapPane("Frequent transport stops", zIndex = 425)
   
   # remove groups
@@ -553,69 +554,73 @@ observeEvent(c(city$city_code), {
     overlay_group <- unique(overlay_subset$overlay_group)
     
     
-    file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
+    file <- sprintf("../data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
                     city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
     
-    if (file.exists(file)) {
+    # if (file.exists(file)) {
+    
+    if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
       
-      if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
+      # data <- readRDS(file)
+      # instead it would be
+      data <- stars::read_stars(file)
+      
+      map <- map %>%
+        leafem::addGeoRaster(x = data,
+                             opacity = 0.6,
+                             group = overlay_group,
+                             options = list(clickable = FALSE, pane = overlay_name),
+                             colorOptions = colorOptions(palette = viridis::viridis(n = 9)),
+                             autozoom = FALSE)
+      
+    } else if (i %in% c("protectedbike_latlon", "hs_latlon", "healthcare_latlon", "schools_latlon",
+                        "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
+                        "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
+                        "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon")) {
+      
+      
+      
+      map <- map %>%
+        mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+                                  style_id = overlay_mapboxid,
+                                  username = "kauebraga",
+                                  group = overlay_group,
+                                  # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
+                                  options = tileOptions(pane = overlay_name))
+      
+    } else {
+      
+      # print(file)
+      
+      should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
         
-        data <- readRDS(file)
+        FALSE
         
-        map <- map %>%
-          leafem::addGeoRaster(x = data,
-                               opacity = 0.8,
-                               group = overlay_group,
-                               options = list(clickable = FALSE, pane = overlay_name),
-                               autozoom = FALSE)
-        
-      } else if (i %in% c("protectedbike_latlon", "hs_latlon")) {
-        
-        
-        # print(i)
-        # print("iiiii")
-        
-        map <- map %>%
-          mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
-                                    style_id = overlay_mapboxid,
-                                    username = "kauebraga",
-                                    group = overlay_group,
-                                    # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
-                                    options = tileOptions(pane = overlay_name))
-        
-      } else {
-        
-        # print(file)
-        
-        should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
-          
-          FALSE
-          
-        } else {TRUE}
-        
-        map = map %>% leafem::addFgb(file = file,
-                                     group = overlay_group,
-                                     # color = "#00AE42",
-                                     # color = "#000000",
-                                     color = overlay_subset$fill,
-                                     weight = 1,
-                                     opacity = 0.5,
-                                     fillColor = overlay_subset$fill,
-                                     fill = should_fill,
-                                     fillOpacity = 0.7,
-                                     radius = 3,
-                                     # pane = overlay_name,
-                                     # gl = TRUE,
-                                     # options = pathOptions(pane = overlay_name),
-                                     options = pathOptions(interactive = FALSE, pane = overlay_name)
-                                     # layerId = "overlay_layer",
-        )
-        
-        
-      }
+      } else {TRUE}
+      
+      map = map %>% leafem::addFgb(file = file,
+                                   group = overlay_group,
+                                   # color = "#00AE42",
+                                   # color = "#000000",
+                                   color = overlay_subset$fill,
+                                   weight = 1,
+                                   opacity = 0.5,
+                                   fillColor = overlay_subset$fill,
+                                   fill = should_fill,
+                                   fillOpacity = 0.7,
+                                   radius = 3,
+                                   # pane = overlay_name,
+                                   # gl = TRUE,
+                                   # options = pathOptions(pane = overlay_name),
+                                   options = pathOptions(clickable = FALSE, pane = overlay_name)
+                                   # layerId = "overlay_layer",
+      )
       
       
     }
+    
+    
+    # }
   }
   
   
@@ -654,44 +659,6 @@ observeEvent(c(city$city_code), {
   
 })
 
-# observeEvent(c(input$admin_level),{
-#   
-#   req(city$city_code != "", indicator$mode, input$admin_level > 1)
-#   
-#   
-#   # print("RUN")
-#   
-#   rank$admin_level_name <- unique(subset(data_ind(), admin_level_ordered == rank$admin_level)$admin_level_name)
-#   
-#   fix <- indicator$mode
-#   # overlays_to_open <- subset(overlay_table, indicator == fix)
-#   # overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
-#   # overlay_group <- unique(overlay_subset$overlay_group)
-#   
-#   overlay_labels <- subset(overlay_table, indicator == fix)$overlay_group
-#   # overlay_labels <- paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_labels)
-#   # overlay_labels <- as.list(overlay_labels)
-#   # names(overlay_labels) <- subset(overlay_table, indicator == fix)$overlay_label
-#   # print(overlay_labels)
-#   # identify groups to hide
-#   overlay_show <- subset(overlay_table, indicator == fix & overlay_show == "yes")$overlay_group
-#   overlay_hide <- subset(overlay_table, indicator == fix & overlay_show == "no")$overlay_group
-#   
-#   # # identify overlays
-#   # overlay_layers$groups <- overlay_group
-#   
-#   map <- leafletProxy("map", session) %>%
-#     clearControls() %>%
-#     addLayersControl(
-#       baseGroups = c("Light", "Dark", "Satellite"),
-#       overlayGroups = c(sprintf("<img src=\"icons/icon_MULTIPOLYGON_.png\" height=\"30\" width = \"30\">%s</img>", rank$admin_level_name),
-#                         overlay_labels),
-#       options = layersControlOptions(collapsed = FALSE)) %>%
-#     hideGroup(overlay_hide) %>%
-#     showGroup(overlay_show)
-#   
-# })
-
 
 # observer to keep selected element highlited -----------------------------
 
@@ -713,20 +680,11 @@ observeEvent(c(rank$admin_level, indicator$mode), {
 
 observeEvent(c(input$map_shape_click), {
   
-  # waiter_show(html = tagList(
-  #   spin_loaders(id = 3, color = "black"
-  #                # style = "right: 150px; top: 200px"
-  #                )),
-  #   color = "rgba(233, 235, 240, .1)")
   ui <- input$map_shape_click$id
   
   # we have a problem that the overlay is being clickable, regardless of what we set
   # so we need to make this overlay un-reactable from here
   ui_ok <- grepl("^\\d{3,}", ui)
-  
-  # print("ui")
-  # print(ui)
-  # print(ui_ok)
   
   # this will only happen when we are beyond the city level
   req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"),
@@ -750,23 +708,8 @@ observeEvent(c(input$map_shape_click), {
     if (length(element$selected) > 1) {
       
       data_previous <- subset(data_ind3_spatial(), osmid == tail(element$selected, 2)[1])
-      # print("data_previous")
-      # print(data_previous)
-      
-      # format_indicator_value <- if(indicator_info$transformation == "percent") {
-      #   round(data_previous$value * 100) 
-      #   
-      # } else if(indicator_info$transformation %in% "thousands") {
-      #   
-      #   if (data_previous$value >= 1000000) scales::comma(data_previous$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data_previous$value, accuracy = 1, scale = 0.001, suffix = "k")
-      #   
-      #   
-      # } else round(data_previous$value)
       
       format_indicator_value <- format_indicator_values(data_previous$value, indicator_info$transformation)
-      
-      
-      # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
       
       
       
@@ -779,20 +722,9 @@ observeEvent(c(input$map_shape_click), {
       
     }
     
-    # format_indicator_value <- if(indicator_info$transformation == "percent") {
-    #   round(data$value * 100) 
-    #   
-    # } else if(indicator_info$transformation %in% "thousands") {
-    #   
-    #   if (data$value >= 1000000) scales::comma(data$value, accuracy = 0.1, scale = 0.000001, suffix = "M") else scales::comma(data$value, accuracy = 1, scale = 0.001, suffix = "k")
-    #   
-    #   
-    # } else round(data$value)
-    
     
     format_indicator_value <- format_indicator_values(data$value, indicator_info$transformation)
     
-    # format_indicator_value <- paste0(format_indicator_value, indicator_info$unit)
     
     
     labels <- paste0("<b>", data$name, "</b><br/>", 
@@ -855,46 +787,6 @@ observeEvent(c(input$map_shape_click), {
   
 })
 
-# # if I change the indicator while a region is selected, it should keep the region highlighted
-# observeEvent(c(indicator$mode), {
-#   
-#   # this will only happen when we are beyond the city level
-#   req(isTRUE(input$admin_level >= 1),  isTRUE(input$regions_grid == "Regions"))
-#   
-#   # filter only the selected polygon
-#   data <- subset(data_ind3_spatial(), osmid == tail(element$selected, 1))
-#   
-#   # print("DATA")
-#   # print(data)
-#   # print(tail(element$selected, 1))
-#   
-#   # update the map
-#   map <- leafletProxy("map", session) %>%
-#     # 1) delete the selected polygon
-#     removeShape(layerId = tail(element$selected, 1)) %>%
-#     # 2) create the selected polygon with the stronger stroke
-#     addPolygons(data = data,
-#                 fillColor = data$fill, fillOpacity = 1,
-#                 # fillColor = ~pal(value),
-#                 # fillOpacity = 0.5,
-#                 color = "black",  weight = 8, layerId = ~osmid, opacity = 1,
-#                 group = "Regions",
-#                 # label = lapply(labels, htmltools::HTML),
-#                 # labelOptions = labelOptions(
-#                 #   style = list(
-#                 #     "font-size" = "12px"
-#                 #   )),
-#                 # options = pathOptions(pane = "basemap")
-#     )
-#   
-#   
-#   
-#   map
-#   
-#   # waiter_hide()
-#   
-# })
-
 
 
 # update overlay only when indicator/year is changed --------------------------------
@@ -907,12 +799,7 @@ observeEvent(c(indicator$mode, input$year), {
   # if (isTRUE(input$admin_level >= 1)) {
   shinyjs::logjs("Map: update overlay only when indicator/year is changed")
   
-  # print("obs3----")
-  # waiter_show(html = tagList(spin_loaders(id = 2, color = "black")),
-  #             color = "rgba(233, 235, 240, .2)")
   
-  # extract geom type of this indicator
-  # geom_type <- unique(data_overlays2()$geom_type)
   
   map <- leafletProxy("map", session) %>%
     # clearMarkers() %>%
@@ -944,6 +831,7 @@ observeEvent(c(indicator$mode, input$year), {
     addMapPane("Bus rapid transport (line)", zIndex = 425) %>%
     addMapPane("People Near Frequent Transport", zIndex = 420) %>%
     addMapPane("Frequent transport stops", zIndex = 425) %>%
+    addMapPane("People Near Bikeways + Public Transport", zIndex = 420) %>%
     removeLayersControl()
   
   # remove groups
@@ -953,19 +841,14 @@ observeEvent(c(indicator$mode, input$year), {
   
   
   
-  # print("geom_type")
-  # print(geom_type)
   
   # add overlay
   # identify overlays to be opened
   fix <- indicator$mode
   overlays_to_open <- subset(overlay_table, indicator == fix)
-  # print("overlays_to_open")
-  # print(overlays_to_open)
   
   for(i in overlays_to_open$overlay){
     
-    # data1 <- subset(data_overlays()[["lines"]], ind == i)
     
     fix <- indicator$mode
     overlay_subset <- subset(overlay_table, indicator == fix & overlay == i)
@@ -974,71 +857,75 @@ observeEvent(c(indicator$mode, input$year), {
     overlay_mapboxid <- unique(overlay_subset$mapbox_id)
     overlay_group <- unique(overlay_subset$overlay_group)
     
-    file <- sprintf("../data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
+    file <- sprintf("../data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
                     city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
     
-    if (file.exists(file)) {
+    # if (file.exists(file)) {
+    
+    if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
       
-      if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
+      data <- stars::read_stars(file)
+      
+      map <- map %>%
+        leafem::addGeoRaster(x = data,
+                             opacity = 0.8,
+                             group = overlay_group,
+                             options = pathOptions(clickable = FALSE, pane = overlay_name),
+                             colorOptions = colorOptions(palette = viridis::viridis(n = 9)),
+                             autozoom = FALSE)
+      
+      
+    } else if (i %in% c(c("protectedbike_latlon", "hs_latlon", "healthcare_latlon", "schools_latlon",
+                          "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
+                          "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
+                          "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon"))) {
+      
+      
+      # print(i)
+      # print("iiiii")
+      
+      map <- map %>%
+        mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+                                  style_id = overlay_mapboxid,
+                                  username = "kauebraga",
+                                  group = overlay_group,
+                                  # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
+                                  options = tileOptions(pane = overlay_name))
+      
+    } else {
+      
+      # print(file)
+      
+      should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
         
-        data <- readRDS(file)
+        FALSE
         
-        map <- map %>%
-          leafem::addGeoRaster(x = data,
-                               opacity = 0.8,
-                               group = overlay_group,
-                               options = pathOptions(clickable = FALSE, pane = overlay_name),
-                               autozoom = FALSE)
-        
-        
-      } else if (i %in% c("protectedbike_latlon", "hs_latlon")) {
-        
-        
-        # print(i)
-        # print("iiiii")
-        
-        map <- map %>%
-          mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
-                                    style_id = overlay_mapboxid,
-                                    username = "kauebraga",
-                                    group = overlay_group,
-                                    # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
-                                    options = tileOptions(pane = overlay_name))
-        
-      } else {
-        
-        # print(file)
-        
-        should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
-          
-          FALSE
-          
-        } else {TRUE}
-        
-        map = map %>% leafem::addFgb(file = file,
-                                     group = overlay_group,
-                                     # color = "#00AE42",
-                                     # color = "#000000",
-                                     color = overlay_subset$fill,
-                                     weight = 1,
-                                     opacity = 0.5,
-                                     fillColor = overlay_subset$fill,
-                                     fill = should_fill,
-                                     fillOpacity = 0.7,
-                                     radius = 3,
-                                     # pane = overlay_name,
-                                     # gl = TRUE,
-                                     # options = pathOptions(pane = overlay_name),
-                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
-                                     # layerId = "overlay_layer",
-        )
-        
-        
-      }
+      } else {TRUE}
+      
+      map = map %>% leafem::addFgb(file = file,
+                                   group = overlay_group,
+                                   # color = "#00AE42",
+                                   # color = "#000000",
+                                   color = overlay_subset$fill,
+                                   weight = 1,
+                                   opacity = 0.5,
+                                   fillColor = overlay_subset$fill,
+                                   fill = should_fill,
+                                   fillOpacity = 0.7,
+                                   radius = 3,
+                                   # pane = overlay_name,
+                                   # gl = TRUE,
+                                   # options = pathOptions(pane = overlay_name),
+                                   options = pathOptions(interactive = FALSE, pane = overlay_name)
+                                   # layerId = "overlay_layer",
+      )
       
       
     }
+    
+    
   }
+  # }
   
   
   # # identify overlays

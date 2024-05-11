@@ -10,15 +10,15 @@ sf::sf_use_s2(FALSE)
 
 # source folder -------------------------------------------------------------------------------
 
-folder <- "/Volumes/kaue/atlas/data-raw/data_final"
+folder <- "data-raw/data_beta"
 
 
-# # duplicate the pop data for 2022 as well -----------------------------------------------------
-# list_pop_2020 <- dir(sprintf("%s/cities", folder), recursive = TRUE, pattern = "pop_2020.tif$", full.names = TRUE)
-# # reanem to 2022
-# list_pop_2022 <- stringr::str_replace(list_pop_2020, pattern = "2020(?=.tif$)", replacement = "2022")
-# # copy
-# purrr::walk2(list_pop_2020, list_pop_2022, file.copy)
+# duplicate the pop data for 2022 as well -----------------------------------------------------
+list_pop_2020 <- dir(sprintf("%s/cities", folder), recursive = TRUE, pattern = "pop_2020.tif$", full.names = TRUE)
+# reanem to 2022
+list_pop_2022 <- stringr::str_replace(list_pop_2020, pattern = "2020(?=.tif$)", replacement = "2022")
+# copy
+purrr::walk2(list_pop_2020, list_pop_2022, file.copy)
 
 
 
@@ -101,7 +101,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "12080"
   # ghsl <- "00154"
   # ghsl <- "00010"
-  # ghsl <- "01397"
+  # ghsl <- "01406"
   # ghsl <- "01575"
   # ghsl <- "00079" #pheonix
   
@@ -232,10 +232,6 @@ prep_data <- function(ghsl) {
                       perl = TRUE)
   
   
-  ind_columns <- gsub(pattern = "(pnst)_(\\d{4})",
-                      replacement = "transit_pnst_\\2",
-                      x = ind_columns)
-  
   
   
   # create new column names with new standardized id
@@ -259,8 +255,13 @@ prep_data <- function(ghsl) {
     
     startsWith(ind_columns, "transit_pnrt"), ind_columns,
     
-    startsWith(ind_columns, "transit_pnst"), ind_columns
     
+    ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2022",
+    ind_columns == "performance_bike_lts2_45",               "performance_bikep45_2022",
+    ind_columns == "performance_bike_lts2_60",               "performance_bikep60_2022",
+    ind_columns == "performance_walk_30",               "performance_walkp30_2022",
+    ind_columns == "performance_walk_45",               "performance_walkp45_2022",
+    ind_columns == "performance_walk_60",               "performance_walkp60_2022"
     
   )
   
@@ -291,9 +292,7 @@ prep_data <- function(ghsl) {
                   starts_with("walk_pncf"),
                   starts_with("walk_pnnhighways"),
                   starts_with("transit_pnft"),
-                  starts_with("transit_pnrt"),
-                  starts_with("transit_pnst")
-                  ) %>%
+                  starts_with("transit_pnrt")) %>%
     mutate(across(starts_with("transit"), as.numeric))
   
   data$admin_level <- as.character(data$admin_level)
@@ -325,10 +324,10 @@ prep_data <- function(ghsl) {
   # to polygons
   # data <- st_cast(data, "MULTIPOLYGON")
   
-  dir.create(sprintf("data/data_final/ghsl_%s", ghsl), recursive = TRUE)
+  dir.create(sprintf("data/data_beta/ghsl_%s", ghsl), recursive = TRUE)
   
   # save
-  readr::write_rds(data, sprintf("data/data_final/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
+  readr::write_rds(data, sprintf("data/data_beta/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
   
 }
 
@@ -348,7 +347,7 @@ walk(cities_available, prep_data)
 
 
 # calculate boundaries for the world view ---------------------
-indicators_all <- purrr::map_dfr(dir("data/data_final", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+indicators_all <- purrr::map_dfr(dir("data/data_beta", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
 # # remove polygon and save the data
@@ -363,7 +362,7 @@ indicators_ghsl <- indicators_all %>% filter(admin_level == 0) %>% st_sf(crs = 4
 # centroids
 indicators_ghsl_centroids <- st_centroid(indicators_ghsl)
 # save
-readr::write_rds(indicators_ghsl_centroids, "data/data_final/atlas_city_markers.rds")
+readr::write_rds(indicators_ghsl_centroids, "data/data_beta/atlas_city_markers.rds")
 
 
 
@@ -372,8 +371,8 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_final/atlas_city_markers.
 # calculate mean for each country -----------------
 
 
-atlas_country <- st_read("/Volumes/kaue/atlas/data-raw/data_final/countries/country_results.geojson")
-# atlas_country <- rmapshaper::ms_simplify(atlas_country, keep = 0.1)
+atlas_country <- st_read("data-raw/data_beta/countries/country_results.geojson")
+atlas_country <- rmapshaper::ms_simplify(atlas_country, keep = 0.1)
 # atlas_country1 <- fread("data-raw/atlas_data_july_31/country_results/country_results.csv")
 
 # bring the names
@@ -383,7 +382,6 @@ atlas_country <- atlas_country %>%
     countrycode::codelist %>% dplyr::select(country.name.en, iso3c),
     
     by = c("index" = "iso3c")) %>%
-  select(-name) %>%
   rename(name = country.name.en) %>%
   select(a3 = index, name, everything())
 
@@ -477,10 +475,6 @@ ind_columns <- gsub(pattern = "(rtr)_([[:lower:]]{3})_(\\d{4})",
                     perl = TRUE)
 
 
-ind_columns <- gsub(pattern = "(pnst)_(\\d{4})",
-                    replacement = "transit_pnst_\\2",
-                    x = ind_columns)
-
 
 
 # create new column names with new standardized id
@@ -503,9 +497,14 @@ ind_columns_new <- fcase(
   startsWith(ind_columns, "transit_pnft"),                  ind_columns,
   
   startsWith(ind_columns, "transit_pnrt"), ind_columns,
-  startsWith(ind_columns, "transit_pnst"), ind_columns
   
   
+  ind_columns == "performance_bike_lts2_30",               "performance_bikep30_2022",
+  ind_columns == "performance_bike_lts2_45",               "performance_bikep45_2022",
+  ind_columns == "performance_bike_lts2_60",               "performance_bikep60_2022",
+  ind_columns == "performance_walk_30",               "performance_walkp30_2022",
+  ind_columns == "performance_walk_45",               "performance_walkp45_2022",
+  ind_columns == "performance_walk_60",               "performance_walkp60_2022"
   
 )
 
@@ -524,10 +523,8 @@ atlas_country <- atlas_country %>%
                 starts_with("walk_pnnhighways"),
                 starts_with("transit_pnft"),
                 starts_with("transit_pnrt"),
-                starts_with("transit_pnst")
-                )
-
-atlas_country <- atlas_country %>% mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
+                starts_with("performance_bike"),
+                starts_with("performance_walk"))
 
 # select only the indicators that we have in the indicators
 atlas_country <- atlas_country %>%
@@ -535,8 +532,8 @@ atlas_country <- atlas_country %>%
                 any_of(colnames(indicators_all))   
   ) %>%
   # round indicators
-  mutate(across(c(bike_pnpbabikewayskm_2024, bike_pnpbpbikewayskm_2024, walk_pnshealthpoints_2024, walk_pnsschoolspoints_2024,
-                  transit_pnftpoints_2024), round))
+  mutate(across(c(bike_pnpbabikewayskm_2022, bike_pnpbpbikewayskm_2022, walk_pnshealthpoints_2022, walk_pnsschoolspoints_2022,
+                  transit_pnftpoints_2022), round))
 
 # save by indicator
 save_countries <- function(ind) {
@@ -559,7 +556,7 @@ save_countries <- function(ind) {
   # save
   if (nrow(atlas_country_ind) > 0) {
     
-    readr::write_rds(atlas_country_ind, sprintf("data/data_final/countries/atlas_country_%s.rds",
+    readr::write_rds(atlas_country_ind, sprintf("data/data_beta/countries/atlas_country_%s.rds",
                                                 ind))
     
   }
@@ -585,7 +582,7 @@ purrr::walk(ind_list, save_countries)
 
 # list all osmid and names availables -------------------------------------
 
-indicators_all <- purrr::map_dfr(dir("data/data_final", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+indicators_all <- purrr::map_dfr(dir("data/data_beta", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
 # remove polygon
@@ -598,7 +595,7 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
 
 count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ordered, admin_level_name) %>%
   dplyr::select(-n) %>%
-  readr::write_rds("data/data_final/list_osmid_name.rds")
+  readr::write_rds("data/data_beta/list_osmid_name.rds")
 
 
 
@@ -615,15 +612,15 @@ colnames_compare <- colnames(indicators_all_df)[9:ncol(indicators_all_df)]
 #                                  years_compare)
 
 indicators_all_df <- indicators_all_df %>%
-  mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
+  mutate(across(city_popdensity_1975:transit_pnrtmrt_2025, as.numeric))
 
 indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
                                               cols = 9:last_col(),
                                               names_sep = "_",
                                               names_to = c("ind_type", "ind", "year"),
-                                              values_to = "value")
+                                              values_to = "value") %>%
   # remove year 2025 for now
-  # filter(year != 2025)
+  filter(year != 2025)
 
 a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
   filter(!is.na(value)) %>%
@@ -639,12 +636,12 @@ a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
 
 # add recife manually
 
-readr::write_rds(a1, "data/data_final/list_availability.rds")
+readr::write_rds(a1, "data/data_beta/list_availability.rds")
 
 # not available
 indicators_all_df_long1 <- indicators_all_df_long %>%
   filter(admin_level == 0) %>%
-  filter(year == 2024) %>%
+  filter(year == 2022) %>%
   # filter(ind  %in% c("journeygap", "pnft", "pnrtall")) %>%
   mutate(available = ifelse(is.na(value), FALSE, TRUE)) %>%
   select(country, name, hdc, ind, available) %>%
@@ -652,10 +649,10 @@ indicators_all_df_long1 <- indicators_all_df_long %>%
   mutate(id = rleid(hdc)) %>%
   select(hdc, ind, available) %>%
   filter(ind %in% c("popdensity", "blockdensity", "journeygap", "pnpb", "pns",
-                    "pncf", "pnnhighways", "pnft", "pnrt", "pnst"))
+                    "pncf", "pnnhighways", "pnft", "pnrt"))
 
 
   
 
 
-readr::write_rds(indicators_all_df_long1, "data/data_final/list_availability_cities.rds")
+readr::write_rds(indicators_all_df_long1, "data/data_beta/list_availability_cities.rds")

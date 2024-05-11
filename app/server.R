@@ -1,21 +1,21 @@
 # open boundaries
-atlas_city_markers <- readRDS("../data/data_beta/atlas_city_markers.rds")
+atlas_city_markers <- readRDS("../data/data_final/atlas_city_markers.rds")
 # atlas_country <- readRDS("../data/data_alpha/atlas_country_polygons.rds")
 # # filter only countries that have indidcators
 # atlas_country <- subset(atlas_country, !is.na(bike_pnpb_2022))
 # country rank
 # atlas_country_ranks <- readRDS("../data/data_alpha/ranks/rank_country.rds")
 # list indicators
-list_indicators <- readRDS("../data/data_beta/list_indicators.rds")
-list_osmid_name <- readRDS("../data/data_beta/list_osmid_name.rds")
-list_availability <- readRDS("../data/data_beta/list_availability.rds")
-overlay_table <- readRDS("../data/data_beta/overlay_table.rds")
+list_indicators <- readRDS("../data/data_final/list_indicators.rds")
+list_osmid_name <- readRDS("../data/data_final/list_osmid_name.rds")
+list_availability <- readRDS("../data/data_final/list_availability.rds")
+overlay_table <- readRDS("../data/data_final/overlay_table.rds")
 # list_block <- readRDS("../data/data_alpha/list_block_density.rds")
-list_availability_cities <- readRDS("../data/data_beta/list_availability_cities.rds")
-brazil_cities <- readRDS("../data/data_beta/brazil_cities.rds")
+list_availability_cities <- readRDS("../data/data_final/list_availability_cities.rds")
+brazil_cities <- readRDS("../data/data_final/brazil_cities.rds")
 
 # define some credentials
-credentials <- readRDS("../data/credentials.rds")
+# credentials <- readRDS("../data/credentials.rds")
 
 
 
@@ -35,13 +35,13 @@ list_walk <- structure(c(
   "People Safe From Highways"
 ))
 
-list_transit <- structure(c("pnft", "pnrt"
-                            # "pnst"
+list_transit <- structure(c("pnft", "pnrt",
+                            "pnst"
 ), 
 .Names = c(
   "People Near Frequent Transit", 
-  "People Near Rapid Transport"
-  # "People Near Bikeways + Public Transport"
+  "People Near Rapid Transport",
+  "People Near Bikeways + Public Transport"
 ))
 
 list_city <- structure(c(
@@ -79,14 +79,14 @@ function(input, output, session) {
     })
   
   
-  # password protection related
-  res_auth <- secure_server(
-    check_credentials = check_credentials(credentials)
-  )
-  
-  output$auth_output <- renderPrint({
-    reactiveValuesToList(res_auth)
-  })
+  # # password protection related
+  # res_auth <- secure_server(
+  #   check_credentials = check_credentials(credentials)
+  # )
+  # 
+  # output$auth_output <- renderPrint({
+  #   reactiveValuesToList(res_auth)
+  # })
   
   # the modal at startup
   query_modal <- modalDialog1(
@@ -193,8 +193,8 @@ function(input, output, session) {
       condition = "input.indicator != ''",
       shinyWidgets::pickerInput(inputId = "year",
                                 label = NULL,
-                                choices = 2022,
-                                selected = 2022,
+                                choices = 2024,
+                                selected = 2024,
                                 width = "330px",
                                 options = shinyWidgets::pickerOptions(
                                   size = 5
@@ -208,13 +208,16 @@ function(input, output, session) {
   
   
   # update year according to the indicator
-  year <- reactiveValues(ok = as.character(2022))
+  year <- reactiveValues(ok = as.character(2024))
   
   observeEvent(c(indicator$mode), {
     
     year_options <- subset(list_availability, ind == indicator$mode)$availability
     year_options <- unlist( strsplit(year_options, "[|]"))
     year_options <- unique(year_options)
+    year_options <- sort(year_options)
+    # remove year 2025 (from now)
+    year_options <- year_options[year_options != 2025]
     
     # print("year_options")
     # print(year_options)
@@ -223,9 +226,9 @@ function(input, output, session) {
       session = session,
       inputId = "year",
       choices = year_options,
-      selected = 2022)
+      selected = 2024)
     
-    year$ok <- as.character(2022)
+    year$ok <- as.character(2024)
     
     
   })
@@ -782,7 +785,7 @@ function(input, output, session) {
       
       indicator$type <- "walk"
       
-    } else if (input$indicator %in% c("pnft", "pnrt", "pnrtlrt", "pnrtmrt", "pnrtbrt")) {
+    } else if (input$indicator %in% c("pnft", "pnrt", "pnrtlrt", "pnrtmrt", "pnrtbrt", "pnst")) {
       
       indicator$type <- "transit"
       
@@ -945,6 +948,9 @@ function(input, output, session) {
     
     # delay(10, runjs('$("#bs-select-3-1").attr({"title":"Indicator not available for this city",  "data-toggle":"tooltip"})'))
     
+    print("god")
+    print(list_availability_cities1$available)
+    
     # update list of cities accordindly
     updatePickerInput(
       session = session,
@@ -952,18 +958,12 @@ function(input, output, session) {
       choices = list_selection,
       selected = city$city_code,
       choicesOpt = list(
-        # content = ifelse(list_availability_cities1$available, names,
-        #                  sprintf( '<div class="tooltip1">%s<span class="tooltiptext1">Indicator not avaiable for this region
-        #                           </span></div><i style="float: right; color: red" class="fa-solid fa-triangle-exclamation"></i>'
-        #                           , names)),
         content = ifelse(list_availability_cities1$available, names,
                          sprintf('<span style="width: 200px; display: inline-block">%s</span><div class="tooltip1"><i style="float: right; color: red" class="fa-solid fa-triangle-exclamation"></i><span class="tooltiptext1">Indicator not avaiable<br> for this region
                                  </span></div>', names)),
         
         
         disabled = !(list_availability_cities1$available)
-        # subtext = ifelse(list_availability_cities1$available, "", "Indicator not available for this city")
-        # style =  ifelse(list_availability_cities1$available, "", "color: #606d75")
         
       )
     )
@@ -1147,7 +1147,7 @@ function(input, output, session) {
   source("src/indicator_not_available.R", local = TRUE)  
   source("src/indicator_not_available_countries.R", local = TRUE)  
   source("src/variables.R", local = TRUE)  
-  source("src/beta_checkpoint/beta_checkpoint.R", local = TRUE)  
+  # source("src/beta_checkpoint/beta_checkpoint.R", local = TRUE)  
   source("src/modal_brazilian_cities/modal_brazilian_cities.R", local = TRUE)  
   
   

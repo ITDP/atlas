@@ -19,7 +19,7 @@ data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level)) %>%
                 # starts_with("city_poptotal"),
                 starts_with("city_popdensity_"),
                 starts_with("city_blockdensity_"),
-                # starts_with("city_journeygap_"),
+                starts_with("city_journeygap_"),
                 starts_with("bike_pnpb_"),
                 starts_with("walk_pns_"),
                 starts_with("walk_pncf_"),
@@ -27,15 +27,13 @@ data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level)) %>%
                 starts_with("transit_pnft_"),
                 starts_with("transit_pnrt_"),
                 starts_with("transit_pnst_")
-                
                 )
   
   
   
   
   # create ranks for countries -------------------------------
-# ind <- "transit_pnft"
-# ind <- "bike_pnpb"
+# ind <- "transit_pnrt"
 ranks_countries <- function(ind ) {
   
   if(file.exists(sprintf("data/data_final/countries/atlas_country_%s.rds",
@@ -53,10 +51,6 @@ ranks_countries <- function(ind ) {
                           names_to = c(".value", "year"),
                           names_pattern = "(.*)_(\\d{4}$)") %>%
       st_set_geometry(NULL) %>%
-      # proble with n/a
-      mutate(across(4, ~ ifelse(.x == "n/a", NA, .x))) %>%
-      mutate(across(4, ~ as.numeric(.x))) %>%
-      
       group_by(year) %>%  
       mutate(across(3:last_col(), ~rank(-.x, ties = "first", na.last = "keep"))) %>%
       arrange(across(c(year,4))) %>%

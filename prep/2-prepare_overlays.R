@@ -19,110 +19,107 @@ overlay_table <- read_sheet(ss = "https://docs.google.com/spreadsheets/d/194T-zZ
   mutate(overlay = sub(pattern = ".tif", replacement = "", x = overlay))
 
 
-indicators_all <- purrr::map_dfr(dir("data/data_beta", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
+indicators_all <- purrr::map_dfr(dir("data/data_final", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
 
-prep_overlays <- function(ghsl) {
+
+
+prep_overlays1 <- function(ghsl) {
   
   # ghsl <- "01406"
   # ghsl <- "01165"
-  # ghsl <- "00014"
-  # ghsl <- "00456"
+  # ghsl <- "00017"
+  # ghsl <- "00001"
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   
   start <- Sys.time()
   
-  base_dir <- sprintf("data-raw/data_beta/cities/ghsl_region_%s/", ghsl)
-  dir.create(sprintf("data/data_beta/ghsl_%s/overlays/temp", ghsl))
-  # # change name of folder h+s
-  # folder_hs <- dir(paste0(base_dir, "geodata")
-  #                  , pattern = "h\\+s"
-  #                  ,full.names = TRUE
-  # )
-  # folder_hs_new <- paste0(paste0(base_dir, "geodata/hs"))
-  # # rename
-  # walk2(folder_hs, folder_hs_new, file.rename)
-  # files_hs <- dir(paste0(base_dir, "geodata/hs")
-  #                 , pattern = ".geojson"
-  #                 ,full.names = TRUE
-  # )
-  # files_hs_new <- stringr::str_remove(files_hs, "\\+")
-  # walk2(files_hs, files_hs_new, file.rename)
-  
+  base_dir <- sprintf("/Volumes/kaue/atlas/data-raw/data_final/cities/ghsl_region_%s/", ghsl)
+  dir.create(sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), recursive = TRUE)
   # overlay files ------------------------------------
   overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = "(.geojson|.tif)$", recursive = TRUE)
   overlay_files <- overlay_files[overlay_files %like% paste(overlay_table$overlay, collapse  = "|")]
   
   
+  # file <- overlay_files[overlay_files %like% "population"]
   
   save_overlay <- function(file) {
-    # file <- overlay_files[[103]]
-    # file <- overlay_files[[10]]
+    # file <- overlay_files[[118]]
+    # file <- overlay_files[[20]]
     # file <- overlay_files[overlay_files %like% "block"]
-    # file <- overlay_files[overlay_files %like% "population"]
-    # file <- overlay_files[overlay_files %like% "grid_pop_evaluated"]
-    
-    # open file
-    if (file %like% ".tif$") {
-      
-      a <- stars::read_stars(file)
-      
-    } else {
-      
-      a <- st_read(file, quiet = TRUE)
-      
-      
-    }
+    # file <- overlay_files[overlay_files %like% "population"][11]
+    # file <- overlay_files[overlay_files %like% "rapid_transit"][4]
     # extract year
+    
     year1 <- if (file %like% "rapid_transit") sub("(^.*)/(rapid_transit/)(\\d{4})/(.*$)", "\\3", file)   else  sub("(^.*)(\\d{4})((.geojson|.tif)$)", "\\2", basename(file))
     # extract  name
     ind <- basename(file)
     ind <-  if (file %like% "rapid_transit") sub(pattern = "(.geojson|.tif)", replacement = "", x = ind) else sub(pattern = "_\\d{4}(.geojson|.tif)", replacement = "", x = ind)
-    # save
-    dir.create(sprintf("data/data_beta/ghsl_%s/overlays/%s", ghsl, ind), recursive = TRUE)
     
     # format
     if (file %like% "population") {
       
-      readr::write_rds(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.rds", ghsl, ind,  ind, ghsl, year1))
-      write_stars(a, sprintf("data/data_beta/ghsl_%s/overlays/temp/%s_%s_%s.tif", ghsl, ind, ghsl, year1))
       
-    } else if (file %like% "block_densities|grid_pop_evaluated") {
+      dir.create(sprintf("data/data_final/ghsl_%s/overlays/%s", ghsl, ind), recursive = TRUE)
       
-      # convert to raster
-      if (file %like% "block_densities") {
+      out_name1 <- sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.tif", ghsl, ind, ghsl, year1)
+      out_name2 <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.tif", ghsl, ind, ind, ghsl, year1)
+      file.copy(from = file,
+                out_name1)
+      file.copy(from = file,
+                out_name2)
+      
+      if (year1 == 2025) {
         
-        a <- stars::st_rasterize(a %>% select(density))
-        
-      } else if (file %like% "grid_pop_evaluated") {
-        
-        a <- stars::st_rasterize(a %>% select(journey_gap_unweighted))
+      # duplicate 2025 to 2024
+      file.copy(from = out_name2,
+                to = sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.tif", ghsl, ind, ind, ghsl, '2024'))
         
       }
       
-      readr::write_rds(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.rds", ghsl, ind,  ind, ghsl, year1))
-      write_stars(a, sprintf("data/data_beta/ghsl_%s/overlays/temp/%s_%s_%s.tif", ghsl, ind, ghsl, year1))
       
+      
+    } else if(file %like% "rapid_transit") {
+      
+      dir.create(sprintf("data/data_final/ghsl_%s/overlays/%s", ghsl, ind), recursive = TRUE)
+      
+      a <- st_read(file)
+      
+      out <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.geojson", ghsl, ind,  ind, ghsl, year1)
+      out12 <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)
+      # out <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)
+      out1 <- sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl,  ind, ghsl, year1)
+      if (file.exists(out12)) {
+        
+        file.remove(out)
+        file.remove(out12)
+        file.remove(out1)
+      }
+      
+      a <- a %>% mutate(a = 1)
+      
+      file.remove(sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
+      file.remove(sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1))
+      
+      st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
+      st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1),
+               append = FALSE)
+      
+      # a <- a %>% mutate(a = 1)
+
+      # st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
+      # st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1),
+      #          append = FALSE)
       
     } else {
       
-      out <- sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)
-      out1 <- sprintf("data/data_beta/ghsl_%s/overlays/%s/temp/%s_%s_%s.gpkg", ghsl, ind,  ind, ghsl, year1)
-      if (file.exists(out)) {
-        
-        file.remove(out)
-        file.remove(out1)
-        
-      }
+      out_name1 <- sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1)
+      file.copy(from = file,
+                out_name1)
       
-      a <- a %>% mutate(a = "teste")  
-      
-      st_write(a, sprintf("data/data_beta/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
-      st_write(a, sprintf("data/data_beta/ghsl_%s/overlays/temp/%s_%s_%s.gpkg", ghsl, ind, ghsl, year1),
-               append = FALSE)
       
     }
     
@@ -131,32 +128,31 @@ prep_overlays <- function(ghsl) {
   
   
   message("done for ", ghsl)
-  # overlay_files <- overlay_files[overlay_files %like% "grid_pop_evaluated"]
-  walk(overlay_files, save_overlay)
+  walk(overlay_files[overlay_files %like% "rapid_transit"], save_overlay)
   message("time", round(Sys.time() - start), 2)
 }
 
-
 cities_available <- unique(indicators_all$hdc)
-library(furrr)
-plan(multisession)
-future_walk(cities_available, prep_overlays)
-walk(cities_available, prep_overlays)
 
-walk(cities_available[892:1000], prep_overlays)
+purrr::walk(cities_available, prep_overlays1)
 
-# # evaluate which cities are left
-# left <- dir("data/data_beta", recursive = TRUE, full.names = TRUE)
-# left <- left[left %like% "overlays"]
-# left <- stringr::str_extract(left, "\\d{5}") %>% unique()
-# left <- setdiff(cities_available, left)
+
+
+# evaluate which cities are left
+left <- dir("data/data_final", recursive = TRUE, full.names = TRUE)
+left <- left[left %like% "overlays"]
+# remove
+walk(left, file.remove)
+
+left <- stringr::str_extract(left, "\\d{5}") %>% unique()
+left <- setdiff(cities_available, left)
 # 
 # library(furrr)
 # plan(multisession)
 # future_walk(left, prep_overlays)
 
 
-# old <- dir("data/data_beta", pattern = "pnrtall", recursive = TRUE, full.names = TRUE)
+# old <- dir("data/data_final", pattern = "pnrtall", recursive = TRUE, full.names = TRUE)
 # new <- stringr::str_replace(old, pattern = "pnrtall", replacement = "pnrt")
 # 
 # purrr::walk2(old, new, file.rename)
@@ -165,11 +161,12 @@ walk(cities_available[892:1000], prep_overlays)
 
 # zip overlays files to share (download) ------------------------------------------------------
 
-overlay_table <- readRDS("data/data_beta/overlay_table.rds")
+list_availability <- readRDS("data/data_final/list_availability.rds")
+
+# overlay_table <- readRDS("data/data_final/overlay_table.rds")
 indicators_all <- unique(overlay_table$indicator)
 
-# ghsl <- "00014"
-# over <- "pns"
+# ghsl <- "00129"; over <- "popdensity"; year1 <- 2024
 
 process_overlay <- function(over, ghsl) {
   
@@ -181,12 +178,26 @@ process_overlay <- function(over, ghsl) {
   overlay_subset <- subset(overlay_table, indicator == over)
   file <- lapply(sprintf("%s_%s", overlay_subset$overlay, ghsl), 
                  dir1, 
-                 path = sprintf("data/data_beta/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
+                 path = sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
   file <- do.call(c, file)
   
-  # zip those files
-  zip::zip(zipfile = sprintf("data/data_beta/ghsl_%s/overlays/%s_%s.zip", ghsl, over, ghsl), files = file,
-           mode = "cherry-pick")
+  # year
+  save_year <- function(year1) {
+    
+    # filter the year
+    file <- file[file %like% year1]
+    
+    # zip those files
+    zip::zip(zipfile = sprintf("data/data_final/ghsl_%s/overlays/%s_%s_%s.zip", ghsl, over, ghsl, year1), files = file,
+             mode = "cherry-pick")
+    
+  }
+  
+  # efine the years
+  years_go <- list_availability %>% filter(ind %in% over, hdc == ghsl) %>% pull(availability)
+  years_go <- unlist( strsplit(years_go, "[|]"))
+  years_go <- years_go[years_go != 2025]
+  walk(years_go, save_year)
   
   
 }

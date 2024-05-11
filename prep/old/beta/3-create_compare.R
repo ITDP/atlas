@@ -25,8 +25,8 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL) %>%
                 starts_with("walk_pncf_"),
                 starts_with("walk_pnnhighways_"),
                 starts_with("transit_pnft_"),
-                starts_with("transit_pnrt_"),
-                starts_with("transit_pnst")
+                starts_with("transit_pnrtall_"),
+                starts_with("transit_pnst_")
                 )
 
 # ghsl <- "0634"
@@ -149,48 +149,3 @@ purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 
 
 
-
-
-
-# # do the same thing for the countries! ------------------------------------
-# 
-# 
-# # save indicators by each city by each admin level - for comparison --------
-# 
-# # open data
-# indicators_all <- readRDS("data/data_final/atlas_country_polygons.rds")
-# 
-# # remove countties without data
-# # indicators_all <- indicators_all %>% dplyr::filter(!is.na(bike_pnpb_2022))
-# 
-# # remove polygon
-# indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
-# 
-# # country_code <- "BRA"
-# # ind <- "city_poptotal"
-# 
-# save_ind <- function(ind) {
-#   
-#   indicators_ind <- indicators_all_df %>% 
-#     select(a3, name, 
-#            starts_with(ind))
-# 
-#   
-#   # save
-#   readr::write_rds(indicators_ind, sprintf("data/data_final/indicators_compare_country/indicators_compare_country_%s.rds",
-#                                            ind))
-#   
-#   
-# }
-# # to long format
-# colnames_compare <- colnames(indicators)[3:ncol(indicators)]
-# # extract year
-# years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
-#                       replacement = "\\1",
-#                       x = colnames_compare)
-# ind_list <- unique(years_compare)
-# # apply
-# purrr::walk(ind_list, save_ind)
-# 
-# 
-# 

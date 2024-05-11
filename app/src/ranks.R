@@ -7,7 +7,7 @@ rank_country <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/data_beta/countries/ranks/atlas_country_rank_%s.rds", pattern))
+  a <- readRDS(sprintf("../data/data_final/countries/ranks/atlas_country_rank_%s.rds", pattern))
   
   
   return(a)
@@ -498,7 +498,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                       ranks_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+                       ranks_text <- readRDS(sprintf("../data/data_final/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
                        ranks_text1 <- subset(ranks_text, type_rank == "world" & year == que)
                        # costumize
                        # # create text
@@ -546,7 +546,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                       ranks_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                       ranks_text <- readRDS(sprintf("../data/data_final/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                        ranks_text <- subset(ranks_text, type_rank == "metro" & osmid == ui & year == que)
                        # change
                        textt <- ifelse(ranks_text$type_rank == "metro", "urban area", ranks_text$type_rank)
@@ -566,7 +566,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
-                       ranks_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+                       ranks_text <- readRDS(sprintf("../data/data_final/ghsl_%s/ranks/ranks_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
                        
                        
                        ranks_text1 <- subset(ranks_text, type_rank == "country" & osmid == ui & year == que)
@@ -641,7 +641,7 @@ observeEvent(c(input$rank_more_1_country), {
   # print(admin_level_osm)
   
   # open data
-  scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
+  scroll_text <- readRDS(sprintf("../data/data_final/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, admin_level_osm, indicator_pattern))
   
   # filter
   scroll_world <- subset(scroll_text, type_rank == "country" & year == que)
@@ -700,7 +700,7 @@ observeEvent(c(input$rank_more_1_world), {
   
   
   # open data
-  scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
+  scroll_text <- readRDS(sprintf("../data/data_final/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", city$city_code, city$city_code, 0, indicator_pattern))
   
   # filter
   scroll_world <- subset(scroll_text, type_rank == "world" & year == que)
@@ -765,7 +765,7 @@ observeEvent(c(input$rank_more_1_metro), {
   print("indicator_pattern")
   print(indicator_pattern)
   # open data
-  scroll_text <- readRDS(sprintf("../data/data_beta/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", 
+  scroll_text <- readRDS(sprintf("../data/data_final/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", 
                                  city$city_code, city$city_code, admin_level_osm, indicator_pattern))
   
   # filter
@@ -975,8 +975,13 @@ output$rank_final <- renderUI({
   if (input$indicator == "") {
     
     tagList(
-      HTML('<div class="title_indicator" style="font-size: 22px;">Welcome to the Atlas of Urban Transportation</div>'),
-      p(style = "color: #B1B5B9; display: inline; font-size: 16px;", "Start by selecting an indicator")
+      HTML('<div class="title_indicator" style="font-size: 22px;">Welcome to the Atlas of Sustainable City Transportation</div>'),
+      HTML('<p style = "color: #B1B5B9; font-size: 16px;">The Atlas contains measurements of nine indicators for cities all around the world. It includes over <span style="color: #00ae42; font-weight: 700">40,000 localities in over 1,000 urban areas</span>, calculated from open-source data.</p>'),
+      HTML('<p style = "color: #B1B5B9; font-size: 16px;">Get started by <span style="color: #00ae42; font-weight: 700">selecting one of the indicators</span> in the drop-down menu above. <em>People Near Protected Bikeways</em> is a good one to start with. After that, you can <span style="color: #00ae42; font-weight: 700">select a city or country</span>, either by using the subsequent drop-down menu or by clicking on the map.</p>'),
+      HTML('<p style = "color: #B1B5B9; font-size: 16px;">Once you select a city, you can zoom in on it. Then, you can use the <span style="color: #00ae42; font-weight: 700">drop-down menu labeled ‘At The Level Of’</span> to select whether to view measurements for the urban agglomeration, municipalities, districts, or neighborhoods. Different levels are available for different cities.</p>'),
+      HTML('<p style = "color: #B1B5B9; font-size: 16px;">You can also use the right-hand panel to activate or deactivate display elements such as infrastructure lines or population density.</p>'),
+      HTML('<p style = "color: #B1B5B9; font-size: 16px;">Two of the indicators – <em>People Near Rapid Transport</em> and <em>Population Density</em> – can be explored for different years, dating back to 1975. The rest of the indicators are only available for 2024.</p>'),
+      HTML('<p style = "color: #B1B5B9; font-size: 16px;">See the <em>About </em>page for more information, or contact <a href=\"mailto:data@itdp.org\">data@itdp.org</a> if the <em>About</em> page doesn’t answer your question</p>.')
     )
     
   } else {
