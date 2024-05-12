@@ -74,9 +74,9 @@ prep_overlays1 <- function(ghsl) {
       
       if (year1 == 2025) {
         
-      # duplicate 2025 to 2024
-      file.copy(from = out_name2,
-                to = sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.tif", ghsl, ind, ind, ghsl, '2024'))
+        # duplicate 2025 to 2024
+        file.copy(from = out_name2,
+                  to = sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.tif", ghsl, ind, ind, ghsl, '2024'))
         
       }
       
@@ -109,12 +109,18 @@ prep_overlays1 <- function(ghsl) {
                append = FALSE)
       
       # a <- a %>% mutate(a = 1)
-
+      
       # st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
       # st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1),
       #          append = FALSE)
       
-    } else {
+    } else if(file %like% "block_densities_latlon") {
+      
+      
+      
+      
+      
+      } else {
       
       out_name1 <- sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1)
       file.copy(from = file,
@@ -163,10 +169,36 @@ left <- setdiff(cities_available, left)
 
 list_availability <- readRDS("data/data_final/list_availability.rds")
 
-# overlay_table <- readRDS("data/data_final/overlay_table.rds")
-indicators_all <- unique(overlay_table$indicator)
 
-# ghsl <- "00129"; over <- "popdensity"; year1 <- 2024
+# ghsl <- "00017"; over <- "pnpb"; year1 <- 2024
+
+zip_pop <- function(ghsl) {
+  
+  
+  
+  dir1 <- function(pattern, ...) {
+    
+    dir(pattern = pattern, ...)
+  }
+  
+  # zip pop separately
+  file <- lapply(sprintf("%s_%s", "pop", ghsl), 
+                 dir1, 
+                 path = sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
+  file <- do.call(c, file)
+  
+  # zip those files
+  zip::zip(zipfile = sprintf("data/data_final/ghsl_%s/overlays/%s_%s.zip", ghsl, "pop", ghsl), files = file,
+           mode = "cherry-pick")
+  
+}
+
+cities_available <- unique(indicators_all$hdc)
+purrr::walk(cities_available, zip_pop)
+
+
+fim <- purrr::map(oi, possibly(zip_pop, otherwise = "buhh"), .progress = TRUE)
+
 
 process_overlay <- function(over, ghsl) {
   
@@ -175,34 +207,22 @@ process_overlay <- function(over, ghsl) {
     dir(pattern = pattern, ...)
   }
   
-  overlay_subset <- subset(overlay_table, indicator == over)
+  # remove pop
+  overlay_subset <- subset(overlay_table, indicator == over & overlay != "pop")
   file <- lapply(sprintf("%s_%s", overlay_subset$overlay, ghsl), 
                  dir1, 
                  path = sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
   file <- do.call(c, file)
   
-  # year
-  save_year <- function(year1) {
-    
-    # filter the year
-    file <- file[file %like% year1]
-    
-    # zip those files
-    zip::zip(zipfile = sprintf("data/data_final/ghsl_%s/overlays/%s_%s_%s.zip", ghsl, over, ghsl, year1), files = file,
-             mode = "cherry-pick")
-    
-  }
-  
-  # efine the years
-  years_go <- list_availability %>% filter(ind %in% over, hdc == ghsl) %>% pull(availability)
-  years_go <- unlist( strsplit(years_go, "[|]"))
-  years_go <- years_go[years_go != 2025]
-  walk(years_go, save_year)
+  # zip those files
+  zip::zip(zipfile = sprintf("data/data_final/ghsl_%s/overlays/%s_%s.zip", ghsl, over, ghsl), files = file,
+           mode = "cherry-pick")
   
   
 }
 
 # create combinations of ghsl and overlay
-combinations <- expand.grid(cities_available, indicators_all)
+combinations <- expand.grid(cities_available, unique(overlay_table$indicator))
 
-walk2(combinations$Var2, combinations$Var1, process_overlay)
+fim <- purrr::walk2(combinations$Var2, combinations$Var1, possibly(process_overlay, otherwise = "buhh"), .progress = TRUE)
+

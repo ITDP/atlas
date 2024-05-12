@@ -312,18 +312,6 @@ prep_data <- function(ghsl) {
     
   }
   
-  # simplify data
-  
-  # data_original <- data %>% filter(admin_level == 10)
-  
-  # data <- rmapshaper::ms_simplify(data, drop_null_geometries = FALSE, keep_shapes = TRUE, keep = 0.8)
-  # data2 <- data1 %>% filter(admin_level == 10)
-  
-  # data <- st_make_valid(data)
-  # data <- st_simplify(data)
-  # data1 <- st_cast(data, "MULTIPOLYGON")
-  # to polygons
-  # data <- st_cast(data, "MULTIPOLYGON")
   
   dir.create(sprintf("data/data_final/ghsl_%s", ghsl), recursive = TRUE)
   

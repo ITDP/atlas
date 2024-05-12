@@ -559,7 +559,7 @@ observeEvent(c(city$city_code), {
     
     # if (file.exists(file)) {
     
-    if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
+    if (i %in% c("pop", "grid_pop_evaluated")) {
       
       # data <- readRDS(file)
       # instead it would be
@@ -576,7 +576,8 @@ observeEvent(c(city$city_code), {
     } else if (i %in% c("protectedbike_latlon", "hs_latlon", "healthcare_latlon", "schools_latlon",
                         "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
                         "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
-                        "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon")) {
+                        "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon"
+                        )) {
       
       
       
@@ -598,23 +599,44 @@ observeEvent(c(city$city_code), {
         
       } else {TRUE}
       
-      map = map %>% leafem::addFgb(file = file,
-                                   group = overlay_group,
-                                   # color = "#00AE42",
-                                   # color = "#000000",
-                                   color = overlay_subset$fill,
-                                   weight = 1,
-                                   opacity = 0.5,
-                                   fillColor = overlay_subset$fill,
-                                   fill = should_fill,
-                                   fillOpacity = 0.7,
-                                   radius = 3,
-                                   # pane = overlay_name,
-                                   # gl = TRUE,
-                                   # options = pathOptions(pane = overlay_name),
-                                   options = pathOptions(clickable = FALSE, pane = overlay_name)
-                                   # layerId = "overlay_layer",
-      )
+      if (i == "block_densities_latlon") {
+        
+        print("hererererer")
+        print(file)
+        
+        map = map %>% leafem::addFgb(file = file,
+                                     group = overlay_group,
+                                     color = "black",
+                                     fill = TRUE,
+                                     weight = 0,
+                                     opacity = 0.6,
+                                     fillOpacity = 0.8,
+                                     options = pathOptions(interactive = FALSE, pane = overlay_name)
+        )
+        
+        
+        
+      } else {
+        
+        map = map %>% leafem::addFgb(file = file,
+                                     group = overlay_group,
+                                     # color = "#00AE42",
+                                     # color = "#000000",
+                                     color = overlay_subset$fill,
+                                     weight = 1,
+                                     opacity = 0.5,
+                                     fillColor = overlay_subset$fill,
+                                     fill = should_fill,
+                                     fillOpacity = 0.7,
+                                     radius = 3,
+                                     # pane = overlay_name,
+                                     # gl = TRUE,
+                                     # options = pathOptions(pane = overlay_name),
+                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
+                                     # layerId = "overlay_layer",
+        )
+        
+      }
       
       
     }
@@ -862,7 +884,7 @@ observeEvent(c(indicator$mode, input$year), {
     
     # if (file.exists(file)) {
     
-    if (i %in% c("pop", "block_densities_latlon", "grid_pop_evaluated")) {
+    if (i %in% c("pop", "grid_pop_evaluated")) {
       
       data <- stars::read_stars(file)
       
@@ -902,24 +924,42 @@ observeEvent(c(indicator$mode, input$year), {
         
       } else {TRUE}
       
-      map = map %>% leafem::addFgb(file = file,
-                                   group = overlay_group,
-                                   # color = "#00AE42",
-                                   # color = "#000000",
-                                   color = overlay_subset$fill,
-                                   weight = 1,
-                                   opacity = 0.5,
-                                   fillColor = overlay_subset$fill,
-                                   fill = should_fill,
-                                   fillOpacity = 0.7,
-                                   radius = 3,
-                                   # pane = overlay_name,
-                                   # gl = TRUE,
-                                   # options = pathOptions(pane = overlay_name),
-                                   options = pathOptions(interactive = FALSE, pane = overlay_name)
-                                   # layerId = "overlay_layer",
-      )
-      
+      if (i == "block_densities_latlon") {
+        
+        map = map %>% leafem::addFgb(file = file,
+                                     group = overlay_group,
+                                     # color = "#00AE42",
+                                     # color = "#000000",
+                                     color = "black",
+                                     fill = TRUE,
+                                     weight = 0,
+                                     opacity = 0.6,
+                                     fillOpacity = 0.8,
+                                     options = pathOptions(interactive = FALSE, pane = overlay_name)
+        )
+        
+        
+        
+      } else {
+        
+        map = map %>% leafem::addFgb(file = file,
+                                     group = overlay_group,
+                                     # color = "#00AE42",
+                                     # color = "#000000",
+                                     color = overlay_subset$fill,
+                                     weight = 1,
+                                     opacity = 0.5,
+                                     fillColor = overlay_subset$fill,
+                                     fill = should_fill,
+                                     fillOpacity = 0.7,
+                                     radius = 3,
+                                     # pane = overlay_name,
+                                     # gl = TRUE,
+                                     # options = pathOptions(pane = overlay_name),
+                                     options = pathOptions(interactive = FALSE, pane = overlay_name)
+                                     # layerId = "overlay_layer",
+        )
+      }
       
     }
     

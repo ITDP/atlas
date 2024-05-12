@@ -165,20 +165,12 @@ output$download_overlay <- downloadHandler(
   },
   content = function(file) {
     
-    dir1 <- function(pattern, ...) {
-      
-      dir(pattern = pattern, ...)
-    }
-    
     bu <- indicator$mode
-    overlay_subset <- subset(overlay_table, indicator == bu)
-    file1 <- lapply(sprintf("%s_%s", overlay_subset$overlay, city$city_code), 
-                   dir1, 
-                   path = sprintf("../data/data_final/ghsl_%s/overlays/temp", city$city_code), full.names = TRUE) 
-    file1 <- do.call(c, file1)
+    file_ind <- sprintf("../data/data_final/ghsl_%s/overlays/%s_%s.zip", city$city_code, bu, city$city_code)
+    file_pop <- sprintf("../data/data_final/ghsl_%s/overlays/%s_%s.zip", city$city_code, "pop", city$city_code)
     
     # zip those files
-    zip::zip(zipfile = file, files = file1,
+    zip::zip(zipfile = file, files = c(file_ind, file_pop),
              mode = "cherry-pick")
     
     # print("deu certo")
