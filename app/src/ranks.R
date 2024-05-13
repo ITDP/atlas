@@ -178,16 +178,16 @@ observeEvent(c(city$city_code), {
   
 })
 
-observeEvent(c(city$city_code), {
-  
-  if (city$city_code != "") {
-    
-    rank$admin_level <- 1
-    
-  }
-  
-  
-})
+# observeEvent(c(city$city_code), {
+#   
+#   if (city$city_code != "") {
+#     
+#     rank$admin_level <- 1
+#     
+#   }
+#   
+#   
+# })
 
 
 # identify the name, unit and transformation for the indicators -----------
@@ -321,16 +321,23 @@ observeEvent(c(city$city_code), {
 # display rank when region or map is clicked
 observeEvent(c(input$map_shape_click, city$city_code,
                year$ok,
-               indicator$mode,
-               input$regions_grid), label = "rank", {
+               indicator$mode), label = "rank", {
                  
                  
                  # observeEventTrigger(req(input$changed))
                  # cat("My execution was triggered by input:", observeEventTrigger(), "\n")
                  
-                 req(data_ind3_spatial())
+                 # print("whyyyy")
+                 # print(data_ind3_spatial())
+                 
+                 req(!is.null(rank$admin_level))
+                 # req(data_ind3_spatial(), !is.null(rank$admin_level))
                  
                  
+                 print("aqui neh")
+                 print(input$map_shape_click)
+                 print(rank$admin_level)
+                 print(city$city_code)
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
                  
                  # we have a problem that the overlay is being clickable, regardless of what we set
@@ -871,7 +878,6 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
       city$city_code == previous_city,
       rank$admin_level >= 1)
   
-  # print("gooooo")
   
   rank_indicator <- subset(data_ind3(), osmid == city$city_code)[1,]
   # it will run only when we are at the city level

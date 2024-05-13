@@ -816,7 +816,7 @@ observeEvent(c(input$map_shape_click), {
 observeEvent(c(indicator$mode, input$year), {
   
   # it will run only when we are at the city level
-  req(!is.null(input$admin_level))
+  req(!is.null(rank$admin_level))
   # if (isTRUE(admin_level_previous$a >= 1)) {
   # if (isTRUE(input$admin_level >= 1)) {
   shinyjs::logjs("Map: update overlay only when indicator/year is changed")
@@ -1047,7 +1047,7 @@ data_ind3_spatial <- reactive({
   # req(city$city_code != "", indicator$mode,  input$regions_grid)
   # req(data_ind3(), input$admin_level, rank$admin_level)
   
-  
+  city$city_code != ""
   rank$admin_level
   indicator$mode
   # input$admin_level
@@ -1055,10 +1055,10 @@ data_ind3_spatial <- reactive({
   
   isolate({
     
-    # print("pera0")
+    print("pera0")
     # print(data_ind3())
-    print("pererere")
-    print(length(unique(data_ind3()$admin_level)))
+    # print("pererere")
+    # print(length(unique(data_ind3()$admin_level)))
     
     
     if (length(unique(data_ind3()$admin_level)) == 1) {
@@ -1070,8 +1070,8 @@ data_ind3_spatial <- reactive({
     } else {
       
       # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
-      print("AQUIIIII")
-      print(rank$admin_level)
+      # print("AQUIIIII")
+      # print(rank$admin_level)
       a <- subset(data_ind3(), admin_level_ordered ==  rank$admin_level)
     }
     
@@ -1085,25 +1085,34 @@ data_ind3_spatial <- reactive({
       
     } else a$value_legend <- a$value
     
-    print("pera1")
-    print(a)
+    # print("pera1")
+    # print(a)
     
     # create the color palette
     # the number of bins will depend on the number of units on the map
     total_units <- nrow(a)
-    bins_map <- ifelse(total_units == 1, 2, ifelse(total_units <= 4, total_units, 4))
-    pal <- colorBin(
-      palette = "YlGnBu",
-      bins = bins_map,
-      domain = a$value_legend,
-      pretty = TRUE)
     
-    # create a column with the colors
-    # it brakes if the value is zero
-    a$value_legend <- ifelse(a$value_legend == 0, 0.00001, a$value_legend)
-    print("a$value_legend")
-    print(a$value_legend)
-    a$fill <- pal(a$value_legend)
+    if (total_units >= 2) {
+      
+      bins_map <- ifelse(total_units == 1, 2, ifelse(total_units <= 4, total_units, 4))
+      print("bins_map")
+      print(bins_map)
+      pal <- colorBin(
+        palette = "YlGnBu",
+        bins = bins_map,
+        domain = a$value_legend,
+        pretty = TRUE)
+      
+      # create a column with the colors
+      # it brakes if the value is zero
+      a$value_legend <- ifelse(a$value_legend == 0, 0.00001, a$value_legend)
+      # print("a$value_legend")
+      # print(a$value_legend)
+      a$fill <- pal(a$value_legend)
+      
+      
+    }
+    
     
     # print(a)
     return(a)

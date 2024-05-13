@@ -948,8 +948,6 @@ function(input, output, session) {
     
     # delay(10, runjs('$("#bs-select-3-1").attr({"title":"Indicator not available for this city",  "data-toggle":"tooltip"})'))
     
-    print("god")
-    print(list_availability_cities1$available)
     
     # update list of cities accordindly
     updatePickerInput(

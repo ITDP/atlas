@@ -56,13 +56,13 @@ ind_city <- reactive({
 })
 
 
-ind_compare <- reactiveValues(ind_compare = NULL)
+ind_compare <- reactiveValues(ind_compare = NULL,
+                              ind_compare_initial = NULL)
 
 observeEvent(c(input$city_compare_level_analysis), {
   
   
   req(city$city_code != "", data_ind3_spatial(), input$city_compare_level_analysis != "", input$maximize_comparison >= 1)
-  # req(city$city_code, data_ind3_spatial(), input$comparison_button == 1)
   message("Compare #2")
   
   
@@ -79,13 +79,38 @@ observeEvent(c(input$city_compare_level_analysis), {
   ui <- sprintf("../data/data_final/comp/indicators_compare_%s_%s.rds",
                 level, pattern)
   
-  print("ui")
+  print("ind_compare")
   print(ui)
   a <- readRDS(ui)
   
   ind_compare$ind_compare <- a  
   
 })  
+
+observeEvent(c(input$city_compare1_initial), {
+  
+  req(city$city_code != "", data_ind3_spatial())
+  message("Compare #2 - initial")
+  
+  
+  level <- unique(data_ind3_spatial()$admin_level)
+  # pattern <- sprintf("%s_%s", "bike", "pnab")
+  pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
+  
+  
+  # open data
+  ui <- sprintf("../data/data_final/comp/indicators_compare_%s_%s.rds",
+                level, pattern)
+  
+  print("ind_compare")
+  print(ui)
+  a <- readRDS(ui)
+  
+  ind_compare$ind_compare_initial <- a  
+  
+  
+  
+})
 
 
 
@@ -408,10 +433,6 @@ observe({ ordered_colnames() }) # use an observe to update the reactive function
 observeEvent(c(input$city_compare1_initial), {
   
   # it will only run if the selection is diferente from the previous selection
-  
-  
-  # print("kakakak2")
-  
   if (city$city_code == "") {
     
     
@@ -484,8 +505,7 @@ observeEvent(c(input$city_compare1_initial), {
     
   } else {
     
-    
-    value_compare <- subset(ind_compare(), osmid == tail(ordered_colnames(), 1))
+    value_compare <- subset(ind_compare$ind_compare_initial, osmid == tail(ordered_colnames(), 1))
     
     format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
@@ -1001,8 +1021,9 @@ observeEvent(c(input$maximize_comparison), {
     # print(country_current)
     
     
-    showModal(modalDialog(
+    showModal(modalDialog1(
       title = div(style = "display: flex; justify-content: space-between;", "COMPARE", modalButton(icon("close"))),
+      id1 = "compare_max_modal",
       size = c("l"),
       easyClose = TRUE,
       footer = NULL,
@@ -1058,7 +1079,7 @@ observeEvent(c(input$maximize_comparison), {
             )),
         div(style="display:inline-block",
             actionButton("reset_graph", "Clear Selection")),
-        highchartOutput("comparison_max", height = "280px")
+        highchartOutput("comparison_max", height = "100%")
         
       )
     )
@@ -1076,13 +1097,13 @@ comparison <- reactiveValues(choices = NULL)
 # update the other values everytime a country is selected
 observeEvent(c(input$city_compare_country_initial), {
   
+  
+  print("putz pq?")
+  
   # get the admin level original
   al <- unique(data_ind3_spatial()$admin_level)
   
   
-  
-  # print("al")
-  # print(al)
   if (rank$admin_level > 1) {
     
     # first, select only the ones that are available for the indicator in question
