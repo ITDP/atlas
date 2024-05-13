@@ -10,7 +10,7 @@ sf::sf_use_s2(FALSE)
 
 # source folder -------------------------------------------------------------------------------
 
-folder <- "/Volumes/kaue/atlas/data-raw/data_final"
+folder <- "data-raw/data_final/"
 
 
 # # duplicate the pop data for 2022 as well -----------------------------------------------------
@@ -103,7 +103,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "00010"
   # ghsl <- "01397"
   # ghsl <- "01575"
-  # ghsl <- "00079" #pheonix
+  # ghsl <- "00017" #pheonix
   
   # base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
   
@@ -200,6 +200,10 @@ prep_data <- function(ghsl) {
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
                       replacement = "walk_pnnhighways_\\2",
+                      x = ind_columns,
+                      perl = TRUE)
+  ind_columns <- gsub(pattern = "(highway_km)_(\\d{4})",
+                      replacement = "walk_pnnhighwayskm_\\2",
                       x = ind_columns,
                       perl = TRUE)
   
@@ -324,7 +328,9 @@ prep_data <- function(ghsl) {
 # apply to all cities
 cities_available <- unique(data_all$hdc)
 library(purrr)
-walk(cities_available, prep_data)
+library(furrr)
+plan(multisession)
+furrr::future_walk(cities_available, prep_data)
 
 
 
@@ -360,7 +366,7 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_final/atlas_city_markers.
 # calculate mean for each country -----------------
 
 
-atlas_country <- st_read("/Volumes/kaue/atlas/data-raw/data_final/countries/country_results.geojson")
+atlas_country <- st_read(sprintf("%s/countries/country_results.geojson", folder))
 # atlas_country <- rmapshaper::ms_simplify(atlas_country, keep = 0.1)
 # atlas_country1 <- fread("data-raw/atlas_data_july_31/country_results/country_results.csv")
 
@@ -433,6 +439,10 @@ ind_columns <- gsub(pattern = "(^carfree)_(\\d{4})",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
                     replacement = "walk_pnnhighways_\\2",
+                    x = ind_columns,
+                    perl = TRUE)
+ind_columns <- gsub(pattern = "(highway_km)_(\\d{4})",
+                    replacement = "walk_pnnhighwayskm_\\2",
                     x = ind_columns,
                     perl = TRUE)
 

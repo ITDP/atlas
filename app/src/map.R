@@ -1047,7 +1047,6 @@ data_ind3_spatial <- reactive({
   # req(city$city_code != "", indicator$mode,  input$regions_grid)
   # req(data_ind3(), input$admin_level, rank$admin_level)
   
-  city$city_code != ""
   rank$admin_level
   indicator$mode
   # input$admin_level
@@ -1069,6 +1068,7 @@ data_ind3_spatial <- reactive({
       
     } else {
       
+    print("pera1")
       # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
       # print("AQUIIIII")
       # print(rank$admin_level)

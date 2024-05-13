@@ -81,7 +81,6 @@ font-family: 'Fira Sans', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 19px;
-line-height: 18px;
 letter-spacing: 0.05em;
 
 /* Gray/500 */
@@ -102,5 +101,19 @@ line-height: 25px;
 /* Body Text / Base Color */
 
 color: #DEE0E3;
+  
+}
+
+
+
+#modal_ranking_world {
+  
+    position: absolute;
+left: 50%;
+top: 50%;
+transform: translate(-50%, -50%) !important;
+width: 600px;
+    height: 500px;
+
   
 }

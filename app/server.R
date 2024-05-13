@@ -737,7 +737,7 @@ function(input, output, session) {
         # status = "danger",
         label = HTML("&nbsp;&nbsp;Download"),
         icon = icon("download"),
-        right = FALSE,
+        right = TRUE,
         up = FALSE,
         # icon = icon("download"), 
         width = "350px",
