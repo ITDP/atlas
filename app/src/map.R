@@ -559,15 +559,18 @@ observeEvent(c(city$city_code), {
     
     # if (file.exists(file)) {
     
-    if (i %in% c("pop", "grid_pop_evaluated")) {
+    if (i %in% c("pop", "grid_pop_evaluated", "block_densities_latlon")) {
       
       # data <- readRDS(file)
       # instead it would be
       data <- stars::read_stars(file)
       
+      print(overlay_group)
+      
       map <- map %>%
         leafem::addGeoRaster(x = data,
                              opacity = 0.6,
+                             # layerId = "teste2",
                              group = overlay_group,
                              options = list(clickable = FALSE, pane = overlay_name),
                              colorOptions = colorOptions(palette = viridis::viridis(n = 9)),
@@ -599,10 +602,9 @@ observeEvent(c(city$city_code), {
         
       } else {TRUE}
       
-      if (i == "block_densities_latlon") {
+      if (i == "") {
+      # if (i == "block_densities_latlon") {
         
-        print("hererererer")
-        print(file)
         
         map = map %>% leafem::addFgb(file = file,
                                      group = overlay_group,
@@ -884,7 +886,7 @@ observeEvent(c(indicator$mode, input$year), {
     
     # if (file.exists(file)) {
     
-    if (i %in% c("pop", "grid_pop_evaluated")) {
+    if (i %in% c("pop", "grid_pop_evaluated", "block_densities_latlon")) {
       
       data <- stars::read_stars(file)
       
@@ -924,7 +926,8 @@ observeEvent(c(indicator$mode, input$year), {
         
       } else {TRUE}
       
-      if (i == "block_densities_latlon") {
+      if (i == "") {
+      # if (i == "block_densities_latlon") {
         
         map = map %>% leafem::addFgb(file = file,
                                      group = overlay_group,
