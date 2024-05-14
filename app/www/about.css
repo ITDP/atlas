@@ -120,17 +120,9 @@ border: 1px solid #495057;
 }
 
 @media (max-width: 1300px) {
-  #share_button_id {
-    left: 420px !important;
-    top: 190px !important;
-    
-  }
-}
-
-@media (max-width: 1300px) {
   #download_button_id {
     left: 420px !important;
-    top: 240px !important;
+    top: 190px !important;
   }
 }
 

@@ -267,23 +267,12 @@ ui <- fluidPage(
       
       
     ),
-
-    absolutePanel(
-      class = "about_button",
-      id = "share_button_id",
-      top = 40, width = 130, height = 40, left = 820,
-      bookmarkButton(
-        label = HTML("&nbsp;&nbsp;Share"),
-        icon = icon("share"),
-        id = "bookmark"
-      )
-    ),
     
     # back to world button
     absolutePanel(class = "about_button", 
                   id = "download_button_id",
                   style = "background: #00AE42; ",
-                  top = 40, left = 960, height = 40, width = 130,
+                  top = 40, left = 820, height = 40, width = 130,
                   uiOutput('download_button')
     ),
     verbatimTextOutput("auth_output")
