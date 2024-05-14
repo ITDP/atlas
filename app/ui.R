@@ -229,12 +229,20 @@ ui <- fluidPage(
     ),
     
     
-    
+    # atlas logo
     absolutePanel(
       # class = "about_button",
       # id = "about_button_id",
-      top = 40, height = 40, left = 420,
+      top = 20, height = 40, left = 420,
       tags$img(src = "img/atlas-logos-04_short.png", width="100", id = "logo_map"),
+      style = "text-align: center; background: transparent",
+    ),
+    # itdp logo
+    absolutePanel(
+      # class = "about_button",
+      # id = "about_button_id",
+      top = 20, height = 40, right = 70,
+      tags$img(src = "img/itdp_logo_short.png", width="100", id = "logo_map"),
       style = "text-align: center; background: transparent",
     ),
     
@@ -243,7 +251,7 @@ ui <- fluidPage(
       class = "about_button",
       id = "about_button_id",
       style = "background: #00AE42",
-      top = 40, width = 130, height = 40, left = 540,
+      top = 20, width = 130, height = 40, left = 540,
       # style = "border: 0px; background: transparent",
       actionButton(inputId = "about",
                    label = "About"
@@ -258,7 +266,7 @@ ui <- fluidPage(
     absolutePanel(
       class = "about_button",
       id = "back_to_world_button_id",
-      top = 40, left = 680, width = 130, height = 40,
+      top = 20, left = 680, width = 130, height = 40,
       actionButton(inputId = "back_to_world",
                    icon = icon("rotate-left"),
                    label = HTML("&nbsp;&nbsp;Reset map")
@@ -272,7 +280,7 @@ ui <- fluidPage(
     absolutePanel(class = "about_button", 
                   id = "download_button_id",
                   style = "background: #00AE42; ",
-                  top = 40, left = 820, height = 40, width = 130,
+                  top = 20, left = 820, height = 40, width = 130,
                   uiOutput('download_button')
     ),
     verbatimTextOutput("auth_output")
