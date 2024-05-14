@@ -181,24 +181,39 @@ zip_pop <- function(ghsl) {
     dir(pattern = pattern, ...)
   }
   
+  # # zip pop separately
+  # file <- lapply(sprintf("%s_%s", "pop", ghsl), 
+  #                dir1, 
+  #                path = sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
+  # file <- do.call(c, file)
+  # 
+  # # zip those files
+  # zip::zip(zipfile = sprintf("data/data_final/ghsl_%s/overlays/%s_%s.zip", ghsl, "pop", ghsl), files = file,
+  #          mode = "cherry-pick")
+  
   # zip pop separately
-  file <- lapply(sprintf("%s_%s", "pop", ghsl), 
+  file <- lapply(sprintf("%s_%s", "block_densities_latlon", ghsl), 
                  dir1, 
-                 path = sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
+                 path = sprintf("data/data_final/ghsl_%s/overlays", ghsl), full.names = TRUE,
+                 recursive = TRUE) 
   file <- do.call(c, file)
   
   # zip those files
-  zip::zip(zipfile = sprintf("data/data_final/ghsl_%s/overlays/%s_%s.zip", ghsl, "pop", ghsl), files = file,
+  zip::zip(zipfile = sprintf("data/data_final/ghsl_%s/overlays/%s_%s.zip", ghsl, "blockdensity", ghsl), files = file,
            mode = "cherry-pick")
   
 }
 
 cities_available <- unique(indicators_all$hdc)
-purrr::walk(cities_available, zip_pop)
+library(furrr)
+plan(multisession)
+furrr::future_walk(cities_available, zip_pop)
 
 
 fim <- purrr::map(oi, possibly(zip_pop, otherwise = "buhh"), .progress = TRUE)
 
+
+# ghsl <- "00017"; over <- "blockdensity"
 
 process_overlay <- function(over, ghsl) {
   
