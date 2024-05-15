@@ -271,6 +271,11 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
   
   shinyjs::logjs("Map: update world map when indicator is changed")
   
+  
+  waiter_show(
+    html = tagList(spin_loaders(id = 3, color = "black")),
+    color = "rgba(233, 235, 240, .2)")
+  
   # print(world_view$a_available)
   # print(world_view$a_country)
   
@@ -281,6 +286,9 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     clearMarkers() %>%
     clearControls() %>%
     clearShapes() %>%
+    startSpinner(list("lines" = 10, "length" = 10,
+                      "width" = 5, "radius" = 5,
+                      color = "black")) %>%
     # flyTo(lng = 0, lat = 0, zoom = 3) %>%
     addMapPane("countries", zIndex = 410) %>% # shown below ames_circles
     addMapPane("markers_navailable", zIndex = 420) %>% # shown above ames_lines
@@ -334,10 +342,13 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
               title = world_view$legend_title,
               bins = 4,
               labFormat = world_view$legend_value,
-              layerId = "legend_country")
+              layerId = "legend_country") %>%
+    stopSpinner()
+  
   
   map
   
+  waiter_hide()
   
 }) 
 

@@ -35,6 +35,9 @@ observeEvent(c(input$back_to_world), {
     clearControls() %>%
     clearShapes() %>%
     setView(lng = 0, lat = 0, zoom = 3) %>%
+    startSpinner(list("lines" = 10, "length" = 10,
+                      "width" = 5, "radius" = 5,
+                      color = "black")) %>%
     addMapPane("countries", zIndex = 410) %>% # shown below ames_circles
     addMapPane("markers_navailable", zIndex = 420) %>% # shown above ames_lines
     addMapPane("markers_available", zIndex = 430) %>% # shown above ames_lines
@@ -88,7 +91,8 @@ observeEvent(c(input$back_to_world), {
     addLayersControl(baseGroups = c("Light", "Dark", "Satellite"),
                      # overlayGroups = c("Overlay"),
                      options = layersControlOptions(collapsed = FALSE),
-                     position = "bottomright")
+                     position = "bottomright") %>%
+    stopSpinner()
   
   
   

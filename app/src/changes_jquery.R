@@ -32,6 +32,7 @@ observeEvent(c(city$city_code), {
     
     disable("back_to_world")
     hide("download_city")
+    delay(50, shinyjs::runjs("$('#download_dropdown_maps').prop('disabled', true);"))
     # hide("download_overlay_panel")
     
   } else {

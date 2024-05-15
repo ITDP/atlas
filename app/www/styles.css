@@ -2,6 +2,10 @@
 /* @import url('http://fonts.cdnfonts.com/css/franklin-gothic-demi-2'); */
 /*@import url(https://allfont.net/allfont.css?fonts=franklin-gothic-book); */
 
+
+.shiny-output-error { visibility: hidden; }
+.shiny-output-error:before { visibility: hidden; }
+
 ul {
   padding-left: 15px;
 }
