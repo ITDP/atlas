@@ -333,7 +333,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  
                  
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
-                 
+                 ui <- if (rank$admin_level == 1) city$city_code else ui
                  # we have a problem that the overlay is being clickable, regardless of what we set
                  # so we need to make this overlay un-reactable from here
                  ui_ok <- grepl("^\\d{3,}", ui)
@@ -495,7 +495,7 @@ observeEvent(c(input$map_shape_click, city$city_code,
                        # for the region case
                      } else if (rank$admin_level == 1) {
                        
-                       # print("puhhh")
+                       print("puhhh")
                        
                        # open the ranks text
                        indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
@@ -888,7 +888,7 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
   if (isTRUE(rank$admin_level == 1)) {
     
     
-    # print("RUNNNNN")
+    print("RUNNNNN")
     
     format_indicator_value <- format_indicator_values(rank_indicator$value, transformation = indicator_info$transformation)
     
@@ -956,6 +956,9 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
     # rank$rank_value <- rank$rank_value_initial
     rank$value <- rank$rank_value_initial
     rank$rank_text <- rank$rank_text_initial
+    
+    rank_indicator <- subset(data_ind3(), admin_level == 0)
+    rank$indicator <- rank_indicator
     
     
     
