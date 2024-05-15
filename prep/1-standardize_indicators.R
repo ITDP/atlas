@@ -377,8 +377,8 @@ atlas_country <- atlas_country %>%
     countrycode::codelist %>% dplyr::select(country.name.en, iso3c),
     
     by = c("index" = "iso3c")) %>%
-  select(-name) %>%
-  rename(name = country.name.en) %>%
+  # select(-name) %>%
+  # rename(name = country.name.en) %>%
   select(a3 = index, name, everything())
 
 # rename indicators
@@ -595,7 +595,7 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
 # create list with osmid --------------------------------------------------
 
 count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ordered, admin_level_name) %>%
-  dplyr::select(-n) %>%
+  dplyr::select(-n) %>% View()
   readr::write_rds("data/data_final/list_osmid_name.rds")
 
 

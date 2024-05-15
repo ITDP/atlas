@@ -72,8 +72,6 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     country_values <- country_values[order(-country_values$value),]
     country_ranks <- country_ranks[order(-country_ranks$rank),]
     
-    print("country_ranks")
-    print(country_ranks)
     
     
     
@@ -334,10 +332,6 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  # req(data_ind3_spatial(), !is.null(rank$admin_level))
                  
                  
-                 print("aqui neh")
-                 print(input$map_shape_click)
-                 print(rank$admin_level)
-                 print(city$city_code)
                  ui <- if(is.null(input$map_shape_click) | rank$admin_level == 1) city$city_code else input$map_shape_click$id
                  
                  # we have a problem that the overlay is being clickable, regardless of what we set
@@ -617,8 +611,6 @@ observeEvent(c(input$map_shape_click, year$ok), {
   
   req(is.null(rank$admin_level))  
   
-  print("rank$country")
-  print(rank$country)
   
   delay(1000, runjs(sprintf("$('#accordion_world1 > div:nth-child(%s)').css({'color': '#00AE42', 'font-weight': '600', 'font-size': '16px'})", rank$country)))
   
@@ -721,8 +713,6 @@ observeEvent(c(input$rank_more_1_world), {
   
   # filter
   scroll_world <- subset(scroll_text, type_rank == "world" & year == que)
-  print("scroll_world")
-  print(scroll_world)
   
   
   output <- sprintf("<div class = \"text_compare\" style = \"padding-bottom: 0px; padding-top: 0px; font-size: 14px\"><span style=\"font-size: 17px;\">%s </span>&nbsp;%s <span  style=\"float:right; font-size: 12px; color: #B1B5B9 \">&nbsp;%s</span><span style=\"float:right; font-size: 17px;\">&nbsp;%s</span></div>", 

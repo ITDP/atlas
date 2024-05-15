@@ -276,7 +276,7 @@ function(input, output, session) {
     compare_rv$country <- NULL
     compare_rv$countries <- NULL
     compare_rv$hdc <- NULL
-    compare_rv$choices <- atlas_country()$name
+    compare_rv$choices <- sort(atlas_country()$name)
     
     
     # print("quero comer")
@@ -314,6 +314,7 @@ function(input, output, session) {
     choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
     # get countries
     countries <- unique(choices_comparison$country)
+
     
     if (rank$admin_level != 1) {
       
@@ -328,8 +329,6 @@ function(input, output, session) {
       # get hdc from that country
       hdc_comparison <- subset(list_osmid_name, country == country_current & admin_level == 0 & hdc %in% hdc_available)
       choices_comparison <- subset(choices_comparison, country == country_current)
-      # print("OOOOOHHHH")
-      # print(choices_comparison)
       
     }
     

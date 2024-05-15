@@ -30,11 +30,10 @@ observeEvent(c(input$map_shape_click, input$map_marker_click), {
 
 
 # get the values from other cities
-
 ind_city <- reactive({
   # print("foi")
   
-  req(city$city_code != "")
+  req(city$city_code != "", input$comparison_button >= 1)
   
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
@@ -43,8 +42,6 @@ ind_city <- reactive({
   a <- readRDS(sprintf("../data/data_final/ghsl_%s/indicators_compare/indicators_compare_%s_%s.rds",
                        city$city_code, city$city_code, pattern))
   
-  # print("foi")
-  # print(a)
   
   return(a)
   
@@ -762,13 +759,16 @@ output$comparison_max <- renderHighchart({
   } else {
     
     ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
+    ui <- if(rank$admin_level == 1) city$city_code else ui
     
-    # print(ui)
-    # print(ordered_colnames())
+    print("ui")
+    print(ui)
+    print(ordered_colnames())
     
     # print(ordered_colnames())
     value_city <- subset(ind_city(), osmid %in% c(ui, ordered_colnames()))
-    
+    print("value_city()")
+    print(value_city)
     
     # make sure we are filtering the right indicator
     # value_city <- subset(value_city, ind == indicator$mode)
@@ -906,8 +906,9 @@ observeEvent(c(input$maximize_comparison), {
     
     
     # 1) select only the ones that are available for the indicator in question
-    hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
-    countries_available <- unique(hdc_available1$country)
+    # hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
+    # countries_available <- unique(hdc_available1$country)
+    countries_available <- sort(atlas_country()$name)
     
     
     showModal(modalDialog1(
@@ -1097,8 +1098,6 @@ comparison <- reactiveValues(choices = NULL)
 # update the other values everytime a country is selected
 observeEvent(c(input$city_compare_country_initial), {
   
-  
-  print("putz pq?")
   
   # get the admin level original
   al <- unique(data_ind3_spatial()$admin_level)

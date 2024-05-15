@@ -276,9 +276,6 @@ observeEvent(c(indicator$mode, input$year, input$back_to_world), {
     html = tagList(spin_loaders(id = 3, color = "black")),
     color = "rgba(233, 235, 240, .2)")
   
-  # print(world_view$a_available)
-  # print(world_view$a_country)
-  
   # value only for the legend
   
   
@@ -367,13 +364,11 @@ overlay_layers <- reactiveValues(groups = NULL)
 # map_start <- reactive({
 observeEvent(c(city$city_code), {
   
-  # print("boiiii")
-  # print(rank$admin_level_name)
   
   req(city$city_code != "")
   
   
-  # shinyjs::logjs("Map: go to city view when coming from world view")
+  shinyjs::logjs("Map: go to city view when coming from world view")
   
   
   waiter_show(
@@ -383,7 +378,7 @@ observeEvent(c(city$city_code), {
   
   rank$admin_level_name <- unique(subset(data_ind(), admin_level_ordered == rank$admin_level)$admin_level_name)
   
-  # print("obs - switch cities initial")
+  print("obs - switch cities initial")
   
   # req(input$city)
   bbox <- st_bbox(data_ind())
@@ -391,9 +386,6 @@ observeEvent(c(city$city_code), {
   # subset for the metro region polygons
   # data_metro <- subset(data_ind3_spatial())
   data_metro <- subset(data_ind3(), admin_level_ordered == 1)
-  
-  # print("data_metro")
-  # print(data_metro)
   
   
   # if (isTRUE(input$admin_level == 1)) {
@@ -1068,7 +1060,6 @@ data_ind3_spatial <- reactive({
   
   isolate({
     
-    print("pera0")
     # print(data_ind3())
     # print("pererere")
     # print(length(unique(data_ind3()$admin_level)))
@@ -1082,7 +1073,6 @@ data_ind3_spatial <- reactive({
       
     } else {
       
-    print("pera1")
       # a <- subset(data_ind3(), admin_level_ordered ==  input$admin_level)
       # print("AQUIIIII")
       # print(rank$admin_level)
@@ -1109,8 +1099,6 @@ data_ind3_spatial <- reactive({
     if (total_units >= 2) {
       
       bins_map <- ifelse(total_units == 1, 2, ifelse(total_units <= 4, total_units, 4))
-      print("bins_map")
-      print(bins_map)
       pal <- colorBin(
         palette = "YlGnBu",
         bins = bins_map,
