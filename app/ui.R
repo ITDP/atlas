@@ -93,6 +93,12 @@ ui <- fluidPage(
       Shiny.onInputChange(variableName, null);
     });
   "),
+  tags$head(tags$script("
+ async src=\"https://www.googletagmanager.com/gtag/js?id=G-1M2FQRJW83\" 
+ window.dataLayer = window.dataLayer || []; 
+ function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-1M2FQRJW83');
+  ")),
+  # tags$head(tags$script("alert()")),
   # tags$head(
   # tags$script(
   #   "$(document).on('shiny:inputchanged', function(event) {
