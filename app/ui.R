@@ -1,53 +1,25 @@
-list_bike <- structure(c("pnpb" 
-                         # "pnab", 
-                         # "abikeways", 
-                         # "pbikeways"
-), 
-.Names = c("People Near Protected Bikelanes"
-           # "People Near All Bikelanes",
-           # "Bikeways", 
-           # "Protected Bikeways"
-))
+list_indicators <- readRDS("../data/data_final/list_indicators.rds")
 
-list_walk <- structure(c(
-  # "pnh", 
-  # "pne", 
-  "pns",
-  "pncf",
-  "pnnhighways"
-), 
-.Names = c(
-  # "People Near Healthcare", 
-  # "People Near Education", 
-  "People Near Services",
-  "People Near Car-Free Places",
-  "People Safe From Highways"
-))
+# use the list of indicators to set the names
+ind_city <- subset(list_indicators, indicator_type == "city")
+ind_bike <- subset(list_indicators, indicator_type == "bike")
+ind_walk <- subset(list_indicators, indicator_type == "walk")
+ind_transit <- subset(list_indicators, indicator_type == "transit")
 
-list_transit <- structure(c("pnft", "pnrt",
-                            "pnst"
-), 
-.Names = c(
-  "People Near Frequent Transit", 
-  "People Near Rapid Transport",
-  "People Near Bikeways + Public Transport"
-))
+list_bike <- structure(c(ind_bike$indicator_code), 
+                       .Names = c(ind_bike$indicator_name)
+)
 
-list_performance <- structure(c("bikep45", "walkp45"), 
-                              .Names = c("Bicycle", "Walk"))
+list_walk <- structure(c(ind_walk$indicator_code), 
+                       .Names = c(ind_walk$indicator_name)
+)
 
-list_city <- structure(c(
-  # "poptotal", 
-  "popdensity",
-  "blockdensity"
-  # "journeygap"
-), 
-.Names = c(
-  # "Block Density", 
-  "Population Density",
-  "Block Density"
-  # "Journey Gap"
-))
+list_transit <- structure(c(ind_transit$indicator_code), 
+                          .Names = c(ind_transit$indicator_name)
+)
+
+list_city <- structure(c(ind_city$indicator_code), 
+                       .Names = c(ind_city$indicator_name))
 
 js <- "
 var mytips = ['HELLO I AM TOOLTIP 1', 'HI I AM TOOLTIP 2'];

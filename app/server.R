@@ -7,43 +7,28 @@ overlay_table <- readRDS("../data/data_final/overlay_table.rds")
 list_availability_cities <- readRDS("../data/data_final/list_availability_cities.rds")
 brazil_cities <- readRDS("../data/data_final/brazil_cities.rds")
 
+print("oi")
 
+# use the list of indicators to set the names
+ind_city <- subset(list_indicators, indicator_type == "city")
+ind_bike <- subset(list_indicators, indicator_type == "bike")
+ind_walk <- subset(list_indicators, indicator_type == "walk")
+ind_transit <- subset(list_indicators, indicator_type == "transit")
 
-list_bike <- structure(c("pnpb" 
-), 
-.Names = c("People Near Protected Bikelanes"
-))
+list_bike <- structure(c(ind_bike$indicator_code), 
+.Names = c(ind_bike$indicator_name)
+)
 
-list_walk <- structure(c(
-  "pns",
-  "pncf",
-  "pnnhighways"
-), 
-.Names = c(
-  "People Near Services",
-  "People Near Car-Free Places",
-  "People Safe From Highways"
-))
+list_walk <- structure(c(ind_walk$indicator_code), 
+.Names = c(ind_walk$indicator_name)
+)
 
-list_transit <- structure(c("pnft", "pnrt",
-                            "pnst"
-), 
-.Names = c(
-  "People Near Frequent Transit", 
-  "People Near Rapid Transport",
-  "People Near Bikeways + Public Transport"
-))
+list_transit <- structure(c(ind_transit$indicator_code), 
+.Names = c(ind_transit$indicator_name)
+)
 
-list_city <- structure(c(
-  "popdensity",
-  "blockdensity"
-  # "journeygap"
-), 
-.Names = c(
-  "Population Density",
-  "Block Density"
-  # "Journey Gap"
-))
+list_city <- structure(c(ind_city$indicator_code), 
+.Names = c(ind_city$indicator_name))
 
 function(input, output, session) {
   
