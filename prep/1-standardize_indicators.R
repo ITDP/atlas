@@ -10,7 +10,9 @@ sf::sf_use_s2(FALSE)
 
 # source folder -------------------------------------------------------------------------------
 
-folder <- "data-raw/data_final/"
+# folder <- "data-raw/data_final/"
+# folder <- "data-raw/data_test_202412"
+folder <- "../pedestriansfirst"
 
 
 # # duplicate the pop data for 2022 as well -----------------------------------------------------
@@ -21,30 +23,119 @@ folder <- "data-raw/data_final/"
 # purrr::walk2(list_pop_2020, list_pop_2022, file.copy)
 
 
-
-# rename folder to 5 chars ------------------------------------------------
-list_folders <- dir(sprintf("%s/cities", folder), full.names = TRUE)
-# identify the code
-codes <- stringr::str_extract(list_folders, "\\d{1,}$")
-# make them 5 chars
-codes_full <- stringr::str_pad(codes, width = 5, side = "left", pad = 0)
-# substitute in the original string
-list_folders_updated <- stringr::str_replace(list_folders, pattern = "\\d{1,}$", replacement = codes_full)
-# rename
-purrr::map2(list_folders, list_folders_updated, file.rename)
-
-
 # go
 # base_dir <- sprintf("data-raw/data_sample_2022_08_19/city_results/ghsl_region_%s/", ghsl)
 # data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
-world <- dir(sprintf("%s/cities", folder), full.names = TRUE, recursive = TRUE)
+world <- dir(sprintf("%s/cities_out", folder), full.names = TRUE, recursive = TRUE)
 # world <- c(world, dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE))
 world <- world[grepl("ghsl_region_\\d{5}/indicator_values.gpkg$", world)]
+
+
+
+# 1) function to rename the columns to an standard --------------------------------------------
+
+rename_columns <- function(data) {
+  
+  data <- gsub(pattern = "(total_pop)_(\\d{4})",
+                      replacement = "city_popdensitytotal_\\2",
+                      x = data)
+  data <- gsub(pattern = "^(density)_(\\d{4})",
+                      replacement = "city_popdensity_\\2",
+                      x = data)
+  data <- gsub(pattern = "(block_density)_(\\d{4})",
+                      replacement = "city_blockdensity_\\2",
+                      x = data)
+  data <- gsub(pattern = "(journey_gap)_(\\d{4})",
+                      replacement = "city_journeygap_\\2",
+                      x = data,
+                      perl = TRUE)
+  
+  
+  data <- gsub(pattern = "(pnab)_(\\d{4})",
+                      replacement = "bike_pnpbpnab_\\2",
+                      x = data)
+  data <- gsub(pattern = "(pnpb)_(\\d{4})",
+                      replacement = "bike_pnpb_\\2",
+                      x = data)
+  data <- gsub(pattern = "(all_bikeways_km)_(\\d{4})",
+                      replacement = "bike_pnpbabikewayskm_\\2",
+                      x = data)
+  data <- gsub(pattern = "(protected_bikeways_km)_(\\d{4})",
+                      replacement = "bike_pnpbpbikewayskm_\\2",
+                      x = data)
+  data <- gsub(pattern = "(bikeshare)_(\\d{4})",
+                      replacement = "bike_bikeshare_\\2",
+                      x = data)
+  
+  
+  data <- gsub(pattern = "(^healthcare)_(\\d{4})",
+                      replacement = "walk_pnspnh_\\2",
+                      x = data)
+  data <- gsub(pattern = "(^n_points_healthcare)_(\\d{4})",
+                      replacement = "walk_pnshealthpoints_\\2",
+                      x = data)
+  data <- gsub(pattern = "(^schools)_(\\d{4})",
+                      replacement = "walk_pnspne_\\2",
+                      x = data)
+  data <- gsub(pattern = "(^n_points_schools)_(\\d{4})",
+                      replacement = "walk_pnsschoolspoints_\\2",
+                      x = data)
+  data <- gsub(pattern = "(^h.s)_(\\d{4})",
+                      replacement = "walk_pns_\\2",
+                      x = data)
+  data <- gsub(pattern = "(^carfree)_(\\d{4})",
+                      replacement = "walk_pncf_\\2",
+                      x = data)
+  data <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
+                      replacement = "walk_pnnhighways_\\2",
+                      x = data,
+                      perl = TRUE)
+  data <- gsub(pattern = "(highway_km)_(\\d{4})",
+                      replacement = "walk_pnnhighwayskm_\\2",
+                      x = data,
+                      perl = TRUE)
+  
+  
+  
+  data <- gsub(pattern = "(pnft)_(\\d{4})",
+                      replacement = "transit_pnft_\\2",
+                      x = data)
+  
+  data <- gsub(pattern = "(n_points_transit_pnft)_(\\d{4})",
+                      replacement = "transit_pnftpoints_\\2",
+                      x = data)
+  
+  
+  data <- gsub(pattern = "(PNrT)_(all)_(\\d{4})",
+                      replacement = "transit_\\L\\1_\\3",
+                      x = data,
+                      perl = TRUE)
+  data <- gsub(pattern = "(PNrT)_([[:lower:]]{3})_(\\d{4})",
+                      replacement = "transit_\\L\\1\\E\\2_\\3",
+                      x = data,
+                      perl = TRUE)
+  data <- gsub(pattern = "(km)_([[:lower:]]{3})_(\\d{4})",
+                      replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+                      x = data,
+                      perl = TRUE)
+  data <- gsub(pattern = "(rtr)_([[:lower:]]{3})_(\\d{4})",
+                      replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+                      x = data,
+                      perl = TRUE)
+  
+  
+  data <- gsub(pattern = "(pnst)_(\\d{4})",
+                      replacement = "transit_pnst_\\2",
+                      x = data)
+  
+}
+
+
+
+
 # fun to open all data
 open_data <- function(file) {
   
-  
-  # file <- world[50]
   
   a <- st_read(file)
   a <- st_cast(a, "MULTIPOLYGON")
@@ -57,16 +148,6 @@ open_data <- function(file) {
                     across(starts_with("km"), as.numeric),
                     across(starts_with("rtr"), as.numeric)
   )
-  
-  # # identfy origin
-  # origin1 <- stringr::str_extract(file, "sample_3")
-  # a <- a %>% mutate(origin = origin1)
-  # 
-  # if (isTRUE(origin1 == "sample_3")) {
-  #   
-  #   a <- select(a, name, hdc, osmid, admin_level, performance_bike_lts2_45, performance_walk_45)
-  #   
-  # }
   
   
   
@@ -89,23 +170,14 @@ data_all <- data_all %>%
   # select(-blockmean_density) %>%
   dplyr::select(-geospatial_calctime, -summary_calctime)
 
+# we had a problem to create the osmid, so we will create a fake one
+data_all <- data_all %>%
+  mutate(osmid = case_when(level_name == "Agglomeration" ~ NA, 
+                           .default = 1:n()))
 
 
-
-
+# ghsl <- "00507"
 prep_data <- function(ghsl) {
-  # ghsl <- "01406"
-  # ghsl <- "02051" # barcelona
-  # ghsl <- "01445" # rec
-  # ghsl <- "00021"
-  # ghsl <- "12080"
-  # ghsl <- "00154"
-  # ghsl <- "00010"
-  # ghsl <- "01397"
-  # ghsl <- "01575"
-  # ghsl <- "00017" #pheonix
-  
-  # base_dir <- sprintf("data-raw/sample_3/ghsl_region_%s/", ghsl)
   
   # filter only city
   data <- data_all %>% filter(hdc == ghsl) %>% st_sf(crs = 4326)
@@ -131,7 +203,7 @@ prep_data <- function(ghsl) {
   # por enquanto, apagar o que esta com o nome NA
   data <- data %>% filter(!is.na(name))
   
-  # it may be necessary to scale the admin_level - from 0 to max
+  # scale the admin_level - from 0 to max
   ordered_admin <- sort(as.numeric(unique(data$admin_level)))
   admin_level_oder <- data.frame(admin_level = as.character(ordered_admin), admin_level_ordered = seq(from = 1, to = length(ordered_admin)))
   data <- data %>% mutate(admin_level = as.character(admin_level))
@@ -147,7 +219,7 @@ prep_data <- function(ghsl) {
   ind_columns <- colnames(data)[colnames(data) %nin% c("hdc", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name",  "geom")]
   
   
-  # first, rename indicators that are divided by year
+  # rename indicators that are divided by year
   ind_columns <- gsub(pattern = "(total_pop)_(\\d{4})",
                       replacement = "city_popdensitytotal_\\2",
                       x = ind_columns)
@@ -157,10 +229,6 @@ prep_data <- function(ghsl) {
   ind_columns <- gsub(pattern = "(block_density)_(\\d{4})",
                       replacement = "city_blockdensity_\\2",
                       x = ind_columns)
-  # ind_columns <- gsub(pattern = "(journey_gap)_(\\d{4})",
-  #                     replacement = "city_journeygap_\\2",
-  #                     x = ind_columns,
-  #                     perl = TRUE)
   
   
   ind_columns <- gsub(pattern = "(pnab)_(\\d{4})",
@@ -300,15 +368,17 @@ prep_data <- function(ghsl) {
                   ) %>%
     mutate(across(starts_with("transit"), as.numeric))
   
+  # transform some columns to char
   data$admin_level <- as.character(data$admin_level)
   data$admin_level_ordered <- as.character(data$admin_level_ordered)
   
+  # transform some columns to numeric
   data <- data %>%
     mutate(across(starts_with("transit_pnft"), as.numeric)) %>%
     mutate(across(starts_with("city_journeygap"), as.numeric)) %>%
     arrange(as.numeric(admin_level))
   
-  # exception for recife
+  # exception for recife - not sure if this is necessary anymore
   if (ghsl == "01445") {
     
     data$country <- "Brazil"
@@ -317,9 +387,10 @@ prep_data <- function(ghsl) {
   }
   
   
+  # create directory to store the file
   dir.create(sprintf("data/data_final/ghsl_%s", ghsl), recursive = TRUE)
   
-  # save
+  # save the file
   readr::write_rds(data, sprintf("data/data_final/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
   
 }
@@ -332,6 +403,7 @@ library(furrr)
 plan(multisession)
 furrr::future_walk(cities_available, prep_data)
 
+# prep_data("05472") # jakarta
 
 
 
@@ -340,8 +412,7 @@ furrr::future_walk(cities_available, prep_data)
 
 
 
-
-# calculate boundaries for the world view ---------------------
+# calculate the boundaries for the world view ---------------------
 indicators_all <- purrr::map_dfr(dir("data/data_final", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
 
@@ -366,9 +437,11 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_final/atlas_city_markers.
 # calculate mean for each country -----------------
 
 
-atlas_country <- st_read(sprintf("%s/countries/country_results.geojson", folder))
-# atlas_country <- rmapshaper::ms_simplify(atlas_country, keep = 0.1)
-# atlas_country1 <- fread("data-raw/atlas_data_july_31/country_results/country_results.csv")
+atlas_country <- read.csv(sprintf("%s/countries_out/country_results.csv", folder)) %>%
+  rename(index = X)
+atlas_country_shape <- st_read(sprintf("%s/countries_out/country_results.geojson", folder)) %>%
+  select(index)
+atlas_country <- left_join(atlas_country, atlas_country_shape, by = "index") %>% st_sf(crs = 4326)
 
 # bring the names
 atlas_country <- atlas_country %>%
@@ -557,6 +630,7 @@ save_countries <- function(ind) {
   # save
   if (nrow(atlas_country_ind) > 0) {
     
+    
     readr::write_rds(atlas_country_ind, sprintf("data/data_final/countries/atlas_country_%s.rds",
                                                 ind))
     
@@ -573,6 +647,7 @@ years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
 years_compare <- years_compare[-length(years_compare)]
 ind_list <- unique(years_compare)
 # apply
+dir.create("data/data_final/countries")
 purrr::walk(ind_list, save_countries)
 
 
@@ -595,7 +670,7 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
 # create list with osmid --------------------------------------------------
 
 count(indicators_all_df, hdc, country, osmid, name, admin_level, admin_level_ordered, admin_level_name) %>%
-  dplyr::select(-n) %>% View()
+  dplyr::select(-n) %>% 
   readr::write_rds("data/data_final/list_osmid_name.rds")
 
 

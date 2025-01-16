@@ -8,6 +8,8 @@ library(googlesheets4)
 # indicators
 indicators_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/13LZoiy0RcQ_ivc8SOoiU9ctHq5GQY48dpNbCpU9GzKk/edit#gid=0",
                                sheet = "Indicators")
+# indicators to select
+ind_to_select <- paste0(indicators_sheet$indicator_type, "_", indicators_sheet$indicator_code, "_")
 
 # open overall data
 world <- dir("data/data_final", recursive = TRUE, full.names = TRUE, pattern = "indicators_\\d{5}.rds")
@@ -16,17 +18,16 @@ data_world <- data_world %>% mutate(admin_level = as.numeric(admin_level)) %>%
   mutate(across(9:last_col(), as.numeric)) %>%
   # filter only the essential indicators
   dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, admin_level_name,
-                # starts_with("city_poptotal"),
-                starts_with("city_popdensity_"),
-                starts_with("city_blockdensity_"),
-                # starts_with("city_journeygap_"),
-                starts_with("bike_pnpb_"),
-                starts_with("walk_pns_"),
-                starts_with("walk_pncf_"),
-                starts_with("walk_pnnhighways_"),
-                starts_with("transit_pnft_"),
-                starts_with("transit_pnrt_"),
-                starts_with("transit_pnst_")
+                # starts_with("city_popdensity_"),
+                # starts_with("city_blockdensity_"),
+                # starts_with("bike_pnpb_"),
+                # starts_with("walk_pns_"),
+                # starts_with("walk_pncf_"),
+                # starts_with("walk_pnnhighways_"),
+                # starts_with("transit_pnft_"),
+                # starts_with("transit_pnrt_"),
+                # starts_with("transit_pnst_")
+                starts_with(ind_to_select)
                 
                 )
   
@@ -83,6 +84,7 @@ years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
                       x = colnames_compare)
 ind_list <- unique(years_compare)
 # apply
+dir.create('data/data_final/countries/ranks')
 purrr::walk(ind_list, ranks_countries)
 
 
@@ -118,8 +120,8 @@ prep_data <- function(ghsl) {
   # ghsl <- "00021"
   # ghsl <- "01105"
   # ghsl <- "01361"
-  # ghsl <- "13023"
-  # ghsl <- cities_available[994]
+  # ghsl <- "08154"
+  # ghsl <- cities_available[16]
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
@@ -163,6 +165,7 @@ prep_data <- function(ghsl) {
   rank_complete <- rbind(rank_hdc_world, rank_hdc_country, rank_hdc_metro)
   
   # level <- "Agglomeration"
+  # level <- 4
   # level <- 10
   # level <- 6
   # level <- 8
@@ -323,5 +326,6 @@ a <- purrr::map(cities_available[901:length(cities_available)],
 
 # prep_data("01406")
 # prep_data("01361")
+# prep_data("05472") # jakarta
 
 

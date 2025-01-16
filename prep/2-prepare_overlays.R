@@ -8,7 +8,7 @@ library(purrr)
 library(stars)
 sf::sf_use_s2(FALSE)
 
-
+folder <- "../pedestriansfirst"
 
 # start by getting the overlays table ---------------------------------------------------------
 
@@ -30,21 +30,21 @@ prep_overlays1 <- function(ghsl) {
   # ghsl <- "01406"
   # ghsl <- "01165"
   # ghsl <- "00017"
-  # ghsl <- "00001"
+  # ghsl <- "08154"
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   
   start <- Sys.time()
   
-  base_dir <- sprintf("/Volumes/kaue/atlas/data-raw/data_final/cities/ghsl_region_%s/", ghsl)
+  base_dir <- sprintf("%s/cities_out/ghsl_region_%s/", folder, ghsl)
   dir.create(sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), recursive = TRUE)
   # overlay files ------------------------------------
   overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = "(.geojson|.tif)$", recursive = TRUE)
   overlay_files <- overlay_files[overlay_files %like% paste(overlay_table$overlay, collapse  = "|")]
   
   
-  # file <- overlay_files[overlay_files %like% "population"]
+  # file <- overlay_files[overlay_files %like% "/block_"]
   
   save_overlay <- function(file) {
     # file <- overlay_files[[118]]
@@ -116,9 +116,12 @@ prep_overlays1 <- function(ghsl) {
       
     } else if(file %like% "block_densities_latlon") {
       
-      
-      
-      
+      dir.create(sprintf("data/data_final/ghsl_%s/overlays/%s", ghsl, ind), recursive = TRUE)
+      a <- st_read(file)
+      a <- a %>% dplyr::filter(density > 0)
+      a <- stars::st_rasterize(a %>% select(density))
+      # mapview(a)
+      stars::write_stars(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.tif", ghsl, ind, ind, ghsl, year1))
       
       } else {
       
@@ -134,7 +137,8 @@ prep_overlays1 <- function(ghsl) {
   
   
   message("done for ", ghsl)
-  walk(overlay_files[overlay_files %like% "rapid_transit"], save_overlay)
+  # walk(overlay_files[overlay_files %like% "rapid_transit|pop_|block_densities_latlon"], save_overlay)
+  walk(overlay_files[overlay_files %like% "/block_densities_latlon"], save_overlay)
   message("time", round(Sys.time() - start), 2)
 }
 

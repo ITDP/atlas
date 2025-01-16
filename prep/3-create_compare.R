@@ -5,28 +5,34 @@ library(leaflet)
 library(data.table)
 library(Hmisc)
 library(purrr)
+library(googlesheets4)
 sf::sf_use_s2(FALSE)
+
+indicators_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/13LZoiy0RcQ_ivc8SOoiU9ctHq5GQY48dpNbCpU9GzKk/edit#gid=0",
+                               sheet = "Indicators")
 
 # save indicators by each city by each admin level - for comparison --------
 
 indicators_all <- purrr::map_dfr(dir("data/data_final", pattern = "^indicators_\\d{5}", full.names = TRUE, recursive = TRUE),
                                  readr::read_rds)
+# indicators to select
+ind_to_select <- paste0(indicators_sheet$indicator_type, "_", indicators_sheet$indicator_code, "_")
 
 # remove polygon
 indicators_all_df <- indicators_all %>% st_set_geometry(NULL) %>%
   # filter only the essential indicators
   dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered,
-                # starts_with("city_poptotal"),
-                starts_with("city_popdensity_"),
-                starts_with("city_blockdensity_"),
-                starts_with("city_journeygap_"),
-                starts_with("bike_pnpb_"),
-                starts_with("walk_pns_"),
-                starts_with("walk_pncf_"),
-                starts_with("walk_pnnhighways_"),
-                starts_with("transit_pnft_"),
-                starts_with("transit_pnrt_"),
-                starts_with("transit_pnst")
+                # starts_with("city_popdensity_"),
+                # starts_with("city_blockdensity_"),
+                # starts_with("city_journeygap_"),
+                # starts_with("bike_pnpb_"),
+                # starts_with("walk_pns_"),
+                # starts_with("walk_pncf_"),
+                # starts_with("walk_pnnhighways_"),
+                # starts_with("transit_pnft_"),
+                # starts_with("transit_pnrt_"),
+                # starts_with("transit_pnst")
+                matches(ind_to_select)
                 )
 
 # ghsl <- "0634"
@@ -84,6 +90,8 @@ export_by_osmid <- function(ghsl) {
 cities_available <- unique(indicators_all$hdc)
 purrr::walk(cities_available, export_by_osmid)
 
+# export_by_osmid("01156") # trujillo
+# export_by_osmid("05472") # jakarta
 
 # export only for comparison
 # ghsl <- "1406"
@@ -144,53 +152,10 @@ export_comparison1 <- function(level) {
 
 
 # filter level
+dir.create('data/data_final/comp')
 purrr::walk(unique(indicators_all_df$admin_level), export_comparison1)
 
 
 
 
 
-
-
-# # do the same thing for the countries! ------------------------------------
-# 
-# 
-# # save indicators by each city by each admin level - for comparison --------
-# 
-# # open data
-# indicators_all <- readRDS("data/data_final/atlas_country_polygons.rds")
-# 
-# # remove countties without data
-# # indicators_all <- indicators_all %>% dplyr::filter(!is.na(bike_pnpb_2022))
-# 
-# # remove polygon
-# indicators_all_df <- indicators_all %>% st_set_geometry(NULL)
-# 
-# # country_code <- "BRA"
-# # ind <- "city_poptotal"
-# 
-# save_ind <- function(ind) {
-#   
-#   indicators_ind <- indicators_all_df %>% 
-#     select(a3, name, 
-#            starts_with(ind))
-# 
-#   
-#   # save
-#   readr::write_rds(indicators_ind, sprintf("data/data_final/indicators_compare_country/indicators_compare_country_%s.rds",
-#                                            ind))
-#   
-#   
-# }
-# # to long format
-# colnames_compare <- colnames(indicators)[3:ncol(indicators)]
-# # extract year
-# years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
-#                       replacement = "\\1",
-#                       x = colnames_compare)
-# ind_list <- unique(years_compare)
-# # apply
-# purrr::walk(ind_list, save_ind)
-# 
-# 
-# 

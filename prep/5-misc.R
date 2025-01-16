@@ -4,6 +4,7 @@ library(googlesheets4)
 library(readr)
 library(data.table)
 library(dplyr)
+library(sf)
 
 
 list_indicators <- read_sheet(

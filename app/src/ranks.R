@@ -59,6 +59,10 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     # define the cols to subset 
     cols <- c('a3', 'name', colnames(atlas_country())[startsWith(colnames(atlas_country()), pattern)])
+    print("cooools")
+    print(cols)
+    print(country_values)
+    print(class(country_values))
     
     # subset
     country_values <- country_values[cols]

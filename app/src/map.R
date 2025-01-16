@@ -545,6 +545,10 @@ observeEvent(c(city$city_code), {
   fix <- indicator$mode
   overlays_to_open <- subset(overlay_table, indicator == fix)
   
+  print("obaaa")
+  # print(fix)
+  # print(overlays_to_open)
+  
   for(i in overlays_to_open$overlay){
     
     # data1 <- subset(data_overlays()[["lines"]], ind == i)
