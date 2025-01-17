@@ -12,6 +12,7 @@ library(leaflet.extras2)
 library(shinyBS)
 library(shinycssloaders)
 library(shinymanager)
+# install.packages('mapboxapi')
 
 
 source("fun/accordion_input.R")

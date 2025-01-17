@@ -1,6 +1,6 @@
 library(sf)
 library(dplyr)
-library(mapview)
+# library(mapview)
 library(leaflet)
 library(data.table)
 library(Hmisc)
@@ -598,7 +598,7 @@ atlas_country <- atlas_country %>%
                 starts_with("transit_pnst")
                 )
 
-atlas_country <- atlas_country %>% mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
+atlas_country <- atlas_country %>% mutate(across(city_popdensity_1975:transit_pnst_2023, as.numeric))
 
 # select only the indicators that we have in the indicators
 atlas_country <- atlas_country %>%
@@ -606,8 +606,8 @@ atlas_country <- atlas_country %>%
                 any_of(colnames(indicators_all))   
   ) %>%
   # round indicators
-  mutate(across(c(bike_pnpbabikewayskm_2024, bike_pnpbpbikewayskm_2024, walk_pnshealthpoints_2024, walk_pnsschoolspoints_2024,
-                  transit_pnftpoints_2024), round))
+  mutate(across(c(bike_pnpbabikewayskm_2023, bike_pnpbpbikewayskm_2023, walk_pnshealthpoints_2023, walk_pnsschoolspoints_2023,
+                  transit_pnftpoints_2023), round))
 
 # save by indicator
 save_countries <- function(ind) {
@@ -688,7 +688,7 @@ colnames_compare <- colnames(indicators_all_df)[9:ncol(indicators_all_df)]
 #                                  years_compare)
 
 indicators_all_df <- indicators_all_df %>%
-  mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
+  mutate(across(city_popdensity_1975:transit_pnst_2023, as.numeric))
 
 indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
                                               cols = 9:last_col(),
@@ -717,7 +717,7 @@ readr::write_rds(a1, "data/data_final/list_availability.rds")
 # not available
 indicators_all_df_long1 <- indicators_all_df_long %>%
   filter(admin_level == 0) %>%
-  filter(year == 2024) %>%
+  filter(year == 2023) %>%
   # filter(ind  %in% c("journeygap", "pnft", "pnrtall")) %>%
   mutate(available = ifelse(is.na(value), FALSE, TRUE)) %>%
   select(country, name, hdc, ind, available) %>%

@@ -76,7 +76,7 @@ prep_overlays1 <- function(ghsl) {
         
         # duplicate 2025 to 2024
         file.copy(from = out_name2,
-                  to = sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.tif", ghsl, ind, ind, ghsl, '2024'))
+                  to = sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.tif", ghsl, ind, ind, ghsl, '2023'))
         
       }
       
@@ -104,7 +104,7 @@ prep_overlays1 <- function(ghsl) {
       file.remove(sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
       file.remove(sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1))
       
-      st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
+      try(st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)))
       st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1),
                append = FALSE)
       
@@ -137,8 +137,8 @@ prep_overlays1 <- function(ghsl) {
   
   
   message("done for ", ghsl)
-  # walk(overlay_files[overlay_files %like% "rapid_transit|pop_|block_densities_latlon"], save_overlay)
-  walk(overlay_files[overlay_files %like% "/block_densities_latlon"], save_overlay)
+  walk(overlay_files[overlay_files %like% "rapid_transit|pop_|block_densities_latlon"], save_overlay)
+  # walk(overlay_files[overlay_files %like% "/block_densities_latlon"], save_overlay)
   message("time", round(Sys.time() - start), 2)
 }
 
