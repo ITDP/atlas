@@ -107,6 +107,7 @@ border: 1px solid #495057;
   #about_button_id {
     left: 420px !important;
     top: 70px !important;
+    width: 110px !important;
     
   }
 }
@@ -115,6 +116,7 @@ border: 1px solid #495057;
   #back_to_world_button_id {
     left: 420px !important;
     top: 120px !important;
+    width: 110px !important;
     
   }
 }
@@ -123,6 +125,7 @@ border: 1px solid #495057;
   #download_button_id {
     left: 420px !important;
     top: 170px !important;
+    width: 110px !important;
   }
 }
 
