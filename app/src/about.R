@@ -66,6 +66,16 @@ observeEvent(c(about$input), {
                            
                          )
                 ),
+                tabPanel("METHODOLOGY",  value = "about_data",                                
+                         absolutePanel(
+                           class = "about_modal",
+                           includeHTML("www/about/about_methodology.html"),
+                           height = 300
+                           # top = 80, right = 0, width = 280,
+                           # htmlOutput("text_indicator2")
+                           
+                         )
+                ),
                 tabPanel("ANALYSIS AREAS",  value = "about_data",                                
                          absolutePanel(
                            class = "about_modal",

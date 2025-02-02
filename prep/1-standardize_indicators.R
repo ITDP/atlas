@@ -177,6 +177,7 @@ data_all <- data_all %>%
 
 
 # ghsl <- "08154"
+# ghsl <- "01521"
 prep_data <- function(ghsl) {
   
   # filter only city
@@ -335,6 +336,13 @@ prep_data <- function(ghsl) {
     
     
   )
+  
+  # adjustments
+  data <- data %>% 
+    mutate(name = ifelse(name == "The Jerusalem area", "The West Jerusalem area", name)) %>%
+    mutate(name = ifelse(name == "The Maale Adumim / Ramallah / Bethlehem area", "The East Jerusalem / Ramallah / Bethlehem area", name)) %>%
+    mutate(a3 = ifelse(a3 == "PAL", "PSE", a3))
+  
   
   # # bring country name
   data <- data %>%

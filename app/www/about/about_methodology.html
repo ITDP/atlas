@@ -1,0 +1,488 @@
+<p>
+Acronyms: 
+</p>
+<p>
+GHSL: Global Human Settlement Layer 
+</p>
+<p>
+ITDP: Institute for Transportation and Development Policy 
+</p>
+<p>
+OSM: OpenStreetMap 
+</p>
+<p>
+osmnx: OpenStreetMap-NetworkX python library  
+</p>
+
+
+<h3>General Topic 1: Selection of Analysis Areas: </h3>
+
+
+<p>
+The Atlas of Sustainable City Transport includes two kinds of geospatial analysis areas: urban agglomerations and administrative areas. Urban agglomerations are the "top-level" analysis areas. There are roughly 1,000 of them included in the Atlas, and all administrative areas are associated with an agglomeration that is either overlapping or nearby. For a user to view data for a specific analysis area, they must first navigate to the urban agglomeration that is associated with it. For example, to view measurements of indicators in Brooklyn, New York, United States, the user must first select the "New York / Newark / Jersey City” urban agglomeration. Then, they may use the “At The Level Of” drop-down menu to select the “District”, after which they will be able to click on the polygon representing Brooklyn in the map. 
+</p>
+<p>
+  
+</p>
+<h4>General Topic 1a: Urban Agglomeration Data  </h4>
+
+
+<p>
+The urban agglomerations included in the Atlas are taken from the Global Human Settlement Layer's <em>GHS Urban Centre Database - Stats in the City (R2024A)</em>. We include all urban agglomerations with a population above 500,000 people.  
+</p>
+<p>
+  
+</p>
+<h4>General Topic 1b: Administrative Area Data </h4>
+
+
+<p>
+The administrative areas included in the Atlas are taken from OpenStreetMap (OSM). For a given agglomeration, we include all OSM features with the tag admin_level=n, where n is an integer 4 &lt;= n &lt;= 11, such that: 
+</p>
+<ul>
+
+<li>A feature is only included if at least 50% of the feature lies within 4km of the agglomeration, OR if it lies at least 95% within a larger administrative area that is included 
+
+<li>A given admin_level is only included if the mean size of the features at that level is at least 2km 
+
+<li>A given admin_level is only included if the union of the features at that level covers at least 0.00002% of the area within 4km of the agglomeration 
+
+<li>We discard major lakes, bays, etc., when calculating these areas 
+</li>
+</ul>
+<p>
+In displaying these administrative areas in the Atlas web interface, we have assigned them a country-dependent name to each admin_level based on the list available on the<a href="https://wiki.openstreetmap.org/wiki/Tag:boundary%3Dadministrative#admin_level=*_Country_specific_values"> OSM wiki</a> ('municipality', 'district', 'ward', etc.). We have made some country-dependent modifications to this list based on close examination. If you believe we can improve these names, please contact us at data@itdp.org. 
+</p>
+<p>
+For example, within the New York agglomeration, OpenStreetMap represents Brooklyn two different coterminous polygons, one labeled with admin_level = 6 and the other with admin_level = 7. This represents Brooklyn’s dual status as both a county of New York State and a borough of New York City. Therefore, in the Atlas, Brooklyn is displayed at two different “At The Level Of” selections. The first, as expected, has the label “County”. The second, instead of being labeled “Borough”, is labeled “District”. This is because New York City is one of only a few cities in the United States that calls its districts “Boroughs”, but we must use the same naming scheme for all cities within a given country. We have chosen the more general term in order to make it applicable in more of the country’s cities. 
+</p>
+<h1>Indicators: </h1>
+
+
+<p>
+  
+</p>
+<h3>Indicator 1: Weighted Population Density </h3>
+
+
+<p>
+Weighted Population Density measures the density experienced by the average resident of an analysis area. We calculate weighted population density for each year from 1975 through 2020 in five-year increments, as well as for the current year. We use the GHSL gridded population dataset in the Mollweide projection at 1km resolution. Note that we tested the 100m resolution, but found that it was overly 'spiky', especially in the United States. In many places, we found that the 100m resolution showed certain cells as having an extremely high population while surrounded by cells with much lower population, even though they were found in exactly the same urban environment. On close examination, the data did not seem to accurately reflect the distribution of population. We concluded that the 100m data is not reliable for our purposes and that the 1km resolution offers a smoother curve of density values and therefore a more well-balanced calculation of weighted density. 
+</p>
+<p>
+For an analysis area containing n grid cells, the calculation of weighted population density is described by this equation: 
+</p>
+<p>
+Weighted density (area) = ( sum i -> n of population (i) ^ 2 ) / ( sum i -> n of population(i) )  
+</p>
+<p>
+  
+</p>
+<h3>Indicator 2: Block Density </h3>
+
+
+<p>
+Block Density measures the average number of walkable city blocks per square kilometer within an analysis area. To calculate Block Density, we follow four steps:  
+</p>
+<h4>Indicator 2.1. Identify walkable streets </h4>
+
+
+<p>
+We use the network of walkable streets as described in Appendix A1 
+</p>
+<h4>Indicator 2.2. Calculate blocks </h4>
+
+
+<p>
+We use the Shapely <em>polygonize</em> function to compute walkable blocks as the polygons bounded by walkable streets. 
+</p>
+<h4>Indicator 2.3. Select 'true' blocks </h4>
+
+
+<p>
+The results of calculation 2.2 include a number of features that are not meaningful city blocks. This may include traffic circles, highway medians, or areas bound by park paths. To exclude these, we: 
+</p>
+<ul>
+
+<li>Exclude all blocks with an area less than 1,000 m<sup>2</sup> or greater than 1,000,000 m<sup>2</sup> 
+
+<li>Calculate a measure of 'oblongness' for each block, equal to the square of the perimeter divided by the area 
+
+<li>Exclude all blocks with an oblongness greater than 30 and an area less than 3,000 m<sup>2</sup> 
+
+<li>Exclude all blocks with an oblongness greater than 50 of any size 
+</li>
+</ul>
+<h4>Indicator 2.4. Summarize blocks </h4>
+
+
+<p>
+After calculating the set of 'true' blocks that overlap an analysis area, we compute the average size of all blocks with their centroids inside the analysis area. The block density is then equal to 1000 m<sup>2</sup> / (average block size). 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 3: People Near Protected Bikeways </h3>
+
+
+<p>
+People Near Protected Bikeways measures the percentage of an area’s population living within a 300m walking distance of physicallyprotected bicycle infrastructure. The display of this indicator in the Atlas also includes a secondary indicator, People Near All Bikeways, described in <em>Indicator 3b </em>below.  
+</p>
+<h4>Indicator 3.1. Identify protected bikeways </h4>
+
+
+<p>
+We use OSM as our source of data on protected bikeways, and we include all OSM ways inside the analysis area with the following tags: 
+</p>
+<ul>
+
+<li>‘highway’ = ‘cycleway’ 
+
+<li>‘highway’ = ‘path’ AND ‘bicycle’ = ‘designated’ 
+
+<li>‘cycleway’, ‘cycleway:right’, ‘cycleway:left’, OR ‘cycleway:both’ = ‘track’ OR ‘opposite_track’ 
+</li>
+</ul>
+<h4>Indicator 3.2. Convert ways to points of interest, draw isochrones </h4>
+
+
+<p>
+After identifying all ways that represent protected bicycle facilities, we identify points of interest at each intersection between those ways and other lines in the street/path network. We then measure People Near Protected Bikeways by following the procedure in Appendix A, with a 250m network buffer and 100m absolute buffer. 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 3a: People Near All Bikeways </h3>
+
+
+<p>
+People Near All Bikeways measures the percentage of an area’s population living within a 300m walking distance of any form of dedicated bicycle infrastructure. This is not one of the primary Atlas indicators but is included in the display of People Near Protected Bikeways (<em>Indicator 3</em>). 
+</p>
+<h4>Indicator 3b.1. Identify all bikeways </h4>
+
+
+<p>
+We use OSM as our source of data on bikeways. In addition to all facilities identified in <em>Indicator 3.1.</em>, we include all OSM ways inside the analysis area with the following tags: 
+</p>
+<ul>
+
+<li>‘cycleway’, ‘cycleway:right’, ‘cycleway:left’, OR ‘cycleway:both’ = 'lane’ 
+</li>
+</ul>
+<h4>Indicator 3b.2. Convert ways to points of interest, draw isochrones </h4>
+
+
+<p>
+After identifying all ways that represent protected and unprotected bicycle facilities, we identify points of interest at each intersection between those ways and other lines in the street/path network. We then measure People Near All Bikeways by following the procedure in Appendix A, with a 250m network buffer and 100m absolute buffer. 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 4: People Near Services </h3>
+
+
+<p>
+People Near Services measures the percentage of an analysis area's population living within a 1km walking distance of both some form of healthcare and some form of education service. To calculate People Near Services we follow three steps: 
+</p>
+<h4>Indicator 4.1. Identify service locations </h4>
+
+
+<p>
+We use OSM to identify the locations of healthcare and education services. We use the following selection criteria: 
+</p>
+<p>
+Education includes: 
+</p>
+<ul>
+
+<li>Nodes or areas (closed ways) with the following tags: 
+
+<li>‘amenity’ is one of 'school', 'kindergarten' 
+
+<li>OR 
+
+<li>‘school’ has any value 
+</li>
+</ul>
+<p>
+Healthcare includes: 
+</p>
+<ul>
+
+<li>Nodes or areas (closed ways) with the following tags: 
+
+<li>‘amenity’ is one of 'hospital', 'doctors', 'clinic', 'pharmacy' 
+
+<li>OR 
+
+<li>‘healthcare’ is one of 'alternative', 'birthing_center', 'centre', 'midwife', 'nurse', 'hospital', 'doctor', 'clinic', 'pharmacy', 'yes' 
+</li>
+</ul>
+<p>
+For areas, we identify centroids as the points of interest. 
+</p>
+<h4>Indicator 4.2. Generate isochrones </h4>
+
+
+<p>
+For both healthcare and education, we generate merged isochrones around the sets of all locations following the procedure described in Appendix A. We use a network buffer of 1km followed by an absolute buffer of 100m. 
+</p>
+<h4>Indicator 4.3. Find intersections </h4>
+
+
+<p>
+In other ‘People Near’ indicators, we are only concerned with a single category of points of interest, but for People Near Services, we must identify locations where people live within a short walk of both healthcare and education. As such, we take the intersection of the isochrone polygons for those two services, and then we identify the percentage of the analysis area’s population within that union by following the procedure described in Appendix A6. 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 5: People Near Car-Free Places </h3>
+
+
+<p>
+People Near Car-Free Places measures the percentage of an analysis area’s population living immediately near (within 100m of) some form of car-free space. 
+</p>
+<h4>Indicator 5.1. Identify car-free places </h4>
+
+
+<p>
+Using OSM data, we identify car-free places as including any of the following: 
+</p>
+<p>
+Areas which:  
+</p>
+<ul>
+
+<li>Have a ‘leisure’ tag of ‘park’, ‘playground’, or ‘sports_pitch’ 
+
+<li>OR 
+
+<li>Have a ‘landuse’ tag of ‘forest’ or ‘recreation_ground’ 
+
+<li>AND 
+
+<li>Do not have an ‘access’ tag of ‘private’ 
+</li>
+</ul>
+<p>
+Ways which: 
+</p>
+<ul>
+
+<li>Have a ‘highway’ tag of ‘pedestrian’, ‘path’, ‘footway’, or ‘cycleway’ 
+
+<li>AND   
+
+<li>Do not have an ‘access’ tag of ‘private’ 
+
+<li>AND 
+
+<li>Do not have a ‘footway’ tag of ‘sidewalk’ or ‘crossing’. 
+</li>
+</ul>
+<h4>Indicator 5.2. Buffer and union </h4>
+
+
+<p>
+Having identified these car-free areas, represented as polygons and/or lines, we then apply a simple 100m buffer and union to generate a MultiPolygon representing all areas within the analysis area that are within 100m of a car-free place. 
+</p>
+<h4>Indicator 5.3. Count people </h4>
+
+
+<p>
+We apply the procedure described in <em>Appendix A6</em> to count the percentage of the analysis area population living within 100m of a car-free place. 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 6: People Safe From Highways </h3>
+
+
+<p>
+People Safe From Highways measures the percentage of an analysis area’s population that lives at least 500m from a grade-separated highway.  
+</p>
+<h4>Indicator 6.1. Identify grade-separated highways </h4>
+
+
+<p>
+We use OSM as a source of data on the locations of grade-separated highways. We identify grade-separated highways through an algorithm available in the <em>get_highways() </em>function in <em>get_service_locations.py</em>, and summarized here: 
+</p>
+<ol>
+
+<li>We begin with the OSM road network for the analysis area. 
+
+<li>We include only roads with the tag highway= motorway, trunk, primary, or secondary. 
+
+<li>We exclude all roads with fewer than two lanes per direction. 
+
+<li>We exclude tunnels longer than 300m, since these do not divide neighborhoods or cause such damaging air quality impacts. 
+
+<li>We find all four-way at-grade intersections. 
+
+<li>We identify all remaining stretches of roadway that do not include four-way at-grade intersections (only on- and off-ramps or T-intersections).  
+
+<li>We identify all stretches of roadway meeting these criteria that are at least 1km long. 
+</li>
+</ol>
+<h4>Indicator 6.2. Simple buffer </h4>
+
+
+<p>
+We then apply a simple 500m buffer to the stretches of roadway identified above, in order to generate a polygon representing all parts of the analysis area within 500m of a grade-separated highway. 
+</p>
+<h4>Indicator 6.3. Count people </h4>
+
+
+<p>
+We apply the procedure described in <em>Appendix A6</em> to count the percentage of the analysis area population living within 500m of a grade-separated highway, and then we subtract that number from the total population of the analysis area  to find the population of the area living at least 500m away from a grade-separated highway. 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 7. People Near Frequent Transport </h3>
+
+
+<p>
+People Near Frequent Transport measures the percentage of an analysis area’s population that lives within 500m of a public transport stop served by service that comes every ten minutes or less throughout the day (7:00am to 9:00pm) -- that is, service with average headways of ten minutes or less. We use General Transit Feed Specification (GTFS) data to identify these stops. 
+</p>
+<h4>Indicator 7.1. Collect GTFS feeds </h4>
+
+
+<p>
+We begin by downloading the most recent <em>sources.csv</em> file from the MobilityData Mobility Database, available at this direct link (<a href="https://bit.ly/catalogs-csv">https://bit.ly/catalogs-csv</a>). <em>Sources.csv</em> contains bounding boxes for all GTFS sources listed. We identify all GTFS-Static sources with greater than 0.1% overlap between the buffered agglomeration area and the GTFS bounding box, and we download the latest file from the URL given in <em>sources.csv</em>.  
+</p>
+<h4>Indicator 7.2 Identify stops served by frequent transport </h4>
+
+
+<p>
+We load each GTFS file with the Python <em>gtfs_kit</em> library, and for each file we use the <em>compute_stop_stats</em> function to count the total number of scheduled departures at each stop between 7:00am and 9:00pm. We include all stops with an average (mean) headway of less than ten minutes. 
+</p>
+<p>
+Because this method considers each GTFS files in isolation, it may neglect to include stops served by buses operated by different agencies or described in different GTFS files. For example, if buses from two different operators both stop on the same street corner, both at 12-minute headways, the overall effect will be an average of 6-minute headways. It was not feasible to account for this because stops are not given common identifiers between GTFS files. 
+</p>
+<h4>Indicator 7.3. Count people </h4>
+
+
+<p>
+We measure People Near Frequent Transport by following the procedure in Appendix A, with a 500m network buffer and 100m absolute buffer. 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 8. People Near Rapid Transport </h3>
+
+
+<p>
+People Near Rapid Transport measures the percentage of an analysis area’s population that lives within 1km of urban mass transport with a dedicated right-of-way, including BRT, LRT, and metro.  
+</p>
+<h4>Indicator 8.1. Identify rapid transport stations </h4>
+
+
+<p>
+We use the <em>Transit Explorer </em>dataset (<a href="https://www.thetransportpolitic.com/transitexplorer">https://www.thetransportpolitic.com/transitexplorer</a>) to identify rapid transport. However, ITDP’s definitions of rapid transport differ in the following details from the categories used by the Transit Explorer’s ‘mode’ variable: 
+</p>
+<ul>
+
+<li>We categorize ‘light rail’ and ‘tramway’ as LRT. 
+
+<li>We categorize ‘light metro’ and ‘metro’ as metro. 
+
+<li>We also include some, but not all ‘regional rail’ as metro, and include ‘regional rail’ when it has headways of 20 minutes or better throughout the day 
+
+<li>If and only if a system is listed in<a href="https://github.com/ITDP/pedestriansfirst/blob/master/input_data/transit_explorer/regionalrail.csv"> input_data/transit_explorer/regionalrail.csv</a> with ‘ADD?’ = ‘YES’, we include it as metro 
+
+<li>We include all BRT with a ‘brt_rating’ value that is neither empty nor ‘NOR BRT’. 
+</li>
+</ul>
+<h4>Indicator 8.2. Count people </h4>
+
+
+<p>
+We measure People Near Rapid Transport by following the procedure in Appendix A, with a 1km network buffer and 100m absolute buffer. 
+</p>
+<p>
+ 
+</p>
+<h3>Indicator 9. People Near Bikeways + Public Transport </h3>
+
+
+<p>
+People Near Bikeways + Public Transport measures the percentage of an analysis area’s population that lives within convenient walking distance of <em>both</em> protected bicycle infrastructure <em>and</em> reliable public transport. 
+</p>
+<h4>Indicator 9.1. Identify overlaps </h4>
+
+
+<p>
+First, we identify the full area with walkable access to any form of reliable public transport by taking the union of the isochrone polygons calculated for <em>Indicator 7. People Near Frequent Transport </em>and <em>Indicator 8. People Near Rapid Transport. </em>Then we identify the area with access to both public transport and bicycle infrastructure by taking the intersection of that polygon and the one calculated for <em>Indicator 3. People Near Protected Bikeways</em>.  
+</p>
+<h4>Indicator 9.2. Count People </h4>
+
+
+<p>
+We identify the percentage of the analysis area’s population within the polygon found above by following the procedure described in Appendix A6. 
+</p>
+<p>
+ 
+</p>
+<h1>Appendix  </h1>
+
+
+<h3>Appendix A: Walkable Isochrones </h3>
+
+
+<p>
+The various "People Near X" indicators in the Atlas all require the computation of polygons to represent the area within walking distance of a given point. These polygons are called "isochrones", because they represent areas that can be reached within the same ("iso") amount of time ("chrono"). This Appendix describes our general procedure for calculating walkable isochrones. Descriptions of how we identify relevant points of interest are to be found in the “Indicator” descriptions above. 
+</p>
+<h4>Appendix A1: Identify walkable streets </h4>
+
+
+<p>
+We use OSM data (through osmnx) to identify the street/path network of a given, and then 
+</p>
+<p>
+select only ways that are considered walkable. In the absence of detailed data, we make an inclusive assumption and default to including ways for which walkability is uncertain. As such, we include all OSM ways with a _highway_ tag, except that we do not include ways for which: 
+</p>
+<ul>
+
+<li>The _highway_ tag value is or includes: link, motor, proposed, construction, abandoned, platform, raceway. 
+
+<li>The _service_ tag value is or includes: parking_aisle, driveway, private. 
+
+<li>The _foot_ tag value is: no 
+</li>
+</ul>
+<h4>Appendix A2: Identify nearest nodes </h4>
+
+
+<p>
+Many of the points of interest for which we want to compute walkable isochrones do not necessarily lie directly on the network of walkable streets. Starting from a list of points of interest, our first step is to use the _nearest_nodes_ function in osmnx to identify the node (intersection) in the walkable street network that is nearest to each point of interest. We then use this nearest node as the center point for buffering. This does introduce a slight error (for example, if the service is to be found in the interior of a large block, we will overestimate the size of the isochrone), but we believe that error is negligible in the broader scope of the calculation. 
+</p>
+<h4>Appendix A3: Buffer along walkable streets </h4>
+
+
+<p>
+For each node corresponding to a point of interest, we then buffer a given <em>network </em>distance along the walkable street network. This buffer includes not only all nodes (intersections) within that given network distance, but it also includes all points in between intersections that lie within the network distance. 
+</p>
+<h4>Appendix A4: Buffer out from walkable streets </h4>
+
+
+<p>
+After applying a given network buffer, we also apply a given absolute buffer (usually much smaller than the network buffer). In Appendix A3 we identified a set of points along the street network. Now, with an absolute buffer, we turn that set of points into a polygon covering an area of a neighborhood.  
+</p>
+<h4>Appendix A5: Finalize polygons </h4>
+
+
+<p>
+We then assemble the set of all polygons created by buffering out from all points of interest within the analysis area. We take the union of this set in order to identify a polygon representing all areas within the given walkable buffer distance of at least one of the points of interest. 
+</p>
+<p>
+In some cases, this process of combining polygons formed from buffering out from walkable streets may result in a strange-looking union polygon with holes inside it. Some of those holes accurately reflect a substantial section of a neighborhood that is deprived of access while all being surrounded by areas with access. But more often, especially for smaller holes, this only represents a block that is so large that its inner area is not reached by the absolute buffer.  
+</p>
+<p>
+For example, consider a square block, 250m to a side, surrounded by protected bicycle lanes. If we apply a 100m absolute buffer, as we do for People Near Protected Bicycle Lanes, we will conclude that there is a 50m<sup>2</sup> area in the center of the block where people lack access to bicycle lanes. To correct this mistake, the algorithm's final step is to fill in all holes in the buffered polygon that are smaller than 10000 m<sup>2</sup> (equivalent to a square of 100 meters to a side).  
+</p>
+<h4>Appendix A6: Count people </h4>
+
+
+<p>
+Once we have a single polygon (or MultiPolygon) representing all areas within walkable distance of at least one point of interest, we compare it to a population density raster to count the number of people within the area. We use the GHSL gridded population dataset in the Mollweide projection at 1km resolution. We identify the average (mean) population density of 1km raster cells within the polygon, then multiply that by the area of the polygon (in km<sup>2</sup>).  This procedure allows us to avoid errors at the edge of the polygon that would be introduced if we simply took the sum of the populations of all grid cells that touched, or that were entirely included in, the polygon. We then compare this estimate of the number of people within the polygon to an estimate of the total number of people in the analysis area, calculated using the same procedure. The final indicator therefore measures the percentage of the analysis area’s population living within a walkable distance of the points of interest. 
+</p>

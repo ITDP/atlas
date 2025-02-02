@@ -25,7 +25,8 @@
 left: 50%;
 top: 50%;
 transform: translate(-50%, -50%) !important;
-width: 1000px !important;
+  width: 95vw !important; /* 80% of the viewport width */
+  max-width: 1200px; /* Maximum width of 1000px */
   
   
 }
