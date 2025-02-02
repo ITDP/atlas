@@ -37,96 +37,96 @@ world <- world[grepl("ghsl_region_\\d{5}/indicator_values.gpkg$", world)]
 rename_columns <- function(data) {
   
   data <- gsub(pattern = "(total_pop)_(\\d{4})",
-                      replacement = "city_popdensitytotal_\\2",
-                      x = data)
+               replacement = "city_popdensitytotal_\\2",
+               x = data)
   data <- gsub(pattern = "^(density)_(\\d{4})",
-                      replacement = "city_popdensity_\\2",
-                      x = data)
+               replacement = "city_popdensity_\\2",
+               x = data)
   data <- gsub(pattern = "(block_density)_(\\d{4})",
-                      replacement = "city_blockdensity_\\2",
-                      x = data)
+               replacement = "city_blockdensity_\\2",
+               x = data)
   data <- gsub(pattern = "(journey_gap)_(\\d{4})",
-                      replacement = "city_journeygap_\\2",
-                      x = data,
-                      perl = TRUE)
+               replacement = "city_journeygap_\\2",
+               x = data,
+               perl = TRUE)
   
   
   data <- gsub(pattern = "(pnab)_(\\d{4})",
-                      replacement = "bike_pnpbpnab_\\2",
-                      x = data)
+               replacement = "bike_pnpbpnab_\\2",
+               x = data)
   data <- gsub(pattern = "(pnpb)_(\\d{4})",
-                      replacement = "bike_pnpb_\\2",
-                      x = data)
+               replacement = "bike_pnpb_\\2",
+               x = data)
   data <- gsub(pattern = "(all_bikeways_km)_(\\d{4})",
-                      replacement = "bike_pnpbabikewayskm_\\2",
-                      x = data)
+               replacement = "bike_pnpbabikewayskm_\\2",
+               x = data)
   data <- gsub(pattern = "(protected_bikeways_km)_(\\d{4})",
-                      replacement = "bike_pnpbpbikewayskm_\\2",
-                      x = data)
+               replacement = "bike_pnpbpbikewayskm_\\2",
+               x = data)
   data <- gsub(pattern = "(bikeshare)_(\\d{4})",
-                      replacement = "bike_bikeshare_\\2",
-                      x = data)
+               replacement = "bike_bikeshare_\\2",
+               x = data)
   
   
   data <- gsub(pattern = "(^healthcare)_(\\d{4})",
-                      replacement = "walk_pnspnh_\\2",
-                      x = data)
+               replacement = "walk_pnspnh_\\2",
+               x = data)
   data <- gsub(pattern = "(^n_points_healthcare)_(\\d{4})",
-                      replacement = "walk_pnshealthpoints_\\2",
-                      x = data)
+               replacement = "walk_pnshealthpoints_\\2",
+               x = data)
   data <- gsub(pattern = "(^schools)_(\\d{4})",
-                      replacement = "walk_pnspne_\\2",
-                      x = data)
+               replacement = "walk_pnspne_\\2",
+               x = data)
   data <- gsub(pattern = "(^n_points_schools)_(\\d{4})",
-                      replacement = "walk_pnsschoolspoints_\\2",
-                      x = data)
-  data <- gsub(pattern = "(^h.s)_(\\d{4})",
-                      replacement = "walk_pns_\\2",
-                      x = data)
+               replacement = "walk_pnsschoolspoints_\\2",
+               x = data)
+  data <- gsub(pattern = "(^hs)_(\\d{4})",
+               replacement = "walk_pns_\\2",
+               x = data)
   data <- gsub(pattern = "(^carfree)_(\\d{4})",
-                      replacement = "walk_pncf_\\2",
-                      x = data)
+               replacement = "walk_pncf_\\2",
+               x = data)
   data <- gsub(pattern = "(people_not_near_highways)_(\\d{4})",
-                      replacement = "walk_pnnhighways_\\2",
-                      x = data,
-                      perl = TRUE)
+               replacement = "walk_pnnhighways_\\2",
+               x = data,
+               perl = TRUE)
   data <- gsub(pattern = "(highway_km)_(\\d{4})",
-                      replacement = "walk_pnnhighwayskm_\\2",
-                      x = data,
-                      perl = TRUE)
+               replacement = "walk_pnnhighwayskm_\\2",
+               x = data,
+               perl = TRUE)
   
   
   
   data <- gsub(pattern = "(pnft)_(\\d{4})",
-                      replacement = "transit_pnft_\\2",
-                      x = data)
+               replacement = "transit_pnft_\\2",
+               x = data)
   
   data <- gsub(pattern = "(n_points_transit_pnft)_(\\d{4})",
-                      replacement = "transit_pnftpoints_\\2",
-                      x = data)
+               replacement = "transit_pnftpoints_\\2",
+               x = data)
   
   
   data <- gsub(pattern = "(PNrT)_(all)_(\\d{4})",
-                      replacement = "transit_\\L\\1_\\3",
-                      x = data,
-                      perl = TRUE)
+               replacement = "transit_\\L\\1_\\3",
+               x = data,
+               perl = TRUE)
   data <- gsub(pattern = "(PNrT)_([[:lower:]]{3})_(\\d{4})",
-                      replacement = "transit_\\L\\1\\E\\2_\\3",
-                      x = data,
-                      perl = TRUE)
+               replacement = "transit_\\L\\1\\E\\2_\\3",
+               x = data,
+               perl = TRUE)
   data <- gsub(pattern = "(km)_([[:lower:]]{3})_(\\d{4})",
-                      replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
-                      x = data,
-                      perl = TRUE)
+               replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+               x = data,
+               perl = TRUE)
   data <- gsub(pattern = "(rtr)_([[:lower:]]{3})_(\\d{4})",
-                      replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
-                      x = data,
-                      perl = TRUE)
+               replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+               x = data,
+               perl = TRUE)
   
   
   data <- gsub(pattern = "(pnst)_(\\d{4})",
-                      replacement = "transit_pnst_\\2",
-                      x = data)
+               replacement = "transit_pnst_\\2",
+               x = data)
   
 }
 
@@ -176,7 +176,7 @@ data_all <- data_all %>%
                            .default = 1:n()))
 
 
-# ghsl <- "00507"
+# ghsl <- "08154"
 prep_data <- function(ghsl) {
   
   # filter only city
@@ -260,7 +260,7 @@ prep_data <- function(ghsl) {
   ind_columns <- gsub(pattern = "(^n_points_schools)_(\\d{4})",
                       replacement = "walk_pnsschoolspoints_\\2",
                       x = ind_columns)
-  ind_columns <- gsub(pattern = "(^h.s)_(\\d{4})",
+  ind_columns <- gsub(pattern = "(^hs)_(\\d{4})",
                       replacement = "walk_pns_\\2",
                       x = ind_columns)
   ind_columns <- gsub(pattern = "(^carfree)_(\\d{4})",
@@ -365,7 +365,7 @@ prep_data <- function(ghsl) {
                   starts_with("transit_pnft"),
                   starts_with("transit_pnrt"),
                   starts_with("transit_pnst")
-                  ) %>%
+    ) %>%
     mutate(across(starts_with("transit"), as.numeric))
   
   # transform some columns to char
@@ -504,7 +504,7 @@ ind_columns <- gsub(pattern = "(^schools)_(\\d{4})",
 ind_columns <- gsub(pattern = "(^n_points_schools)_(\\d{4})",
                     replacement = "walk_pnsschoolspoints_\\2",
                     x = ind_columns)
-ind_columns <- gsub(pattern = "(^h.s)_(\\d{4})",
+ind_columns <- gsub(pattern = "(^hs)_(\\d{4})",
                     replacement = "walk_pns_\\2",
                     x = ind_columns)
 ind_columns <- gsub(pattern = "(^carfree)_(\\d{4})",
@@ -596,7 +596,7 @@ atlas_country <- atlas_country %>%
                 starts_with("transit_pnft"),
                 starts_with("transit_pnrt"),
                 starts_with("transit_pnst")
-                )
+  )
 
 atlas_country <- atlas_country %>% mutate(across(city_popdensity_1975:transit_pnst_2023, as.numeric))
 
@@ -610,22 +610,49 @@ atlas_country <- atlas_country %>%
                   transit_pnftpoints_2023), round))
 
 # save by indicator
+# ind <- "walk_pns"
 save_countries <- function(ind) {
   
   
+  message("saving ", ind)
+  
+  # add a global avaregae for each indicator
+  world_average <- atlas_country %>%
+    st_set_geometry(NULL) %>%
+    select(city_popdensitytotal_2023, starts_with(ind)) %>%
+    mutate(a3 = "WRD", name = "The World") %>%
+    group_by(a3, name) %>%
+    summarise(
+      across(matches("city_popdensity_|bike_pnpb_|bike_pnpbpnab_|city_blockdensity_|transit_pnft_|transit_pnrt_|transit_pnrtbrt_|transit_pnrtbrt_|transit_pnrtmrt_|transit_pnst_|transit_pnrtlrt_|walk_pncf_|walk_pnnhighways_|walk_pns_|walk_pnspne_|walk_pnspnh_"),
+                     ~weighted.mean(.x, w = city_popdensitytotal_2023, na.rm = TRUE)),
+      across(matches("city_popdensitytotal|bike_pnpbabikewayskm|bike_pnpbpbikewayskm|walk_pnshealthpoints|walk_pnsschoolspoints|walk_pnnhighwayskm|transit_pnftpoints|transit_pnrtkmbrt|transit_pnrtkmlrt|transit_pnrtkmmrt|transit_pnrtkmall|transit_pnrtrtr"), 
+             ~sum(.x, na.rm = TRUE))) %>%
+    ungroup()
+  
+  
+  if (!(ind %in% c("city_popdensity", "city_popdensitytotal"))) {
+    
+    world_average <- world_average %>% select(-city_popdensitytotal_2023)
+    
+  }
+  
+  
+  world_average <- st_sf(world_average, geometry = lapply(1:nrow(world_average), function(x) st_multipolygon()), crs = 4326)
+  
   atlas_country_ind <- atlas_country %>% 
     dplyr::select(a3, name, 
-                  starts_with(ind)) 
+                  starts_with(ind)) %>%
+    rbind(world_average)
   
-  # # filter for no data
-  # if (ind == "city_poptotal") {
-  #   
-  #   atlas_country_ind <- atlas_country_ind %>% mutate(across(starts_with("city_poptotal"), ~ifelse(.x == 0, NA, .x)))
-  #   
-  # }
-  
-  # drop all NA
-  atlas_country_ind <- tidyr::drop_na(atlas_country_ind)
+    # # filter for no data
+    # if (ind == "city_poptotal") {
+    #   
+    #   atlas_country_ind <- atlas_country_ind %>% mutate(across(starts_with("city_poptotal"), ~ifelse(.x == 0, NA, .x)))
+    #   
+    # }
+    
+    # drop all NA
+    atlas_country_ind <- tidyr::drop_na(atlas_country_ind)
   
   # save
   if (nrow(atlas_country_ind) > 0) {
@@ -695,8 +722,8 @@ indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
                                               names_sep = "_",
                                               names_to = c("ind_type", "ind", "year"),
                                               values_to = "value")
-  # remove year 2025 for now
-  # filter(year != 2025)
+# remove year 2025 for now
+# filter(year != 2025)
 
 a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
   filter(!is.na(value)) %>%
@@ -704,7 +731,7 @@ a1 <- distinct(indicators_all_df_long, hdc, ind, year, .keep_all = TRUE) %>%
   summarise(availability = paste0(year, collapse = "|")) %>%
   ungroup() %>%
   arrange(country, name)
-  # create id
+# create id
 # ungroup() %>%
 # group_by(hdc) %>%
 # summarise(ind = first(ind))
@@ -728,7 +755,7 @@ indicators_all_df_long1 <- indicators_all_df_long %>%
                     "pncf", "pnnhighways", "pnft", "pnrt", "pnst"))
 
 
-  
+
 
 
 readr::write_rds(indicators_all_df_long1, "data/data_final/list_availability_cities.rds")

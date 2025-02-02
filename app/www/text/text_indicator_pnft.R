@@ -11,7 +11,7 @@ p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 sprintf('<p>In %s in %s, there were %s transit stops where a bus, train, or other vehicle stops at least every 10 minutes throughout the day. %s%% of people live within 500m of one.</p>', 
         style(rank$indicator$name), 
         style(input$year), 
-        style(rank$indicator$transit_pnftpoints), 
+        style(scales::comma(rank$indicator$transit_pnftpoints)), 
         style(format_indicator_value)),
 '<p>Frequent transport connects different city neighborhoods, allowing all residents, including those with mobility impairments or young children, to reach the wide variety of destinations necessary to live a fulfilling life.</p>',
 '<p>This indicator can help us understand progress on the United Nations’ Sustainable Development Goal 11.2: <em>By 2030, provide access to safe, affordable, accessible, and sustainable transport systems for all, improving road safety, notably by expanding public transport, with special attention to the needs of those in vulnerable situations, women, children, persons with disabilities, and older persons.</em> </p>'

@@ -59,10 +59,10 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     # define the cols to subset 
     cols <- c('a3', 'name', colnames(atlas_country())[startsWith(colnames(atlas_country()), pattern)])
-    print("cooools")
-    print(cols)
-    print(country_values)
-    print(class(country_values))
+    # print("cooools")
+    # print(cols)
+    # print(country_values)
+    # print(class(country_values))
     
     # subset
     country_values <- country_values[cols]
@@ -80,7 +80,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     
     # mean for the world
-    rank_indicator <- mean(country_values$value)
+    rank_indicator <- subset(country_values, name == "The World")$value
     
     # print("oooia")
     # print(a)
@@ -121,7 +121,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     rank$rank_value <- paste0(
       # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-      '<div class="title_indicator" style="font-size: 20px;">', 
+      '<div class="title_indicator" style="font-size: 22px;">', 
       "THE WORLD", '</div>',
       div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), 
       ifelse(format_indicator_unit == "%", "", " "), 
@@ -129,6 +129,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     )
     
     rank$rank_value_world <- rank$rank_value
+    rank$indicator$value <- rank_indicator
     
     
     # ranking
@@ -211,15 +212,22 @@ observeEvent(c(indicator$mode), {
 
 
 # display rank when a country is clicked
-observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
+observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_world), {
   
-  req(is.null(rank$admin_level), !is.null(input$map_shape_click$id))
-  
+  req(is.null(rank$admin_level))
+  # req(is.null(rank$admin_level), !is.null(input$map_shape_click$id))
+    
   
   message("Rank: countries rank")
   
+  if(is.null(input$map_shape_click$id)) {
+  
+    ui <- "The World"
+    
+  } else {
   # get the click country
   ui <- input$map_shape_click$id
+    }
   
   value_indicator <- subset(st_set_geometry(atlas_country(), NULL), name == ui)
   rank_indicator <- subset(rank_country(), name == ui)
@@ -235,6 +243,7 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   # filter the ranking of the selected country
   cols <- c('a3', 'name', sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok))
   rank_indicator <- rank_indicator[cols]
+  
   
   
   rank$indicator <- value_indicator
@@ -281,6 +290,16 @@ observeEvent(c(input$map_shape_click, indicator$indicator_mode, year$ok), {
   
   # print("value_indicator$value")
   # print(value_indicator)
+
+  if(is.null(input$map_shape_click$id)) {
+    
+    print("ok")
+    
+    rank_indicator <- data.frame(name = "The World")
+    
+  }
+  
+  
   
   rank$rank_value <- paste0(
     # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 

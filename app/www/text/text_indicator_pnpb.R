@@ -13,11 +13,11 @@ sprintf('<p>In %s, in %s, %s%% of residents live within a 300m walk of a physica
         style(unique(rank$indicator$name)), 
         style(input$year), 
         style(unique(format_indicator_value)), 
-        style(ifelse(is.null(rank$indicator$bike_pnpbpnab), "X", round(rank$indicator$bike_pnpbpnab * 100))), 
+        style(round(rank$indicator$bike_pnpbpnab * 100)), 
         style(unique(rank$indicator$name)), 
         style(input$year), 
-        style(ifelse(is.null(rank$indicator$bike_pnpbabikeways), "X",round(rank$indicator$bike_pnpbabikeways))),
-        style(ifelse(is.null(rank$indicator$bike_pnpbpbikeways), "X",round(rank$indicator$bike_pnpbpbikeways)))), 
+        style(round(rank$indicator$bike_pnpbabikeways)),
+        style(round(rank$indicator$bike_pnpbpbikeways))), 
 '<p>Studies have shown that <a href="https://jenniferdill.net/types-of-cyclists/">most</a> people would ride a bicycle for transport if it felt safe, but they choose not to because the existing streets feel too dangerous. In cities that provide extensive, well-connected networks of physically protected bikeways, large numbers of people cycle to get around. Increased cycling saves individuals time and money and <a href="https://ehp.niehs.nih.gov/doi/full/10.1289/ehp.0901747">improves their health</a>. It also reduces air and noise pollution, carbon emissions, and <a href="https://www.heatwalkingcycling.org/">healthcare costs</a>. Protected bikeways <a href="https://www.rff.org/publications/journal-articles/bicycle-infrastructure-and-traffic-congestion-evidence-from-dcs-capital-bikeshare/">reduce congestion</a>, promote <a href="https://www.fastcompany.com/3021074/making-the-economic-case-for-cycling-friendly-cities-with-bikeonomics">local economic development</a>, and make streets safer and more pleasant, not only for cyclists but also for <a href="https://www.sciencedaily.com/releases/2019/05/190529113036.htm">motorists and pedestrians</a>.</p>',
 '<p>ITDP <a href="https://www.itdp.org/publication/protected-bicycle-lanes-protect-the-climate/">research</a> in middle-income countries shows that People Near Bikeways is very strongly correlated with the number of people who ride bicycles. In technical terms, the variation in People Near Bikeways explains 88% of the variation in total bicycle travel at the city level.</p>'
 )
