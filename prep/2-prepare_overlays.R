@@ -51,7 +51,8 @@ prep_overlays1 <- function(ghsl) {
     # file <- overlay_files[[20]]
     # file <- overlay_files[overlay_files %like% "block"]
     # file <- overlay_files[overlay_files %like% "population"][11]
-    # file <- overlay_files[overlay_files %like% "rapid_transit"][4]
+    # file <- overlay_files[overlay_files %like% "rapid_transit"][1]
+    # file <- overlay_files[overlay_files %like% "schools"][1]
     # extract year
     
     year1 <- if (file %like% "rapid_transit") sub("(^.*)/(rapid_transit/)(\\d{4})/(.*$)", "\\3", file)   else  sub("(^.*)(\\d{4})((.geojson|.tif)$)", "\\2", basename(file))
@@ -88,9 +89,8 @@ prep_overlays1 <- function(ghsl) {
       
       a <- st_read(file)
       
-      out <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.geojson", ghsl, ind,  ind, ghsl, year1)
       out12 <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)
-      # out <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)
+      out <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)
       out1 <- sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl,  ind, ghsl, year1)
       if (file.exists(out12)) {
         
@@ -105,8 +105,14 @@ prep_overlays1 <- function(ghsl) {
       file.remove(sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1))
       
       try(st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1)))
-      st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1),
-               append = FALSE)
+      
+      # export the geojson (to go to the .zip)
+      if (file %like% "all_isochrones") {
+        
+        st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1),
+                 append = FALSE)
+        
+      }
       
       # a <- a %>% mutate(a = 1)
       
@@ -137,8 +143,7 @@ prep_overlays1 <- function(ghsl) {
   
   
   message("done for ", ghsl)
-  walk(overlay_files[overlay_files %like% "rapid_transit|pop_|block_densities_latlon"], save_overlay)
-  # walk(overlay_files[overlay_files %like% "/block_densities_latlon"], save_overlay)
+  walk(overlay_files, save_overlay)
   message("time", round(Sys.time() - start), 2)
 }
 
@@ -174,7 +179,7 @@ left <- setdiff(cities_available, left)
 list_availability <- readRDS("data/data_final/list_availability.rds")
 
 
-# ghsl <- "00017"; over <- "pnpb"; year1 <- 2024
+# ghsl <- "08154"; over <- "pnpb"; year1 <- 2023
 
 zip_pop <- function(ghsl) {
   
@@ -217,7 +222,7 @@ furrr::future_walk(cities_available, zip_pop)
 fim <- purrr::map(oi, possibly(zip_pop, otherwise = "buhh"), .progress = TRUE)
 
 
-# ghsl <- "00017"; over <- "blockdensity"
+# ghsl <- "08154"; over <- "pnpb"
 
 process_overlay <- function(over, ghsl) {
   
@@ -227,7 +232,16 @@ process_overlay <- function(over, ghsl) {
   }
   
   # remove pop
-  overlay_subset <- subset(overlay_table, indicator == over & overlay != "pop")
+  if (over != "popdensity") {
+    
+    overlay_subset <- subset(overlay_table, indicator == over & overlay != "pop")
+    
+  } else {
+    
+    overlay_subset <- subset(overlay_table, indicator == over)
+    
+  }
+  
   file <- lapply(sprintf("%s_%s", overlay_subset$overlay, ghsl), 
                  dir1, 
                  path = sprintf("data/data_final/ghsl_%s/overlays/temp", ghsl), full.names = TRUE) 
@@ -244,4 +258,7 @@ process_overlay <- function(over, ghsl) {
 combinations <- expand.grid(cities_available, unique(overlay_table$indicator))
 
 fim <- purrr::walk2(combinations$Var2, combinations$Var1, possibly(process_overlay, otherwise = "buhh"), .progress = TRUE)
+
+
+# remove temp folder?
 

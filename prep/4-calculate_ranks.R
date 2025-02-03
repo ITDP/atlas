@@ -46,6 +46,9 @@ ranks_countries <- function(ind ) {
     atlas_country <- readRDS(sprintf("data/data_final/countries/atlas_country_%s.rds",
                                      ind))
     
+    # remove the world
+    atlas_country <- atlas_country %>% filter(name != "The World")
+    
     # calculate size of each group
     country_ranks <- atlas_country %>%
       select(a3, name, starts_with(sprintf("%s_", ind))) %>%
@@ -300,6 +303,12 @@ prep_data <- function(ghsl) {
 
 # apply to every city
 cities_available <- unique(data_world$hdc)
+
+library(furrr)
+plan(multisession)
+furrr::future_walk(cities_available, prep_data)
+
+
 a <- purrr::map(cities_available[1:100], 
                  purrr::possibly(prep_data, "error"))
 a <- purrr::map(cities_available[101:200], 
