@@ -25,8 +25,8 @@ rank <- reactiveValues(rank_value = NULL, rank_text = NULL,
                        vel0 = NULL,
                        country = NULL,
                        indicator = NULL,
-                       data = NULL)
-
+                       data = NULL,
+                       click = NULL)
 # this reactive value will store the indicator name, 
 indicator_info <- reactiveValues(name = NULL,
                                  unit = NULL,
@@ -209,6 +209,13 @@ observeEvent(c(indicator$mode), {
   
 }, priority = 10)
 
+observeEvent(c(input$map_shape_click), {
+  
+  
+  rank$click <- input$map_shape_click$id
+  
+  
+}, priority = 12)
 
 
 # display rank when a country is clicked
@@ -220,14 +227,21 @@ observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_wor
   
   message("Rank: countries rank")
   
-  if(is.null(input$map_shape_click$id)) {
+  
+  
+  if(is.null(rank$click)) {
   
     ui <- "The World"
     
   } else {
   # get the click country
-  ui <- input$map_shape_click$id
-    }
+  ui <- rank$click
+  
+  }
+  
+  
+  print("ui")
+  print(ui)
   
   value_indicator <- subset(st_set_geometry(atlas_country(), NULL), name == ui)
   rank_indicator <- subset(rank_country(), name == ui)

@@ -13,12 +13,13 @@ observeEvent(c(input$back_to_world), {
   req(input$back_to_world >= 1)
   
   # print("back to world")
-  
   # reset the admin level
   rank$admin_level <- NULL
   # reset the indicator
   # indicator$mode <- "pnpb"
   rank$indicator <- NULL
+  
+  rank$click <- NULL
   
   # reset the city values
   shinyWidgets::updatePickerInput(session = session, inputId = "city",
