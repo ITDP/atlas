@@ -1,4 +1,3 @@
-Sys.setenv(PATH=paste("/opt/homebrew/bin", Sys.getenv("PATH"), sep=":"))
 library(mapboxapi)
 library(tools)
 library(sf)
@@ -38,6 +37,31 @@ files_2024 <- files_2024[grepl(paste0(hdcs_run, collapse = "|"), files_2024)]
 # purrr::map2(.x = files_hs, .y = files_hs_new, file.rename)
 
 # save for each indicator
+ind <- "protectedbike_latlon"
+ind <- "hs_latlon"
+ind <- "healthcare_points_latlon"
+ind <- "schools_points_latlon"
+ind <- "healthcare_latlon"
+ind <- "schools_latlon"
+ind <- "carfree_latlon"
+ind <- "buffered_hwys_latlon"
+ind <- "allhwys_latlon"
+ind <- "pbpb_latlon"
+ind <- "pbab_latlon"
+ind <- "allbike_latlon"
+ind <- "pnft_latlon"
+ind <- "pnft_points_latlon"
+ind <- "pnst"
+
+files <- dir("../pedestriansfirst/cities_out", full.names = TRUE, recursive = TRUE)
+
+
+# for pnrt: jakarta, trujillo
+# hdc = c("01156", "05472"); ind = "pnft_latlon"
+# hdc = c("01156", "05472"); ind = "pnft_points_latlon"
+
+# new cycling cities
+# hdc = c('02006' , '02249' , '03048'); 
 # ind <- "protectedbike_latlon"
 # ind <- "hs_latlon"
 # ind <- "healthcare_points_latlon"
@@ -54,15 +78,15 @@ files_2024 <- files_2024[grepl(paste0(hdcs_run, collapse = "|"), files_2024)]
 # ind <- "pnft_points_latlon"
 # ind <- "pnst"
 
-
-
-
-save_ind <- function(ind) {
+save_ind <- function(hdc, ind) {
   
   # open files
   # files_ind <- files_2024[grepl(ind, files_2024)]
-  jakarta <- dir("../pedestriansfirst/cities_out/ghsl_region_05472/geodata", full.names = TRUE, recursive = TRUE)
-  files_ind <- jakarta[grepl(ind, jakarta)]
+  
+  files1 <- files[stringr::str_detect(files, "geodata")]
+  # filter hdc
+  files1 <- files1[stringr::str_detect(files1, paste0(hdc, collapse = "|"))]
+  files_ind <- files1[grepl(ind, files1)]
   
   if (file_ext(files_ind[1]) %in% c("rds")) {
     
@@ -93,8 +117,8 @@ save_ind <- function(ind) {
   # export to mapbox
   tippecanoe(input = data,
              # output = sprintf("data-raw/data_final/mbtiles/%s_new.mbtiles", ind),
-             output = sprintf("data-raw/data_final/mbtiles/%s_jakarta.mbtiles", ind),
-             layer_name = paste0(ind, "_jakarta"),
+             output = sprintf("data/mbtiles/%s_add2.mbtiles", ind),
+             layer_name = paste0(ind, "_add2"),
              min_zoom = 8,
              max_zoom = max_zoom1,
              overwrite = TRUE
@@ -102,33 +126,34 @@ save_ind <- function(ind) {
   )
   
   
-  upload_tiles(input = sprintf("data-raw/data_final/mbtiles/%s_jakarta.mbtiles", ind),
+  upload_tiles(input = sprintf("data/mbtiles/%s_add2.mbtiles", ind),
                access_token = "sk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNscjhjdmoydzJxd3Qya21zd2t5aHN0ZmoifQ.NcKleHf_-d4buaEmcTT_Lg",
                username = "kauebraga",
                # tileset_id = paste0(ind, "_new"),
-               tileset_id = paste0(ind, "_jakarta"),
+               tileset_id = paste0(ind, "_add2"),
                # tileset_name = paste0(ind, "_new"))
-               tileset_name = paste0(ind, "_jakarta"))
+               tileset_name = paste0(ind, "_add2"))
   
 }
 
 
 
 # save_ind("protectedbike_latlon")
-save_ind("hs_latlon")
-save_ind("healthcare_points_latlon") # ok
-save_ind("schools_points_latlon") # ok
-save_ind("healthcare_latlon") # ok
-save_ind("schools_latlon") # ok
-save_ind("carfree_latlon")
-save_ind("buffered_hwys_latlon")
-save_ind("allhwys_latlon")
-save_ind("pnpb_latlon")
-save_ind("pnab_latlon")
-save_ind("allbike_latlon")
-save_ind("pnft_latlon")
-save_ind("pnft_points_latlon")
-save_ind("pnst_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "protectedbike_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "hs_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "healthcare_points_latlon") # ok
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "schools_points_latlon") # ok
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "healthcare_latlon") # ok
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "schools_latlon") # ok
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "carfree_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "buffered_hwys_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "allhwys_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnpb_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnab_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "allbike_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnft_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnft_points_latlon")
+save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnst_latlon")
 
 
 

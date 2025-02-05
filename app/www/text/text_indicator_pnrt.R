@@ -31,6 +31,8 @@ sprintf("<li>%s %% people within 1km of a station",   round(rank$indicator$trans
 "</li>",
 "</ul>",
 
+ifelse(is.null(rank$admin_level), "<p>This measurement includes all urban agglomerations with a population of more than 500,000.</p>", ""),
+
 "<p>Because rapid transport bypasses traffic congestion, it can be the fastest way to move around a city. Rapid transport can carry more people, farther and faster, than any other mode.</p>",
 "<p>However, rapid transport can never serve every neighborhood in a city, and so other modes — including frequent transport, walking, and bicycling — are necessary for shorter trips, connections to rapid transport, or trips in less dense areas. This indicator is designed to help cities make better decisions by showing their existing systems and enabling comparisons to peer cities.</p>"
 )

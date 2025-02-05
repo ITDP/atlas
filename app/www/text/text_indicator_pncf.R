@@ -8,10 +8,12 @@ p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 '<div class = "title_indicator">People Near Car-Free Places</div>',
 '<div class = "text_indicator"><p>',
 '<p>People Near Car-Free Places measures the percentage of an area’s population living immediately near (within 100m of) a car-free place. This includes parks, squares, car-free streets, recreation grounds, sports fields, and forests. </p>',
-sprintf('<p>In %s in %s, %s %% of people lived within a 100km buffer of a car-free park, plaza, street, or other space.</p>', 
+sprintf('<p>In %s in %s, %s %% of people lived within a 100km buffer of a car-free park, plaza, street, or other space. %s</p>', 
         style(rank$indicator$name), 
         style(input$year), 
-        style(format_indicator_value)),
+        style(format_indicator_value),
+        ifelse(is.null(rank$admin_level), "This measurement includes all urban agglomerations with a population of more than 500,000.", "")
+        ),
 '<p>Car-free places provide a safe space for adults to stop and relax, which is especially important for those who are not able-bodied. They provide children with a comfortable and safe place to play as well as an outdoor refuge in <a target="_blank" href="https://pedestriansfirst.itdp.org/about">times of crisis</a>, like during the COVID-19 pandemic. </p>',
 '<p>Car-free public places can be both an amenity and a piece of pedestrian transportation infrastructure, because they provide walking routes to destinations that are safe from vehicle traffic and are often calmer and more direct.  </p>'
 )

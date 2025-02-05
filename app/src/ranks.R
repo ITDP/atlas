@@ -713,7 +713,7 @@ observeEvent(c(input$rank_more_1_country), {
   
   showModal(modalDialog1(
     title = sprintf("%s in %s by %s",
-                    rank$admin_level_name, "country", subset(list_indicators, indicator_code == indicator$mode)$indicator_name),
+                    rank$admin_level_name, rank$click, subset(list_indicators, indicator_code == indicator$mode)$indicator_name),
     easyClose = TRUE,
     size = "l",
     # footer = NULL,

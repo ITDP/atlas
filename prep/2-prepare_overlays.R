@@ -256,6 +256,7 @@ process_overlay <- function(over, ghsl) {
 
 # create combinations of ghsl and overlay
 combinations <- expand.grid(cities_available, unique(overlay_table$indicator))
+# combinations <- filter(combinations, Var1 == "99999")
 
 fim <- purrr::walk2(combinations$Var2, combinations$Var1, possibly(process_overlay, otherwise = "buhh"), .progress = TRUE)
 

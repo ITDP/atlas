@@ -8,11 +8,13 @@ p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 '<div class = "title_indicator">People Near Frequent Transport</div>',
 '<div class = "text_indicator"><p>',
 '<p>People Near Frequent Transport measures the percentage of an area’s population living within walking distance (500m) of a transport station with service in both directions with headways of 10 minutes or less from 5 a.m. to 9 p.m. on a weekday. Such frequencies are necessary for public transport to be consistently reliable for people to make trips. </p>',
-sprintf('<p>In %s in %s, there were %s transit stops where a bus, train, or other vehicle stops at least every 10 minutes throughout the day. %s%% of people live within 500m of one.</p>', 
+sprintf('<p>In %s in %s, there were %s transit stops where a bus, train, or other vehicle stops at least every 10 minutes throughout the day. %s%% of people live within 500m of one. %s</p>', 
         style(rank$indicator$name), 
         style(input$year), 
         style(scales::comma(rank$indicator$transit_pnftpoints)), 
-        style(format_indicator_value)),
+        style(format_indicator_value),
+        ifelse(is.null(rank$admin_level), "This measurement only includes urban agglomerations with a population of more than 500,000, and only includes agglomerations where GTFS data is available from the<a href='https://mobilitydatabase.org/'> Mobility Database</a>", "")
+        ),
 '<p>Frequent transport connects different city neighborhoods, allowing all residents, including those with mobility impairments or young children, to reach the wide variety of destinations necessary to live a fulfilling life.</p>',
 '<p>This indicator can help us understand progress on the United Nations’ Sustainable Development Goal 11.2: <em>By 2030, provide access to safe, affordable, accessible, and sustainable transport systems for all, improving road safety, notably by expanding public transport, with special attention to the needs of those in vulnerable situations, women, children, persons with disabilities, and older persons.</em> </p>'
 )

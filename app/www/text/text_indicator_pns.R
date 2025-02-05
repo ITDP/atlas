@@ -9,14 +9,16 @@ p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 '<div class = "text_indicator"><p>',
 '<p>People Near Services measures the percentage of an area’s population living within walking distance (1km) of some form of both healthcare and education services. Proximity is the first requirement for walkability. In a city where people live within a 15-minute walk of their daily needs, they will be able to live without a car. </p>',
 '<p>Walking is environmentally sustainable, cost-effective, <a href="https://www.vtpi.org/walkability.pdf">economically productive</a>, and beneficial for both <a href="https://www.emerald.com/insight/content/doi/10.1108/S2044-994120170000009004/full/html">physical</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/29858467/">mental health</a>.</p>',
-sprintf('<p>In %s in %s, we identified %s healthcare services and %s education services. We found that %s %% of people live within a 1km walk of healthcare; %s %% of people live within a 1km walk of education, and %s %% of people live within a 1km walk of both.</p>', 
+sprintf('<p>In %s in %s, we identified %s healthcare services and %s education services. We found that %s %% of people live within a 1km walk of healthcare; %s %% of people live within a 1km walk of education, and %s %% of people live within a 1km walk of both. %s</p>', 
         style(rank$indicator$name), 
         style(input$year), 
         style(scales::comma(rank$indicator$walk_pnshealthpoints * 1)), 
         style(scales::comma(rank$indicator$walk_pnsschoolspoints * 1)), 
         style(round(rank$indicator$walk_pnspnh * 100)), 
         style(round(rank$indicator$walk_pnspne * 100)),
-        style(format_indicator_value)),
+        style(format_indicator_value),
+        ifelse(is.null(rank$admin_level), "This measurement includes all urban agglomerations with a population of more than 500,000.", "")
+        ),
 '<p>A high score on this indicator does not guarantee walkability. Safe infrastructure, like wide sidewalks and raised crosswalks, is also necessary, as is urban design, including street trees, lighting, and shade. ITDP’s <a target="_blank" href="http://pedestriansfirst.itdp.org/">Pedestrians First</a> Neighborhood- and Street-level tools provide an in-depth look at tools for a walkable city. </p>',
 '<p>Walking is environmentally sustainable, cost-effective, <a target="_blank" href="https://www.vtpi.org/walkability.pdf">economically productive</a>, and beneficial for both <a target="_blank" href="https://www.emerald.com/insight/content/doi/10.1108/S2044-994120170000009004/full/html">physical</a> and <a target="_blank" href="https://pubmed.ncbi.nlm.nih.gov/29858467/">mental health</a>. </p>'
 )

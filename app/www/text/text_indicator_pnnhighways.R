@@ -8,12 +8,13 @@ p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 '<div class = "title_indicator">People Safe From Highways</div>',
 '<div class = "text_indicator"><p>',
 '<p>People Safe From Highways measures the percentage of an area’s population not living near (within 500m of) a grade-separated highway. Living near highways exposes people to many forms of harm. It makes walking more dangerous, increases air pollution, and incentivizes driving. </p>',
-sprintf('<p>In %s in %s, %s%% of people lived at least 500m from a grade-separated highway. There were about %s km of highways in this area.</p>', 
+sprintf('<p>In %s in %s, %s%% of people lived at least 500m from a grade-separated highway. There were about %s km of highways in this area. %s</p>', 
         # 
         style(rank$indicator$name), 
         style(input$year), 
         style(format_indicator_value),
-        style(scales::comma(rank$indicator$walk_pnnhighwayskm))
+        style(scales::comma(rank$indicator$walk_pnnhighwayskm)),
+        ifelse(is.null(rank$admin_level), "This measurement includes all urban agglomerations with a population of more than 500,000.", "")
         ), 
 # style(rank$indicator$name), 
 # style(rank$indicator$city_poptotal), 
