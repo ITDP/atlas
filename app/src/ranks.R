@@ -671,6 +671,9 @@ observeEvent(c(input$rank_more_1_country), {
   indicator_pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   que <- year$ok
   admin_level_osm <- as.numeric(unique(data_ind3_spatial()$admin_level))
+  country <- unique(data_ind3_spatial()$country)
+  # print("countrrry")
+  # print(country)
   # admin_level_osm <- if (admin_level_osm == 1) 0 else admin_level_osm
   
   # print("admin_level_osm")
@@ -713,7 +716,7 @@ observeEvent(c(input$rank_more_1_country), {
   
   showModal(modalDialog1(
     title = sprintf("%s in %s by %s",
-                    rank$admin_level_name, rank$click, subset(list_indicators, indicator_code == indicator$mode)$indicator_name),
+                    rank$admin_level_name, country, subset(list_indicators, indicator_code == indicator$mode)$indicator_name),
     easyClose = TRUE,
     size = "l",
     # footer = NULL,
