@@ -6,13 +6,14 @@ library(data.table)
 library(Hmisc)
 library(purrr)
 sf::sf_use_s2(FALSE)
+options(scipen = 999999)
 
 
 # source folder -------------------------------------------------------------------------------
 
 # folder <- "data-raw/data_final/"
 # folder <- "data-raw/data_test_202412"
-folder <- "../pedestriansfirst"
+folder <- "/media/kauebraga/data/pedestriansfirst"
 
 
 # # duplicate the pop data for 2022 as well -----------------------------------------------------
@@ -28,8 +29,10 @@ folder <- "../pedestriansfirst"
 # data <- st_read(paste0(base_dir, "indicator_values.gpkg"))
 world <- dir(sprintf("%s/cities_out", folder), full.names = TRUE, recursive = TRUE)
 # world <- c(world, dir("data-raw/sample_3", full.names = TRUE, recursive = TRUE))
-world <- world[grepl("ghsl_region_\\d{5}/indicator_values.gpkg$", world)]
+world <- world[grepl("ghsl_region_\\d{5}/indicator_values_\\d{4}", world)]
 
+
+ghsl_all <- fread('../pedestriansfirst/input_data/pbf/pbf_hdc_country.csv', colClasses = list(character = "hdc"))
 
 
 # 1) function to rename the columns to an standard --------------------------------------------
@@ -133,77 +136,146 @@ rename_columns <- function(data) {
 
 
 
-# fun to open all data
-open_data <- function(file) {
-  
-  
-  a <- st_read(file)
-  a <- st_cast(a, "MULTIPOLYGON")
-  a <- tidyr::fill(a, hdc)
-  # a <- tidyr::fill(a, hdc)
-  a <- a %>% mutate(osmid = as.character(osmid),
-                    # level_name_eng = as.character(level_name_eng),
-                    # level_name_local = as.character(level_name_local),
-                    across(starts_with("block_density"), as.numeric),
-                    across(starts_with("km"), as.numeric),
-                    across(starts_with("rtr"), as.numeric)
-  )
-  
-  
-  
-}
-data_all <- lapply(world, open_data) %>% rbindlist(fill = TRUE)
-# ghsl to 5 characters
-data_all <- data_all %>% mutate(hdc = stringr::str_pad(hdc, width = 5, side = "left", pad = 0))
 
-
-# remove indicators that we wont use
-data_all <- data_all %>%
-  # dplyr::select(-starts_with("rtr_")) %>%
-  dplyr::select(-starts_with("stns_")) %>%
-  # dplyr::select(-starts_with("km_")) %>%
-  dplyr::select(-starts_with("n_points_special")) %>%
-  dplyr::select(-starts_with("performance")) %>%
-  # select(-performance_walk_30, -performance_walk_60, -performance_bike_lts1_30, -performance_bike_lts1_45,
-  # -performance_bike_lts1_60, -performance_bike_lts2_30, -performance_bike_lts2_60) %>%
-  # select(-density) %>%
-  # select(-blockmean_density) %>%
-  dplyr::select(-geospatial_calctime, -summary_calctime)
-
-# we had a problem to create the osmid, so we will create a fake one
-data_all <- data_all %>%
-  mutate(osmid = case_when(level_name == "Agglomeration" ~ NA, 
-                           .default = 1:n()))
 
 
 # ghsl <- "08154"
-# ghsl <- "01521"
+# ghsl <- "08154"
 prep_data <- function(ghsl) {
   
-  # filter only city
-  data <- data_all %>% filter(hdc == ghsl) %>% st_sf(crs = 4326)
+  files <- c(sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2023.csv", folder, ghsl),
+             sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2024.gpkg", folder, ghsl))
+  # file <- files[1]
+  
+  # fun to open all data
+  open_data <- function(file) {
+    
+    
+    year <- stringr::str_extract(file, "\\d{4}(?=(.csv|.gpkg))")
+    
+    a <- if(year == "2023") {
+      
+      a <- fread(file) 
+      
+      } else {
+        a <- st_read(file)
+        
+      }
+    
+    
+    # create admin level
+    if (!("admin_level" %in% colnames(a))) {
+      
+      a$admin_level <- NA
+    }
+    if (!("level_name_eng" %in% colnames(a))) {
+      
+      a$level_name_eng <- NA
+    }
+    if (!("level_name_local" %in% colnames(a))) {
+      
+      a$level_name_local <- NA
+    }
+    if (!("level_name_full" %in% colnames(a))) {
+      
+      a$level_name_full <- NA
+    }
+    
+    a <- a %>%
+      # dplyr::select(-starts_with("rtr_")) %>%
+      dplyr::select(-starts_with("stns_")) %>%
+      # dplyr::select(-starts_with("km_")) %>%
+      dplyr::select(-starts_with("n_points_special")) %>%
+      dplyr::select(-starts_with("performance")) %>%
+      # select(-performance_walk_30, -performance_walk_60, -performance_bike_lts1_30, -performance_bike_lts1_45,
+      # -performance_bike_lts1_60, -performance_bike_lts2_30, -performance_bike_lts2_60) %>%
+      # select(-density) %>%
+      # select(-blockmean_density) %>%
+      dplyr::select(-geospatial_calctime, -summary_calctime, -matches("V1"),
+                    -matches("name_long"))
+    
+    a <- a %>% 
+      mutate(across(c("name", "name_short", "level_name", "agglomeration_country_name", "country", 
+                      "admin_level", "level_name_eng", "level_name_local", "level_name_full"),
+                    ~ ifelse(.x == "", NA, .x)))
+    
+    
+    a <- tidyr::fill(a, hdc)
+    # a <- tidyr::fill(a, hdc)
+    
+    # extract country
+    country1 <- unique(a$country)[!is.na(unique(a$country))][1]
+    
+    # fill the name of the country
+    a <- a %>% mutate(country = country1)
+    
+    
+    
+    a <- a %>% mutate(osmid = as.character(osmid),
+                      # level_name_eng = as.character(level_name_eng),
+                      # level_name_local = as.character(level_name_local),
+                      across(starts_with("block_density"), as.numeric),
+                      across(starts_with("km"), as.numeric),
+                      across(starts_with("rtr"), as.numeric)
+    )
+    
+    a <- a %>% mutate(hdc = stringr::str_pad(hdc, width = 5, side = "left", pad = 0))
+
+    
+    
+    # identify the ghsl number to the osmid
+    a <- a %>% mutate(osmid = ifelse(is.na(osmid), hdc, osmid)) %>%
+      mutate(admin_level = as.character(admin_level))
+    # fill the name of the country
+    a <- a %>% mutate(country = country1)
+    
+    # por enquanto, apagar o que esta com o nome NA
+    a <- a %>% filter(!is.na(name))
+    a <- a %>% filter(name != "")
+    
+    
+    # levl name
+    a <- a %>% mutate(level_name = ifelse(is.na(level_name), level_name_eng, level_name))
+    # identify the ghsl level as 0
+    a <- a %>% mutate(admin_level = ifelse(level_name == "Agglomeration", 0, 
+                                                 ifelse(level_name =="Brazilian Metro Areas", 1, admin_level)))
+    a <- a %>% filter(level_name != "Brazilian Metro Areas")
+    
+    
+    
+    # # we had a problem to create the osmid, so we will create a fake one
+    # a <- a %>%
+    #   mutate(osmid = case_when(level_name == "Agglomeration" ~ NA, 
+    #                            .default = 1:n()))
+    
+    # extract only the neccesary columns from the first years, since we will join them
+    if (year == 2023) {
+      
+      a <- a %>%
+        select(hdc, osmid, name, admin_level, ends_with(year))
+    } else if (year == 2024) {
+      
+      a <- a %>%
+        select(-ends_with("2023"))
+      
+    }
+    
+    a <- a %>% mutate(admin_level = as.character(admin_level))
+    
+    return(a)
+    
+  }
+  
+  data <- lapply(files, open_data)
+    
+    
+  # join the datasets
+  data <- reduce(data, left_join, 
+                 by = c("hdc", "osmid", "name", "admin_level")) %>% st_sf(crs = 4326)
+  # %>% st_sf(crs = 4326)
   
   attr(data, "agr") <- NULL
-  
-  # extract country
-  country1 <- unique(data$country)[!is.na(unique(data$country))][1]
-  
-  # levl name
-  data <- data %>% mutate(level_name = ifelse(is.na(level_name), level_name_eng, level_name))
-  # identify the ghsl level as 0
-  data <- data %>% mutate(admin_level = ifelse(level_name == "Agglomeration", 0, 
-                                               ifelse(level_name =="Brazilian Metro Areas", 1, admin_level)))
-  data <- data %>% filter(level_name != "Brazilian Metro Areas")
-  
-  
-  # identify the ghsl number to the osmid
-  data <- data %>% mutate(osmid = ifelse(is.na(osmid), hdc, osmid))
-  # fill the name of the country
-  data <- data %>% mutate(country = country1)
-  
-  # por enquanto, apagar o que esta com o nome NA
-  data <- data %>% filter(!is.na(name))
-  
+
   # scale the admin_level - from 0 to max
   ordered_admin <- sort(as.numeric(unique(data$admin_level)))
   admin_level_oder <- data.frame(admin_level = as.character(ordered_admin), admin_level_ordered = seq(from = 1, to = length(ordered_admin)))
@@ -217,7 +289,7 @@ prep_data <- function(ghsl) {
   
   
   # get available indicators for this city
-  ind_columns <- colnames(data)[colnames(data) %nin% c("hdc", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name",  "geom")]
+  ind_columns <- colnames(data)[colnames(data) %nin% c("hdc", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name", "geom")]
   
   
   # rename indicators that are divided by year
@@ -356,13 +428,16 @@ prep_data <- function(ghsl) {
   
   
   # rename indicators
-  colnames(data) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name", ind_columns_new,"geom")
+  colnames(data) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name", ind_columns_new, "geom")
   
   # arrange data correctly
   data <- data %>%
     dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, admin_level_name,
                   # starts_with("city_poptotal"),
-                  starts_with("city_popdensity"),
+                  matches("city_popdensity(total)?_(1975|1980|1985|1990|1995|2000|2005|2010|2015|2020)"),
+                  matches("city_popdensity(total)?_2023"),
+                  matches("city_popdensity(total)?_(2024)"),
+                  matches("city_popdensity(total)?_(2025)"),
                   starts_with("city_blockdensity"),
                   starts_with("city_journeygap"),
                   starts_with("bike_pnab"),
@@ -386,13 +461,13 @@ prep_data <- function(ghsl) {
     mutate(across(starts_with("city_journeygap"), as.numeric)) %>%
     arrange(as.numeric(admin_level))
   
-  # exception for recife - not sure if this is necessary anymore
-  if (ghsl == "01445") {
-    
-    data$country <- "Brazil"
-    data$a3 <- "BRA"
-    
-  }
+  # # exception for recife - not sure if this is necessary anymore
+  # if (ghsl == "01445") {
+  #   
+  #   data$country <- "Brazil"
+  #   data$a3 <- "BRA"
+  #   
+  # }
   
   
   # create directory to store the file
@@ -401,15 +476,17 @@ prep_data <- function(ghsl) {
   # save the file
   readr::write_rds(data, sprintf("data/data_final/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
   
+  return("ok")
+  
 }
 
 
 # apply to all cities
-cities_available <- unique(data_all$hdc)
+cities_available <- unique(ghsl_all$hdc)
 library(purrr)
 library(furrr)
 plan(multisession)
-furrr::future_walk(cities_available, prep_data)
+results <- furrr::future_map(cities_available, possibly(prep_data, otherwise = "erro"))
 
 # prep_data("05472") # jakarta
 
@@ -445,9 +522,16 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_final/atlas_city_markers.
 # calculate mean for each country -----------------
 
 
-atlas_country <- read.csv(sprintf("%s/countries_out/country_results.csv", folder)) %>%
-  rename(index = X)
-atlas_country_shape <- st_read(sprintf("%s/countries_out/country_results.geojson", folder)) %>%
+atlas_country_2023 <- read.csv(sprintf("%s/countries_out/country_results_2023.csv", folder)) %>%
+  rename(index = X) %>%
+  select(index, ends_with("2023"))
+atlas_country_2024 <- read.csv(sprintf("%s/countries_out/country_results_2024.csv", folder)) %>%
+  rename(index = X) %>%
+  select(-ends_with("2023"))
+atlas_country <- left_join(atlas_country_2023, atlas_country_2024, by  = "index")
+  
+
+atlas_country_shape <- st_read(sprintf("%s/countries_out/country_results_2024.geojson", folder)) %>%
   select(index)
 atlas_country <- left_join(atlas_country, atlas_country_shape, by = "index") %>% st_sf(crs = 4326)
 
@@ -594,7 +678,10 @@ colnames(atlas_country) <- c("a3", "name", ind_columns_new, "geometry")
 # arrange data correctly
 atlas_country <- atlas_country %>%
   dplyr::select(a3, name,
-                starts_with("city_popdensity"),
+                matches("city_popdensity(total)?_(1975|1980|1985|1990|1995|2000|2005|2010|2015|2020)"),
+                matches("city_popdensity(total)?_2023"),
+                matches("city_popdensity(total)?_(2024)"),
+                matches("city_popdensity(total)?_(2025)"),
                 starts_with("city_blockdensity"),
                 starts_with("city_journeygap"),
                 starts_with("bike_pnpb"),
@@ -606,7 +693,7 @@ atlas_country <- atlas_country %>%
                 starts_with("transit_pnst")
   )
 
-atlas_country <- atlas_country %>% mutate(across(city_popdensity_1975:transit_pnst_2023, as.numeric))
+atlas_country <- atlas_country %>% mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
 
 # select only the indicators that we have in the indicators
 atlas_country <- atlas_country %>%
@@ -614,8 +701,9 @@ atlas_country <- atlas_country %>%
                 any_of(colnames(indicators_all))   
   ) %>%
   # round indicators
-  mutate(across(c(bike_pnpbabikewayskm_2023, bike_pnpbpbikewayskm_2023, walk_pnshealthpoints_2023, walk_pnsschoolspoints_2023,
-                  transit_pnftpoints_2023), round))
+  mutate(across(c(bike_pnpbabikewayskm_2023, bike_pnpbpbikewayskm_2023, bike_pnpbabikewayskm_2024, bike_pnpbpbikewayskm_2024,
+                  walk_pnshealthpoints_2023, walk_pnsschoolspoints_2023, walk_pnshealthpoints_2024, walk_pnsschoolspoints_2024,
+                  transit_pnftpoints_2023, transit_pnftpoints_2024), round))
 
 # save by indicator
 # ind <- "walk_pns"
@@ -627,12 +715,12 @@ save_countries <- function(ind) {
   # add a global avaregae for each indicator
   world_average <- atlas_country %>%
     st_set_geometry(NULL) %>%
-    select(city_popdensitytotal_2023, starts_with(ind)) %>%
+    select(city_popdensitytotal_2023,starts_with(ind)) %>%
     mutate(a3 = "WRD", name = "The World") %>%
     group_by(a3, name) %>%
     summarise(
       across(matches("city_popdensity_|bike_pnpb_|bike_pnpbpnab_|city_blockdensity_|transit_pnft_|transit_pnrt_|transit_pnrtbrt_|transit_pnrtbrt_|transit_pnrtmrt_|transit_pnst_|transit_pnrtlrt_|walk_pncf_|walk_pnnhighways_|walk_pns_|walk_pnspne_|walk_pnspnh_"),
-                     ~weighted.mean(.x, w = city_popdensitytotal_2023, na.rm = TRUE)),
+             ~weighted.mean(.x, w = city_popdensitytotal_2023, na.rm = TRUE)),
       across(matches("city_popdensitytotal|bike_pnpbabikewayskm|bike_pnpbpbikewayskm|walk_pnshealthpoints|walk_pnsschoolspoints|walk_pnnhighwayskm|transit_pnftpoints|transit_pnrtkmbrt|transit_pnrtkmlrt|transit_pnrtkmmrt|transit_pnrtkmall|transit_pnrtrtr"), 
              ~sum(.x, na.rm = TRUE))) %>%
     ungroup()
@@ -652,15 +740,15 @@ save_countries <- function(ind) {
                   starts_with(ind)) %>%
     rbind(world_average)
   
-    # # filter for no data
-    # if (ind == "city_poptotal") {
-    #   
-    #   atlas_country_ind <- atlas_country_ind %>% mutate(across(starts_with("city_poptotal"), ~ifelse(.x == 0, NA, .x)))
-    #   
-    # }
-    
-    # drop all NA
-    atlas_country_ind <- tidyr::drop_na(atlas_country_ind)
+  # # filter for no data
+  # if (ind == "city_poptotal") {
+  #   
+  #   atlas_country_ind <- atlas_country_ind %>% mutate(across(starts_with("city_poptotal"), ~ifelse(.x == 0, NA, .x)))
+  #   
+  # }
+  
+  # drop all NA
+  atlas_country_ind <- tidyr::drop_na(atlas_country_ind)
   
   # save
   if (nrow(atlas_country_ind) > 0) {
@@ -723,7 +811,7 @@ colnames_compare <- colnames(indicators_all_df)[9:ncol(indicators_all_df)]
 #                                  years_compare)
 
 indicators_all_df <- indicators_all_df %>%
-  mutate(across(city_popdensity_1975:transit_pnst_2023, as.numeric))
+  mutate(across(city_popdensitytotal_1975:transit_pnst_2023, as.numeric))
 
 indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
                                               cols = 9:last_col(),

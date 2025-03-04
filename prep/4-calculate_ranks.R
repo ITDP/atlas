@@ -102,7 +102,7 @@ rank_world <- data_world %>%
   # delete indicators that are NA
   group_by(admin_level) %>%
   # calculate size of each group
-  mutate(across(9:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+  mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
   # create totals - NEED FIX
   mutate(n = n()) %>%
   mutate(type_rank = "world") %>%
@@ -146,7 +146,7 @@ prep_data <- function(ghsl) {
     # delete indicators that are NA
     group_by(admin_level) %>%
     # calculate size of each group
-    mutate(across(9:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+    mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
     # create totals - NEED FIX
     mutate(n = n()) %>%
     mutate(type_rank = "country") %>%
@@ -158,7 +158,7 @@ prep_data <- function(ghsl) {
     filter(admin_level != 0) %>%
     group_by(admin_level) %>%
     # calculate size of each grou
-    mutate(across(9:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+    mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
     # create totals - NEED FIX
     mutate(n = n()) %>%
     # create type of rank

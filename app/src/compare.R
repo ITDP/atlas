@@ -147,6 +147,8 @@ output$comparison_chart <- renderHighchart({
     if (city$city_code == "") {
       
       
+      print("ui compare")
+      print(atlas_country())
       
       ui <- input$map_shape_click$id
       value_city <- subset(atlas_country(), name == ui)
@@ -170,8 +172,7 @@ output$comparison_chart <- renderHighchart({
       # print(indicator$mode)
       # print(year$ok)
       
-      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
-                                "pncf", "pnft")) {
+      if (indicator$mode %in% c("not")) {
         
         ano <- year$ok
         value_city <- subset(value_city, ind == indicator$mode & year == ano)
@@ -199,8 +200,7 @@ output$comparison_chart <- renderHighchart({
         
       }
       
-      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
-                                "pncf", "pnft")) {
+      if (indicator$mode %in% c("not")) {
         
         hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
                name = unique(value_city$name),
@@ -290,8 +290,7 @@ output$comparison_chart <- renderHighchart({
         value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
       }
       
-      if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
-                                "pncf", "pnft")) {
+      if (indicator$mode %in% c("not")) {
         
         hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
                name = unique(value_city$name),
@@ -460,8 +459,7 @@ observeEvent(c(input$city_compare1_initial), {
     }
     
     
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
-                              "pncf", "pnft")) {
+    if (indicator$mode %in% c("not")) {
       
       
       
@@ -520,8 +518,7 @@ observeEvent(c(input$city_compare1_initial), {
       value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
     }
     
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
-                              "pncf", "pnft")) {
+    if (indicator$mode %in% c("not")) {
       
       
       
@@ -619,8 +616,7 @@ output$comparison_max <- renderHighchart({
     # print(indicator$mode)
     # print(year$ok)
     
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
-                              "pncf", "pnft")) {
+    if (indicator$mode %in% c("not")) {
       
       ano <- year$ok
       value_city <- subset(value_city, ind == indicator$mode & year == ano)
@@ -648,8 +644,7 @@ output$comparison_max <- renderHighchart({
       
     }
     
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns", "journeygap",
-                              "pncf", "pnft")) {
+    if (indicator$mode %in% c("not")) {
       
       hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
              name = unique(value_city$name),
@@ -786,8 +781,7 @@ output$comparison_max <- renderHighchart({
       value_city$value <- format_indicator_values(value_city$value, transformation = indicator_info$transformation)
     }
     
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
-                              "pncf", "pnft")) {
+    if (indicator$mode %in% c("not")) {
       
       hchart(value_city, type = "column", hcaes(x = name, y = value, group = name),
              name = unique(value_city$name),
@@ -1344,8 +1338,7 @@ observeEvent(c(input$city_compare_analysis_area), {
     }
     
     
-    if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
-                              "pncf", "pnft")) {
+    if (indicator$mode %in% c("not")) {
       
       
       # add total
@@ -1421,8 +1414,7 @@ observeEvent(c(input$city_compare_analysis_area), {
   # print(input$city_compare)
   # print(ordered_colnames())
   
-  if (indicator$mode %in% c("pnpb", "pnab", "blockdensity", "pnnhighways", "pns",
-                            "pncf", "pnft")) {
+  if (indicator$mode %in% c("not")) {
     
     
     # add total

@@ -583,7 +583,7 @@ observeEvent(c(city$city_code), {
                              colorOptions = colorOptions(palette = viridis::viridis(n = 9)),
                              autozoom = FALSE)
       
-    } else if (i %in% c("protectedbike_latlon", "hs_latlon", "healthcare_latlon", "schools_latlon",
+    } else if (i %in% c("protectedbike_latlon", "healthcare_latlon", "schools_latlon",
                         "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
                         "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
                         "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon"
@@ -620,7 +620,8 @@ observeEvent(c(city$city_code), {
                                      weight = 0,
                                      opacity = 0.6,
                                      fillOpacity = 0.8,
-                                     options = pathOptions(interactive = FALSE, pane = overlay_name)
+                                     options = pathOptions(interactive = FALSE, pane = overlay_name),
+                                     layerId = overlay_name
         )
         
         
@@ -641,7 +642,8 @@ observeEvent(c(city$city_code), {
                                      # pane = overlay_name,
                                      # gl = TRUE,
                                      # options = pathOptions(pane = overlay_name),
-                                     options = pathOptions(clickable = FALSE, pane = overlay_name)
+                                     options = pathOptions(clickable = FALSE, pane = overlay_name),
+                                     layerId = overlay_name
                                      # layerId = "overlay_layer",
         )
         
@@ -906,7 +908,7 @@ observeEvent(c(indicator$mode, input$year), {
                              autozoom = FALSE)
       
       
-    } else if (i %in% c(c("protectedbike_latlon", "hs_latlon", "healthcare_latlon", "schools_latlon",
+    } else if (i %in% c(c("protectedbike_latlon",  "healthcare_latlon", "schools_latlon",
                           "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
                           "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
                           "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon"))) {
@@ -945,7 +947,8 @@ observeEvent(c(indicator$mode, input$year), {
                                      weight = 0,
                                      opacity = 0.6,
                                      fillOpacity = 0.8,
-                                     options = pathOptions(interactive = FALSE, pane = overlay_name)
+                                     options = pathOptions(interactive = FALSE, pane = overlay_name),
+                                     layerId = overlay_name
         )
         
         
@@ -966,8 +969,8 @@ observeEvent(c(indicator$mode, input$year), {
                                      # pane = overlay_name,
                                      # gl = TRUE,
                                      # options = pathOptions(pane = overlay_name),
-                                     options = pathOptions(interactive = FALSE, pane = overlay_name)
-                                     # layerId = "overlay_layer",
+                                     options = pathOptions(interactive = FALSE, pane = overlay_name),
+                                     layerId = overlay_name
         )
       }
       

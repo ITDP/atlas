@@ -36,7 +36,7 @@ indicators_all_df <- indicators_all %>% st_set_geometry(NULL) %>%
                 )
 
 # ghsl <- "0634"
-# ghsl <- "01406"
+# ghsl <- "08154"
 
 export_by_osmid <- function(ghsl) {
   
@@ -94,9 +94,9 @@ purrr::walk(cities_available, export_by_osmid)
 # export_by_osmid("05472") # jakarta
 
 # export only for comparison
-# ghsl <- "1406"
+# ghsl <- "08154"
 # ind <- "bike_pnpb"
-# level <- 10
+# level <- 8
 
 export_comparison1 <- function(level) {
   

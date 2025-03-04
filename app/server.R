@@ -713,7 +713,6 @@ function(input, output, session) {
     names <- unlist(lapply(names(list_selection), function(n) names(list_selection[[n]])))
     
     
-    
     # update list of cities accordindly
     updatePickerInput(
       session = session,

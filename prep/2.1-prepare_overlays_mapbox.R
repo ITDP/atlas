@@ -14,9 +14,10 @@ hdcs = fread('../pedestriansfirst/input_data/hdc_to_run.csv', colClasses = c("ch
 # 1) Run only the population data collection for the cities we already have data from the previous collection
 hdcs_run = hdcs[run_again==TRUE]
 hdcs_run = hdcs_run$hdc_new
+hdcs_run = hdcs$hdc_new
 
 # gather overlay from one city
-files <- dir("../pedestriansfirst/cities_out",
+files <- dir("/media/kauebraga/data/pedestriansfirst/cities_out",
              full.names = TRUE, recursive = TRUE)
 
 # remove zip
@@ -25,7 +26,7 @@ files <- files[!grepl(".zip", files)]
 files <- files[!grepl("/temp", files)]
 
 # only 2024
-files_2024 <- files[grepl("2024", files)]
+files <- files[grepl("2024", files)]
 
 # only the selected cities
 files_2024 <- files_2024[grepl(paste0(hdcs_run, collapse = "|"), files_2024)]
@@ -63,7 +64,7 @@ files <- dir("../pedestriansfirst/cities_out", full.names = TRUE, recursive = TR
 # new cycling cities
 # hdc = c('02006' , '02249' , '03048'); 
 # ind <- "protectedbike_latlon"
-# ind <- "hs_latlon"
+ind <- "hs_latlon_"
 # ind <- "healthcare_points_latlon"
 # ind <- "schools_points_latlon"
 # ind <- "healthcare_latlon"
@@ -85,8 +86,10 @@ save_ind <- function(hdc, ind) {
   
   files1 <- files[stringr::str_detect(files, "geodata")]
   # filter hdc
-  files1 <- files1[stringr::str_detect(files1, paste0(hdc, collapse = "|"))]
+  # files1 <- files1[stringr::str_detect(files1, paste0(hdc, collapse = "|"))]
   files_ind <- files1[grepl(ind, files1)]
+  
+  
   
   if (file_ext(files_ind[1]) %in% c("rds")) {
     
@@ -110,29 +113,37 @@ save_ind <- function(hdc, ind) {
     
   }
   
+  # save
+  st_write(data %>% st_cast("MULTIPOLYGON"), 
+           "source.fgb")
+  # st_write(data, layer = "hs_latlon",
+  #          "source.geojson")
+  
+  # system("gdal_rasterize -burn 255 -tr 0.01 0.01 -l source source.geojson output.tif")
+  
   # teste
   # st_write(data[1:200,], sprintf("data/%s.geojson", ind))
-  max_zoom1 <- ifelse(ind == "block_densities_latlon", 12, 9)
+  max_zoom1 <- ifelse(ind == "block_densities_latlon", 12, 15)
   
   # export to mapbox
   tippecanoe(input = data,
              # output = sprintf("data-raw/data_final/mbtiles/%s_new.mbtiles", ind),
-             output = sprintf("data/mbtiles/%s_add2.mbtiles", ind),
-             layer_name = paste0(ind, "_add2"),
-             min_zoom = 8,
+             output = sprintf("data/mbtiles/%s.mbtiles", ind),
+             layer_name = paste0(ind),
+             min_zoom = 6,
              max_zoom = max_zoom1,
              overwrite = TRUE
              # max_zoom = 16
   )
   
   
-  upload_tiles(input = sprintf("data/mbtiles/%s_add2.mbtiles", ind),
-               access_token = "sk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNscjhjdmoydzJxd3Qya21zd2t5aHN0ZmoifQ.NcKleHf_-d4buaEmcTT_Lg",
-               username = "kauebraga",
-               # tileset_id = paste0(ind, "_new"),
-               tileset_id = paste0(ind, "_add2"),
-               # tileset_name = paste0(ind, "_new"))
-               tileset_name = paste0(ind, "_add2"))
+  # upload_tiles(input = sprintf("data/mbtiles/%s_kohima.mbtiles", ind),
+  #              access_token = "sk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNscjhjdmoydzJxd3Qya21zd2t5aHN0ZmoifQ.NcKleHf_-d4buaEmcTT_Lg",
+  #              username = "kauebraga",
+  #              # tileset_id = paste0(ind, "_new"),
+  #              tileset_id = paste0(ind, "_kohima"),
+  #              # tileset_name = paste0(ind, "_new"))
+  #              tileset_name = paste0(ind, "_kohima"))
   
 }
 
@@ -155,6 +166,13 @@ save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnft_latlon")
 save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnft_points_latlon")
 save_ind(hdc = c('02006' , '02249' , '03048', '03105'), "pnst_latlon")
 
+# kohima
+save_ind(hdc = c('99999'), "healthcare_points_latlon") # ok
+save_ind(hdc = c('99999'), "schools_points_latlon") # ok
+save_ind(hdc = c('99999'), "healthcare_latlon") # ok
+save_ind(hdc = c('99999'), "schools_latlon") # ok
+save_ind(hdc = c('99999'), "buffered_hwys_latlon")
+save_ind(hdc = c('99999'), "allhwys_latlon")
 
 
 library(mapdeck)
