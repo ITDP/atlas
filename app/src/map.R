@@ -580,6 +580,7 @@ observeEvent(c(city$city_code), {
                              # layerId = "teste2",
                              group = overlay_group,
                              options = list(clickable = FALSE, pane = overlay_name),
+                             imagequery = FALSE,
                              colorOptions = colorOptions(palette = viridis::viridis(n = 9)),
                              autozoom = FALSE)
       
@@ -903,6 +904,7 @@ observeEvent(c(indicator$mode, input$year), {
         leafem::addGeoRaster(x = data,
                              opacity = 0.8,
                              group = overlay_group,
+                             imagequery = FALSE,
                              options = pathOptions(clickable = FALSE, pane = overlay_name),
                              colorOptions = colorOptions(palette = viridis::viridis(n = 9)),
                              autozoom = FALSE)
