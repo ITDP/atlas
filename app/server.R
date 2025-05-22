@@ -159,8 +159,8 @@ function(input, output, session) {
       condition = "input.indicator != ''",
       shinyWidgets::pickerInput(inputId = "year",
                                 label = NULL,
-                                choices = 2023,
-                                selected = 2023,
+                                choices = c(2023, 2024),
+                                selected = 2024,
                                 width = "330px",
                                 options = shinyWidgets::pickerOptions(
                                   size = 5
@@ -172,9 +172,27 @@ function(input, output, session) {
     
   })
   
+  output$world_view_selection <- renderUI({
+    
+    req(is.null(rank$admin_level))
+    
+    conditionalPanel(
+      condition = "input.indicator != ''",
+      shinyWidgets::pickerInput(inputId = "world_view1",
+                                label = "World View",
+                                width = "330px",
+                                choices = c("Countries" = "country", 
+                                            "UN Continents" = "UN Continents", "UN Regions" = "UN Regions", 
+                                            "World Bank Regions" = "World Bank Regions", "World Bank Income" = "World Bank Income"),
+                                selected = "country"
+      )
+    )
+    
+  })
+  
   
   # update year according to the indicator
-  year <- reactiveValues(ok = as.character(2023))
+  year <- reactiveValues(ok = as.character(2024))
   
   observeEvent(c(indicator$mode), {
     
@@ -192,9 +210,9 @@ function(input, output, session) {
       session = session,
       inputId = "year",
       choices = year_options,
-      selected = 2023)
+      selected = 2024)
     
-    year$ok <- as.character(2023)
+    year$ok <- as.character(2024)
     
     
   })
@@ -251,7 +269,7 @@ function(input, output, session) {
     compare_rv$country <- NULL
     compare_rv$countries <- NULL
     compare_rv$hdc <- NULL
-    compare_rv$choices <- sort(atlas_country()$name)
+    compare_rv$choices <- sort(subset(atlas_country(), region_type == input$world_view1)$name)
     
     
     # print("quero comer")
@@ -268,8 +286,6 @@ function(input, output, session) {
     req(input$admin_level, data_ind3_spatial(), indicator$mode, rank$admin_level, city$city_code != "")
     
     al <- unique(data_ind3_spatial()$admin_level)
-    
-    # print(al)
     
     # first, select only the ones that are available for the indicator in question
     hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
@@ -289,6 +305,7 @@ function(input, output, session) {
     choices_comparison <- subset(choices_comparison, hdc %in% hdc_available)
     # get countries
     countries <- unique(choices_comparison$country)
+    
 
     
     if (rank$admin_level != 1) {
@@ -377,7 +394,7 @@ function(input, output, session) {
                                                      multiple = FALSE,
                                                      width = "125px",
                                                      options = shinyWidgets::pickerOptions(size = 15,
-                                                                                           title = "Country...",
+                                                                                           title = "Regions...",
                                                                                            liveSearch = TRUE,
                                                                                            liveSearchPlaceholder = "Search...")
                            )),
@@ -436,7 +453,8 @@ function(input, output, session) {
     
     tagList(
       conditionalPanel(
-        condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
+        condition = "input.city != ''",
+        # condition = "input.city != '' || typeof input.map_marker_click !== 'undefined'",
         # 'typeof undefined' identifies when is null
         tags$div(class = "title_left_panel", style = "padding: 10px 0", "AT THE LEVEL OF",
                  tags$button(
@@ -462,12 +480,12 @@ function(input, output, session) {
                     # options = list(container = "body")
           )
         ),
-        conditionalPanel(
-          condition = "output.panelStatus",
-          radioGroupButtons(inputId = "regions_grid", label = "", choices = c("Regions"), selected = "Regions", justified = TRUE),
-        ),
-        conditionalPanel(
-          condition = "input.regions_grid == 'Regions'",
+        # conditionalPanel(
+        #   condition = "output.panelStatus",
+        #   radioGroupButtons(inputId = "regions_grid", label = "", choices = c("Regions"), selected = "Regions", justified = TRUE),
+        # ),
+        # conditionalPanel(
+        #   condition = "input.regions_grid == 'Regions'",
           shinyWidgets::pickerInput(inputId = "admin_level",
                                     choices = list_levels,
                                     label = NULL,
@@ -478,7 +496,7 @@ function(input, output, session) {
                                     # dragRange = FALSE
                                     # selected = character(0)
           )
-        )
+        # )
         
       )
       

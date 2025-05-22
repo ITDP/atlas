@@ -34,7 +34,7 @@ indicator_info <- reactiveValues(name = NULL,
 
 
 # display initial rank with indicators - in the world view
-observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
+observeEvent(c(indicator$mode, year$ok, input$back_to_world, input$world_view1), {
   
   
   
@@ -53,6 +53,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     # filter both the indicators value and ranks for the requeired year
     country_values <- sf::st_set_geometry(atlas_country(), NULL)
+    country_values <- subset(country_values, region_type == c(input$world_view1) | name == "The World")
     
     # country_ranks <- rank_country()
     # country_values <- atlas_country()
@@ -66,7 +67,8 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     # subset
     country_values <- country_values[cols]
-    country_ranks <- rank_country()[cols]
+    country_ranks <- subset(rank_country(), region_type == input$world_view1)
+    country_ranks <- country_ranks[cols]
     
     # rename the columns
     colnames(country_values) <- c('a3', 'name', 'value')
@@ -76,14 +78,11 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     country_values <- country_values[order(-country_values$value),]
     country_ranks <- country_ranks[order(-country_ranks$rank),]
     
-    
-    
-    
     # mean for the world
-    rank_indicator <- subset(country_values, name == "The World")$value
-    
-    # print("oooia")
-    # print(a)
+    rank_indicator <- subset(country_values, name == "The World")
+    # remove the world from the rankings
+    country_values <- subset(country_values, name != "The World")
+
     
     # print(head(filter_rank()))
     # print(spatial_level_value$last)
@@ -113,7 +112,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     
     
     
-    format_indicator_world_mean <- format_indicator_values(rank_indicator, transformation = format_indicator_unit_value)
+    format_indicator_world_mean <- format_indicator_values(rank_indicator$value, transformation = format_indicator_unit_value)
     
     format_indicator_value <- format_indicator_values(country_values$value, transformation = format_indicator_unit_value)
     
@@ -129,7 +128,12 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world), {
     )
     
     rank$rank_value_world <- rank$rank_value
-    rank$indicator$value <- rank_indicator
+    
+    # print("BEFORE")
+    # print(rank$indicator$value)
+    # print(rank_indicator)
+    
+    rank$indicator <- rank_indicator
     
     
     # ranking
@@ -221,12 +225,11 @@ observeEvent(c(input$map_shape_click), {
 # display rank when a country is clicked
 observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_world), {
   
-  req(is.null(rank$admin_level))
+  req(is.null(rank$admin_level), !is.null(rank$click))
   # req(is.null(rank$admin_level), !is.null(input$map_shape_click$id))
     
   
   message("Rank: countries rank")
-  
   
   
   if(is.null(rank$click)) {
@@ -240,11 +243,9 @@ observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_wor
   }
   
   
-  print("ui")
-  print(ui)
   
-  value_indicator <- subset(st_set_geometry(atlas_country(), NULL), name == ui)
-  rank_indicator <- subset(rank_country(), name == ui)
+  value_indicator <- subset(st_set_geometry(atlas_country(), NULL), region_type == input$world_view1 & name == ui)
+  rank_indicator <- subset(rank_country(), region_type == input$world_view1 & name == ui)
   
   pattern <- sprintf("_%s", year$ok)
   cols <- c('a3', 'name', colnames(value_indicator)[endsWith(colnames(value_indicator), pattern)])
@@ -263,8 +264,6 @@ observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_wor
   rank$indicator <- value_indicator
   
   
-  # print("rank$indicator")
-  # print(rank$indicator)
   
   # rank$country <- 
   
@@ -351,6 +350,9 @@ observeEvent(c(city$city_code), {
   city$change <- "yes"
   
 })
+
+
+last_ui <- reactiveVal(NULL)
                        
 
 # display rank when region or map is clicked
@@ -365,6 +367,9 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  # print("whyyyy")
                  # print(data_ind3_spatial())
                  
+
+                 
+                 
                  req(!is.null(rank$admin_level))
                  # req(data_ind3_spatial(), !is.null(rank$admin_level))
                  
@@ -375,6 +380,14 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  # so we need to make this overlay un-reactable from here
                  ui_ok <- grepl("^\\d{3,}", ui)
                  
+                 
+                 # Skip if same region clicked again
+                 if (!is.null(last_ui()) && ui == last_ui()) return()
+                 
+                 # Store the new region
+                 last_ui(ui)
+                 
+
                  
                  if (ui_ok) {
                    
@@ -919,6 +932,8 @@ observeEvent(c(rank$admin_level, input$map_marker_click, city$city_code, input$r
       city$city_code == previous_city,
       rank$admin_level >= 1)
   
+  
+  message("AQUIIII 2")
   
   rank_indicator <- subset(data_ind3(), osmid == city$city_code)[1,]
   # it will run only when we are at the city level

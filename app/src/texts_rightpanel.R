@@ -7,6 +7,8 @@ output$text_indicator <- renderUI({
   # print(rank$indicator)
   
   format_indicator_value <- format_indicator_values(rank$indicator$value, transformation = indicator_info$transformation)
+  # print("AIAIAIAIA")
+  # print(format_indicator_value)
   source(sprintf("www/text/text_indicator_%s.R", indicator$mode), local = TRUE)
   
   tagList(

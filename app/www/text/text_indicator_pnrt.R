@@ -8,7 +8,7 @@ p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 '<div class = "title_indicator">People Near Rapid Transport</div>',
 '<div class = "text_indicator"><p>',
 '<p>People Near Rapid Transport measures the percentage of an area’s population living within 1km of rapid transport. We include all forms of high-capacity public transport that run at high speeds in their own separate paths, such as metro trains (aka subways or MRT/HRT), light rail, and <a href="http://brtstandard.org/">bus rapid transit</a>. As with most other indicators, we calculate the 1km in terms of walking distance along walkable streets or paths rather than a simple circle.</p>',
-sprintf('<p>In <strong>%s</strong>, <strong>%s</strong> had the following rapid transport infrastructure:', 
+sprintf('<p>At the end of <strong>%s</strong>, <strong>%s</strong> had the following rapid transport infrastructure:', 
         style(input$year), 
         style(unique(rank$indicator$name))
         ), 

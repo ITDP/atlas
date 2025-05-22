@@ -125,6 +125,10 @@ rename_columns <- function(data) {
                replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
                x = data,
                perl = TRUE)
+  data <- gsub(pattern = "(stns)_([[:lower:]]{3})_(\\d{4})",
+               replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+               x = data,
+               perl = TRUE)
   
   
   data <- gsub(pattern = "(pnst)_(\\d{4})",
@@ -157,10 +161,10 @@ prep_data <- function(ghsl) {
       
       a <- fread(file) 
       
-      } else {
-        a <- st_read(file)
-        
-      }
+    } else {
+      a <- st_read(file)
+      
+    }
     
     
     # create admin level
@@ -220,7 +224,7 @@ prep_data <- function(ghsl) {
     )
     
     a <- a %>% mutate(hdc = stringr::str_pad(hdc, width = 5, side = "left", pad = 0))
-
+    
     
     
     # identify the ghsl number to the osmid
@@ -238,7 +242,7 @@ prep_data <- function(ghsl) {
     a <- a %>% mutate(level_name = ifelse(is.na(level_name), level_name_eng, level_name))
     # identify the ghsl level as 0
     a <- a %>% mutate(admin_level = ifelse(level_name == "Agglomeration", 0, 
-                                                 ifelse(level_name =="Brazilian Metro Areas", 1, admin_level)))
+                                           ifelse(level_name =="Brazilian Metro Areas", 1, admin_level)))
     a <- a %>% filter(level_name != "Brazilian Metro Areas")
     
     
@@ -267,15 +271,15 @@ prep_data <- function(ghsl) {
   }
   
   data <- lapply(files, open_data)
-    
-    
+  
+  
   # join the datasets
   data <- reduce(data, left_join, 
                  by = c("hdc", "osmid", "name", "admin_level")) %>% st_sf(crs = 4326)
   # %>% st_sf(crs = 4326)
   
   attr(data, "agr") <- NULL
-
+  
   # scale the admin_level - from 0 to max
   ordered_admin <- sort(as.numeric(unique(data$admin_level)))
   admin_level_oder <- data.frame(admin_level = as.character(ordered_admin), admin_level_ordered = seq(from = 1, to = length(ordered_admin)))
@@ -372,6 +376,10 @@ prep_data <- function(ghsl) {
                       x = ind_columns,
                       perl = TRUE)
   ind_columns <- gsub(pattern = "(rtr)_([[:lower:]]{3})_(\\d{4})",
+                      replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+                      x = ind_columns,
+                      perl = TRUE)
+  ind_columns <- gsub(pattern = "(stns)_([[:lower:]]{3})_(\\d{4})",
                       replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
                       x = ind_columns,
                       perl = TRUE)
@@ -519,36 +527,76 @@ readr::write_rds(indicators_ghsl_centroids, "data/data_final/atlas_city_markers.
 
 
 
-# calculate mean for each country -----------------
+# country and regional values -----------------
 
 
 atlas_country_2023 <- read.csv(sprintf("%s/countries_out/country_results_2023.csv", folder)) %>%
   rename(index = X) %>%
-  select(index, ends_with("2023"))
+  mutate(region_type = "country") %>%
+  select(index, name, region_type, ends_with("2023"))
+regions_2023 <- read.csv(sprintf("%s/countries_out/region_results_2023.csv", folder)) %>%
+  # rename(index = X) %>%
+  tidyr::separate(X, into = c("region_type", "name"), sep = " / ") %>%
+  mutate(region_type = trimws(region_type, "both"),
+         name = trimws(name, "both")) %>%
+  mutate(name = ifelse(region_type == "world", "world", name)) %>%
+  # create index
+  mutate(index = janitor::make_clean_names(name, allow_dupes = TRUE)) %>%
+  select(index, name, region_type, ends_with("2023"))
+# put them together
+regions_all_2023 <- rbind(atlas_country_2023, regions_2023)
+
+
 atlas_country_2024 <- read.csv(sprintf("%s/countries_out/country_results_2024.csv", folder)) %>%
   rename(index = X) %>%
-  select(-ends_with("2023"))
-atlas_country <- left_join(atlas_country_2023, atlas_country_2024, by  = "index")
-  
+  select(-ends_with("2023")) %>%
+  mutate(region_type = "country") %>%
+  select(index, name, region_type, everything())
+regions_2024 <- read.csv(sprintf("%s/countries_out/region_results_2024.csv", folder)) %>%
+  # rename(index = X) %>%
+  tidyr::separate(X, into = c("region_type", "name"), sep = " / ") %>%
+  mutate(region_type = trimws(region_type, "both"),
+         name = trimws(name, "both")) %>%
+  mutate(name = ifelse(region_type == "world", "world", name)) %>%
+  # create index
+  mutate(index = janitor::make_clean_names(name, allow_dupes = TRUE)) %>%
+  select( -ends_with("2023")) %>%
+  select(index, name, region_type, everything())
+# put them together
+regions_all_2024 <- rbind(atlas_country_2024, regions_2024)
 
-atlas_country_shape <- st_read(sprintf("%s/countries_out/country_results_2024.geojson", folder)) %>%
-  select(index)
-atlas_country <- left_join(atlas_country, atlas_country_shape, by = "index") %>% st_sf(crs = 4326)
 
-# bring the names
-atlas_country <- atlas_country %>%
-  filter(index != "-99") %>%
-  left_join(
-    countrycode::codelist %>% dplyr::select(country.name.en, iso3c),
-    
-    by = c("index" = "iso3c")) %>%
-  # select(-name) %>%
-  # rename(name = country.name.en) %>%
-  select(a3 = index, name, everything())
+# atlas_country_2024 <- read.csv(sprintf("%s/countries_out/country_results_2024.csv", folder)) %>%
+#   rename(index = X) %>%
+#   select(-ends_with("2023"))
+# atlas_country <- left_join(atlas_country_2023, atlas_country_2024, by  = "index")
+# bring everything to the same dataset
+regions_all <- left_join(regions_all_2023, regions_all_2024 %>% select(-name), by  = c("index", "region_type"))
+
+
+# bring the geometries
+regions_shapes <- st_read("../pedestriansfirst/input_data/regions/regions_all.gpkg") %>%
+  select(index = region_code, region_type) %>%
+  # simplify
+  rmapshaper::ms_simplify(., keep = 0.05) %>%
+  st_cast("MULTIPOLYGON")
+
+regions_all <- left_join(regions_all, regions_shapes, by = c("index", "region_type")) %>% st_sf(crs = 4326)
+
+# # bring the names
+regions_all <- regions_all %>%
+  #   filter(index != "-99") %>%
+  #   left_join(
+  #     countrycode::codelist %>% dplyr::select(country.name.en, iso3c),
+  #     
+  #     by = c("index" = "iso3c")) %>%
+  #   # select(-name) %>%
+  #   # rename(name = country.name.en) %>%
+  select(a3 = index, name, region_type, everything())
 
 # rename indicators
 # get available indicators for this city
-ind_columns <- colnames(atlas_country)[colnames(atlas_country) %nin% c("a3", "name", "geometry")]
+ind_columns <- colnames(regions_all)[colnames(regions_all) %nin% c("a3", "name", "region_type",  "geom")]
 
 
 # first, rename indicators that are divided by year
@@ -638,6 +686,10 @@ ind_columns <- gsub(pattern = "(rtr)_([[:lower:]]{3})_(\\d{4})",
                     replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
                     x = ind_columns,
                     perl = TRUE)
+ind_columns <- gsub(pattern = "(stns)_([[:lower:]]{3})_(\\d{4})",
+                    replacement = "transit_pnrt\\L\\1\\E\\2_\\3",
+                    x = ind_columns,
+                    perl = TRUE)
 
 
 ind_columns <- gsub(pattern = "(pnst)_(\\d{4})",
@@ -673,11 +725,11 @@ ind_columns_new <- fcase(
 )
 
 
-colnames(atlas_country) <- c("a3", "name", ind_columns_new, "geometry")
+colnames(regions_all) <- c("a3", "name", "region_type",  ind_columns_new, "geom")
 
 # arrange data correctly
-atlas_country <- atlas_country %>%
-  dplyr::select(a3, name,
+regions_all <- regions_all %>%
+  dplyr::select(a3, name, region_type,
                 matches("city_popdensity(total)?_(1975|1980|1985|1990|1995|2000|2005|2010|2015|2020)"),
                 matches("city_popdensity(total)?_2023"),
                 matches("city_popdensity(total)?_(2024)"),
@@ -693,11 +745,11 @@ atlas_country <- atlas_country %>%
                 starts_with("transit_pnst")
   )
 
-atlas_country <- atlas_country %>% mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
+regions_all <- regions_all %>% mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
 
 # select only the indicators that we have in the indicators
-atlas_country <- atlas_country %>%
-  dplyr::select(a3, name,
+regions_all <- regions_all %>%
+  dplyr::select(a3, name, region_type,
                 any_of(colnames(indicators_all))   
   ) %>%
   # round indicators
@@ -713,11 +765,11 @@ save_countries <- function(ind) {
   message("saving ", ind)
   
   # add a global avaregae for each indicator
-  world_average <- atlas_country %>%
+  world_average <- regions_all %>%
     st_set_geometry(NULL) %>%
     select(city_popdensitytotal_2023,starts_with(ind)) %>%
-    mutate(a3 = "WRD", name = "The World") %>%
-    group_by(a3, name) %>%
+    mutate(a3 = "WRD", name = "The World", region_type = "world") %>%
+    group_by(a3, name, region_type) %>%
     summarise(
       across(matches("city_popdensity_|bike_pnpb_|bike_pnpbpnab_|city_blockdensity_|transit_pnft_|transit_pnrt_|transit_pnrtbrt_|transit_pnrtbrt_|transit_pnrtmrt_|transit_pnst_|transit_pnrtlrt_|walk_pncf_|walk_pnnhighways_|walk_pns_|walk_pnspne_|walk_pnspnh_"),
              ~weighted.mean(.x, w = city_popdensitytotal_2023, na.rm = TRUE)),
@@ -733,10 +785,10 @@ save_countries <- function(ind) {
   }
   
   
-  world_average <- st_sf(world_average, geometry = lapply(1:nrow(world_average), function(x) st_multipolygon()), crs = 4326)
+  world_average <- st_sf(world_average, geom = lapply(1:nrow(world_average), function(x) st_multipolygon()), crs = 4326)
   
-  atlas_country_ind <- atlas_country %>% 
-    dplyr::select(a3, name, 
+  regions_all_ind <- regions_all %>% 
+    dplyr::select(a3, name, region_type,
                   starts_with(ind)) %>%
     rbind(world_average)
   
@@ -748,25 +800,26 @@ save_countries <- function(ind) {
   # }
   
   # drop all NA
-  atlas_country_ind <- tidyr::drop_na(atlas_country_ind)
+  regions_all_ind <- tidyr::drop_na(regions_all_ind)
   
   # save
-  if (nrow(atlas_country_ind) > 0) {
+  if (nrow(regions_all_ind) > 0) {
     
     
-    readr::write_rds(atlas_country_ind, sprintf("data/data_final/countries/atlas_country_%s.rds",
-                                                ind))
+    readr::write_rds(regions_all_ind, sprintf("data/data_final/countries/atlas_regions_%s.rds",
+                                              ind))
     
   }
 }
 
 
 # to long format
-colnames_compare <- colnames(atlas_country)[3:ncol(atlas_country)]
+colnames_compare <- colnames(regions_all)[4:ncol(regions_all)]
 # extract year
 years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
                       replacement = "\\1",
                       x = colnames_compare)
+# remove geom string
 years_compare <- years_compare[-length(years_compare)]
 ind_list <- unique(years_compare)
 # apply

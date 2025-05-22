@@ -27,7 +27,7 @@ atlas_country <- reactive({
   pattern <- sprintf("%s_%s", indicator$type, indicator$mode)
   
   # open data
-  a <- readRDS(sprintf("../data/data_final/countries/atlas_country_%s.rds", pattern))
+  a <- readRDS(sprintf("../data/data_final/countries/atlas_regions_%s.rds", pattern))
   
   # print("aagsagas")
   # print(a)
@@ -106,7 +106,7 @@ counter <- reactiveValues(obs1 = NULL,
                           obs2 = NULL)
 
 # update world values when indicator is changed -------
-observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
+observeEvent(c(indicator$mode, input$year,  input$back_to_world, input$world_view1), {
   
   req(indicator$mode, input$year, indicator_info$transformation, is.null(rank$admin_level))
   
@@ -118,8 +118,8 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   a <- atlas_city_markers[cols]
   colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'value', 'geom')
   
-  # print("a")
-  # print(a)
+  # print("aaaaaaaa")
+  # print(input$world_view1)
   
   a_available <- subset(a, !is.na(value))
   a_notavailable <- subset(a, is.na(value))
@@ -132,12 +132,15 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
   # print("atlas_country()")
   # print(atlas_country())
   
-  cols_country <- c('a3', 'name', colnames(atlas_country())[startsWith(colnames(atlas_country()), pattern)], 'geometry')
-  a_country <- atlas_country()[cols_country]
-  colnames(a_country) <- c('a3', 'name', 'value', 'geometry')
+  # the default view should be the country view
+  atlas_country <- subset(atlas_country(), region_type == input$world_view1)
   
-  # print("A CONOCN")
-  # print(a_country)
+  cols_country <- c('a3', 'name', colnames(atlas_country)[startsWith(colnames(atlas_country), pattern)], 'geom')
+  a_country <- atlas_country[cols_country]
+  colnames(a_country) <- c('a3', 'name', 'value', 'geom')
+  
+  print("A CONOCN")
+  print(a_country)
   
   
   a_available$value <- as.numeric(a_available$value)
@@ -265,7 +268,7 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world), {
 
 
 # update the world map when the indicators is changed ---------------------
-observeEvent(c(indicator$mode, input$year, input$back_to_world), {
+observeEvent(c(indicator$mode, input$year, input$back_to_world, input$world_view1), {
   
   req(indicator$mode, is.null(rank$admin_level), input$year, indicator_info$transformation)
   

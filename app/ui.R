@@ -141,6 +141,7 @@ ui <- fluidPage(
                                                                                                    showContent = FALSE)
                                    ),
                                    uiOutput('year'),
+                                   uiOutput('world_view_selection'),
                                    uiOutput('city_selection'),
                                    # create the panel with the spatial scale
                                    uiOutput('spatial_level'),

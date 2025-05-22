@@ -76,8 +76,6 @@ observeEvent(c(input$city_compare_level_analysis), {
   ui <- sprintf("../data/data_final/comp/indicators_compare_%s_%s.rds",
                 level, pattern)
   
-  print("ind_compare")
-  print(ui)
   a <- readRDS(ui)
   
   ind_compare$ind_compare <- a  
@@ -128,8 +126,6 @@ output$comparison_chart <- renderHighchart({
   # req(ind_city())
   
   
-  # print("COUNTRYyyyy")
-  
   
   # ind_city()
   input$map_shape_click
@@ -147,24 +143,23 @@ output$comparison_chart <- renderHighchart({
     if (city$city_code == "") {
       
       
-      print("ui compare")
-      print(atlas_country())
+      # print("ui compare")
+      # print(atlas_country())
       
       ui <- input$map_shape_click$id
-      value_city <- subset(atlas_country(), name == ui)
+      value_city <- subset(atlas_country(), region_type == input$world_view1 & name == ui)
       value_city <- st_sf(value_city)
       value_city <- st_set_geometry(value_city, NULL)
       value_city <- tidyr::pivot_longer(value_city,
-                                        cols = 3:last_col(),
+                                        cols = 4:last_col(),
                                         names_sep = "_",
                                         names_to = c("ind_type", "ind", "year"),
                                         values_to = "value")
       
       # make sure we are filtering the right indicator
       value_city <- subset(value_city, ind == indicator$mode)
+      value_city <- value_city[order(value_city$year),,drop=FALSE]
       
-      # print("value_city")
-      # print(value_city)
       
       # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
       # filter
@@ -227,8 +222,6 @@ output$comparison_chart <- renderHighchart({
         
       } else {
         
-        print("value_city")
-        print(value_city)
         
         hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
                name = unique(value_city$name),
@@ -273,6 +266,7 @@ output$comparison_chart <- renderHighchart({
       
       
       value_city <- subset(ind_city(), osmid == ui)
+      value_city <- value_city[order(value_city$year),,drop=FALSE]
       
       format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
       format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
@@ -433,11 +427,11 @@ observeEvent(c(input$city_compare1_initial), {
     
     
     
-    value_compare <- subset(atlas_country(), name == tail(ordered_colnames(), 1))
+    value_compare <- subset(atlas_country(), region_type == input$world_view1 & name == tail(ordered_colnames(), 1))
     value_compare <- st_sf(value_compare)
     value_compare <- st_set_geometry(value_compare, NULL)
     value_compare <- tidyr::pivot_longer(value_compare,
-                                         cols = 3:last_col(),
+                                         cols = 4:last_col(),
                                          names_sep = "_",
                                          names_to = c("ind_type", "ind", "year"),
                                          values_to = "value")
@@ -595,17 +589,18 @@ output$comparison_max <- renderHighchart({
     
     
     ui <- input$map_shape_click$id
-    value_city <- subset(atlas_country(), name == ui)
+    value_city <- subset(atlas_country(), region_type == input$world_view1 & name == ui)
     value_city <- st_sf(value_city)
     value_city <- st_set_geometry(value_city, NULL)
     value_city <- tidyr::pivot_longer(value_city,
-                                      cols = 3:last_col(),
+                                      cols = 4:last_col(),
                                       names_sep = "_",
                                       names_to = c("ind_type", "ind", "year"),
                                       values_to = "value")
     
     # make sure we are filtering the right indicator
     value_city <- subset(value_city, ind == indicator$mode)
+    value_city <- value_city[order(value_city$year),,drop=FALSE]
     
     # print("value_city")
     # print(value_city)
@@ -756,14 +751,9 @@ output$comparison_max <- renderHighchart({
     ui <- if(is.null(input$map_shape_click)) city$city_code else input$map_shape_click$id
     ui <- if(rank$admin_level == 1) city$city_code else ui
     
-    print("ui")
-    print(ui)
-    print(ordered_colnames())
-    
     # print(ordered_colnames())
     value_city <- subset(ind_city(), osmid %in% c(ui, ordered_colnames()))
-    print("value_city()")
-    print(value_city)
+    value_city <- value_city[order(value_city$year),,drop=FALSE]
     
     # make sure we are filtering the right indicator
     # value_city <- subset(value_city, ind == indicator$mode)
@@ -902,7 +892,7 @@ observeEvent(c(input$maximize_comparison), {
     # 1) select only the ones that are available for the indicator in question
     # hdc_available1 <-  subset(list_availability, grepl(pattern = indicator$mode, x = ind))
     # countries_available <- unique(hdc_available1$country)
-    countries_available <- sort(atlas_country()$name)
+    countries_available <- sort(subset(atlas_country(), region_type == input$world_view1)$name)
     
     
     showModal(modalDialog1(
@@ -922,7 +912,7 @@ observeEvent(c(input$maximize_comparison), {
                                       width = "200px",
                                       multiple = TRUE,
                                       options = shinyWidgets::pickerOptions(size = 15,
-                                                                            title = "Country",
+                                                                            title = "Regions......",
                                                                             liveSearch = TRUE,
                                                                             liveSearchPlaceholder = "Search...")
             )),
@@ -1312,11 +1302,11 @@ observeEvent(c(input$city_compare_analysis_area), {
     
     
     
-    value_compare <- subset(atlas_country(), name == tail(ordered_colnames1(), 1))
+    value_compare <- subset(atlas_country(), region_type == input$world_view1 & name == tail(ordered_colnames1(), 1))
     value_compare <- st_sf(value_compare)
     value_compare <- st_set_geometry(value_compare, NULL)
     value_compare <- tidyr::pivot_longer(value_compare,
-                                         cols = 3:last_col(),
+                                         cols = 4:last_col(),
                                          names_sep = "_",
                                          names_to = c("ind_type", "ind", "year"),
                                          values_to = "value")
