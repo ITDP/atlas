@@ -186,15 +186,8 @@ prep_data <- function(ghsl) {
     }
     
     a <- a %>%
-      # dplyr::select(-starts_with("rtr_")) %>%
-      dplyr::select(-starts_with("stns_")) %>%
-      # dplyr::select(-starts_with("km_")) %>%
       dplyr::select(-starts_with("n_points_special")) %>%
       dplyr::select(-starts_with("performance")) %>%
-      # select(-performance_walk_30, -performance_walk_60, -performance_bike_lts1_30, -performance_bike_lts1_45,
-      # -performance_bike_lts1_60, -performance_bike_lts2_30, -performance_bike_lts2_60) %>%
-      # select(-density) %>%
-      # select(-blockmean_density) %>%
       dplyr::select(-geospatial_calctime, -summary_calctime, -matches("V1"),
                     -matches("name_long"))
     
@@ -758,7 +751,7 @@ regions_all <- regions_all %>%
                   transit_pnftpoints_2023, transit_pnftpoints_2024), round))
 
 # save by indicator
-# ind <- "walk_pns"
+# ind <- "transit_pnrt"
 save_countries <- function(ind) {
   
   
@@ -773,7 +766,7 @@ save_countries <- function(ind) {
     summarise(
       across(matches("city_popdensity_|bike_pnpb_|bike_pnpbpnab_|city_blockdensity_|transit_pnft_|transit_pnrt_|transit_pnrtbrt_|transit_pnrtbrt_|transit_pnrtmrt_|transit_pnst_|transit_pnrtlrt_|walk_pncf_|walk_pnnhighways_|walk_pns_|walk_pnspne_|walk_pnspnh_"),
              ~weighted.mean(.x, w = city_popdensitytotal_2023, na.rm = TRUE)),
-      across(matches("city_popdensitytotal|bike_pnpbabikewayskm|bike_pnpbpbikewayskm|walk_pnshealthpoints|walk_pnsschoolspoints|walk_pnnhighwayskm|transit_pnftpoints|transit_pnrtkmbrt|transit_pnrtkmlrt|transit_pnrtkmmrt|transit_pnrtkmall|transit_pnrtrtr"), 
+      across(matches("city_popdensitytotal|bike_pnpbabikewayskm|bike_pnpbpbikewayskm|walk_pnshealthpoints|walk_pnsschoolspoints|walk_pnnhighwayskm|transit_pnftpoints|transit_pnrtkmbrt|transit_pnrtkmlrt|transit_pnrtkmmrt|transit_pnrtkmall|transit_pnrtrtr|transit_pnrtstnsall|transit_pnrtstnslrt|transit_pnrtstnsbrt|transit_pnrtstnsmrt"), 
              ~sum(.x, na.rm = TRUE))) %>%
     ungroup()
   

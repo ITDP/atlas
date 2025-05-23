@@ -31,7 +31,7 @@ prep_overlays1 <- function(ghsl, year) {
   # ghsl <- "01406"
   # ghsl <- "01165"
   # ghsl <- "00017"
-  # ghsl <- "00299"; year = 2024
+  # ghsl <- "08154"; year = 2024
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
@@ -42,7 +42,7 @@ prep_overlays1 <- function(ghsl, year) {
   overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = "(.geojson|.tif)$", recursive = TRUE)
   overlay_files <- overlay_files[overlay_files %like% paste(overlay_table$overlay, collapse  = "|")]
   # filter year
-  overlay_files <- overlay_files[overlay_files %like% sprintf("_%s.", year)]
+  overlay_files <- overlay_files[overlay_files %like% sprintf("_%s.|/%s/", year, year)]
   
   # we will include population for 2025, which will be the proxy for 2023/2024
   overlay_files <- c(overlay_files, sprintf("%s/geodata/population/pop_2025.tif", base_dir))
@@ -50,7 +50,7 @@ prep_overlays1 <- function(ghsl, year) {
   # save overlay for each indicator
   save_overlay <- function(file) {
     # file <- overlay_files[overlay_files %like% "allhwys_latlon_2024"]
-    # file <- overlay_files[overlay_files %like% "pnft"]
+    # file <- overlay_files[overlay_files %like% "rapid_transit"][1]
 
     print(file)
     
@@ -157,6 +157,11 @@ purrr::walk(cities_available, prep_overlays1, year = 2023)
 purrr::walk(cities_available, prep_overlays1, year = 2024)
 
 results <- purrr::map(cities_available, possibly(prep_overlays1, otherwise = "erro"), year = 2024)
+
+
+
+
+
 
 
 # evaluate which cities are left

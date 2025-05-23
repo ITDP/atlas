@@ -18,7 +18,7 @@ output$downloadData_countries_gpkg <- downloadHandler(
     
     pattern <-  sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
     
-    sf::st_write(world_view$a_country, file)
+    sf::st_write(atlas_country(), file)
     
   }
   
@@ -34,7 +34,7 @@ output$downloadData_countries_csv <- downloadHandler(
   },
   content = function(file) {
     
-    write.csv(sf::st_set_geometry(world_view$a_country, NULL), file, row.names = FALSE, sep = ",")
+    write.csv(sf::st_set_geometry(atlas_country(), NULL), file, row.names = FALSE, sep = ",")
     
   }
   
@@ -50,7 +50,12 @@ output$downloadData_cities_gpkg <- downloadHandler(
   },
   content = function(file) {
     
-    sf::st_write(world_view$a_available[, c("name", "hdc", "value")], file)
+    pattern <-  sprintf("%s_%s", indicator$type, indicator$mode)
+    
+    cols <- c("hdc", "country", "name", grep(pattern, colnames(atlas_city_markers), ignore.case = TRUE, value = TRUE), "geom")
+    a <- atlas_city_markers[cols]
+    
+    sf::st_write(a, file)
     
   }
   
@@ -66,7 +71,13 @@ output$downloadData_cities_csv <- downloadHandler(
   },
   content = function(file) {
     
-    write.csv(sf::st_set_geometry(world_view$a_available[, c("name", "hdc", "value")], NULL), file, row.names = FALSE, sep = ",")
+    
+    pattern <-  sprintf("%s_%s", indicator$type, indicator$mode)
+    
+    cols <- c("hdc", "country", "name", grep(pattern, colnames(atlas_city_markers), ignore.case = TRUE, value = TRUE), "geom")
+    a <- atlas_city_markers[cols]
+    
+    write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE, sep = ",")
     
   }
   

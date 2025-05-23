@@ -51,3 +51,10 @@ brazil_cities <- indicators_all %>%
 
 # save
 readr::write_rds(brazil_cities, "data/data_final/brazil_cities.rds")
+
+
+
+
+# create a file with all the data for each agglomeration ------------------
+
+

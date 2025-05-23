@@ -139,9 +139,6 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world, input$world_vie
   a_country <- atlas_country[cols_country]
   colnames(a_country) <- c('a3', 'name', 'value', 'geom')
   
-  print("A CONOCN")
-  print(a_country)
-  
   
   a_available$value <- as.numeric(a_available$value)
   # we should truncate popdensity to 20000
@@ -548,9 +545,6 @@ observeEvent(c(city$city_code), {
   fix <- indicator$mode
   overlays_to_open <- subset(overlay_table, indicator == fix)
   
-  print("obaaa")
-  # print(fix)
-  # print(overlays_to_open)
   
   for(i in overlays_to_open$overlay){
     
@@ -587,21 +581,22 @@ observeEvent(c(city$city_code), {
                              colorOptions = colorOptions(palette = viridis::viridis(n = 9)),
                              autozoom = FALSE)
       
-    } else if (i %in% c("protectedbike_latlon", "healthcare_latlon", "schools_latlon",
-                        "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
-                        "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
-                        "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon"
-                        )) {
+    } else if (i %in% c(
+      # "protectedbike_latlon", "healthcare_latlon", "schools_latlon",
+      # "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
+      # "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
+      # "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon"
+    )) {
       
       
       
-      map <- map %>%
-        mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
-                                  style_id = overlay_mapboxid,
-                                  username = "kauebraga",
-                                  group = overlay_group,
-                                  # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
-                                  options = tileOptions(pane = overlay_name))
+      # map <- map %>%
+      #   mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+      #                             style_id = overlay_mapboxid,
+      #                             username = "kauebraga",
+      #                             group = overlay_group,
+      #                             # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
+      #                             options = tileOptions(pane = overlay_name))
       
     } else {
       
@@ -913,22 +908,21 @@ observeEvent(c(indicator$mode, input$year), {
                              autozoom = FALSE)
       
       
-    } else if (i %in% c(c("protectedbike_latlon",  "healthcare_latlon", "schools_latlon",
-                          "pnst_latlon", "pnft_points_latlon", "pnft_latlon", "allbike_latlon",
-                          "pnab_latlon", "pnpb_latlon", "allhwys_latlon", "buffered_hwys_latlon",
-                          "carfree_latlon", "schools_points_latlon", "healthcare_points_latlon"))) {
+    } else if (i %in% "")
+      
+      {
       
       
       # print(i)
       # print("iiiii")
       
-      map <- map %>%
-        mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
-                                  style_id = overlay_mapboxid,
-                                  username = "kauebraga",
-                                  group = overlay_group,
-                                  # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
-                                  options = tileOptions(pane = overlay_name))
+      # map <- map %>%
+      #   mapboxapi::addMapboxTiles(access_token = "pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ",
+      #                             style_id = overlay_mapboxid,
+      #                             username = "kauebraga",
+      #                             group = overlay_group,
+      #                             # group = paste0('<svg height="15" width="15" xmlns="http://www.w3.org/2000/svg"><circle r="7.5" cx="7.5" cy="7.5" stroke="green" stroke-width="1" fill="red" /></svg>', overlay_name),
+      #                             options = tileOptions(pane = overlay_name))
       
     } else {
       
