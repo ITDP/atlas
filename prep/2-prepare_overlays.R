@@ -31,7 +31,7 @@ prep_overlays1 <- function(ghsl, year) {
   # ghsl <- "01406"
   # ghsl <- "01165"
   # ghsl <- "00017"
-  # ghsl <- "08154"; year = 2024
+  # ghsl <- "05402"; year = 2023
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
@@ -42,7 +42,7 @@ prep_overlays1 <- function(ghsl, year) {
   overlay_files <- dir(paste0(base_dir, "geodata"), full.names = TRUE, pattern = "(.geojson|.tif)$", recursive = TRUE)
   overlay_files <- overlay_files[overlay_files %like% paste(overlay_table$overlay, collapse  = "|")]
   # filter year
-  overlay_files <- overlay_files[overlay_files %like% sprintf("_%s.|/%s/", year, year)]
+  overlay_files <- overlay_files[overlay_files %like% sprintf("_%s.", year)]
   
   # we will include population for 2025, which will be the proxy for 2023/2024
   overlay_files <- c(overlay_files, sprintf("%s/geodata/population/pop_2025.tif", base_dir))
@@ -157,6 +157,96 @@ purrr::walk(cities_available, prep_overlays1, year = 2023)
 purrr::walk(cities_available, prep_overlays1, year = 2024)
 
 results <- purrr::map(cities_available, possibly(prep_overlays1, otherwise = "erro"), year = 2024)
+
+
+
+
+
+# export PNRT separately  -------------------------------------------------
+
+
+# ghsl <- "00039"
+prep_overlays_pnrt <- function(ghsl) {
+  
+  
+  base_dir <- sprintf("%s/cities_out/ghsl_region_%s/", folder, ghsl)
+  
+  # overlay files ------------------------------------
+  overlay_files <- dir(paste0(base_dir, "geodata/rapid_transit"), full.names = TRUE, pattern = "(.geojson|.tif)$", recursive = TRUE)
+  overlay_files <- overlay_files[overlay_files %like% paste(overlay_table$overlay, collapse  = "|")]
+  
+  # save overlay for each indicator
+  save_overlay <- function(file) {
+    # file <- overlay_files[overlay_files %like% "rapid_transit"][66]
+    
+    # extract year
+    year <- sub("(^.*)/(rapid_transit/)(\\d{4})/(.*$)", "\\3", file)
+    # extract  name
+    ind <- basename(file)
+    ind <-  if (file %like% "rapid_transit") sub(pattern = "(.geojson|.tif)", replacement = "", x = ind) else sub(pattern = "_\\d{4}(.geojson|.tif)", replacement = "", x = ind)
+    
+    # extract the format
+    format <- overlay_table %>%
+      filter(overlay == ind) %>%
+      pull(format) %>% unique()
+    
+    # format
+    if(format == "fgb") {
+      
+      dir.create(sprintf("data/data_final/ghsl_%s/overlays/%s", ghsl, ind), recursive = TRUE)
+      
+      a <- st_read(file)
+      
+      # export fgb
+      out12 <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year)
+      out <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year)
+      out1 <- sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl,  ind, ghsl, year)
+      if (file.exists(out12)) {
+        
+        file.remove(out)
+        file.remove(out12)
+        file.remove(out1)
+      }
+      
+      a <- a %>% mutate(a = 1)
+      
+      file.remove(sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year))
+      file.remove(sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year))
+      
+      try(st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year)))
+      
+      # export the geojson (to go to the .zip)
+      if (!(file %in% c("brt_lines_ll", "brt_stations_ll", "lrt_lines_ll", "lrt_stations_ll", "mrt_lines_ll", "mrt_stations_ll"))) {
+        
+        st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year),
+                 append = FALSE)
+        
+      }
+      
+      # a <- a %>% mutate(a = 1)
+      
+      # st_write(a, sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year1))
+      # st_write(a, sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year1),
+      #          append = FALSE)
+      
+    } 
+    
+    
+  }
+  
+  
+  message("done for ", ghsl)
+  walk(overlay_files, save_overlay)
+  
+  return("ok")
+}
+
+
+
+
+cities_available <- unique(indicators_all$hdc)
+
+results <- purrr::map(cities_available, possibly(prep_overlays_pnrt, otherwise = "erro"))
 
 
 
