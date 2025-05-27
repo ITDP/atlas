@@ -381,11 +381,11 @@ observeEvent(c(input$map_shape_click, city$city_code,
                  ui_ok <- grepl("^\\d{3,}", ui)
                  
                  
-                 # Skip if same region clicked again
-                 if (!is.null(last_ui()) && ui == last_ui()) return()
-                 
-                 # Store the new region
-                 last_ui(ui)
+                 # # Skip if same region clicked again
+                 # if (!is.null(last_ui()) && ui == last_ui()) return()
+                 # 
+                 # # Store the new region
+                 # last_ui(ui)
                  
 
                  
