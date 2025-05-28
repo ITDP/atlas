@@ -29,6 +29,31 @@ output$downloadData_countries_gpkg <- downloadHandler(
     # Reconstruct the data frame with sorted indicator columns
     a <- atlas_country()[c("a3", "name", "region_type", ordered_indicators, "geom")]
     
+    # Define keywords to detect
+    keywords <- c("km", "stns", "rtr")
+    
+    # Function to process names
+    fix_colnames <- function(names) {
+      
+      # name <- "transit_pnrtrtrall_1990"
+      sapply(names, function(name) {
+        if (any(grepl(paste0(keywords, collapse = "|"), name))) {
+          # Add underscores around keyword
+          name <- gsub("(pnrt)?(km|stns|rtr)", "\\1_\\2_", name)
+          # Remove the full 'transit_pnrt' or 'transit_pnrt_' prefix
+          name <- sub("^transit_pnrt_?", "", name)
+          # Remove double underscores if any
+          name <- gsub("__", "_", name)
+          # Trim leading/trailing underscores
+          name <- gsub("^_|_$", "", name)
+        }
+        return(name)
+      }, USE.NAMES = FALSE)
+    }
+    
+    
+    colnames(a) <- fix_colnames(colnames(a))
+    
     sf::st_write(a, file)
     
   }
@@ -55,6 +80,32 @@ output$downloadData_countries_csv <- downloadHandler(
     ordered_indicators <- indicator_cols[order(years)]
     # Reconstruct the data frame with sorted indicator columns
     a <- atlas_country()[c("a3", "name", "region_type", ordered_indicators, "geom")]
+    
+    
+    # Define keywords to detect
+    keywords <- c("km", "stns", "rtr")
+    
+    # Function to process names
+    fix_colnames <- function(names) {
+      
+      # name <- "transit_pnrtrtrall_1990"
+      sapply(names, function(name) {
+        if (any(grepl(paste0(keywords, collapse = "|"), name))) {
+          # Add underscores around keyword
+          name <- gsub("(pnrt)?(km|stns|rtr)", "\\1_\\2_", name)
+          # Remove the full 'transit_pnrt' or 'transit_pnrt_' prefix
+          name <- sub("^transit_pnrt_?", "", name)
+          # Remove double underscores if any
+          name <- gsub("__", "_", name)
+          # Trim leading/trailing underscores
+          name <- gsub("^_|_$", "", name)
+        }
+        return(name)
+      }, USE.NAMES = FALSE)
+    }
+    
+    
+    colnames(a) <- fix_colnames(colnames(a))
     
     write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE, sep = ",")
     
@@ -88,6 +139,31 @@ output$downloadData_cities_gpkg <- downloadHandler(
     # Reconstruct the data frame with sorted indicator columns
     a <- a[c("hdc", "country", "name", ordered_indicators, "geom")]
     
+    # Define keywords to detect
+    keywords <- c("km", "stns", "rtr")
+    
+    # Function to process names
+    fix_colnames <- function(names) {
+      
+      # name <- "transit_pnrtrtrall_1990"
+      sapply(names, function(name) {
+        if (any(grepl(paste0(keywords, collapse = "|"), name))) {
+          # Add underscores around keyword
+          name <- gsub("(pnrt)?(km|stns|rtr)", "\\1_\\2_", name)
+          # Remove the full 'transit_pnrt' or 'transit_pnrt_' prefix
+          name <- sub("^transit_pnrt_?", "", name)
+          # Remove double underscores if any
+          name <- gsub("__", "_", name)
+          # Trim leading/trailing underscores
+          name <- gsub("^_|_$", "", name)
+        }
+        return(name)
+      }, USE.NAMES = FALSE)
+    }
+    
+    
+    colnames(a) <- fix_colnames(colnames(a))
+    
     sf::st_write(a, file)
     
   }
@@ -119,6 +195,32 @@ output$downloadData_cities_csv <- downloadHandler(
     ordered_indicators <- indicator_cols[order(years)]
     # Reconstruct the data frame with sorted indicator columns
     a <- a[c("hdc", "country", "name", ordered_indicators, "geom")]
+    
+    # Define keywords to detect
+    keywords <- c("km", "stns", "rtr")
+    
+    # Function to process names
+    fix_colnames <- function(names) {
+      
+      # name <- "transit_pnrtrtrall_1990"
+      sapply(names, function(name) {
+        if (any(grepl(paste0(keywords, collapse = "|"), name))) {
+          # Add underscores around keyword
+          name <- gsub("(pnrt)?(km|stns|rtr)", "\\1_\\2_", name)
+          # Remove the full 'transit_pnrt' or 'transit_pnrt_' prefix
+          name <- sub("^transit_pnrt_?", "", name)
+          # Remove double underscores if any
+          name <- gsub("__", "_", name)
+          # Trim leading/trailing underscores
+          name <- gsub("^_|_$", "", name)
+        }
+        return(name)
+      }, USE.NAMES = FALSE)
+    }
+    
+    
+    colnames(a) <- fix_colnames(colnames(a))
+    
     
     write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE, sep = ",")
     
