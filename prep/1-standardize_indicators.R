@@ -144,7 +144,6 @@ rename_columns <- function(data) {
 
 
 # ghsl <- "08154"
-# ghsl <- "08154"
 prep_data <- function(ghsl) {
   
   files <- c(sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2023.csv", folder, ghsl),
@@ -432,7 +431,7 @@ prep_data <- function(ghsl) {
   colnames(data) <- c("hdc", "country", "a3", "osmid", "name", "admin_level", "admin_level_ordered", "admin_level_name", ind_columns_new, "geom")
   
   # arrange data correctly
-  data <- data %>%
+  data1 <- data %>%
     dplyr::select(hdc, country, a3, osmid, name, admin_level, admin_level_ordered, admin_level_name,
                   # starts_with("city_poptotal"),
                   matches("city_popdensity(total)?_(1975|1980|1985|1990|1995|2000|2005|2010|2015|2020)"),
@@ -447,7 +446,10 @@ prep_data <- function(ghsl) {
                   starts_with("walk_pncf"),
                   starts_with("walk_pnnhighways"),
                   starts_with("transit_pnft"),
-                  starts_with("transit_pnrt"),
+                  matches("transit_pnrt(.*)?_(1975|1980|1985|1990|1995|2000|2005|2010|2015|2020)"),
+                  matches("transit_pnrt(.*)?_2023"),
+                  matches("transit_pnrt(.*)?_(2024)"),
+                  matches("transit_pnrt(.*)?_(2025)"),
                   starts_with("transit_pnst")
     ) %>%
     mutate(across(starts_with("transit"), as.numeric))
@@ -510,9 +512,11 @@ indicators_all <- purrr::map_dfr(dir("data/data_final", pattern = "^indicators_\
 
 
 # select the admin level NA - the ghsl level
-indicators_ghsl <- indicators_all %>% filter(admin_level == 0) %>% st_sf(crs = 4326)
+indicators_ghsl <- indicators_all %>% filter(admin_level == 0) %>% st_sf(crs = 4326) %>% st_make_valid()
 # centroids
 indicators_ghsl_centroids <- st_centroid(indicators_ghsl)
+# order by indicator and year
+
 # save
 readr::write_rds(indicators_ghsl_centroids, "data/data_final/atlas_city_markers.rds")
 
@@ -565,6 +569,8 @@ regions_all_2024 <- rbind(atlas_country_2024, regions_2024)
 # atlas_country <- left_join(atlas_country_2023, atlas_country_2024, by  = "index")
 # bring everything to the same dataset
 regions_all <- left_join(regions_all_2023, regions_all_2024 %>% select(-name), by  = c("index", "region_type"))
+
+# order by year?
 
 
 # bring the geometries

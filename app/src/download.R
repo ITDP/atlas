@@ -18,7 +18,18 @@ output$downloadData_countries_gpkg <- downloadHandler(
     
     pattern <-  sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
     
-    sf::st_write(atlas_country(), file)
+    # Separate the fixed columns
+    fixed_cols <- c("a3", "name", "region_type", "geom")
+    # Get only the indicator column names
+    indicator_cols <- setdiff(names(atlas_country()), fixed_cols)
+    # Extract year from indicator column names
+    years <- as.numeric(sub(".*_(\\d{4})$", "\\1", indicator_cols))
+    # Order indicator columns by year
+    ordered_indicators <- indicator_cols[order(years)]
+    # Reconstruct the data frame with sorted indicator columns
+    a <- atlas_country()[c("a3", "name", "region_type", ordered_indicators, "geom")]
+    
+    sf::st_write(a, file)
     
   }
   
@@ -34,7 +45,18 @@ output$downloadData_countries_csv <- downloadHandler(
   },
   content = function(file) {
     
-    write.csv(sf::st_set_geometry(atlas_country(), NULL), file, row.names = FALSE, sep = ",")
+    # Separate the fixed columns
+    fixed_cols <- c("a3", "name", "region_type", "geom")
+    # Get only the indicator column names
+    indicator_cols <- setdiff(names(atlas_country()), fixed_cols)
+    # Extract year from indicator column names
+    years <- as.numeric(sub(".*_(\\d{4})$", "\\1", indicator_cols))
+    # Order indicator columns by year
+    ordered_indicators <- indicator_cols[order(years)]
+    # Reconstruct the data frame with sorted indicator columns
+    a <- atlas_country()[c("a3", "name", "region_type", ordered_indicators, "geom")]
+    
+    write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE, sep = ",")
     
   }
   
@@ -51,9 +73,20 @@ output$downloadData_cities_gpkg <- downloadHandler(
   content = function(file) {
     
     pattern <-  sprintf("%s_%s", indicator$type, indicator$mode)
+    # pattern <- "transit_pnrt"
     
     cols <- c("hdc", "country", "name", grep(pattern, colnames(atlas_city_markers), ignore.case = TRUE, value = TRUE), "geom")
     a <- atlas_city_markers[cols]
+    # Separate the fixed columns
+    fixed_cols <- c("hdc", "country", "name", "geom")
+    # Get only the indicator column names
+    indicator_cols <- setdiff(names(a), fixed_cols)
+    # Extract year from indicator column names
+    years <- as.numeric(sub(".*_(\\d{4})$", "\\1", indicator_cols))
+    # Order indicator columns by year
+    ordered_indicators <- indicator_cols[order(years)]
+    # Reconstruct the data frame with sorted indicator columns
+    a <- a[c("hdc", "country", "name", ordered_indicators, "geom")]
     
     sf::st_write(a, file)
     
@@ -76,6 +109,16 @@ output$downloadData_cities_csv <- downloadHandler(
     
     cols <- c("hdc", "country", "name", grep(pattern, colnames(atlas_city_markers), ignore.case = TRUE, value = TRUE), "geom")
     a <- atlas_city_markers[cols]
+    # Separate the fixed columns
+    fixed_cols <- c("hdc", "country", "name", "geom")
+    # Get only the indicator column names
+    indicator_cols <- setdiff(names(a), fixed_cols)
+    # Extract year from indicator column names
+    years <- as.numeric(sub(".*_(\\d{4})$", "\\1", indicator_cols))
+    # Order indicator columns by year
+    ordered_indicators <- indicator_cols[order(years)]
+    # Reconstruct the data frame with sorted indicator columns
+    a <- a[c("hdc", "country", "name", ordered_indicators, "geom")]
     
     write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE, sep = ",")
     
