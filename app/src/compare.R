@@ -455,7 +455,7 @@ observeEvent(c(input$city_compare1_initial), {
     
     if (indicator$mode %in% c("not")) {
       
-      
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
       
       # add total
       highchartProxy("comparison_chart") %>%
@@ -475,6 +475,7 @@ observeEvent(c(input$city_compare1_initial), {
       
     } else {
       
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
       
       # add total
       highchartProxy("comparison_chart") %>%
@@ -514,7 +515,7 @@ observeEvent(c(input$city_compare1_initial), {
     
     if (indicator$mode %in% c("not")) {
       
-      
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
       
       # add total
       highchartProxy("comparison_chart") %>%
@@ -534,7 +535,7 @@ observeEvent(c(input$city_compare1_initial), {
       
     } else {
       
-      
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
       
       # add total
       highchartProxy("comparison_chart") %>%
@@ -1379,6 +1380,8 @@ observeEvent(c(input$city_compare_analysis_area), {
     
     if (indicator$mode %in% c("not")) {
       
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
+      
       
       # add total
       highchartProxy("comparison_max") %>%
@@ -1399,6 +1402,8 @@ observeEvent(c(input$city_compare_analysis_area), {
     } else {
       
       print("Adding city")
+      
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
       
       
       # add total
@@ -1457,6 +1462,8 @@ observeEvent(c(input$city_compare_analysis_area), {
   if (indicator$mode %in% c("not")) {
     
     
+    value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
+    
     # add total
     highchartProxy("comparison_max") %>%
       # hcpxy_remove_series(id = "que") %>%
@@ -1476,6 +1483,9 @@ observeEvent(c(input$city_compare_analysis_area), {
   } else {
     
     message("Adding city ", tail(ordered_colnames1(), 1))
+    print(value_compare)
+    
+    value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
     
     # add total
     highchartProxy("comparison_max") %>%
