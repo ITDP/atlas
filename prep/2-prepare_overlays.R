@@ -32,6 +32,7 @@ prep_overlays1 <- function(ghsl, year) {
   # ghsl <- "01165"
   # ghsl <- "00017"
   # ghsl <- "05402"; year = 2023
+  # ghsl <- "08258"; year = 2024
   
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
   # base_dir <- sprintf("data-raw/atlas_data_july_31/cities_out/ghsl_region_%s/", ghsl)
@@ -47,11 +48,12 @@ prep_overlays1 <- function(ghsl, year) {
   # we will include population for 2025, which will be the proxy for 2023/2024
   overlay_files <- c(overlay_files, sprintf("%s/geodata/population/pop_2025.tif", base_dir))
   
+  
   # save overlay for each indicator
   save_overlay <- function(file) {
     # file <- overlay_files[overlay_files %like% "allhwys_latlon_2024"]
     # file <- overlay_files[overlay_files %like% "rapid_transit"][1]
-
+    
     print(file)
     
     # year1 <- if (file %like% "rapid_transit") sub("(^.*)/(rapid_transit/)(\\d{4})/(.*$)", "\\3", file)   else  sub("(^.*)(\\d{4})((.geojson|.tif)$)", "\\2", basename(file))
@@ -159,7 +161,86 @@ purrr::walk(cities_available, prep_overlays1, year = 2024)
 results <- purrr::map(cities_available, possibly(prep_overlays1, otherwise = "erro"), year = 2024)
 
 
+# we need to make sure that all overlays are included here, even if they are not available
 
+fill_missing_overlays <- function(ghsl) {
+  
+  
+  # ghsl <- "08258"
+  # ghsl <- "08154"
+  
+  # check all the files
+  folder <- sprintf("data/data_final/ghsl_%s/overlays/", ghsl)
+  files <- dir(folder, recursive = TRUE)
+  # remove unecessary
+  files <- files[!(grepl(pattern = ".zip", x = files))]
+  files <- files[!(grepl(pattern = "temp/", x = files))]
+  # remove extension
+  files <- tools::file_path_sans_ext(files)
+  
+  # files all
+  files_all <- sprintf("%s/%s_%s", overlay_table$overlay, overlay_table$overlay, ghsl)
+  # add years
+  files_all <- c(sprintf("%s_%s", files_all, c("2023")), sprintf("%s_%s", files_all, c("2024"))) 
+  
+  # extract the overlay
+  # set the difference
+  files_missing <- setdiff(files_all, files)
+  
+  if (length(files_missing >= 1)) {
+    
+    message("Fixing ", length(files_missing), " files")
+    
+    # add the extensions
+    files_missing <- paste0(files_missing, ".fgb")
+    
+    
+    
+    # for those, we will create empty .ffgp files
+    
+    # Create empty geometry list
+    empty_geom <- st_sfc(st_multipolygon(), crs = 4326)  # empty simple feature geometry list
+    
+    # Create empty sf object
+    empty_sf <- st_sf(geometry = empty_geom)
+    empty_sf <- empty_sf %>% mutate(a = 1)
+    
+    save_missing <- function(file_path) {
+      
+      # file_path <- files_missing[1]
+      # Create directory if it doesn't exist
+      dir.create(sprintf("data/data_final/ghsl_%s/overlays/%s", ghsl, dirname(file_path)), recursive = TRUE, showWarnings = TRUE)
+      
+      # export fgb
+      # out12 <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year)
+      # out <- sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year)
+      # out1 <- sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl,  ind, ghsl, year)
+      
+      
+      
+      # file.remove(sprintf("data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.fgb", ghsl, ind,  ind, ghsl, year))
+      # file.remove(sprintf("data/data_final/ghsl_%s/overlays/temp/%s_%s_%s.geojson", ghsl, ind, ghsl, year))
+      
+      try(st_write(empty_sf, sprintf("data/data_final/ghsl_%s/overlays/%s", ghsl, file_path), quiet = TRUE))
+      
+      
+    }
+    
+    # apply to very file
+    purrr::walk(files_missing, save_missing)
+    
+  } else {
+    
+    
+    message("No files to fix")
+    
+  }
+  
+}
+
+cities_available <- unique(indicators_all$hdc)
+
+purrr::walk(cities_available, fill_missing_overlays)
 
 
 # export PNRT separately  -------------------------------------------------

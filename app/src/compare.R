@@ -461,7 +461,7 @@ observeEvent(c(input$city_compare1_initial), {
       highchartProxy("comparison_chart") %>%
         # hcpxy_remove_series(id = "que") %>%
         hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                         id = "que",
+                         id = tail(ordered_colnames(), 1),
                          type = "column",
                          # color = "white",
                          name = unique(value_compare$name),
@@ -480,7 +480,7 @@ observeEvent(c(input$city_compare1_initial), {
       highchartProxy("comparison_chart") %>%
         # hcpxy_remove_series(id = "que") %>%
         hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
-                         id = "que",
+                         id = tail(ordered_colnames(), 1),
                          type = "line",
                          # color = "white",
                          name = unique(value_compare$name),
@@ -520,7 +520,7 @@ observeEvent(c(input$city_compare1_initial), {
       highchartProxy("comparison_chart") %>%
         # hcpxy_remove_series(id = "que") %>%
         hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                         id = "que",
+                         id = tail(ordered_colnames(), 1),
                          type = "column",
                          # color = "white",
                          name = unique(value_compare$name),
@@ -540,7 +540,7 @@ observeEvent(c(input$city_compare1_initial), {
       highchartProxy("comparison_chart") %>%
         # hcpxy_remove_series(id = "que") %>%
         hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
-                         id = "que",
+                         id = tail(ordered_colnames(), 1),
                          type = "line",
                          # color = "white",
                          name = unique(value_compare$name),
@@ -571,12 +571,44 @@ observeEvent(c(input$city_compare1_initial), {
 
 
 
-# if the user selectcs a city that is already selected, make sure the graph remove this city accordingly
+previous_selection <- reactiveVal(character(0))
+
+# to remove series from the comparision
 observeEvent(c(input$city_compare1_initial), {
   
-  # print(ordered_colnames())
+  # print(ordered_colnames1())
   
-})
+  old_vals <- previous_selection()
+  new_vals <- if (is.null(input$city_compare1_initial)) {
+    character(0)
+  } else {
+    input$city_compare1_initial
+  }
+  
+  
+  # Identify removed items
+  removed <- setdiff(old_vals, new_vals)
+  
+  if (length(removed) > 0) {
+    # Run code only when something was unselected
+    message("Removed: ", paste(removed, collapse = ", "))
+    # put your logic here
+  }
+  
+  previous_selection(new_vals)
+  
+  if (length(removed) > 0) {
+    
+    print(removed)
+    
+    highchartProxy("comparison_chart") %>%
+      hcpxy_remove_series(id = removed)
+    
+  }
+  
+  
+  
+}, ignoreNULL = FALSE)
 
 # modal
 
@@ -916,8 +948,8 @@ observeEvent(c(input$maximize_comparison), {
                                                                             liveSearch = TRUE,
                                                                             liveSearchPlaceholder = "Search...")
             )),
-        div(style="display:inline-block",
-            actionButton("reset_graph", "Clear Selection")),
+        # div(style="display:inline-block",
+        #     actionButton("reset_graph", "Clear Selection")),
         highchartOutput("comparison_max", height = "100%")
       )))
     
@@ -1273,15 +1305,32 @@ observeEvent(c(input$city_compare_level_analysis), {
 
 
 # use reactive to get and sort the selected terms in the order of selection
+# ordered_colnames1 <- reactive({
+#   
+#   req(input$maximize_comparison >= 1)
+#   
+#   if (length(reV_order$values_max) > length(input$city_compare_analysis_area)) {
+#     reV_order$values_max <- reV_order$values_max[reV_order$values_max %in% input$city_compare_analysis_area]
+#   }else {
+#     reV_order$values_max <- c(reV_order$values_max, input$city_compare_analysis_area[!input$city_compare_analysis_area %in% reV_order$values_max])
+#   }
+#   reV_order$values_max
+# })
+
 ordered_colnames1 <- reactive({
-  
   req(input$maximize_comparison >= 1)
   
-  if (length(reV_order$values_max) > length(input$city_compare_analysis_area)) {
-    reV_order$values_max <- reV_order$values_max[reV_order$values_max %in% input$city_compare_analysis_area]
-  }else {
-    reV_order$values_max <- c(reV_order$values_max, input$city_compare_analysis_area[!input$city_compare_analysis_area %in% reV_order$values_max])
-  }
+  # Start from previous values
+  old_vals <- reV_order$values_max
+  new_vals <- input$city_compare_analysis_area
+  
+  # Remove values that are no longer selected
+  old_vals <- old_vals[old_vals %in% new_vals]
+  
+  # Find values that are new and append them
+  added_vals <- setdiff(new_vals, old_vals)
+  reV_order$values_max <- c(old_vals, added_vals)
+  
   reV_order$values_max
 })
 
@@ -1289,14 +1338,14 @@ observe({ ordered_colnames1() })
 
 
 
-
+# to add cities to the comparison
 observeEvent(c(input$city_compare_analysis_area), {
+  
   
   req(input$maximize_comparison >= 1, input$city_compare_analysis_area != "")
   
   # print("ordered_colnames1()")
   # print(ordered_colnames1())
-  
   
   if (city$city_code == "") {
     
@@ -1335,7 +1384,7 @@ observeEvent(c(input$city_compare_analysis_area), {
       highchartProxy("comparison_max") %>%
         # hcpxy_remove_series(id = "que") %>%
         hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                         id = "que",
+                         id = tail(ordered_colnames1(), 1),
                          type = "column",
                          # color = "white",
                          name = unique(value_compare$name),
@@ -1349,13 +1398,14 @@ observeEvent(c(input$city_compare_analysis_area), {
       
     } else {
       
+      print("Adding city")
       
       
       # add total
       highchartProxy("comparison_max") %>%
         # hcpxy_remove_series(id = "que") %>%
         hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
-                         id = "que",
+                         id = tail(ordered_colnames1(), 1),
                          type = "line",
                          # color = "white",
                          name = unique(value_compare$name),
@@ -1411,7 +1461,7 @@ observeEvent(c(input$city_compare_analysis_area), {
     highchartProxy("comparison_max") %>%
       # hcpxy_remove_series(id = "que") %>%
       hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                       id = "que",
+                       id = tail(ordered_colnames1(), 1),
                        type = "column",
                        # color = "white",
                        name = unique(value_compare$name),
@@ -1425,13 +1475,13 @@ observeEvent(c(input$city_compare_analysis_area), {
     
   } else {
     
-    
+    message("Adding city ", tail(ordered_colnames1(), 1))
     
     # add total
     highchartProxy("comparison_max") %>%
       # hcpxy_remove_series(id = "que") %>%
       hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
-                       id = "que",
+                       id = tail(ordered_colnames1(), 1),
                        type = "line",
                        # color = "white",
                        name = unique(value_compare$name),
@@ -1454,26 +1504,68 @@ observeEvent(c(input$city_compare_analysis_area), {
   
     }
   
-})
+}, ignoreNULL = FALSE)
 
+previous_selection_max <- reactiveVal(character(0))
 
-
-observeEvent(c(input$reset_graph), {
+# to remove series from the comparision
+observeEvent(c(input$city_compare_analysis_area), {
+  
+  req(input$maximize_comparison >= 1)
+  
+  # print("ordered_colnames1()")
+  # print(input$city_compare_analysis_area)
+  # print(ordered_colnames1())
+  
+  old_vals <- previous_selection_max()
+  new_vals <- if (is.null(input$city_compare_analysis_area)) {
+    character(0)
+  } else {
+    input$city_compare_analysis_area
+  }
   
   
-  req(input$reset_graph >= 1)
+  # Identify removed items
+  removed <- setdiff(old_vals, new_vals)
+  
+  if (length(removed) > 0) {
+    # Run code only when something was unselected
+    message("Removed: ", paste(removed, collapse = ", "))
+    # put your logic here
+  }
+  
+  previous_selection_max(new_vals)
+  
+  if (length(removed) > 0) {
+    
+    print(removed)
   
   highchartProxy("comparison_max") %>%
-    hcpxy_remove_series(all = TRUE)
-  
-  updatePickerInput(
-    session = session,
-    inputId = "city_compare1",
-    choices = comparison$choices)
+    hcpxy_remove_series(id = removed)
+    
+  }
   
   
   
-})
+}, ignoreNULL = FALSE)
+
+
+# observeEvent(c(input$reset_graph), {
+#   
+#   
+#   req(input$reset_graph >= 1)
+#   
+#   highchartProxy("comparison_max") %>%
+#     hcpxy_remove_series(all = TRUE)
+#   
+#   updatePickerInput(
+#     session = session,
+#     inputId = "city_compare1",
+#     choices = comparison$choices)
+#   
+#   
+#   
+# })
 
 
 # observeEvent(c(input$city_compare1), {
