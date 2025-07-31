@@ -48,6 +48,9 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world, input$world_view1),
   
   if(is.null(rank$admin_level)) {
     
+    # return()
+    print("AQUIIUIUIUIUI")
+    
     # set the indicator in question
     pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
     
@@ -59,7 +62,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world, input$world_view1),
     # country_values <- atlas_country()
     
     # define the cols to subset 
-    cols <- c('a3', 'name', colnames(atlas_country())[startsWith(colnames(atlas_country()), pattern)])
+    cols <- c('a3', 'name', colnames(atlas_country())[endsWith(colnames(atlas_country()), pattern)])
     # print("cooools")
     # print(cols)
     # print(country_values)
@@ -70,9 +73,14 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world, input$world_view1),
     country_ranks <- subset(rank_country(), region_type == input$world_view1)
     country_ranks <- country_ranks[cols]
     
+    
+    print("country_values")
+    print(country_values)
+    
     # rename the columns
     colnames(country_values) <- c('a3', 'name', 'value')
     colnames(country_ranks) <- c('a3', 'name', 'rank')
+    
     
     # order
     country_values <- country_values[order(-country_values$value),]
@@ -133,7 +141,7 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world, input$world_view1),
     # print(rank$indicator$value)
     # print(rank_indicator)
     
-    rank$indicator <- rank_indicator
+    # rank$indicator <- rank_indicator
     
     
     # ranking
@@ -225,10 +233,9 @@ observeEvent(c(input$map_shape_click), {
 # display rank when a country is clicked
 observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_world), {
   
-  req(is.null(rank$admin_level), !is.null(rank$click))
-  # req(is.null(rank$admin_level), !is.null(input$map_shape_click$id))
+  req(is.null(rank$admin_level))
+  # req(is.null(rank$admin_level), !is.null(rank$click))
     
-  
   message("Rank: countries rank")
   
   
@@ -236,16 +243,20 @@ observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_wor
   
     ui <- "The World"
     
+    
+    value_indicator <- subset(st_set_geometry(atlas_country(), NULL), name == ui)
+    rank_indicator <- subset(rank_country(), name == ui)
+    
   } else {
   # get the click country
   ui <- rank$click
   
-  }
-  
-  
-  
   value_indicator <- subset(st_set_geometry(atlas_country(), NULL), region_type == input$world_view1 & name == ui)
   rank_indicator <- subset(rank_country(), region_type == input$world_view1 & name == ui)
+  
+  }
+  
+
   
   pattern <- sprintf("_%s", year$ok)
   cols <- c('a3', 'name', colnames(value_indicator)[endsWith(colnames(value_indicator), pattern)])
@@ -262,6 +273,9 @@ observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_wor
   
   
   rank$indicator <- value_indicator
+  
+  print("WOOOOO")
+  print(input$world_view1)
   
   
   
