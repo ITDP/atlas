@@ -1095,8 +1095,8 @@ observeEvent(c(input$maximize_comparison), {
                                                                             liveSearch = TRUE,
                                                                             liveSearchPlaceholder = "Search...")
             )),
-        div(style="display:inline-block",
-            actionButton("reset_graph", "Clear Selection")),
+        # div(style="display:inline-block",
+        #     actionButton("reset_graph", "Clear Selection")),
         highchartOutput("comparison_max", height = "100%")
         
       )
