@@ -31,6 +31,7 @@ $('#city').on('shown.bs.select', function() {
 });"
 
 ui <- fluidPage(
+  disconnectMessage(text = "Failed to connect to server. If this keeps happening, clear your cache (ctrl-f5)"),
   # this script will add elements to the right side of the topbar (links etc) ok
   # Load Css
   tags$head(includeCSS("www/styles.css")),

@@ -12,6 +12,7 @@ library(leaflet.extras2)
 library(shinyBS)
 library(shinycssloaders)
 library(shinymanager)
+library(shinydisconnect)
 # install.packages('mapboxapi')
 
 
