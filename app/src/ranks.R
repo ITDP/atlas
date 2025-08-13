@@ -125,15 +125,86 @@ observeEvent(c(indicator$mode, year$ok, input$back_to_world, input$world_view1),
     format_indicator_value <- format_indicator_values(country_values$value, transformation = format_indicator_unit_value)
     
     
+    # set style for the text
+    style_number <- function(x) {
+      
+      paste0('<strong style="font-size: 25px; color: #00AE42;">', x, '</strong>') 
+      
+    }
+    
+    style_text <- function(x) {
+      
+      paste0('<strong style="font-size: 20px; color: #00AE42;">', x, '</strong>') 
+      
+    }
+    
+    indicator_label <- switch(indicator$mode,
+                              "popdensity" = sprintf("In %s, on average, people in urban areas of %s lived in a neighborhood of %s people per km2", 
+                                                     input$year,
+                                                     style_text("the world"), 
+                                                     style_number(format_indicator_world_mean)),
+                              "blockdensity" = sprintf("In %s, %s had an average of %s blocks per km2", 
+                                                       input$year,
+                                                       style_text("the world"),
+                                                       style_number(format_indicator_world_mean)),
+                              "journeygap" = sprintf("In %s, the average trip takes %s times as long by walking, bicycling, or public transport as by driving.", 
+                                                     style_text("the world"),
+                                                     style_number(format_indicator_world_mean)),
+                              "pns" = sprintf("In %s, %s%s of people in %s lived within 1km of both healthcare and education services.", 
+                                              input$year,
+                                              style_number(format_indicator_world_mean), 
+                                              style_number("%"), 
+                                              style_text("the world")),
+                              "pncf" = sprintf("In %s, %s%s of people in %s lived within 100m of a car-free space.", 
+                                               input$year,
+                                               style_number(format_indicator_world_mean), 
+                                               style_number("%"), 
+                                               style_text("the world")),
+                              "pnh" = sprintf("In %s, %s%s of people in %s lived farther than 500m from a grade-separated highway. ", 
+                                              input$year,
+                                              style_number(format_indicator_world_mean), 
+                                              style_number("%"), 
+                                              style_text("the world")),
+                              "pnpb" = sprintf('In %s, %s%s of people in %s lived within a 300m walk of a physically-protected bikeway. ', 
+                                               input$year,
+                                               style_number(format_indicator_world_mean), 
+                                               style_number("%"), 
+                                               style_text("the world")),
+                              "pnrt" = sprintf("In %s, %s%s of people in %s lived within 1km of high-capacity public transport running on a dedicated right-of-way.", 
+                                               input$year,   
+                                               style_number(format_indicator_world_mean), 
+                                               style_number("%"), 
+                                               style_text("the world")),
+                              "pnft" = sprintf("In %s, %s%s of people in %s lived within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
+                                               input$year,   
+                                               style_number(format_indicator_world_mean), 
+                                               style_number("%"), 
+                                               style_text("the world")),
+                              "pnst" = sprintf("In %s, %s%% of people in %s lived within walkable distance of both protected cycleways and frequent/rapid public transport.", 
+                                               input$year,   
+                                               style_number(format_indicator_world_mean), 
+                                               style_text("the world"))
+                              
+    )
+    
+    
     
     rank$rank_value <- paste0(
-      # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-      '<div class="title_indicator" style="font-size: 22px;">', 
-      "THE WORLD", '</div>',
-      div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), 
-      ifelse(format_indicator_unit == "%", "", " "), 
-      p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
+      '<div class="title_indicator" style="font-size: 19px; font-weight: normal;">', 
+      indicator_label,
+      '</div>'
     )
+    
+    
+    
+    # rank$rank_value <- paste0(
+    #   # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+    #   '<div class="title_indicator" style="font-size: 22px;">', 
+    #   "THE WORLD", '</div>',
+    #   div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_world_mean), 
+    #   ifelse(format_indicator_unit == "%", "", " "), 
+    #   p(style = "color: #B1B5B9; display: inline; font-size: 22px;", format_indicator_unit)
+    # )
     
     rank$rank_value_world <- rank$rank_value
     
@@ -326,16 +397,86 @@ observeEvent(c(input$map_shape_click, indicator$mode, year$ok, input$back_to_wor
     
   }
   
+  # set style for the text
+  style_number <- function(x) {
+    
+    paste0('<strong style="font-size: 25px; color: #00AE42;">', x, '</strong>') 
+    
+  }
+  
+  style_text <- function(x) {
+    
+    paste0('<strong style="font-size: 20px; color: #00AE42;">', x, '</strong>') 
+    
+  }
+  
+  indicator_label <- switch(indicator$mode,
+                            "popdensity" = sprintf("In %s, on average, people in urban areas of %s lived in a neighborhood of %s people per km2", 
+                                                   input$year,
+                                                   rank_indicator$name, 
+                                                   style_number(format_indicator_value)),
+                            "blockdensity" = sprintf("In %s, cities in %s had an average of %s blocks per km2", 
+                                                     input$year,
+                                                     style_text(rank_indicator$name), 
+                                                     style_number(format_indicator_value)),
+                            "journeygap" = sprintf("In %s, the average trip takes %s times as long by walking, bicycling, or public transport as by driving.", 
+                                                   style_text(rank_indicator$name), 
+                                                   style_number(format_indicator_value)),
+                            "pns" = sprintf("In %s, %s%s of people in urban areas in %s lived within 1km of both healthcare and education services.", 
+                                            input$year,
+                                            style_number(format_indicator_value), 
+                                            style_number("%"), 
+                                            style_text(rank_indicator$name)),
+                            "pncf" = sprintf("In %s, %s%s of people in urban areas in %s lived within 100m of a car-free space.", 
+                                             input$year,
+                                             style_number(format_indicator_value), 
+                                             style_number("%"), 
+                                             style_text(rank_indicator$name)),
+                            "pnh" = sprintf("In %s, %s%s of people in urban areas in %s lived farther than 500m from a grade-separated highway. ", 
+                                            input$year,
+                                            style_number(format_indicator_value), 
+                                            style_number("%"), 
+                                            style_text(rank_indicator$name)),
+                            "pnpb" = sprintf('In %s, %s%s of people in urban areas in %s lived within a 300m walk of a physically-protected bikeway. ', 
+                                             input$year,
+                                             style_number(format_indicator_value), 
+                                             style_number("%"), 
+                                             style_text(rank_indicator$name)),
+                            "pnrt" = sprintf("In %s, %s%s of people in urban areas in %s lived within 1km of high-capacity public transport running on a dedicated right-of-way.", 
+                                             input$year,   
+                                             style_number(format_indicator_value), 
+                                             style_number("%"), 
+                                             style_text(rank_indicator$name)),
+                            "pnft" = sprintf("In %s, %s%s of people in urban areas in %s lived within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
+                                             input$year,   
+                                             style_number(format_indicator_value), 
+                                             style_number("%"), 
+                                             style_text(rank_indicator$name)),
+                            "pnst" = sprintf("In %s, %s%% of people in %s lived within walkable distance of both protected cycleways and frequent/rapid public transport.", 
+                                             input$year,   
+                                             style_number(format_indicator_value), 
+                                             style_text(rank_indicator$name))
+                            
+  )
+  
   
   
   rank$rank_value <- paste0(
-    # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
-    '<div class="title_indicator" style="font-size: 20px;">', 
-    rank_indicator$name, '</div>',
-    div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), 
-    ifelse(format_indicator_unit == "%", "", " "),
-    p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
+    '<div class="title_indicator" style="font-size: 19px; font-weight: normal;">', 
+    indicator_label,
+    '</div>'
   )
+  
+  
+  
+  # rank$rank_value <- paste0(
+  #   # '<div class="title_indicator_label" style="padding-bottom: 0px; padding-top: 10px">THIS INDICATOR IN </div>', 
+  #   '<div class="title_indicator" style="font-size: 20px;">', 
+  #   rank_indicator$name, '</div>',
+  #   div(class = "value_indicator_rightpanel", style = "display: inline", format_indicator_value), 
+  #   ifelse(format_indicator_unit == "%", "", " "),
+  #   p(style = "color: #B1B5B9; display: inline; font-size: 22px", format_indicator_unit)
+  # )
   
   
 }
@@ -484,40 +625,49 @@ observeEvent(c(input$map_shape_click, city$city_code,
                      # create the indicator label for each indicator
                      # print(rank_indicator$name)
                      indicator_label <- switch(indicator$mode,
-                                               "popdensity" = sprintf("On average, people in %s live in a neighborhood of %s people per km2", 
+                                               "popdensity" = sprintf("In %s, on average, people in %s lived in a neighborhood of %s people per km2", 
+                                                                      input$year,
                                                                       style_text(rank_indicator$name), 
                                                                       style_number(format_indicator_value)),
-                                               "blockdensity" = sprintf("%s has an average of %s blocks per km2", 
+                                               "blockdensity" = sprintf("In %s, %s had an average of %s blocks per km2", 
+                                                                        input$year,
                                                                         style_text(rank_indicator$name), 
                                                                         style_number(format_indicator_value)),
                                                "journeygap" = sprintf("In %s, the average trip takes %s times as long by walking, bicycling, or public transport as by driving.", 
                                                                       style_text(rank_indicator$name), 
                                                                       style_number(format_indicator_value)),
-                                               "pns" = sprintf("%s%s of people in %s live within 1km of both healthcare and education services.", 
+                                               "pns" = sprintf("In %s, %s%s of people in %s lived within 1km of both healthcare and education services.", 
+                                                               input$year,
                                                                style_number(format_indicator_value), 
                                                                style_number("%"), 
                                                                style_text(rank_indicator$name)),
-                                               "pncf" = sprintf("%s%s of people in %s live within 100m of a car-free space.", 
+                                               "pncf" = sprintf("In %s, %s%s of people in %s lived within 100m of a car-free space.", 
+                                                                input$year,
                                                                 style_number(format_indicator_value), 
                                                                 style_number("%"), 
                                                                 style_text(rank_indicator$name)),
-                                               "pnh" = sprintf("%s%s of people in %s live farther than 500m from a grade-separated highway. ", 
+                                               "pnh" = sprintf("In %s, %s%s of people in %s lived farther than 500m from a grade-separated highway. ", 
+                                                               input$year,
                                                                style_number(format_indicator_value), 
                                                                style_number("%"), 
                                                                style_text(rank_indicator$name)),
-                                               "pnpb" = sprintf('%s%s of people in %s live within a 300m walk of a protected bikeway. ', 
+                                               "pnpb" = sprintf('In %s, %s%s of people in %s lived within a 300m walk of a physically-protected bikeway. ', 
+                                                                input$year,
                                                                 style_number(format_indicator_value), 
                                                                 style_number("%"), 
                                                                 style_text(rank_indicator$name)),
-                                               "pnrt" = sprintf("%s%s of people in %s live within 1km of high-capacity public transport running on a dedicated right-of-way.", 
-                                                                   style_number(format_indicator_value), 
-                                                                   style_number("%"), 
-                                                                   style_text(rank_indicator$name)),
-                                               "pnft" = sprintf("%s%s of people in %s live within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
+                                               "pnrt" = sprintf("In %s, %s%s of people in %s lived within 1km of high-capacity public transport running on a dedicated right-of-way.", 
+                                                                input$year,   
                                                                 style_number(format_indicator_value), 
                                                                 style_number("%"), 
                                                                 style_text(rank_indicator$name)),
-                                               "pnst" = sprintf("%s%% of people in %s live within walkable distance of both protected cycleways and frequent/rapid public transport.", 
+                                               "pnft" = sprintf("In %s, %s%s of people in %s lived within 500m of a transport stop where a bus or train comes every 10 minutes or sooner.", 
+                                                                input$year,   
+                                                                style_number(format_indicator_value), 
+                                                                style_number("%"), 
+                                                                style_text(rank_indicator$name)),
+                                               "pnst" = sprintf("In %s, %s%% of people in %s lived within walkable distance of both protected cycleways and frequent/rapid public transport.", 
+                                                                input$year,   
                                                                 style_number(format_indicator_value), 
                                                                 style_text(rank_indicator$name))
                                                

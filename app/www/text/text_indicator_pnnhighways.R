@@ -8,7 +8,7 @@ p1 <- c('<div class = "title_indicator_label">INDICATOR</div>',
 '<div class = "title_indicator">People Safe From Highways</div>',
 '<div class = "text_indicator"><p>',
 '<p>People Safe From Highways measures the percentage of an area’s population not living near (within 500m of) a grade-separated highway. Living near highways exposes people to many forms of harm. It makes walking more dangerous, increases air pollution, and incentivizes driving. </p>',
-sprintf('<p>In %s at the end of %s, %s%% of people lived at least 500m from a grade-separated highway. There were about %s km of highways in this area. %s</p>', 
+sprintf('<p>In %s at the end of %s, %s%% of urban residents lived at least 500m from a grade-separated highway. There were about %s km of highways in this area. %s</p>', 
         # 
         style(rank$indicator$name), 
         style(input$year), 
