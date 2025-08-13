@@ -7,8 +7,6 @@ overlay_table <- readRDS("../data/data_final/overlay_table.rds")
 list_availability_cities <- readRDS("../data/data_final/list_availability_cities.rds")
 brazil_cities <- readRDS("../data/data_final/brazil_cities.rds")
 
-print("oi")
-
 # use the list of indicators to set the names
 ind_city <- subset(list_indicators, indicator_type == "city")
 ind_bike <- subset(list_indicators, indicator_type == "bike")
@@ -195,6 +193,9 @@ function(input, output, session) {
   year <- reactiveValues(ok = as.character(2024))
   
   observeEvent(c(indicator$mode), {
+    
+    
+    print("chega aqui?")
     
     year_options <- subset(list_availability, ind == indicator$mode)$availability
     year_options <- unlist( strsplit(year_options, "[|]"))
@@ -640,6 +641,13 @@ function(input, output, session) {
                          downloadButton("downloadData2_csv", "data table (.csv)", icon = NULL),
                          downloadButton("downloadData2_gpkg", "geospatial (.gpkg)", icon = NULL),
                        )
+      ),
+      tags$hr(style = "border-top: 2px solid #bbb; margin: 20px 0;"),
+      
+      tags$p(style = "letter-spacing: 0.02em; font-size: 15px;",
+        "Check the ",
+        tags$a("data dictionary", href = "https://docs.google.com/spreadsheets/d/1tSE4U_yu6wKSkFnwbJjcXT2IlSSCcFeijoERVua_UMM/edit?usp=sharing", target = "_blank"),
+        style = "font-size: 14px; margin-top: 2px; margin-bottom: 0px;"
       ),
       circle = FALSE, 
       # status = "danger",
