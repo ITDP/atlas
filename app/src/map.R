@@ -113,7 +113,7 @@ observeEvent(c(indicator$mode, input$year,  input$back_to_world, input$world_vie
   shinyjs::logjs("Map: update world data when indicator is changed")
   
   
-  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, input$year)
+  pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
   cols <- c('name', 'hdc', 'osmid','admin_level_ordered', 'name', colnames(atlas_city_markers)[startsWith(colnames(atlas_city_markers), pattern)], 'geom')
   a <- atlas_city_markers[cols]
   colnames(a) <- c('name', 'hdc', 'osmid', 'admin_level_ordered', 'name', 'value', 'geom')
@@ -559,7 +559,7 @@ observeEvent(c(city$city_code), {
     
     
     file <- sprintf("../data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
-                    city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
+                    city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, year$ok, overlay_subset$format)
     
     # if (file.exists(file)) {
     
@@ -890,7 +890,7 @@ observeEvent(c(indicator$mode, input$year), {
     overlay_group <- unique(overlay_subset$overlay_group)
     
     file <- sprintf("../data/data_final/ghsl_%s/overlays/%s/%s_%s_%s.%s", 
-                    city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, input$year, overlay_subset$format)
+                    city$city_code, overlay_subset$overlay, overlay_subset$overlay, city$city_code, year$ok, overlay_subset$format)
     
     # if (file.exists(file)) {
     
