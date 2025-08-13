@@ -35,6 +35,7 @@ observeEvent(c(input$back_to_world), {
     clearMarkers() %>%
     clearControls() %>%
     clearShapes() %>%
+    clearGroup(group = overlay_table$overlay_group) %>%
     setView(lng = 0, lat = 0, zoom = 3) %>%
     startSpinner(list("lines" = 10, "length" = 10,
                       "width" = 5, "radius" = 5,
