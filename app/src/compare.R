@@ -22,10 +22,10 @@ observeEvent(c(indicator$mode, input$back_to_world), {
 
 # disable compare button when no country is selected
 observeEvent(c(input$map_shape_click, input$map_marker_click), {
-
+  
   enable("compare_panel")
   runjs('$("#compare_panel").tooltip("disable");')
-
+  
 })
 
 
@@ -97,8 +97,6 @@ observeEvent(c(input$city_compare1_initial), {
   ui <- sprintf("../data/data_final/comp/indicators_compare_%s_%s.rds",
                 level, pattern)
   
-  print("ind_compare")
-  print(ui)
   a <- readRDS(ui)
   
   ind_compare$ind_compare_initial <- a  
@@ -159,6 +157,23 @@ output$comparison_chart <- renderHighchart({
       # make sure we are filtering the right indicator
       value_city <- subset(value_city, ind == indicator$mode)
       value_city <- value_city[order(value_city$year),,drop=FALSE]
+      
+      
+      # upate the pickerinput to reflect the selecion
+      disabled1 <- ifelse(unname(compare_rv$choices) == ui, TRUE, FALSE)
+      
+      updatePickerInput(
+        session = session,
+        inputId = "city_compare1_initial",
+        selected = ui,
+        choices = compare_rv$choices,
+        choicesOpt = list(
+          style = ifelse(disabled1,
+                         yes = "color: rgba(119, 119, 119, 0.5);",
+                         no = ""),
+          disabled = disabled1
+          
+        ))
       
       
       # pattern <- sprintf("%s_%s_%s", indicator$type, indicator$mode, year$ok)
@@ -275,6 +290,22 @@ output$comparison_chart <- renderHighchart({
       # print(format_indicator_unit_value)
       # print("format_indicator_unit_value")
       
+      # upate the pickerinput to reflect the selecion
+      disabled1 <- ifelse(unname(compare_rv$choices) == ui, TRUE, FALSE)
+      
+      updatePickerInput(
+        session = session,
+        inputId = "city_compare1_initial",
+        selected = ui,
+        choices = compare_rv$choices,
+        choicesOpt = list(
+          style = ifelse(disabled1,
+                         yes = "color: rgba(119, 119, 119, 0.5);",
+                         no = ""),
+          disabled = disabled1
+          
+        ))
+      
       # value_city$value <- if(format_indicator_unit_value == "percent") {
       #   round(value_city$value * 100) 
       #   
@@ -312,10 +343,15 @@ output$comparison_chart <- renderHighchart({
       } else {
         
         
-        # print("value_city")
-        # print(value_city)
+        print("value_city")
+        print(value_city)
         
-        hchart(value_city, type = "line", hcaes(x = year, y = value, group = name),
+        hchart(value_city, type = "line", 
+               hcaes(x = year,
+                     y = value,
+                     group = name
+                     ),
+               id = unique(value_city$hdc),
                name = unique(value_city$name),
                tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
                               valueDecimals = 0)) %>%
@@ -395,6 +431,7 @@ observeEvent(c(city$city_code, rank$admin_level), {
   
   reV_order$values <-  if(isTRUE(is.null(input$map_shape_click)) | isTRUE(rank$admin_level == 1)) city$city_code else input$map_shape_click$id
   
+  
 })
 
 # use reactive to get and sort the selected terms in the order of selection
@@ -413,14 +450,31 @@ ordered_colnames <- reactive({
     # print("aqui")
     # print(reV_order$values)
   }
+  
+  
+  print("Valueeessss")
+  print(reV_order$values)
+  
   reV_order$values
+   
+  
 })
 
 observe({ ordered_colnames() }) # use an observe to update the reactive function above
 
 
 # update the graph with the new selection
-observeEvent(c(input$city_compare1_initial), {
+observeEvent(c(change_input$added), {
+  
+  
+  
+  req(change_input$added, length(change_input$added) > 0)
+  
+  # this also shouldnt run on the first time
+  
+  
+  
+  # this shouldd only run when a city is added~!!!!
   
   # it will only run if the selection is diferente from the previous selection
   if (city$city_code == "") {
@@ -495,6 +549,10 @@ observeEvent(c(input$city_compare1_initial), {
     
   } else {
     
+    
+    # print("ordered_colnames()")
+    # print(ordered_colnames())
+    
     value_compare <- subset(ind_compare$ind_compare_initial, osmid == tail(ordered_colnames(), 1))
     
     format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
@@ -540,7 +598,8 @@ observeEvent(c(input$city_compare1_initial), {
       # add total
       highchartProxy("comparison_chart") %>%
         # hcpxy_remove_series(id = "que") %>%
-        hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
+        hcpxy_add_series(data = value_compare, 
+                         hcaes(x = year, y = value, group = name),
                          id = tail(ordered_colnames(), 1),
                          type = "line",
                          # color = "white",
@@ -548,6 +607,7 @@ observeEvent(c(input$city_compare1_initial), {
                          size = 5,
                          tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
                                         valueDecimals = 0)
+                           
                          # marker = list(radius = 5, symbol = "circle"),
                          # dataLabels = list(enabled = TRUE,
                          #                   align = "center",
@@ -574,10 +634,18 @@ observeEvent(c(input$city_compare1_initial), {
 
 previous_selection <- reactiveVal(character(0))
 
+observe({
+  cat("DEBUG:", input$city_compare1_initial, "\n")
+})
+
+change_input <- reactiveValues(added = NULL,
+                               removed = NULL)
+
 # to remove series from the comparision
-observeEvent(c(input$city_compare1_initial), {
+observeEvent(input$city_compare1_initial,{
   
-  # print(ordered_colnames1())
+  print("WHYYYY")
+  print(input$city_compare1_initial)
   
   old_vals <- previous_selection()
   new_vals <- if (is.null(input$city_compare1_initial)) {
@@ -586,32 +654,38 @@ observeEvent(c(input$city_compare1_initial), {
     input$city_compare1_initial
   }
   
-  
-  # Identify removed items
+  added   <- setdiff(new_vals, old_vals)
   removed <- setdiff(old_vals, new_vals)
   
-  if (length(removed) > 0) {
-    # Run code only when something was unselected
-    message("Removed: ", paste(removed, collapse = ", "))
-    # put your logic here
-  }
+  # print("added")
+  # print(added)
+  # print("removed")
+  # print(removed)
   
+  # update memory
   previous_selection(new_vals)
   
-  if (length(removed) > 0) {
+  change_input$added = added
+  change_input$removed = removed
+
+  }, ignoreNULL = FALSE)
+
+
+# remove the series when unselect
+observeEvent(change_input$removed, {
+
+  
+  if (length(change_input$removed > 0)) {
     
-    print(removed)
+    
     
     highchartProxy("comparison_chart") %>%
-      hcpxy_remove_series(id = removed)
+      hcpxy_remove_series(id = change_input$removed)
     
   }
   
-  
-  
-}, ignoreNULL = FALSE)
+})
 
-# modal
 
 
 output$comparison_max <- renderHighchart({
@@ -635,6 +709,25 @@ output$comparison_max <- renderHighchart({
     value_city <- subset(value_city, ind == indicator$mode)
     value_city <- value_city[order(value_city$year),,drop=FALSE]
     
+    
+    countries_available <- sort(subset(atlas_country(), region_type == input$world_view1)$name)
+    
+    # upate the pickerinput to reflect the selecion
+    disabled1 <- ifelse(unname(countries_available) == ui, TRUE, FALSE)
+    
+    updatePickerInput(
+      session = session,
+      inputId = "city_compare_analysis_area",
+      selected = ui,
+      choices = countries_available,
+      choicesOpt = list(
+        style = ifelse(disabled1,
+                       yes = "color: rgba(119, 119, 119, 0.5);",
+                       no = ""),
+        disabled = disabled1
+        
+      ))
+    
     # print("value_city")
     # print(value_city)
     
@@ -656,6 +749,7 @@ output$comparison_max <- renderHighchart({
     format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
     format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
     format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
+
     
     # print(format_indicator_unit_value)
     # print("format_indicator_unit_value")
@@ -1340,13 +1434,17 @@ observe({ ordered_colnames1() })
 
 
 # to add cities to the comparison
-observeEvent(c(input$city_compare_analysis_area), {
+observeEvent(c(change_input_max$added), {
   
   
-  req(input$maximize_comparison >= 1, input$city_compare_analysis_area != "")
+  print("MAAAAX")
+  print(change_input_max$added)
   
-  # print("ordered_colnames1()")
-  # print(ordered_colnames1())
+  req(input$maximize_comparison >= 1, input$city_compare_analysis_area != "",
+      change_input_max$added, length(change_input_max$added) > 0)
+  
+  print("ordered_colnames1()")
+  print(ordered_colnames1())
   
   if (city$city_code == "") {
     
@@ -1433,99 +1531,108 @@ observeEvent(c(input$city_compare_analysis_area), {
     
     
   } else {
-  
-  value_compare <- subset(ind_compare$ind_compare, osmid == tail(ordered_colnames1(), 1))
-  
-  format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-  format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
-  format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
-  
-  # print(format_indicator_unit_value)
-  # print("format_indicator_unit_value")
-  
-  # value_compare$value <- if(format_indicator_unit_value == "percent") {
-  #   round(value_compare$value * 100) 
-  #   
-  # } else round(value_compare$value)
-  
-  if (indicator$mode != "popdensity") {
-    value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
-  }
-  
-  
-  # print("ind_compare()")
-  # print(value_compare)
-  
-  # print(input$city_compare)
-  # print(ordered_colnames())
-  
-  if (indicator$mode %in% c("not")) {
     
+    value_compare <- subset(ind_compare$ind_compare, osmid == tail(ordered_colnames1(), 1))
     
-    value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
+    format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
+    format_indicator_unit <- subset(list_indicators, indicator_code == indicator$mode)$indicator_unit
+    format_indicator_unit_value <- subset(list_indicators, indicator_code == indicator$mode)$indicator_transformation
     
-    # add total
-    highchartProxy("comparison_max") %>%
-      # hcpxy_remove_series(id = "que") %>%
-      hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                       id = tail(ordered_colnames1(), 1),
-                       type = "column",
-                       # color = "white",
-                       name = unique(value_compare$name),
-                       # size = 5,
-                       tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
-                                      valueDecimals = 0),
-                       pointWidth = 30
-                       # pointPadding = "on"
-                       
-      )
+    # print(format_indicator_unit_value)
+    # print("format_indicator_unit_value")
     
-  } else {
+    # value_compare$value <- if(format_indicator_unit_value == "percent") {
+    #   round(value_compare$value * 100) 
+    #   
+    # } else round(value_compare$value)
     
-    message("Adding city ", tail(ordered_colnames1(), 1))
-    print(value_compare)
-    
-    value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
-    
-    # add total
-    highchartProxy("comparison_max") %>%
-      # hcpxy_remove_series(id = "que") %>%
-      hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
-                       id = tail(ordered_colnames1(), 1),
-                       type = "line",
-                       # color = "white",
-                       name = unique(value_compare$name),
-                       size = 5,
-                       tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
-                                      valueDecimals = 0)
-                       # marker = list(radius = 5, symbol = "circle"),
-                       # dataLabels = list(enabled = TRUE,
-                       #                   align = "center",
-                       #                   y = -20,
-                       #                   # format = "City: {point.y}",
-                       #                   format = "{point.y}",
-                       #                   style = list(fontSize = 12,
-                       #                                color = "white",
-                       #                                textOutline = "0.3px black",
-                       #                                fontWeight = "bold"))
-      )
-    
-  }
-  
+    if (indicator$mode != "popdensity") {
+      value_compare$value <- format_indicator_values(value_compare$value, transformation = indicator_info$transformation)
     }
+    
+    
+    # print("ind_compare()")
+    # print(value_compare)
+    
+    # print(input$city_compare)
+    # print(ordered_colnames())
+    
+    if (indicator$mode %in% c("not")) {
+      
+      
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
+      
+      # add total
+      highchartProxy("comparison_max") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
+                         id = tail(ordered_colnames1(), 1),
+                         type = "column",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         # size = 5,
+                         tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0),
+                         pointWidth = 30
+                         # pointPadding = "on"
+                         
+        )
+      
+    } else {
+      
+      message("Adding city ", tail(ordered_colnames1(), 1))
+      print(value_compare)
+      
+      value_compare <- value_compare[order(value_compare$year),,drop=FALSE]
+      
+      # add total
+      highchartProxy("comparison_max") %>%
+        # hcpxy_remove_series(id = "que") %>%
+        hcpxy_add_series(data = value_compare, hcaes(x = year, y = value),
+                         id = tail(ordered_colnames1(), 1),
+                         type = "line",
+                         # color = "white",
+                         name = unique(value_compare$name),
+                         size = 5,
+                         tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
+                                        valueDecimals = 0)
+                         # marker = list(radius = 5, symbol = "circle"),
+                         # dataLabels = list(enabled = TRUE,
+                         #                   align = "center",
+                         #                   y = -20,
+                         #                   # format = "City: {point.y}",
+                         #                   format = "{point.y}",
+                         #                   style = list(fontSize = 12,
+                         #                                color = "white",
+                         #                                textOutline = "0.3px black",
+                         #                                fontWeight = "bold"))
+        )
+      
+    }
+    
+  }
   
 }, ignoreNULL = FALSE)
 
+
+
+
+
+
+
+
+
 previous_selection_max <- reactiveVal(character(0))
 
+
+change_input_max <- reactiveValues(added = NULL,
+                               removed = NULL)
+
 # to remove series from the comparision
-observeEvent(c(input$city_compare_analysis_area), {
+observeEvent(input$city_compare_analysis_area,{
   
-  req(input$maximize_comparison >= 1)
   
-  # print("ordered_colnames1()")
-  # print(input$city_compare_analysis_area)
-  # print(ordered_colnames1())
+  # print(input$city_compare1_initial)
   
   old_vals <- previous_selection_max()
   new_vals <- if (is.null(input$city_compare_analysis_area)) {
@@ -1534,56 +1641,43 @@ observeEvent(c(input$city_compare_analysis_area), {
     input$city_compare_analysis_area
   }
   
-  
-  # Identify removed items
+  added   <- setdiff(new_vals, old_vals)
   removed <- setdiff(old_vals, new_vals)
   
-  if (length(removed) > 0) {
-    # Run code only when something was unselected
-    message("Removed: ", paste(removed, collapse = ", "))
-    # put your logic here
-  }
+  # print("added")
+  # print(added)
+  # print("removed")
+  # print(removed)
   
+  # update memory
   previous_selection_max(new_vals)
   
-  if (length(removed) > 0) {
-    
-    print(removed)
-  
-  highchartProxy("comparison_max") %>%
-    hcpxy_remove_series(id = removed)
-    
-  }
-  
-  
-  
+  change_input_max$added = added
+  change_input_max$removed = removed
 }, ignoreNULL = FALSE)
 
 
-# observeEvent(c(input$reset_graph), {
-#   
-#   
-#   req(input$reset_graph >= 1)
-#   
-#   highchartProxy("comparison_max") %>%
-#     hcpxy_remove_series(all = TRUE)
-#   
-#   updatePickerInput(
-#     session = session,
-#     inputId = "city_compare1",
-#     choices = comparison$choices)
-#   
-#   
-#   
-# })
+# remove the series when unselect
+observeEvent(change_input_max$removed, {
+  
+  
+  if (length(change_input_max$removed > 0)) {
+    
+    
+    
+    highchartProxy("comparison_max") %>%
+      hcpxy_remove_series(id = change_input_max$removed)
+    
+  }
+  
+})
+  
+  
+  
+  
+  
 
 
-# observeEvent(c(input$city_compare1), {
-#   
-#   print("ordered_colnames1()")
-#   print(ordered_colnames1())
-#   
-# }, ignoreNULL = FALSE)
 
 
 output$download_button_compare <- renderUI({
