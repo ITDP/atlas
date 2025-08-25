@@ -52,7 +52,20 @@ ui <- fluidPage(
   tags$head(includeCSS("src/beta_checkpoint/beta_checkpoint.css")),
   tags$head(includeCSS("src/modal_brazilian_cities/modal_brazil.css")),
   tags$script(HTML(js)),
-  
+  tags$script(HTML("
+    $(document).on('changed.bs.select', '#city_compare_analysis_area', function(e, clickedIndex, isSelected, previousValue) {
+      if (clickedIndex !== undefined) {
+        var item = $(this).find('option').eq(clickedIndex).val();
+        if (isSelected) {
+          // User added an item
+          Shiny.setInputValue('picker1_user_added', { item: item, time: Date.now() }, {priority: 'event'});
+        } else {
+          // User removed an item
+          Shiny.setInputValue('picker1_user_removed', { item: item, time: Date.now() }, {priority: 'event'});
+        }
+      }
+    });
+  ")),
   # tags$head(includeScript("www/jquery.js")),
   # tags$head(
   #   tags$script(

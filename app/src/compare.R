@@ -1354,6 +1354,9 @@ observeEvent(c(input$city_compare_urban_area), {
   
 })
 
+
+updating <- reactiveVal(FALSE)
+
 # update the analysis area list when the country is selected - max version
 observeEvent(c(input$city_compare_level_analysis), {
   
@@ -1366,7 +1369,7 @@ observeEvent(c(input$city_compare_level_analysis), {
   
   if (input$city_compare_level_analysis == "0") {
     
-    
+    updating(TRUE)
     
     updatePickerInput(
       selected = analysis_area_available_id,
@@ -1375,13 +1378,18 @@ observeEvent(c(input$city_compare_level_analysis), {
       choices = analysis_area_available_id
     )
     
-    shinyjs::disable("city_compare_analysis_area")
     
+    shinyjs::delay(1000, updating(FALSE))
+    
+    shinyjs::disable("city_compare_analysis_area")
     
     
   } else {
     
+    # print("is it changing here?")
+    # print(analysis_area_available_id)
     
+    updating(TRUE)
     
     updatePickerInput(
       selected = NULL,
@@ -1391,7 +1399,10 @@ observeEvent(c(input$city_compare_level_analysis), {
       
     )
     
+    shinyjs::delay(1000, updating(FALSE))
+    
     shinyjs::enable("city_compare_analysis_area")
+    
     
   }
   
@@ -1437,9 +1448,6 @@ observe({ ordered_colnames1() })
 observeEvent(c(change_input_max$added), {
   
   
-  print("MAAAAX")
-  print(change_input_max$added)
-  
   req(input$maximize_comparison >= 1, input$city_compare_analysis_area != "",
       change_input_max$added, length(change_input_max$added) > 0)
   
@@ -1450,7 +1458,8 @@ observeEvent(c(change_input_max$added), {
     
     
     
-    value_compare <- subset(atlas_country(), region_type == input$world_view1 & name == tail(ordered_colnames1(), 1))
+    value_compare <- subset(atlas_country(), region_type == input$world_view1 & name == change_input_max$added)
+    # value_compare <- subset(atlas_country(), region_type == input$world_view1 & name == tail(ordered_colnames1(), 1))
     value_compare <- st_sf(value_compare)
     value_compare <- st_set_geometry(value_compare, NULL)
     value_compare <- tidyr::pivot_longer(value_compare,
@@ -1485,11 +1494,10 @@ observeEvent(c(change_input_max$added), {
       highchartProxy("comparison_max") %>%
         # hcpxy_remove_series(id = "que") %>%
         hcpxy_add_series(data = value_compare, hcaes(x = name, y = value),
-                         id = tail(ordered_colnames1(), 1),
+                         id = change_input_max$added,
+                         # id = tail(ordered_colnames1(), 1),
                          type = "column",
-                         # color = "white",
                          name = unique(value_compare$name),
-                         # size = 5,
                          tooltip = list(pointFormat = sprintf("{series.name}: {point.y} %s", format_indicator_unit),
                                         valueDecimals = 0),
                          pointWidth = 30
@@ -1617,8 +1625,24 @@ observeEvent(c(change_input_max$added), {
 
 
 
-
-
+# prev_max_admin <- reactiveVal(NULL)  # old value
+# new_max_admin  <- reactiveVal(NULL)  # current value (optional if you just use input)
+# 
+# observeEvent(input$city_compare_level_analysis, {
+#   
+#   # Store current input as new value
+#   new_max_admin(input$city_compare_level_analysis)
+# 
+#   old_val <- prev_max_admin()
+#   current_val <- new_max_admin()
+#   
+#   # Update prev value for next time
+#   prev_max_admin(current_val)
+# 
+#   # Debug print
+#   print(paste("Old:", old_val, "| New:", current_val))
+# 
+# })
 
 
 
@@ -1628,11 +1652,32 @@ previous_selection_max <- reactiveVal(character(0))
 change_input_max <- reactiveValues(added = NULL,
                                removed = NULL)
 
+# Observer for actual user interactions
+observeEvent(input$picker1_user_added, {
+  # Access specific elements safely
+  details <- input$picker1_user_added
+  cat("User changed picker1 to:", input$city_compare_analysis_area, "\n")
+  cat("Clicked index:", details$index, " | Selected:", details$selected, "\n")
+})
+
+
+# When user removes an item
+observeEvent(input$picker1_user_removed, {
+  item_removed <- input$picker1_user_removed$item
+  cat("User removed:",item_removed, "\n")
+})
+
+
 # to remove series from the comparision
 observeEvent(input$city_compare_analysis_area,{
   
+  # if the change in the location comes from the updatepickerinput, doesnm't remove the cities
+  # from the comparison 
   
-  # print(input$city_compare1_initial)
+  # req(!updating())
+  
+  # print("AKEE")
+  # print(input$city_compare_analysis_area)
   
   old_vals <- previous_selection_max()
   new_vals <- if (is.null(input$city_compare_analysis_area)) {
@@ -1644,31 +1689,32 @@ observeEvent(input$city_compare_analysis_area,{
   added   <- setdiff(new_vals, old_vals)
   removed <- setdiff(old_vals, new_vals)
   
-  # print("added")
-  # print(added)
-  # print("removed")
-  # print(removed)
+  # print("all")
+  # print(new_vals)
+  # print(old_vals)
   
   # update memory
   previous_selection_max(new_vals)
   
   change_input_max$added = added
   change_input_max$removed = removed
-}, ignoreNULL = FALSE)
+}, ignoreNULL = FALSE, ignoreInit = TRUE)
 
 
 # remove the series when unselect
-observeEvent(change_input_max$removed, {
+observeEvent(input$picker1_user_removed$item, {
+# observeEvent(change_input_max$removed, {
   
   
-  if (length(change_input_max$removed > 0)) {
+  
+  # if (length(change_input_max$removed > 0)) {
     
     
     
     highchartProxy("comparison_max") %>%
       hcpxy_remove_series(id = change_input_max$removed)
     
-  }
+  # }
   
 })
   
