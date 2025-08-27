@@ -1204,7 +1204,7 @@ output$rank_final <- renderUI({
   if (input$indicator == "") {
     
     tagList(
-      HTML('<div class="title_indicator" style="font-size: 22px;">Welcome to the Atlas of Sustainable City Transportation</div>'),
+      HTML('<div class="title_indicator" style="font-size: 22px;">Welcome to the Atlas of Sustainable City Transport</div>'),
       HTML('<p style = "color: #B1B5B9; font-size: 16px;">The Atlas contains measurements of nine indicators for cities all around the world. It includes over <span style="color: #00ae42; font-weight: 700">40,000 localities in over 1,000 urban areas</span>, calculated from open-source data.</p>'),
       HTML('<p style = "color: #B1B5B9; font-size: 16px;">Get started by <span style="color: #00ae42; font-weight: 700">selecting one of the indicators</span> in the drop-down menu above. <em>People Near Protected Bikeways</em> is a good one to start with. After that, you can <span style="color: #00ae42; font-weight: 700">select a city or country</span>, either by using the subsequent drop-down menu or by clicking on the map.</p>'),
       HTML('<p style = "color: #B1B5B9; font-size: 16px;">Once you select a city, you can zoom in on it. Then, you can use the <span style="color: #00ae42; font-weight: 700">drop-down menu labeled ‘At The Level Of’</span> to select whether to view measurements for the urban agglomeration, municipalities, districts, or neighborhoods. Different levels are available for different cities.</p>'),
