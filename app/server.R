@@ -157,8 +157,8 @@ function(input, output, session) {
       condition = "input.indicator != ''",
       shinyWidgets::pickerInput(inputId = "year",
                                 label = NULL,
-                                choices = c(2023, 2024),
-                                selected = 2024,
+                                choices = c(2023, 2024, 2025),
+                                selected = 2025,
                                 width = "330px",
                                 options = shinyWidgets::pickerOptions(
                                   size = 5
@@ -190,7 +190,7 @@ function(input, output, session) {
   
   
   # update year according to the indicator
-  year <- reactiveValues(ok = as.character(2024))
+  year <- reactiveValues(ok = as.character(2025))
   
   observeEvent(c(indicator$mode), {
     
@@ -202,7 +202,7 @@ function(input, output, session) {
     year_options <- unique(year_options)
     year_options <- sort(year_options)
     # remove year 2025 (from now)
-    year_options <- year_options[year_options != 2025]
+    # year_options <- year_options[year_options != 2025]
     
     # print("year_options")
     # print(year_options)
@@ -211,9 +211,9 @@ function(input, output, session) {
       session = session,
       inputId = "year",
       choices = year_options,
-      selected = 2024)
+      selected = 2025)
     
-    year$ok <- as.character(2024)
+    year$ok <- as.character(2025)
     
     
   })
@@ -827,7 +827,7 @@ function(input, output, session) {
   source("src/indicator_not_available_countries.R", local = TRUE)  
   source("src/variables.R", local = TRUE)  
   # source("src/beta_checkpoint/beta_checkpoint.R", local = TRUE)  
-  source("src/modal_brazilian_cities/modal_brazilian_cities.R", local = TRUE)  
+  # source("src/modal_brazilian_cities/modal_brazilian_cities.R", local = TRUE)  
   
   
   

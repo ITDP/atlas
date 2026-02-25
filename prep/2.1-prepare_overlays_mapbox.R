@@ -25,8 +25,8 @@ files <- files[grepl("/geodata", files)]
 files <- files[!grepl(".zip", files)]
 files <- files[!grepl("/temp", files)]
 
-# only 2024
-files <- files[grepl("2024", files)]
+# only 2025
+files <- files[grepl("2025", files)]
 
 # only the selected cities
 files_2024 <- files_2024[grepl(paste0(hdcs_run, collapse = "|"), files_2024)]

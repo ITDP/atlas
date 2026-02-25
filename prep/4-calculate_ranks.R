@@ -337,5 +337,6 @@ a <- purrr::map(cities_available[901:length(cities_available)],
 # prep_data("01406")
 # prep_data("01361")
 # prep_data("05472") # jakarta
+# prep_data("01156") # trujillo
 
 

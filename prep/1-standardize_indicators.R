@@ -147,7 +147,8 @@ rename_columns <- function(data) {
 prep_data <- function(ghsl) {
   
   files <- c(sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2023.csv", folder, ghsl),
-             sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2024.gpkg", folder, ghsl))
+             sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2024.gpkg", folder, ghsl),
+             sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2025.gpkg", folder, ghsl))
   # file <- files[1]
   
   # fun to open all data
@@ -246,14 +247,20 @@ prep_data <- function(ghsl) {
     
     # extract only the neccesary columns from the first years, since we will join them
     if (year == 2023) {
-      
+
       a <- a %>%
         select(hdc, osmid, name, admin_level, ends_with(year))
     } else if (year == 2024) {
-      
+
       a <- a %>%
-        select(-ends_with("2023"))
-      
+        select(-ends_with("2023"), -ends_with("2025"))
+
+    } else if (year == 2025) {
+
+      a <- a %>%
+        st_set_geometry(NULL) %>%
+        select(hdc, osmid, name, admin_level, ends_with(year))
+
     }
     
     a <- a %>% mutate(admin_level = as.character(admin_level))
@@ -455,11 +462,11 @@ prep_data <- function(ghsl) {
     mutate(across(starts_with("transit"), as.numeric))
   
   # transform some columns to char
-  data$admin_level <- as.character(data$admin_level)
-  data$admin_level_ordered <- as.character(data$admin_level_ordered)
+  data1$admin_level <- as.character(data1$admin_level)
+  data1$admin_level_ordered <- as.character(data1$admin_level_ordered)
   
   # transform some columns to numeric
-  data <- data %>%
+  data1 <- data1 %>%
     mutate(across(starts_with("transit_pnft"), as.numeric)) %>%
     mutate(across(starts_with("city_journeygap"), as.numeric)) %>%
     arrange(as.numeric(admin_level))
@@ -477,7 +484,7 @@ prep_data <- function(ghsl) {
   dir.create(sprintf("data/data_final/ghsl_%s", ghsl), recursive = TRUE)
   
   # save the file
-  readr::write_rds(data, sprintf("data/data_final/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
+  readr::write_rds(data1, sprintf("data/data_final/ghsl_%s/indicators_%s.rds", ghsl, ghsl))
   
   return("ok")
   
@@ -491,7 +498,8 @@ library(furrr)
 plan(multisession)
 results <- furrr::future_map(cities_available, possibly(prep_data, otherwise = "erro"))
 
-# prep_data("05472") # jakarta
+prep_data("05472") # jakarta
+prep_data("01156") # trujillo
 
 
 
@@ -546,7 +554,7 @@ regions_all_2023 <- rbind(atlas_country_2023, regions_2023)
 
 atlas_country_2024 <- read.csv(sprintf("%s/countries_out/country_results_2024.csv", folder)) %>%
   rename(index = X) %>%
-  select(-ends_with("2023")) %>%
+  select(-ends_with("2023"), -ends_with("2025")) %>%
   mutate(region_type = "country") %>%
   select(index, name, region_type, everything())
 regions_2024 <- read.csv(sprintf("%s/countries_out/region_results_2024.csv", folder)) %>%
@@ -557,18 +565,34 @@ regions_2024 <- read.csv(sprintf("%s/countries_out/region_results_2024.csv", fol
   mutate(name = ifelse(region_type == "world", "world", name)) %>%
   # create index
   mutate(index = janitor::make_clean_names(name, allow_dupes = TRUE)) %>%
-  select( -ends_with("2023")) %>%
+  select( -ends_with("2023"), -ends_with("2025")) %>%
   select(index, name, region_type, everything())
 # put them together
 regions_all_2024 <- rbind(atlas_country_2024, regions_2024)
 
 
-# atlas_country_2024 <- read.csv(sprintf("%s/countries_out/country_results_2024.csv", folder)) %>%
-#   rename(index = X) %>%
-#   select(-ends_with("2023"))
-# atlas_country <- left_join(atlas_country_2023, atlas_country_2024, by  = "index")
+
+atlas_country_2025 <- read.csv(sprintf("%s/countries_out/country_results_2025.csv", folder)) %>%
+  rename(index = X) %>%
+  mutate(region_type = "country") %>%
+  select(index, name, region_type, ends_with("2025"))
+regions_2025 <- read.csv(sprintf("%s/countries_out/region_results_2025.csv", folder)) %>%
+  # rename(index = X) %>%
+  tidyr::separate(X, into = c("region_type", "name"), sep = " / ") %>%
+  mutate(region_type = trimws(region_type, "both"),
+         name = trimws(name, "both")) %>%
+  mutate(name = ifelse(region_type == "world", "world", name)) %>%
+  # create index
+  mutate(index = janitor::make_clean_names(name, allow_dupes = TRUE)) %>%
+  select(index, name, region_type, ends_with("2025"))
+# put them together
+regions_all_2025 <- rbind(atlas_country_2025, regions_2025)
+
+
+
 # bring everything to the same dataset
 regions_all <- left_join(regions_all_2023, regions_all_2024 %>% select(-name), by  = c("index", "region_type"))
+regions_all <- left_join(regions_all, regions_all_2025 %>% select(-name), by  = c("index", "region_type"))
 
 # order by year?
 
@@ -744,7 +768,7 @@ regions_all <- regions_all %>%
                 starts_with("transit_pnst")
   )
 
-regions_all <- regions_all %>% mutate(across(city_popdensity_1975:transit_pnst_2024, as.numeric))
+regions_all <- regions_all %>% mutate(across(city_popdensity_1975:transit_pnst_2025, as.numeric))
 
 # select only the indicators that we have in the indicators
 regions_all <- regions_all %>%
@@ -753,8 +777,10 @@ regions_all <- regions_all %>%
   ) %>%
   # round indicators
   mutate(across(c(bike_pnpbabikewayskm_2023, bike_pnpbpbikewayskm_2023, bike_pnpbabikewayskm_2024, bike_pnpbpbikewayskm_2024,
+                  bike_pnpbabikewayskm_2025, bike_pnpbpbikewayskm_2025,
                   walk_pnshealthpoints_2023, walk_pnsschoolspoints_2023, walk_pnshealthpoints_2024, walk_pnsschoolspoints_2024,
-                  transit_pnftpoints_2023, transit_pnftpoints_2024), round))
+                  walk_pnshealthpoints_2025, walk_pnsschoolspoints_2025,
+                  transit_pnftpoints_2023, transit_pnftpoints_2024, transit_pnftpoints_2025), round))
 
 # save by indicator
 # ind <- "transit_pnrt"
@@ -863,7 +889,7 @@ colnames_compare <- colnames(indicators_all_df)[9:ncol(indicators_all_df)]
 #                                  years_compare)
 
 indicators_all_df <- indicators_all_df %>%
-  mutate(across(city_popdensitytotal_1975:transit_pnst_2023, as.numeric))
+  mutate(across(city_popdensitytotal_1975:transit_pnst_2025, as.numeric))
 
 indicators_all_df_long <- tidyr::pivot_longer(indicators_all_df,
                                               cols = 9:last_col(),

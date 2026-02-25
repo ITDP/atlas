@@ -157,8 +157,11 @@ cities_available <- unique(indicators_all$hdc)
 
 purrr::walk(cities_available, prep_overlays1, year = 2023)
 purrr::walk(cities_available, prep_overlays1, year = 2024)
+purrr::walk(cities_available, prep_overlays1, year = 2025)
 
-results <- purrr::map(cities_available, possibly(prep_overlays1, otherwise = "erro"), year = 2024)
+# results <- purrr::map(cities_available, possibly(prep_overlays1, otherwise = "erro"), year = 2025)
+
+purrr::walk(c("05472", "01156"), prep_overlays1, year = 2025)
 
 
 # we need to make sure that all overlays are included here, even if they are not available
@@ -181,7 +184,7 @@ fill_missing_overlays <- function(ghsl) {
   # files all
   files_all <- sprintf("%s/%s_%s", overlay_table$overlay, overlay_table$overlay, ghsl)
   # add years
-  files_all <- c(sprintf("%s_%s", files_all, c("2023")), sprintf("%s_%s", files_all, c("2024"))) 
+  files_all <- c(sprintf("%s_%s", files_all, c("2023")), sprintf("%s_%s", files_all, c("2024")), sprintf("%s_%s", files_all, c("2025")))
   
   # extract the overlay
   # set the difference
