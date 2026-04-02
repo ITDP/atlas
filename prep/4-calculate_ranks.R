@@ -124,7 +124,7 @@ prep_data <- function(ghsl) {
   # ghsl <- "00021"
   # ghsl <- "01105"
   # ghsl <- "01361"
-  # ghsl <- "08154"
+  # ghsl <- "05472"
   # ghsl <- cities_available[16]
   
   # calculate ranks for admin level 8 (cities for fortaleza - test)
@@ -195,6 +195,7 @@ prep_data <- function(ghsl) {
     # ind <- "walk_pncf"
     # ind <- "bike_bikeshare"
     # ind <- "city_pnnhighways"
+    # ind <- "transit_pnrt"
     
     filter_by_ind <- function(ind) {
       
@@ -338,5 +339,6 @@ a <- purrr::map(cities_available[901:length(cities_available)],
 # prep_data("01361")
 # prep_data("05472") # jakarta
 # prep_data("01156") # trujillo
+# prep_data("01289") # lagos
 
 

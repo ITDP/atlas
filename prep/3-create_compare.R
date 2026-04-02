@@ -92,6 +92,7 @@ purrr::walk(cities_available, export_by_osmid)
 
 # export_by_osmid("01156") # trujillo
 # export_by_osmid("05472") # jakarta
+# export_by_osmid("01289") # lagos
 
 # export only for comparison
 # ghsl <- "08154"

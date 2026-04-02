@@ -144,12 +144,14 @@ rename_columns <- function(data) {
 
 
 # ghsl <- "08154"
+# ghsl <- "05472"
+# ghsl <- "01289"
 prep_data <- function(ghsl) {
   
   files <- c(sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2023.csv", folder, ghsl),
              sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2024.gpkg", folder, ghsl),
              sprintf("%s/cities_out/ghsl_region_%s/indicator_values_2025.gpkg", folder, ghsl))
-  # file <- files[1]
+  # file <- files[3]
   
   # fun to open all data
   open_data <- function(file) {
@@ -249,17 +251,31 @@ prep_data <- function(ghsl) {
     if (year == 2023) {
 
       a <- a %>%
-        select(hdc, osmid, name, admin_level, ends_with(year))
+        select(hdc, osmid, name, admin_level, ends_with(year)) %>%
+        # dont select the rapidtransit data - we will always use the latest data
+        select(-matches("^(km_|PNrt_|stns_|rtr_).*"))
+      
+      
     } else if (year == 2024) {
 
       a <- a %>%
-        select(-ends_with("2023"), -ends_with("2025"))
+        select(-ends_with("2023"), -ends_with("2025")) %>%
+        # dont select the rapidtransit data - we will always use the latest data
+        select(-matches("^(km_|PNrt_|stns_|rtr_).*"))
 
     } else if (year == 2025) {
 
       a <- a %>%
         st_set_geometry(NULL) %>%
-        select(hdc, osmid, name, admin_level, ends_with(year))
+        #  select the rapidtransit data - we will always use the latest data
+        select(
+          hdc, osmid, name, admin_level,
+          ends_with(year),
+          starts_with("km_"),
+          starts_with("PNrt_"),
+          starts_with("stns_"),
+          starts_with("rtr_")
+        )
 
     }
     
@@ -500,6 +516,7 @@ results <- furrr::future_map(cities_available, possibly(prep_data, otherwise = "
 
 prep_data("05472") # jakarta
 prep_data("01156") # trujillo
+prep_data("01289") # lagos
 
 
 
