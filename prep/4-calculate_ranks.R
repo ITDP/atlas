@@ -109,7 +109,20 @@ rank_world <- data_world %>%
   mutate(type_rank = "world") %>%
   ungroup()
 
+# pre-compute country ranks once (avoids recomputing per city for cities sharing the same country)
+country_ranks_cache <- data_world %>%
+  filter(admin_level < 10) %>%
+  group_by(country, admin_level) %>%
+  mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
+  mutate(n = n()) %>%
+  mutate(type_rank = "country") %>%
+  ungroup()
 
+# pre-compute indicator metadata lookup (avoids repeated subset() inside the inner loop)
+indicators_meta <- indicators_sheet %>%
+  mutate(ind1 = paste0(tolower(indicator_type), "_", indicator_code)) %>%
+  select(ind1, indicator_name, indicator_unit, indicator_transformation) %>%
+  split(.$ind1)
 
 
 prep_data <- function(ghsl) {
@@ -126,34 +139,21 @@ prep_data <- function(ghsl) {
   # ghsl <- "01361"
   # ghsl <- "05472"
   # ghsl <- cities_available[16]
-  
+
   # calculate ranks for admin level 8 (cities for fortaleza - test)
   # compare to: other cities in the world, in the country, in the metro
-  
+
   dir.create(sprintf("data/data_final/ghsl_%s/ranks", ghsl))
-  
+
   data <- data_world %>% filter(hdc == ghsl)
-  
-  rank_hdc_world <- rank_world %>%
-    # filter(hdc == ghsl) %>%
-    mutate(type_rank = "world")
-  
-  # in the country
-  rank_hdc_country <- data_world %>%
-    # filter only the coyuntry
-    filter(country == unique(data$country)) %>%
-    # somente o ultimo nivel (geralmente de jurisdiction) nao va ser passivel de comparacao com o resto do mundo
-    filter(admin_level < 10) %>%
-    # delete indicators that are NA
-    group_by(admin_level) %>%
-    # calculate size of each group
-    mutate(across(8:last_col(), ~rank(-.x, ties = "first", na.last = "keep"), .names = "rank_{.col}")) %>%
-    # create totals - NEED FIX
-    mutate(n = n()) %>%
-    mutate(type_rank = "country") %>%
-    # filter(hdc == ghsl) %>%
-    ungroup()
-  
+
+  # reuse pre-computed world ranks (type_rank already set to "world")
+  rank_hdc_world <- rank_world
+
+  # reuse pre-computed country ranks instead of recomputing per city
+  rank_hdc_country <- country_ranks_cache %>%
+    filter(country == unique(data$country))
+
   # metro
   rank_hdc_metro <- data %>%
     filter(admin_level != 0) %>%
@@ -164,28 +164,31 @@ prep_data <- function(ghsl) {
     mutate(n = n()) %>%
     # create type of rank
     mutate(type_rank = "metro")
-  
+
   # bind the comparions
   rank_complete <- rbind(rank_hdc_world, rank_hdc_country, rank_hdc_metro)
-  
+
+  # extract the agglomeration name once (reused across all levels and indicators)
+  rank_complete <- rank_complete %>%
+    group_by(hdc) %>%
+    mutate(agglomeration = unique(name[admin_level == 0])) %>%
+    ungroup()
+
+  # compute available indicators once per city (not once per level)
+  data1 <- janitor::remove_empty(data, which = "cols")
+  ind_list <- unique(gsub("(.*)_(\\d{4}$)", "\\1", colnames(data1)[9:ncol(data1)]))
+
   # level <- "Agglomeration"
   # level <- 4
   # level <- 10
   # level <- 6
   # level <- 8
-  
+
   # save by osm level
   filter_by_level <- function(level) {
-    
-    
-    # extract the agglomeration name
-    rank_complete1 <- rank_complete %>% 
-      group_by(hdc) %>%
-      mutate(agglomeration = unique(name[admin_level == 0])) %>%
-      ungroup()
-    
-    rank_complete_level <- rank_complete1 %>% filter(admin_level == level)
-    
+
+    rank_complete_level <- rank_complete %>% filter(admin_level == level)
+
     # ind <- "bike_pnpb"
     # ind <- "city_popdensity"
     # ind <- "transit_pnrtall"
@@ -196,16 +199,14 @@ prep_data <- function(ghsl) {
     # ind <- "bike_bikeshare"
     # ind <- "city_pnnhighways"
     # ind <- "transit_pnrt"
-    
+
     filter_by_ind <- function(ind) {
-      
-      
-      filter_compare <- if(level == 0) c("world", "country") else if (level <= 10) c("country", "metro") else c("metro") 
-      
-      
+
+      filter_compare <- if(level == 0) c("world", "country") else if (level <= 10) c("country", "metro") else c("metro")
+
       rank_complete_level1 <- rank_complete_level %>% filter(type_rank %in% filter_compare)
 
-      
+
       # create the rankins for the hdc only / filter the indicator
       rank_complete_level_ind <- rank_complete_level1 %>%
         filter(hdc == ghsl) %>%
@@ -223,18 +224,17 @@ prep_data <- function(ghsl) {
                            values_from = "count",
                            names_glue = "{type1}") %>%
         select(rank, n, type_rank, year, osmid)
-        
+
         # # create text
         # mutate(text = sprintf('<div class="text_compare" style="font-size: 14px; display: inline";> Ranks <strong style="font-size: 35px;">%s</strong> out of <strong>%s</strong> in the %s</div>',
         #                       rank, n, type_rank))
-      
-      # get the indicators transformations
-      indicators_sheet <- indicators_sheet %>% mutate(ind1 = paste0(tolower(indicator_type), "_", indicator_code ))
-      format_indicator_name <- subset(indicators_sheet, ind1 == ind)$indicator_name
-      format_indicator_unit <- subset(indicators_sheet, ind1 == ind)$indicator_unit
-      indicator_transformation <- subset(indicators_sheet, ind1 == ind)$indicator_transformation
-      
-      
+
+      # get the indicators transformations from pre-computed lookup
+      meta <- indicators_meta[[ind]]
+      format_indicator_unit    <- meta$indicator_unit
+      indicator_transformation <- meta$indicator_transformation
+
+
       # create the full list of rankings
       rank_complete_level_ind_full <- rank_complete_level1 %>%
         dplyr::select(hdc, country, a3, osmid, name, agglomeration, admin_level, admin_level_ordered, n, type_rank, starts_with(paste0("rank_", ind)), starts_with(ind)) %>%
@@ -253,7 +253,7 @@ prep_data <- function(ghsl) {
         # create text
         arrange(type_rank, year, rank) %>%
         # format indicator value
-        mutate(value = case_when(indicator_transformation %in% "percent" ~ as.character(round(value * 100)), 
+        mutate(value = case_when(indicator_transformation %in% "percent" ~ as.character(round(value * 100)),
                                  indicator_transformation %in% "thousands" & value >= 1000000 ~ scales::comma(value, accuracy = 0.1, scale = 0.000001, suffix = "M"),
                                  indicator_transformation %in% "thousands" & value < 1000000 ~ scales::comma(value, accuracy = 1, scale = 0.001, suffix = "k"),
                                  indicator_transformation %in% "round1" ~ as.character(round(value, 1)),
@@ -265,74 +265,49 @@ prep_data <- function(ghsl) {
         ungroup() %>%
         mutate(format_indicator_unit = format_indicator_unit) %>%
         select(n, name, agglomeration, format_indicator_unit, value, year, type_rank, osmid)
-        
-      
-      
+
+
+
       # save
       write_rds(rank_complete_level_ind, sprintf("data/data_final/ghsl_%s/ranks/ranks_%s_%s_%s.rds", ghsl, ghsl, level, ind))
-      
+
       # save the full list html code for this indicator
       write_rds(rank_complete_level_ind_full, sprintf("data/data_final/ghsl_%s/ranks/ranks_full_%s_%s_%s.rds", ghsl, ghsl, level, ind))
-      
+
     }
-    
-    # see indicators availabilty
-    data1 <- janitor::remove_empty(data, which = "cols")
-    colnames_compare <- colnames(data1)[9:ncol(data1)]
-    # extract year
-    years_compare <- gsub(pattern = "(.*)_(\\d{4}$)",
-                          replacement = "\\1",
-                          x = colnames_compare)
-    # years_compare <- years_compare[-length(years_compare)]
-    ind_list <- unique(years_compare)
+
     # apply to every indicator
     purrr::walk(ind_list, filter_by_ind)
-    
+
     # uiui <- lapply(ind_list, possibly(filter_by_ind, otherwise = "error"))
-    
+
   }
-  
+
   levels <- unique(data$admin_level)
-  # apply to every indicator
+  # apply to every level
   purrr::walk(levels, filter_by_level)
-  
+
   return("ok")
-  
+
   # uiui <- lapply(levels, possibly(filter_by_level, otherwise = "error"))
-  
-  
+
+
 }
 
 # apply to every city
 cities_available <- unique(data_world$hdc)
 
 library(furrr)
-plan(multisession)
-furrr::future_walk(cities_available, prep_data)
+plan(multisession, workers = availableCores() - 1)
+# furrr::future_walk(cities_available, purrr::possibly(prep_data, "error"), .options = furrr_options(seed = TRUE))
+ui <- lapply(cities_available, purrr::possibly(prep_data, "error"))
 
 
-a <- purrr::map(cities_available[1:100], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[101:200], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[201:300], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[301:400], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[401:500], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[501:600], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[601:700], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[701:800], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[801:900], 
-                 purrr::possibly(prep_data, "error"))
-a <- purrr::map(cities_available[901:length(cities_available)], 
-                 purrr::possibly(prep_data, "error"))
-# results <- lapply(cities_available, 
-            # possibly(prep_data, "error"))
+# prep_data("01406")
+# prep_data("01361")
+# prep_data("05472") # jakarta
+# prep_data("01156") # trujillo
+# prep_data("01289") # lagos
 
 
 # prep_data("01406")

@@ -157,8 +157,8 @@ function(input, output, session) {
       condition = "input.indicator != ''",
       shinyWidgets::pickerInput(inputId = "year",
                                 label = NULL,
-                                choices = c(2023, 2024, 2025),
-                                selected = 2025,
+                                choices = c(2023, 2024),
+                                selected = 2024,
                                 width = "330px",
                                 options = shinyWidgets::pickerOptions(
                                   size = 5
@@ -190,7 +190,7 @@ function(input, output, session) {
   
   
   # update year according to the indicator
-  year <- reactiveValues(ok = as.character(2025))
+  year <- reactiveValues(ok = as.character(2024))
   
   observeEvent(c(indicator$mode), {
     
@@ -211,9 +211,9 @@ function(input, output, session) {
       session = session,
       inputId = "year",
       choices = year_options,
-      selected = 2025)
+      selected = 2024)
     
-    year$ok <- as.character(2025)
+    year$ok <- as.character(2024)
     
     
   })

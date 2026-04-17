@@ -602,16 +602,16 @@ observeEvent(c(city$city_code), {
       
       # print(file)
       
-      should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
-        
+      should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon|allhwys_latlon", i)) {
+
         FALSE
-        
+
       } else {TRUE}
-      
+
       if (i == "") {
       # if (i == "block_densities_latlon") {
-        
-        
+
+
         map = map %>% leafem::addFgb(file = file,
                                      group = overlay_group,
                                      color = "black",
@@ -928,15 +928,15 @@ observeEvent(c(indicator$mode, input$year), {
       
       # print(file)
       
-      should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon", i)) {
-        
+      should_fill <- if(grepl("_lines|protectedbike_latlon|allbike_latlon|allhwys_latlon", i)) {
+
         FALSE
-        
+
       } else {TRUE}
-      
+
       if (i == "") {
       # if (i == "block_densities_latlon") {
-        
+
         map = map %>% leafem::addFgb(file = file,
                                      group = overlay_group,
                                      # color = "#00AE42",
