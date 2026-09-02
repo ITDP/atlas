@@ -162,6 +162,12 @@ purrr::walk(cities_available, prep_overlays1, year = 2025)
 # results <- purrr::map(cities_available, possibly(prep_overlays1, otherwise = "erro"), year = 2025)
 
 purrr::walk(c("05472", "01156"), prep_overlays1, year = 2025)
+prep_overlays1("01289", 2023)  # LAGOS
+prep_overlays1("01289", 2024)  # LAGOS
+prep_overlays1("01289", 2025)  # LAGOS
+prep_overlays1("02878", 2023)  # paris
+prep_overlays1("02878", 2024)  # paris
+prep_overlays1("02878", 2025)  # paris
 
 
 # we need to make sure that all overlays are included here, even if they are not available
@@ -332,7 +338,8 @@ cities_available <- unique(indicators_all$hdc)
 
 results <- purrr::map(cities_available, possibly(prep_overlays_pnrt, otherwise = "erro"))
 
-
+prep_overlays_pnrt("01289")  # LAGOS
+prep_overlays_pnrt("02878")  # paris
 
 
 

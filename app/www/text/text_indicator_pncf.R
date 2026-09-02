@@ -32,7 +32,7 @@ p3 <- c(
 '<div class = "title_indicator_label2">Policy Recommendations</div>',
 '<div class = "text_indicator2">',
 '<ul>',
-'<li><strong>Make space for people</strong> to relax and play by creating <a target="_blank" href="https://wriciudades.org/sites/default/files/pocket_parks.pdf">pocket parks</a> on vacant lots and converting street parking to ‘<a target="_blank" href="https://www.itdp.org/2014/05/09/reclaiming-the-city-one-space-at-a-time/">parklets</a>.” ',
+'<li><strong>Make space for people</strong> to relax and play by creating pocket parks on vacant lots and converting street parking to ‘<a target="_blank" href="https://www.itdp.org/2014/05/09/reclaiming-the-city-one-space-at-a-time/">parklets</a>.” ',
 '<li><strong>Open streets</strong> by converting them to <a target="_blank" href="https://www.weforum.org/agenda/2019/10/car-free-streets-benefits-around-the-world/">car-free areas</a>.',
 '<li><strong>Encourage new uses of existing public spaces.</strong> For example, schoolyards can be opened to the public after hours.',
 '<li><strong>Build spaces <a target="_blank" href="https://90ffb89e-d990-4f1a-90f3-7974ef8ea8c5.filesusr.com/ugd/534edb_67a4d41d9f9e4e5f80ef259bd60fd7d8.pdf">designed for play</a> into neighborhoods.</strong>',

@@ -15,7 +15,7 @@ sprintf('<p>In %s, %s had an average of %s blocks per square kilometer. %s</p>',
         ifelse(is.null(rank$admin_level), "This measurement includes all urban agglomerations with a population of more than 500,000.", "")
         ), 
 
-'<p><a href="https://staging.unhabitat.org/downloads/docs/StreetPatterns.pdf">Small blocks</a> make a neighborhood walkable by letting people take the most direct route to their destination, combine trips more easily, or choose the most pleasant route. In cities with smaller blocks, cars must move more slowly, increasing pedestrian safety. </p>',
+'<p>Small blocks make a neighborhood walkable by letting people take the most direct route to their destination, combine trips more easily, or choose the most pleasant route. In cities with smaller blocks, cars must move more slowly, increasing pedestrian safety. </p>',
 '<p>Small blocks are <a href="https://www.researchgate.net/publication/318029894_Does_block_size_matter_The_impact_of_urban_design_on_economic_vitality_for_Chinese_cities">economically beneficial</a> because they create more locations, and therefore opportunities, for exchange and business. </p>'
 )
 

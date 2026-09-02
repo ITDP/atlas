@@ -21,7 +21,7 @@ sprintf('<p>In %s at the end of %s, %s%% of urban residents lived at least 500m 
 # style(format_indicator_value)),
 '<p>Grade-separated highways, also known as freeways or expressways, are especially bad because they move the highest volumes of cars at the greatest speeds, with the fewest opportunities for pedestrians to cross. They also attract cars from other areas, increasing the danger from traffic. Finally, when approaching or exiting highways, drivers often drive faster, increasing traffic danger for people living in those areas.</p>',
 '<p>High volumes of vehicle traffic on highways also generate high levels of air pollution, and areas within <a href="https://www.lung.org/clean-air/outdoors/who-is-at-risk/highways">500m</a> of a highway suffer the most harm. Highway traffic also exposes people to high levels of <a href="https://hms.harvard.edu/magazine/viral-world/effects-noise-health">noise pollution</a>, the second-most-harmful type of environmental pollution for human health. Finally, highways form barriers between neighborhoods, increasing risk when moving between them.</p>',
-'<p>Although a shift to electric cars will lessen some of these problems and EVs are an important tool in combating climate change, highways will still contribute to noise and <a href="https://www.greencarcongress.com/2020/03/20200308-emissionsanalytics.html">air pollution</a> –– and high-speed traffic is no less dangerous to humans.</p>'
+'<p>Although a shift to electric cars will lessen some of these problems and EVs are an important tool in combating climate change, highways will still contribute to noise and air pollution –– and high-speed traffic is no less dangerous to humans.</p>'
 )
 
         
