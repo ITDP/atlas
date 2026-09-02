@@ -7,7 +7,8 @@ variables <- reactiveValues(indicator = NULL)
 
 
 observeEvent(c(indicator$mode), {
-  
-  variables$indicator <- c(variables$indicator, indicator$mode)
-  
+
+  # only the last two values are ever used (see src/ranks.R), so cap growth
+  variables$indicator <- tail(c(variables$indicator, indicator$mode), 2)
+
 })

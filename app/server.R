@@ -31,16 +31,6 @@ list_city <- structure(c(ind_city$indicator_code),
 function(input, output, session) {
   
   
-  debug_msg <- function(...) {
-    is_local <- Sys.getenv('SHINY_PORT') == ""
-    in_shiny <- !is.null(shiny::getDefaultReactiveDomain())
-    txt <- toString(list(...))
-    # if (is_local) message(txt)
-    # if (in_shiny) shinyjs::runjs(sprintf("console.debug(\"%s\")", txt))
-    message(txt)
-    shinyjs::runjs(sprintf("console.debug(\"%s\")", txt))
-  }
-  
   #Keep App alive
   # https://stackoverflow.com/questions/63739812/why-does-a-shiny-app-get-disconnected-when-not-used-for-a-while
   keep_alive <- shiny::reactiveTimer(intervalMs = 10000, 
@@ -568,7 +558,7 @@ function(input, output, session) {
   output$indicator <- reactive({
     indicator$mode == ""
   })
-  outputOptions(output, "city", suspendWhenHidden = FALSE)
+  outputOptions(output, "indicator", suspendWhenHidden = FALSE)
   
   output$admin_level <- reactive({
     rank$admin_level > 1
@@ -581,17 +571,19 @@ function(input, output, session) {
   output$download_button <- renderUI({
     
     
+    format_indicator_name <- ""
     if (!is.null(indicator$mode)) {
-      
+
       format_indicator_name <- subset(list_indicators, indicator_code == indicator$mode)$indicator_name
-      
+
     }
-    
-    
+
+
+    city_name <- ""
     if (!is.null(city$city_code)) {
-      
+
       city_name <- unique(subset(list_availability, hdc == city$city_code)$name)
-      
+
     }
     
     

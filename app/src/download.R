@@ -107,7 +107,7 @@ output$downloadData_countries_csv <- downloadHandler(
     
     colnames(a) <- fix_colnames(colnames(a))
     
-    write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE, sep = ",")
+    write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE)
     
   }
   
@@ -222,7 +222,7 @@ output$downloadData_cities_csv <- downloadHandler(
     colnames(a) <- fix_colnames(colnames(a))
     
     
-    write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE, sep = ",")
+    write.csv(sf::st_set_geometry(a, NULL), file, row.names = FALSE)
     
   }
   
@@ -264,7 +264,7 @@ output$downloadData1_csv <- downloadHandler(
   },
   content = function(file) {
     
-    write.csv(sf::st_set_geometry(data_ind2(), NULL), file, row.names = FALSE, sep = ",")
+    write.csv(sf::st_set_geometry(data_ind2(), NULL), file, row.names = FALSE)
     
   }
   

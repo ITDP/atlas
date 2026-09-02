@@ -56,8 +56,14 @@ output$map <- renderLeaflet({
   # https://stackoverflow.com/questions/70286037/r-leaflet-how-to-bind-a-client-side-event-to-a-polygon
   
   map <- leaflet(data = atlas_city_markers, options = leafletOptions(zoomControl = FALSE)) %>%
-    addProviderTiles(providers$CartoDB.DarkMatter, group = "Dark") %>%
-    addProviderTiles(providers$CartoDB.Positron, group = "Light", layerId = "epa") %>%
+    addTiles(urlTemplate = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_2t55_1_3acec6420ab26ecfb00e1a59",
+             group = "Dark",
+             options = tileOptions(subdomains = "abcd", maxZoom = 20,
+                                    attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>')) %>%
+    addTiles(urlTemplate = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2t55_1_3acec6420ab26ecfb00e1a59",
+             group = "Light", layerId = "epa",
+             options = tileOptions(subdomains = "abcd", maxZoom = 20,
+                                    attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>')) %>%
     addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
     addCircleMarkers(
       # radius = ~ifelse(type == "ship", 6, 10),
@@ -478,9 +484,7 @@ observeEvent(c(city$city_code), {
     addMapPane("Frequent transport stops", zIndex = 425)
   
   # remove groups
-  for(i in 1:length(overlay_table$overlay_group)){
-    map = map %>% clearGroup(overlay_table$overlay_group)
-  }
+  map <- map %>% clearGroup(overlay_table$overlay_group)
   
   map <- map %>%
     # add the city markers without the one selected
@@ -867,9 +871,7 @@ observeEvent(c(indicator$mode, input$year), {
     removeLayersControl()
   
   # remove groups
-  for(i in 1:length(overlay_table$overlay_group)){
-    map = map %>% clearGroup(overlay_table$overlay_group)
-  }
+  map <- map %>% clearGroup(overlay_table$overlay_group)
   
   
   
