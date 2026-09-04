@@ -34,7 +34,7 @@ p3 <- c(
 '<div class = "text_indicator2">',
 '<ul>',
 '<li><strong><strong>Set a citywide goal of having all blocks below a certain size</strong>. The size may vary between cities, but 12,000m<sup>2 </sup>(i.e., 110m x 110m) is an adequate target.',
-'<li><strong><a target="_blank" href="https://ovacen.com/wp-content/uploads/2015/04/espacios-urbanos-y-paisajes.pdf">Plan for a dense street network</a></strong> by laying out a citywide network of streets and walkways with small blocks both beyond existing city limits and within the built-up area, and implement this network alongside any subdivision of property for development.',
+'<li><strong><a target="_blank" href="https://ovacen.com/wp-content/uploads/2015/04/espacios-urbanos-y-paisajes.pdf">Plan for a dense street network</a></strong> by laying out a citywide network of streets and walkways with <a href="https://unhabitat.org/sites/default/files/2020/08/streets_as_public_spaces_and_drivers_of_urban_prosperity.pdf">Small blocks</a> both beyond existing city limits and within the built-up area, and implement this network alongside any subdivision of property for development.',
 '<li><strong>As neighborhoods redevelop, use a local planning process</strong> to allow small streets or pedestrian/bicycle paths to cut through existing blocks.',
 '<li><strong>Enhance existing shortcuts</strong> used by the community, such as small streets, alleys, and stairs. Ensure that they can be effective parts of the pedestrian network by making them attractive, well lit, and safe.'
 )

@@ -39,7 +39,7 @@ p3 <- c(
 '<ul>',
 '<li><strong>Use zoning to permit or promote mixed land uses</strong>.',
 '<li><strong>Adopt citywide goals and policies</strong> to provide daily amenities within walking distance of all residents.',
-'<li><strong>Encourage or support <a href="https://itdpdotorg.wpengine.com/wp-content/uploads/2015/09/Densify_ITDP.pdf">high-density</a></strong> urban development so more people can live within 1km of a service. ',
+'<li><strong>Encourage or support <a href="https://cyclingcities.itdp.org/resources.html">high-density</a></strong> urban development so more people can live within 1km of a service. ',
 '<li><strong>Co-locate social services and amenities of different kinds </strong>so that people can access daily needs on the same trip, as described in the <a href="https://vanleerfoundation.org/publications-reports/urban95-starter-kit/">Urban95 Starter Kit</a>. Develop plans that address the specific problems faced by caregivers that limit their <a href="https://www.brookings.edu/wp-content/uploads/2021/12/City-playbook_Bogota.pdf">political and economic participation</a>, such as <a href="https://oecd-opsi.org/innovations/bogota-care-blocks/#:~:text=The%20Care%20Blocks%20aim%20to,can%20pursue%20personal%20development%20activities.">Bogotá, Colombia’s Blocks of Care</a>.',
 '<li><strong>Encourage new uses of existing public spaces, </strong>such as municipal healthcare pavilions.',
 '<li><strong>Promote smaller but more dispersed service options,</strong> like vegetable stands or mobile healthcare stations.',
